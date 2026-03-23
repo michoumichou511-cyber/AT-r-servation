@@ -25,3 +25,11 @@ dist/
 .windsurf/
 skills-lock.json
 
+# Git imbriqué (évite de traiter backend/ comme un sous-module)
+backend/.git/
+backend/**/.git/
+
+# Git temporaire (interne au push, ne pas versionner)
+backend/.git_temp/
+backend/**/.git_temp/
+
