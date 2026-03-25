@@ -2,9 +2,10 @@ FROM php:8.2-cli
 
 # System deps + PHP extensions required by project (maatwebsite/excel -> phpspreadsheet -> gd)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  git unzip \
+  git unzip pkg-config \
   libpng-dev libjpeg-dev libfreetype6-dev \
   libzip-dev \
+  libpq-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j"$(nproc)" gd pdo pdo_pgsql zip \
   && rm -rf /var/lib/apt/lists/*
