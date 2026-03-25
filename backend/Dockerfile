@@ -23,5 +23,12 @@ COPY . .
 RUN composer dump-autoload --optimize \
   && php artisan package:discover --ansi
 
-# Railway injecte PORT — le serveur intégré de PHP est plus fiable que `artisan serve` dans Docker
-CMD ["/bin/sh", "-c", "exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php"]
+# Répertoires runtime Laravel (évite erreurs silencieuses au premier hit)
+RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+  && chmod -R ug+rwX storage bootstrap/cache
+
+COPY scripts/railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
+RUN chmod +x /usr/local/bin/railway-entrypoint.sh
+
+# Railway injecte PORT — PHP built-in server (document root public/)
+CMD ["/usr/local/bin/railway-entrypoint.sh"]

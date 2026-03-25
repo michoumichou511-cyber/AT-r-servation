@@ -1,5 +1,6 @@
-# Railway : healthcheck minimal Laravel (bootstrap/app.php → health: '/up')
-# Si tu gardes /api/health dans le dashboard, retirer healthcheckPath ici ou l’aligner.
+# Healthcheck statique : aucun bootstrap Laravel (diagnostique si /up ou /api/health échouent).
+# startCommand explicite : évite un « Custom Start Command » vide ou erroné dans le dashboard.
 [deploy]
-healthcheckPath = "/up"
+startCommand = "/usr/local/bin/railway-entrypoint.sh"
+healthcheckPath = "/railway-health.php"
 healthcheckTimeout = 300
