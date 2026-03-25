@@ -218,7 +218,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     return (
       <div className="at-card-surface p-6">
         <div className="text-sm font-semibold text-red-700 mb-2">Mission introuvable</div>
-        <div className="text-sm text-gray-600 mb-4">
+        <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">
           Créez d’abord la mission à l’étape 1.
         </div>
         <Button variant="outline" onClick={onPrev}>
@@ -232,8 +232,8 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
       <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 mb-2">Réservations</h3>
-          <p className="text-sm text-gray-400">Billets, hébergements et restauration pour la mission.</p>
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Réservations</h3>
+          <p className="text-sm text-gray-400 dark:text-gray-400">Billets, hébergements et restauration pour la mission.</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge status="actif" label={`${reservationsCount} réservation(s)`} />
@@ -241,9 +241,9 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
-          <div className="text-sm font-semibold text-red-800 mb-1">Erreur</div>
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
+          <div className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">Erreur</div>
+          <div className="text-sm text-red-700 dark:text-red-200/90">{error}</div>
         </div>
       )}
 
@@ -251,7 +251,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
         <div className="lg:col-span-2">
           <div className="at-card-surface p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-800">Ajouter</div>
+              <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Ajouter</div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -264,11 +264,11 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-xs font-semibold text-gray-500 mb-2">Type</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type</label>
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
-                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               >
                 {TYPE_OPTIONS.map((o) => (
@@ -278,12 +278,12 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                 ))}
               </select>
 
-              <label className="block text-xs font-semibold text-gray-500 mb-2">Prestataire (optionnel)</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Prestataire (optionnel)</label>
               <select
                 value={formPrestId}
                 onChange={(e) => setFormPrestId(e.target.value)}
                 disabled={prestLoading}
-                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green disabled:opacity-60"
               >
                 <option value="">Aucun</option>
@@ -294,7 +294,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                 ))}
               </select>
 
-              {prestError && <div className="text-xs text-gray-500">Prestataires: {prestError}</div>}
+              {prestError && <div className="text-xs text-gray-500 dark:text-gray-400">Prestataires: {prestError}</div>}
 
               <Input
                 label="Montant estimé (DA)"
@@ -305,13 +305,13 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
               />
 
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-2">Notes (optionnel)</label>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Notes (optionnel)</label>
                 <textarea
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="Détails / justification"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                              focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
                 />
               </div>

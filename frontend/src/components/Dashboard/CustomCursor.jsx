@@ -10,11 +10,11 @@ export default function CustomCursor() {
   const visibleRef = useRef(false)
   const x = useMotionValue(-100)
   const y = useMotionValue(-100)
-  /** Ressorts légèrement assouplis : même rendu, un peu moins de travail par frame */
-  const sx = useSpring(x, { stiffness: 480, damping: 36, mass: 0.42 })
-  const sy = useSpring(y, { stiffness: 480, damping: 36, mass: 0.42 })
-  const rx = useSpring(x, { stiffness: 210, damping: 30, mass: 0.62 })
-  const ry = useSpring(y, { stiffness: 210, damping: 30, mass: 0.62 })
+  /** Ressorts raides pour réponse instantanée, moins de lag perceptible */
+  const sx = useSpring(x, { stiffness: 1200, damping: 50, mass: 0.15 })
+  const sy = useSpring(y, { stiffness: 1200, damping: 50, mass: 0.15 })
+  const rx = useSpring(x, { stiffness: 400, damping: 35, mass: 0.2 })
+  const ry = useSpring(y, { stiffness: 400, damping: 35, mass: 0.2 })
 
   const pending = useRef({ x: -100, y: -100 })
   const rafId = useRef(0)

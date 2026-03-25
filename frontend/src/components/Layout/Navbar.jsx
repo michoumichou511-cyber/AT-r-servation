@@ -122,7 +122,7 @@ export default function Navbar({ onMenuClick }) {
         >
           <Menu size={20} />
         </button>
-        <h1 className="font-semibold text-gray-800 text-base hidden sm:block">{titre}</h1>
+        <h1 className="font-semibold text-gray-800 dark:text-[#E8EAF0] text-base hidden sm:block">{titre}</h1>
       </div>
 
       {/* DROITE */}

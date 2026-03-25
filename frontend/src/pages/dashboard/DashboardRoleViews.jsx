@@ -10,15 +10,15 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell,
 } from 'recharts'
-import FloatingBubbles from '../../components/Common/FloatingBubbles'
 import GlassCard from '../../components/Dashboard/GlassCard'
+import ParticleBackground from '../../components/Dashboard/ParticleBackground'
+import WelcomeHeader from '../../components/Dashboard/WelcomeHeader'
+import NotificationCard from '../../components/Dashboard/NotificationCard'
 
 const CARD_DARK = {
   background: 'rgba(26, 29, 46, 0.8)',
   border: '1px solid #2A2D3E',
 }
-
-const springSoft = { type: 'spring', stiffness: 280, damping: 32 }
 
 const DEFAULT_EVOLUTION = [
   { mois: 'Jan', current: 5, previous: 3 },
@@ -75,6 +75,7 @@ export function DashboardAdmin({
   graphDir,
   darkMode,
   dashboardLite,
+  displayName = 'Admin',
   KPICard,
   BudgetCard,
   ValidationsCard,
@@ -107,44 +108,21 @@ export function DashboardAdmin({
   const chartAnimBar = dashboardLite ? 0 : 700
   const chartAnimOn = !dashboardLite
 
-  const dateStr = new Date().toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
       style={{ paddingTop: 16 }}
     >
-      <FloatingBubbles count={12} />
+      {!dashboardLite && (
+        <ParticleBackground isDarkMode={!!darkMode} />
+      )}
 
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springSoft}
-        className="relative z-[1] mb-7"
-      >
-        <GlassCard darkMode={!!darkMode} className="p-5 sm:p-6">
-          <h1 className="m-0 text-[26px] font-bold tracking-tight text-[#1A1D26] dark:text-[#E8EAF0] sm:text-[28px]">
-            Bonjour
-            {' '}
-            <motion.span
-              aria-hidden
-              className="inline-block origin-[70%_70%]"
-              animate={{ rotate: [0, 14, -8, 14, 0] }}
-              transition={{ duration: 1.8, delay: 0.6, ease: 'easeInOut' }}
-            >
-              👋
-            </motion.span>
-          </h1>
-          <p className="mt-1 text-[13px] capitalize text-[#9AA0AE] dark:text-[#8B92A8]">
-            {dateStr}
-          </p>
-        </GlassCard>
-      </motion.div>
+      <div className="relative z-[1]">
+        <WelcomeHeader
+          name={displayName}
+          isDarkMode={!!darkMode}
+        />
+      </div>
 
       {alertes.length > 0 && (
         <div className="relative z-[1] mb-5">
@@ -316,17 +294,13 @@ export function DashboardValidateur({
   missionsEnAttente,
   validations,
   darkMode,
+  dashboardLite = false,
+  displayName = 'Validateur',
   KPICard,
   MissionsRecentes,
   springSoft,
 }) {
   const navigate = useNavigate()
-  const dateStr = new Date().toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
 
   const aValider = Number(validations?.en_attente ?? 0) || 0
   const urgentes = Number(validations?.urgentes ?? 0) || 0
@@ -337,35 +311,19 @@ export function DashboardValidateur({
 
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
       style={{ paddingTop: 16 }}
     >
-      <FloatingBubbles count={12} />
+      {!dashboardLite && (
+        <ParticleBackground isDarkMode={!!darkMode} />
+      )}
 
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springSoft}
-        className="relative z-[1] mb-7"
-      >
-        <GlassCard darkMode={!!darkMode} className="p-5 sm:p-6">
-          <h1 className="m-0 text-[26px] font-bold tracking-tight text-[#1A1D26] dark:text-[#E8EAF0] sm:text-[28px]">
-            Bonjour
-            {' '}
-            <motion.span
-              aria-hidden
-              className="inline-block origin-[70%_70%]"
-              animate={{ rotate: [0, 14, -8, 14, 0] }}
-              transition={{ duration: 1.8, delay: 0.6, ease: 'easeInOut' }}
-            >
-              👋
-            </motion.span>
-          </h1>
-          <p className="mt-1 text-[13px] capitalize text-[#9AA0AE] dark:text-[#8B92A8]">
-            {dateStr}
-          </p>
-        </GlassCard>
-      </motion.div>
+      <div className="relative z-[1]">
+        <WelcomeHeader
+          name={displayName}
+          isDarkMode={!!darkMode}
+        />
+      </div>
 
       <div className="relative z-[1] mb-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-5">
         <KPICard
@@ -490,19 +448,15 @@ export function DashboardUtilisateur({
   missions,
   notifications,
   prenom,
+  displayName,
   isDemandeur,
   darkMode,
+  dashboardLite = false,
   KPICard,
   MissionsRecentes,
-  springSoft,
 }) {
   const navigate = useNavigate()
-  const dateStr = new Date().toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  const name = displayName ?? prenom ?? 'Utilisateur'
 
   const total = Number(stats?.total_missions ?? stats?.mes_missions ?? 0) || 0
   const enCours = Number(stats?.missions_en_cours ?? stats?.en_cours ?? 0) || 0
@@ -515,56 +469,22 @@ export function DashboardUtilisateur({
 
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
       style={{ paddingTop: 16 }}
     >
-      <FloatingBubbles count={12} />
-
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springSoft}
-        className="relative z-[1] mb-7"
-      >
-        <GlassCard darkMode={!!darkMode} className="p-5 sm:p-6">
-          <h1 className="m-0 text-[26px] font-bold tracking-tight text-[#1A1D26] dark:text-[#E8EAF0] sm:text-[28px]">
-            Bonjour
-            {' '}
-            {prenom}
-            {' '}
-            <motion.span
-              aria-hidden
-              className="inline-block origin-[70%_70%]"
-              animate={{ rotate: [0, 14, -8, 14, 0] }}
-              transition={{ duration: 1.8, delay: 0.6, ease: 'easeInOut' }}
-            >
-              👋
-            </motion.span>
-          </h1>
-          <p className="mt-1 text-[13px] capitalize text-[#9AA0AE] dark:text-[#8B92A8]">
-            {dateStr}
-          </p>
-        </GlassCard>
-      </motion.div>
-
-      {isDemandeur && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="relative z-[1] mb-6 flex justify-center"
-        >
-          <motion.button
-            type="button"
-            onClick={() => navigate('/missions/nouvelle')}
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.02 }}
-            className="rounded-2xl bg-gradient-to-r from-[#003DA5] to-[#00A650] px-8 py-4 text-base font-bold text-white shadow-lg shadow-[#003DA5]/30 hover:shadow-xl"
-          >
-            + Nouvelle demande de mission
-          </motion.button>
-        </motion.div>
+      {!dashboardLite && (
+        <ParticleBackground isDarkMode={!!darkMode} />
       )}
+
+      <div className="relative z-[1]">
+        <WelcomeHeader
+          name={name}
+          isDarkMode={!!darkMode}
+          showActionButton={!!isDemandeur}
+          actionButtonText="Nouvelle demande de mission"
+          onActionClick={() => navigate('/missions/nouvelle')}
+        />
+      </div>
 
       <div className="relative z-[1] mb-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-5">
         <KPICard
@@ -606,57 +526,74 @@ export function DashboardUtilisateur({
         />
       </div>
 
+      {/* Actions rapides (style app) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="relative z-[1] mb-6"
+      >
+        <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Actions rapides
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              label: 'Nouvelle demande',
+              color: 'from-[#003DA5] to-[#00A650]',
+              icon: '+',
+              onClick: () => navigate('/missions/nouvelle'),
+            },
+            {
+              label: 'Voir calendrier',
+              color: 'from-[#003DA5] to-[#0ea5e9]',
+              icon: '📅',
+              onClick: () => navigate('/missions'),
+            },
+            {
+              label: 'Messagerie',
+              color: 'from-[#00A650] to-[#10b981]',
+              icon: '💬',
+              onClick: () => navigate('/messagerie'),
+            },
+          ].map((action, index) => (
+            <motion.button
+              key={action.label}
+              type="button"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 + index * 0.1 }}
+              whileHover={{
+                scale: 1.05,
+                y: -5,
+                boxShadow: '0 20px 40px rgba(0,61,165,0.25)',
+              }}
+              whileTap={{ scale: 0.95 }}
+              onClick={action.onClick}
+              className={`p-6 rounded-2xl bg-gradient-to-r ${action.color} text-white font-semibold relative overflow-hidden group`}
+            >
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.5 }}
+              />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <span className="text-2xl">{action.icon}</span>
+                {action.label}
+              </span>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
+
       <div className="relative z-[1] mb-6 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
         <MissionsRecentes missions={missions} darkMode={!!darkMode} />
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springSoft, delay: 0.45 }}
-          className="rounded-[20px] p-6 shadow-sm backdrop-blur-sm dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
-          style={{
-            background: darkMode ? CARD_DARK.background : 'rgba(255,255,255,0.95)',
-            border: darkMode ? CARD_DARK.border : '1px solid rgba(15, 23, 42, 0.06)',
-          }}
-        >
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <span className="text-[15px] font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
-              Notifications récentes
-            </span>
-            <motion.button
-              type="button"
-              onClick={() => navigate('/notifications')}
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.98 }}
-              className="text-[13px] font-medium text-[#003DA5] hover:text-[#00A650] dark:text-[#7AB8FF]"
-            >
-              Voir tout →
-            </motion.button>
-          </div>
-          <div className="flex flex-col gap-2">
-            {notifs.length === 0 ? (
-              <p className="text-sm text-[#9AA0AE] dark:text-[#8B92A8]">
-                Aucune notification récente
-              </p>
-            ) : (
-              notifs.slice(0, 5).map((n, i) => (
-                <motion.div
-                  key={n.id ?? i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08, duration: 0.3 }}
-                  whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,166,80,0.12)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="cursor-pointer rounded-xl px-3 py-2.5 text-[13px] transition-colors hover:bg-[#F8F9FA] dark:hover:bg-white/[0.06]"
-                  onClick={() => navigate('/notifications')}
-                  role="presentation"
-                >
-                  {typeof n === 'object' ? (n.message ?? n.titre ?? n.contenu ?? '—') : String(n)}
-                </motion.div>
-              ))
-            )}
-          </div>
-        </motion.div>
+        <NotificationCard
+          notifications={notifs}
+          isDarkMode={!!darkMode}
+        />
       </div>
     </div>
   )

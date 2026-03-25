@@ -138,16 +138,16 @@ export default function Step4Recap({ missionId, onPrev }) {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
       <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 mb-2">Récapitulatif</h3>
-          <p className="text-sm text-gray-400">Vérifiez les informations avant soumission.</p>
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Récapitulatif</h3>
+          <p className="text-sm text-gray-400 dark:text-gray-400">Vérifiez les informations avant soumission.</p>
         </div>
         {mission?.statut && <Badge status={mission.statut} label={`Statut: ${mission.statut}`} />}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
-          <div className="text-sm font-semibold text-red-800 mb-1">Erreur</div>
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
+          <div className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">Erreur</div>
+          <div className="text-sm text-red-700 dark:text-red-200/90">{error}</div>
         </div>
       )}
 
@@ -164,17 +164,17 @@ export default function Step4Recap({ missionId, onPrev }) {
           <div className="at-card-surface p-4">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div className="min-w-0">
-                <div className="font-mono text-gray-500 text-xs mb-1">
+                <div className="font-mono text-gray-500 dark:text-gray-400 text-xs mb-1">
                   {mission.numero_unique ?? `OM-${missionId}`}
                 </div>
-                <div className="text-gray-900 font-bold text-lg mb-2 truncate">{mission.titre ?? 'Sans titre'}</div>
-                <div className="text-sm text-gray-600 mb-1">
+                <div className="text-gray-900 dark:text-gray-100 font-bold text-lg mb-2 truncate">{mission.titre ?? 'Sans titre'}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
                   Destination: <span className="font-semibold">{mission.destination ?? '—'}</span>
                 </div>
-                <div className="text-sm text-gray-600 mb-1">
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
                   Dates: <span className="font-semibold">{mission.dates?.depart ?? '—'} → {mission.dates?.retour ?? '—'}</span>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Budget prévisionnel: <span className="font-semibold">{mission.budget_previsionnel?.toLocaleString?.('fr-FR') ?? mission.budget_previsionnel} DA</span>
                 </div>
               </div>
@@ -182,10 +182,10 @@ export default function Step4Recap({ missionId, onPrev }) {
               <div className="min-w-[220px]">
                 <div className="bg-at-green/10 border border-at-green/20 rounded-xl p-3">
                   <div className="text-xs font-semibold text-at-green mb-1">Réservations (estimé)</div>
-                  <div className="text-lg font-bold text-gray-900">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {budgetEstimeReservations.toLocaleString('fr-FR')} DA
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">{reservations.length} élément(s)</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{reservations.length} élément(s)</div>
                 </div>
               </div>
             </div>
@@ -194,8 +194,8 @@ export default function Step4Recap({ missionId, onPrev }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-gray-800">Réservations</div>
-                <div className="text-xs text-gray-500">{reservations.length} au total</div>
+                <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Réservations</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{reservations.length} au total</div>
               </div>
               {reservations.length === 0 ? (
                 <EmptyState title="Aucune réservation" subtitle="Ajoutez des réservations à l’étape précédente." />
@@ -214,13 +214,13 @@ export default function Step4Recap({ missionId, onPrev }) {
                           <div className="flex items-center gap-2 mb-1">
                             <Badge status="actif" label={r.type_label ?? r.type} />
                           </div>
-                          <div className="text-sm text-gray-700">
+                          <div className="text-sm text-gray-700 dark:text-gray-200">
                             Montant: <span className="font-semibold">{r.montant_estime ?? '—'}</span>
                           </div>
-                          <div className="text-sm text-gray-700">
+                          <div className="text-sm text-gray-700 dark:text-gray-200">
                             Prestataire: <span className="font-semibold">{r.prestataire?.nom ?? '—'}</span>
                           </div>
-                          {r.notes && <div className="text-sm text-gray-700 mt-2">Notes: {r.notes}</div>}
+                          {r.notes && <div className="text-sm text-gray-700 dark:text-gray-200 mt-2">Notes: {r.notes}</div>}
                         </div>
                         <div className="flex flex-col items-end gap-2">
                           <Badge status={r.statut ?? 'brouillon'} label={r.statut_label ?? r.statut} />
@@ -234,8 +234,8 @@ export default function Step4Recap({ missionId, onPrev }) {
 
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-gray-800">Documents</div>
-                <div className="text-xs text-gray-500">{documents.length} au total</div>
+                <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Documents</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{documents.length} au total</div>
               </div>
               {documents.length === 0 ? (
                 <EmptyState title="Aucun document" subtitle="Vous pourrez en ajouter à l’étape 3." icon={FileText} />
@@ -251,8 +251,8 @@ export default function Step4Recap({ missionId, onPrev }) {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-sm font-semibold text-gray-800 truncate">{d.nom_fichier ?? '—'}</div>
-                          <div className="text-xs text-gray-500 mt-1">{d.type_document ?? 'document'}</div>
+                          <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{d.nom_fichier ?? '—'}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{d.type_document ?? 'document'}</div>
                         </div>
                         <Button size="sm" variant="outline" onClick={() => handleDownload(d.id, d.nom_fichier)}>
                           <Download size={14} /> Télécharger

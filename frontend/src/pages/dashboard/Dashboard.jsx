@@ -1,7 +1,7 @@
 import {
-  useState, useEffect, useRef, useMemo,
+  useState, useEffect, useRef,
 } from 'react'
-import { motion, useInView, useReducedMotion } from 'framer-motion'
+import { motion, useInView, useReducedMotion, AnimatePresence, useSpring, useTransform } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import { dashboardAPI, notificationsAPI, validationsAPI } from '../../services/api'
 import { useNavigate } from 'react-router-dom'
@@ -143,14 +143,11 @@ function CountUpNumber({
   const isInView = useInView(ref, { once: true, margin: '-40px' })
   const [count, setCount] = useState(0)
   const prefersReducedMotion = useReducedMotion()
+  const num = typeof value === 'number' ? value : 0
 
   useEffect(() => {
-    const num = typeof value === 'number' ? value : 0
     if (!isInView) return
-    if (prefersReducedMotion) {
-      setCount(num)
-      return
-    }
+    if (prefersReducedMotion) return
     let start = null
     const duration = 1400
     const step = (timestamp) => {
@@ -166,18 +163,20 @@ function CountUpNumber({
       }
     }
     requestAnimationFrame(step)
-  }, [value, isInView, prefersReducedMotion])
+  }, [value, isInView, prefersReducedMotion, num])
+
+  const display = prefersReducedMotion && isInView ? num : count
 
   return (
     <span ref={ref} className="tabular-nums tracking-tight">
       {prefix}
-      {count.toLocaleString('fr-DZ')}
+      {display.toLocaleString('fr-DZ')}
       {suffix}
     </span>
   )
 }
 
-// ── KPI Card (3D léger + polish dark) ───────
+// ── KPI Card (style app : shimmer, particules, useSpring, icon 360°) ───────
 function KPICard({
   title, value, suffix = '',
   icon: Icon, color = 'primary', delay = 0,
@@ -186,6 +185,16 @@ function KPICard({
   darkMode = false,
 }) {
   const [hovered, setHovered] = useState(false)
+
+  const springValue = useSpring(0, { stiffness: 100, damping: 30 })
+  const displayValue = useTransform(springValue, (latest) =>
+    Math.floor(latest).toLocaleString('fr-DZ'),
+  )
+
+  useEffect(() => {
+    const t = setTimeout(() => springValue.set(typeof value === 'number' ? value : 0), delay * 1000 + 300)
+    return () => clearTimeout(t)
+  }, [value, springValue, delay])
 
   const colorMap = {
     primary: {
@@ -206,103 +215,121 @@ function KPICard({
     },
   }
   const c = colorMap[color] ?? colorMap.primary
-
   const lightBg = KPI_LIGHT_GRADIENT[kpiVariant] ?? KPI_LIGHT_GRADIENT.approuve
-
-  const hover3d = {
-    y: -10,
-    rotateX: 4,
-    rotateY: -4,
-    transition: springSnappy,
-  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24, scale: 0.98 }}
+      initial={{ opacity: 0, y: 30, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ ...springSoft, delay }}
-      whileHover={hover3d}
-      whileTap={{ scale: 0.98 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      className="relative cursor-default overflow-hidden rounded-[20px] p-6 shadow-sm backdrop-blur-[2px] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+      transition={{ delay, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`relative overflow-hidden rounded-[20px] p-6 backdrop-blur-xl cursor-pointer group ${
+        darkMode
+          ? 'bg-white/5 border border-white/10'
+          : 'bg-white border border-gray-200'
+      }`}
       style={{
-        transformStyle: 'preserve-3d',
-        perspective: '1000px',
         background: darkMode ? CARD_DARK.background : lightBg,
         border: darkMode ? CARD_DARK.border : '1px solid rgba(15, 23, 42, 0.06)',
-        boxShadow: hovered
-          ? `0 22px 44px -14px ${c.text}35`
-          : undefined,
+      }}
+      whileHover={{
+        y: -8,
+        scale: 1.02,
+        transition: { type: 'spring', stiffness: 400 },
       }}
     >
+      {/* Shimmer sweep */}
       <motion.div
-        className="absolute inset-0"
-        animate={{ opacity: hovered ? 0.07 : 0 }}
+        className="absolute inset-0 -translate-x-full"
+        animate={hovered ? { translateX: '200%' } : { translateX: '-100%' }}
+        transition={{ duration: 0.8, ease: 'easeInOut' }}
         style={{
-          background: `linear-gradient(135deg,
-            ${COLORS.secondary}, ${COLORS.primary})`,
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
         }}
       />
 
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-[3px] origin-left"
-        animate={{ scaleX: hovered ? 1 : 0 }}
-        transition={springSnappy}
-        style={{
-          background: `linear-gradient(90deg,
-            ${COLORS.secondary}, ${COLORS.primary})`,
-        }}
-      />
+      {/* Floating particles */}
+      {hovered && (
+        <>
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{ backgroundColor: c.text }}
+              initial={{ x: (i * 67) % 200, y: 100, opacity: 0, scale: 0 }}
+              animate={{
+                y: -20,
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+              }}
+              transition={{ duration: 1.5, delay: i * 0.2, repeat: Infinity }}
+            />
+          ))}
+        </>
+      )}
 
       <div className="relative z-[1]">
         <div className="mb-4 flex items-start justify-between">
           <motion.div
             className={`flex h-12 w-12 items-center justify-center rounded-xl ${c.light}`}
+            style={{ backgroundColor: `${c.text}20` }}
             animate={{
-              rotate: hovered ? 8 : 0,
-              scale: hovered ? 1.08 : 1,
+              rotate: hovered ? [0, -10, 10, 0] : 0,
+              scale: hovered ? 1.1 : 1,
             }}
-            transition={springSnappy}
+            transition={{ duration: 0.5 }}
           >
-            <Icon size={22} color={c.text} />
+            <motion.div
+              style={{ color: c.text }}
+              animate={{ rotate: hovered ? 360 : 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Icon size={22} color={c.text} />
+            </motion.div>
           </motion.div>
 
           {trend && (
-            <div
+            <motion.div
               className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${
                 trend === 'up'
                   ? 'bg-[#E6F7EE] text-[#00A650] dark:bg-[#00A650]/20 dark:text-[#4ADE80]'
                   : 'bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-300'
               }`}
+              animate={{ scale: hovered ? 1.2 : 1 }}
             >
-              {trend === 'up'
-                ? <TrendingUp size={12} />
-                : <TrendingDown size={12} />}
+              {trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
               {trendValue}
-            </div>
+            </motion.div>
           )}
         </div>
 
-        <div className="mb-1.5 text-[clamp(1.5rem,4vw,2rem)] font-bold leading-none text-[#1A1D26] dark:text-[#E8EAF0]">
-          <CountUpNumber
-            value={value}
-            suffix={suffix}
-          />
+        <div className="mb-1.5 flex items-baseline gap-1">
+          <motion.span
+            className="text-[clamp(1.5rem,4vw,2rem)] font-bold leading-none tabular-nums text-[#1A1D26] dark:text-[#E8EAF0]"
+          >
+            <motion.span>{displayValue}</motion.span>
+          </motion.span>
+          {suffix && (
+            <span className="text-lg font-medium text-[#9AA0AE] dark:text-white/60">
+              {suffix}
+            </span>
+          )}
         </div>
         <div className="text-[13px] text-[#9AA0AE] dark:text-[#8B92A8]">
           {title}
         </div>
       </div>
 
+      {/* Corner orb */}
       <motion.div
-        className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full blur-2xl"
+        className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full opacity-10"
+        style={{ backgroundColor: c.text }}
         animate={{
           scale: hovered ? 1.5 : 1,
-          opacity: hovered ? 0.14 : 0,
+          opacity: hovered ? 0.2 : 0.1,
         }}
-        transition={springSoft}
-        style={{ background: c.text }}
+        transition={{ duration: 0.5 }}
       />
     </motion.div>
   )
@@ -335,9 +362,13 @@ function BudgetCard({
       }}
     >
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#E6EDF8] dark:bg-[#003DA5]/30">
+        <motion.div
+          className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#E6EDF8] dark:bg-[#003DA5]/30"
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
           <Wallet size={18} className="text-[#003DA5] dark:text-[#7AB8FF]" />
-        </div>
+        </motion.div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
             Budget missions 2026
@@ -438,9 +469,13 @@ function ValidationsCard({
     >
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#FFF7ED] dark:bg-amber-950/40">
+          <motion.div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#FFF7ED] dark:bg-amber-950/40"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Clock size={18} className="text-amber-500" />
-          </div>
+          </motion.div>
           <div className="text-[13px] font-medium text-[#5A6070] dark:text-[#A8B0C4]">
             En attente validation
           </div>
@@ -560,7 +595,7 @@ function MissionsRecentes({
             <motion.div
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] shadow-inner"
               style={{ background: statusColors[m.statut] ?? '#94A3B8' }}
-              whileHover={{ rotate: [0, -6, 6, 0] }}
+              whileHover={{ scale: 1.1, rotate: [0, -6, 6, 0] }}
               transition={{ duration: 0.45 }}
             >
               <Plane size={16} className="text-white" />
@@ -627,6 +662,15 @@ export default function Dashboard() {
   const isDemandeur = hasRole('demandeur')
 
   const prenom = user?.prenom ?? user?.nom ?? 'Utilisateur'
+  const displayName = user?.prenom ?? (typeof user?.nom === 'string' ? user.nom.split(' ')[0] : null) ?? 'Utilisateur'
+
+  const dashboardViewKey = isAdmin
+    ? 'admin'
+    : isValidateur
+      ? 'validateur'
+      : isDemandeur
+        ? 'demandeur'
+        : 'utilisateur'
 
   useEffect(() => {
     const load = async () => {
@@ -747,53 +791,89 @@ export default function Dashboard() {
 
   if (loading) return <DashboardSkeleton />
 
+  const transitionMain = { duration: 0.45, ease: [0.4, 0, 0.2, 1] }
+
   if (isAdmin) {
     return (
-      <DashboardAdmin
-        stats={stats}
-        missions={missions}
-        alertes={alertes}
-        validations={validations}
-        budget={budget}
-        graphMois={graphMois}
-        graphDir={graphDir}
-        darkMode={!!darkMode}
-        dashboardLite={dashboardLite}
-        KPICard={KPICard}
-        BudgetCard={BudgetCard}
-        ValidationsCard={ValidationsCard}
-        MissionsRecentes={MissionsRecentes}
-        springSoft={springSoft}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={dashboardViewKey}
+          initial={{ opacity: 0, y: 20, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -16, scale: 0.985 }}
+          transition={transitionMain}
+        >
+          <DashboardAdmin
+            stats={stats}
+            missions={missions}
+            alertes={alertes}
+            validations={validations}
+            budget={budget}
+            graphMois={graphMois}
+            graphDir={graphDir}
+            darkMode={!!darkMode}
+            dashboardLite={dashboardLite}
+            displayName={displayName}
+            KPICard={KPICard}
+            BudgetCard={BudgetCard}
+            ValidationsCard={ValidationsCard}
+            MissionsRecentes={MissionsRecentes}
+            springSoft={springSoft}
+          />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 
   if (isValidateur) {
     return (
-      <DashboardValidateur
-        stats={stats}
-        missions={missions}
-        missionsEnAttente={missionsEnAttente}
-        validations={validations}
-        darkMode={!!darkMode}
-        KPICard={KPICard}
-        MissionsRecentes={MissionsRecentes}
-        springSoft={springSoft}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={dashboardViewKey}
+          initial={{ opacity: 0, y: 20, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -16, scale: 0.985 }}
+          transition={transitionMain}
+        >
+          <DashboardValidateur
+            stats={stats}
+            missions={missions}
+            missionsEnAttente={missionsEnAttente}
+            validations={validations}
+            darkMode={!!darkMode}
+            dashboardLite={dashboardLite}
+            displayName={displayName}
+            KPICard={KPICard}
+            MissionsRecentes={MissionsRecentes}
+            springSoft={springSoft}
+          />
+        </motion.div>
+      </AnimatePresence>
     )
   }
 
   return (
-    <DashboardUtilisateur
-      stats={stats}
-      missions={missions}
-      notifications={notifications}
-      prenom={prenom}
-      isDemandeur={isDemandeur}
-      darkMode={!!darkMode}
-      KPICard={KPICard}
-      MissionsRecentes={MissionsRecentes}
-      springSoft={springSoft}
-    />
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={dashboardViewKey}
+        initial={{ opacity: 0, y: 20, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -16, scale: 0.985 }}
+        transition={transitionMain}
+      >
+        <DashboardUtilisateur
+          stats={stats}
+          missions={missions}
+          notifications={notifications}
+          prenom={prenom}
+          displayName={displayName}
+          isDemandeur={isDemandeur}
+          darkMode={!!darkMode}
+          dashboardLite={dashboardLite}
+          KPICard={KPICard}
+          MissionsRecentes={MissionsRecentes}
+        />
+      </motion.div>
+    </AnimatePresence>
   )
 }

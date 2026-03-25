@@ -116,8 +116,8 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
     >
       <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 mb-2">Informations générales</h3>
-          <p className="text-sm text-gray-400">
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Informations générales</h3>
+          <p className="text-sm text-gray-400 dark:text-gray-400">
             {missionId ? 'Mise à jour de la mission (brouillon)' : 'Créez votre mission (brouillon)'}.
           </p>
         </div>
@@ -127,9 +127,9 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
       </div>
 
       {(error || localError) && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
-          <div className="text-sm text-red-800 font-semibold mb-1">Erreur</div>
-          <div className="text-sm text-red-700">{localError || error}</div>
+        <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
+          <div className="text-sm text-red-800 dark:text-red-200 font-semibold mb-1">Erreur</div>
+          <div className="text-sm text-red-700 dark:text-red-200/90">{localError || error}</div>
         </div>
       )}
 
@@ -171,32 +171,32 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Date de départ</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de départ</label>
             <input
               type="date"
               value={form.date_depart}
               onChange={(e) => setForm((f) => ({ ...f, date_depart: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Date de retour</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de retour</label>
             <input
               type="date"
               value={form.date_retour}
               onChange={(e) => setForm((f) => ({ ...f, date_retour: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Type de mission</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type de mission</label>
             <select
               value={form.type_mission}
               onChange={(e) => setForm((f) => ({ ...f, type_mission: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               {TYPE_MISSION_OPTIONS.map((o) => (
@@ -208,11 +208,11 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Priorité (optionnel)</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Priorité (optionnel)</label>
             <select
               value={form.priorite}
               onChange={(e) => setForm((f) => ({ ...f, priorite: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               {PRIORITE_OPTIONS.map((o) => (
@@ -234,13 +234,13 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Description (optionnel)</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Description (optionnel)</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="Détails complémentaires"
               rows={4}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
             />
           </div>

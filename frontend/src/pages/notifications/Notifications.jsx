@@ -204,7 +204,6 @@ export default function Notifications() {
                         ? 'border-l-[3px] border-l-[#00A650] bg-[#F0FDF4]/80 dark:bg-[#00A650]/10'
                         : 'border-l-[3px] border-l-transparent',
                     ].join(' ')}
-                    whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
                   >
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { motion, motionValue } from 'framer-motion'
 
 const GREEN = '#00A650'
@@ -28,8 +28,8 @@ const BALLOONS = Array.from({ length: 6 }, (_, i) => {
  */
 export default function MiniBalloons() {
   const containerRef = useRef(null)
-  const repX = useRef(BALLOONS.map(() => motionValue(0))).current
-  const repY = useRef(BALLOONS.map(() => motionValue(0))).current
+  const repX = useMemo(() => BALLOONS.map(() => motionValue(0)), [])
+  const repY = useMemo(() => BALLOONS.map(() => motionValue(0)), [])
   const mouseRef = useRef({ x: null, y: null })
   const loopId = useRef(0)
   const needsFrameRef = useRef(false)

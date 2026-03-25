@@ -3,15 +3,18 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ErrorBoundary from '../Common/ErrorBoundary'
 import FloatingBubbles from '../Common/FloatingBubbles'
+import CustomCursor from '../Dashboard/CustomCursor'
 import Sidebar from './Sidebar'
 import Navbar  from './Navbar'
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+  const isDashboard = location.pathname === '/'
 
   return (
-    <div className="flex h-screen bg-[#F4F6FA] dark:bg-[#0F1117] overflow-hidden">
+    <div className="flex h-screen bg-transparent overflow-hidden relative z-[1]">
+      {isDashboard && <CustomCursor />}
       <FloatingBubbles count={8} />
 
       {/* Overlay mobile */}
@@ -38,10 +41,10 @@ export default function MainLayout() {
       </div>
 
       {/* Contenu principal */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-transparent relative z-[1]">
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#F4F6FA] dark:bg-[#0F1117]">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent relative z-[1]">
           {/* Pas de mode="wait" : évite un trou visuel entre deux pages */}
           <AnimatePresence initial={false}>
             <motion.div

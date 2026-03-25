@@ -1,29 +1,31 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import AnimatedBackground from './components/AnimatedBackground';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { setUnauthorizedHandler } from './services/api';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import MainLayout       from './components/Layout/MainLayout';
 import PrivateRoute     from './components/Common/PrivateRoute';
-import Login            from './pages/auth/Login';
-import Register         from './pages/auth/Register';
-import Dashboard        from './pages/dashboard/Dashboard';
-import MissionsList     from './pages/missions/MissionsList';
-import MissionDetail    from './pages/missions/MissionDetail';
-import NewMissionWizard from './pages/missions/NewMission/NewMissionWizard';
-import Validations      from './pages/validations/Validations';
-import Messagerie       from './pages/messagerie/Messagerie';
-import Notifications    from './pages/notifications/Notifications';
-import Profil           from './pages/profil/Profil';
-import Utilisateurs     from './pages/admin/Utilisateurs';
-import Prestataires     from './pages/admin/Prestataires';
-import Budgets          from './pages/admin/Budgets';
-import AuditLogs        from './pages/admin/AuditLogs';
-import Statistiques     from './pages/admin/Statistiques';
-import Rapports         from './pages/rapports/Rapports';
-import Page404          from './pages/errors/Page404';
-import Page403          from './pages/errors/Page403';
+
+const Login            = React.lazy(() => import('./pages/auth/Login'));
+const Register         = React.lazy(() => import('./pages/auth/Register'));
+const Dashboard        = React.lazy(() => import('./pages/dashboard/Dashboard'));
+const MissionsList     = React.lazy(() => import('./pages/missions/MissionsList'));
+const MissionDetail    = React.lazy(() => import('./pages/missions/MissionDetail'));
+const NewMissionWizard = React.lazy(() => import('./pages/missions/NewMission/NewMissionWizard'));
+const Validations      = React.lazy(() => import('./pages/validations/Validations'));
+const Messagerie       = React.lazy(() => import('./pages/messagerie/Messagerie'));
+const Notifications    = React.lazy(() => import('./pages/notifications/Notifications'));
+const Profil           = React.lazy(() => import('./pages/profil/Profil'));
+const Utilisateurs     = React.lazy(() => import('./pages/admin/Utilisateurs'));
+const Prestataires     = React.lazy(() => import('./pages/admin/Prestataires'));
+const Budgets          = React.lazy(() => import('./pages/admin/Budgets'));
+const AuditLogs        = React.lazy(() => import('./pages/admin/AuditLogs'));
+const Statistiques     = React.lazy(() => import('./pages/admin/Statistiques'));
+const Rapports         = React.lazy(() => import('./pages/rapports/Rapports'));
+const Page404          = React.lazy(() => import('./pages/errors/Page404'));
+const Page403          = React.lazy(() => import('./pages/errors/Page403'));
 
 /** 401 : déconnexion SPA sans rechargement complet (évite flash blanc). */
 function SessionExpiredNav() {
@@ -56,54 +58,57 @@ function AppRoutes() {
   );
 
   return (
-    <Routes>
-      <Route path="/login"    element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-      <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
-      <Route path="/403"      element={<Page403 />} />
+    <React.Suspense fallback={<div>Chargement...</div>}>
+      <Routes>
+        <Route path="/login"    element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
+        <Route path="/403"      element={<Page403 />} />
 
-      <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
-        <Route path="/"                    element={<Dashboard />} />
-        <Route path="/missions"            element={<MissionsList />} />
-        <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
-        <Route path="/missions/:id"        element={<MissionDetail />} />
-        <Route path="/validations"         element={
-          <PrivateRoute roles={['validateur', 'admin']}>
-            <Validations />
-          </PrivateRoute>
-        } />
-        <Route path="/messagerie"          element={<Messagerie />} />
-        <Route path="/notifications"       element={<Notifications />} />
-        <Route path="/profil"              element={<Profil />} />
-        <Route path="/rapports"            element={
-          <PrivateRoute roles={['admin', 'validateur']}>
-            <Rapports />
-          </PrivateRoute>
-        } />
-        <Route path="/admin/utilisateurs"  element={
-          <PrivateRoute roles={['admin']}><Utilisateurs /></PrivateRoute>
-        } />
-        <Route path="/admin/prestataires"  element={
-          <PrivateRoute roles={['admin']}><Prestataires /></PrivateRoute>
-        } />
-        <Route path="/admin/budgets"       element={
-          <PrivateRoute roles={['admin']}><Budgets /></PrivateRoute>
-        } />
-        <Route path="/admin/audit-logs"    element={
-          <PrivateRoute roles={['admin']}><AuditLogs /></PrivateRoute>
-        } />
-        <Route path="/admin/statistiques"  element={
-          <PrivateRoute roles={['admin']}><Statistiques /></PrivateRoute>
-        } />
-      </Route>
+        <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
+          <Route path="/"                    element={<Dashboard />} />
+          <Route path="/missions"            element={<MissionsList />} />
+          <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
+          <Route path="/missions/:id"        element={<MissionDetail />} />
+          <Route path="/validations"         element={
+            <PrivateRoute roles={['validateur', 'admin']}>
+              <Validations />
+            </PrivateRoute>
+          } />
+          <Route path="/messagerie"          element={<Messagerie />} />
+          <Route path="/notifications"       element={<Notifications />} />
+          <Route path="/profil"              element={<Profil />} />
+          <Route path="/rapports"            element={
+            <PrivateRoute roles={['admin', 'validateur']}>
+              <Rapports />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/utilisateurs"  element={
+            <PrivateRoute roles={['admin']}><Utilisateurs /></PrivateRoute>
+          } />
+          <Route path="/admin/prestataires"  element={
+            <PrivateRoute roles={['admin']}><Prestataires /></PrivateRoute>
+          } />
+          <Route path="/admin/budgets"       element={
+            <PrivateRoute roles={['admin']}><Budgets /></PrivateRoute>
+          } />
+          <Route path="/admin/audit-logs"    element={
+            <PrivateRoute roles={['admin']}><AuditLogs /></PrivateRoute>
+          } />
+          <Route path="/admin/statistiques"  element={
+            <PrivateRoute roles={['admin']}><Statistiques /></PrivateRoute>
+          } />
+        </Route>
 
-      <Route path="*" element={<Page404 />} />
-    </Routes>
+        <Route path="*" element={<Page404 />} />
+      </Routes>
+    </React.Suspense>
   );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AnimatedBackground />
       <AuthProvider>
         <SessionExpiredNav />
         <Toaster

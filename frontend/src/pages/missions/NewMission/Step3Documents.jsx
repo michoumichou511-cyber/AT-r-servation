@@ -149,7 +149,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
     return (
       <div className="at-card-surface p-6">
         <div className="text-sm font-semibold text-red-700 mb-2">Mission introuvable</div>
-        <div className="text-sm text-gray-600 mb-4">Revenez à l’étape 1 pour créer la mission.</div>
+        <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">Revenez à l’étape 1 pour créer la mission.</div>
         <Button variant="outline" onClick={onPrev}>
           ← Précédent
         </Button>
@@ -161,8 +161,8 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
       <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 mb-2">Documents</h3>
-          <p className="text-sm text-gray-400">Ajoutez vos pièces jointes (optionnel pour soumission).</p>
+          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Documents</h3>
+          <p className="text-sm text-gray-400 dark:text-gray-400">Ajoutez vos pièces jointes (optionnel pour soumission).</p>
         </div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-at-blue/10 border border-at-blue/20 text-at-blue text-xs font-semibold">
           <FileText size={14} /> Étape 3/4
@@ -170,27 +170,27 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
-          <div className="text-sm font-semibold text-red-800 mb-1">Erreur</div>
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
+          <div className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">Erreur</div>
+          <div className="text-sm text-red-700 dark:text-red-200/90">{error}</div>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 at-card-surface p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-800">Upload</div>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Upload</div>
             <Button variant="ghost" size="sm" onClick={resetForm} disabled={uploading} className="px-2">
               <RotateCcw size={16} />
             </Button>
           </div>
 
           <form onSubmit={handleUpload} className="space-y-3">
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Type de document</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type de document</label>
             <select
               value={typeDoc}
               onChange={(e) => setTypeDoc(e.target.value)}
-              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               {TYPE_DOCUMENT_OPTIONS.map((o) => (
@@ -200,23 +200,23 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
               ))}
             </select>
 
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Fichier</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Fichier</label>
             <input
               type="file"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               disabled={uploading}
-              className="w-full text-sm text-gray-700"
+              className="w-full text-sm text-gray-700 dark:text-gray-200"
             />
 
             <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-2">Description (optionnel)</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Description (optionnel)</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: justifications pour l’ordre"
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
               />
             </div>
@@ -225,7 +225,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
               <Upload size={16} /> Envoyer
             </Button>
 
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Formats acceptés : PDF/DOC/DOCX/XLS/XLSX/JPG/PNG.
             </div>
           </form>
@@ -236,9 +236,9 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
             <div className="space-y-3">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="at-card-surface p-4">
-                  <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2 mb-3" />
-                  <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4 mb-2" />
-                  <div className="h-4 bg-gray-100 rounded animate-pulse w-2/3" />
+                  <div className="h-4 bg-gray-100 dark:bg-white/10 rounded animate-pulse w-1/2 mb-3" />
+                  <div className="h-4 bg-gray-100 dark:bg-white/10 rounded animate-pulse w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-100 dark:bg-white/10 rounded animate-pulse w-2/3" />
                 </div>
               ))}
             </div>
@@ -263,11 +263,11 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
                       <div className="flex items-center gap-2 mb-2">
                         <Badge status="actif" label={d.type_document ?? 'document'} />
                       </div>
-                      <div className="font-semibold text-gray-800 truncate">{d.nom_fichier ?? '—'}</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100 truncate">{d.nom_fichier ?? '—'}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         Taille: <span className="font-semibold">{d.taille ?? '—'}</span>
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         Ajouté: <span className="font-semibold">{d.created_at ?? '—'}</span>
                       </div>
                     </div>
