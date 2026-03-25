@@ -1,11 +1,14 @@
 <?php
 
+use Database\Migrations\Concerns\DetectsMigrationIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    use DetectsMigrationIndex;
+
     public function up(): void
     {
         // Index messages : lecture par conversation + compteur non lus par destinataire
@@ -61,16 +64,5 @@ return new class extends Migration
                 $table->dropIndex('mission_user_statut_idx');
             }
         });
-    }
-
-    private function indexExists(string $table, string $indexName): bool
-    {
-        try {
-            $indexes = \DB::select('SHOW INDEX FROM `'.$table.'` WHERE Key_name = ?', [$indexName]);
-
-            return count($indexes) > 0;
-        } catch (\Throwable $e) {
-            return false;
-        }
     }
 };

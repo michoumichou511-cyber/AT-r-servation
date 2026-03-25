@@ -1,12 +1,14 @@
 <?php
 
+use Database\Migrations\Concerns\DetectsMigrationIndex;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    use DetectsMigrationIndex;
+
     public function up(): void
     {
         // Index sur validations (CircuitValidation) : utilisé dans tous les dashboards validateur
@@ -56,47 +58,5 @@ return new class extends Migration
         Schema::table('missions', function (Blueprint $table) {
             $table->dropIndex('missions_statut_date_depart_index');
         });
-    }
-
-    private function indexExists(string $table, string $indexName): bool
-    {
-        return match (Schema::getConnection()->getDriverName()) {
-            'pgsql' => $this->indexExistsPgsql($table, $indexName),
-            'mysql' => $this->indexExistsMysql($table, $indexName),
-            'sqlite' => $this->indexExistsSqlite($table, $indexName),
-            default => false,
-        };
-    }
-
-    private function indexExistsPgsql(string $table, string $indexName): bool
-    {
-        $schema = Schema::getConnection()->getConfig('schema') ?? 'public';
-
-        $row = DB::selectOne(
-            'select 1 from pg_catalog.pg_indexes where schemaname = ? and tablename = ? and indexname = ? limit 1',
-            [$schema, $table, $indexName]
-        );
-
-        return $row !== null;
-    }
-
-    private function indexExistsMysql(string $table, string $indexName): bool
-    {
-        $safeTable = str_replace('`', '``', $table);
-
-        return count(DB::select(
-            "SHOW INDEX FROM `{$safeTable}` WHERE Key_name = ?",
-            [$indexName]
-        )) > 0;
-    }
-
-    private function indexExistsSqlite(string $table, string $indexName): bool
-    {
-        $row = DB::selectOne(
-            'select 1 from sqlite_master where type = ? and name = ? and tbl_name = ? limit 1',
-            ['index', $indexName, $table]
-        );
-
-        return $row !== null;
     }
 };

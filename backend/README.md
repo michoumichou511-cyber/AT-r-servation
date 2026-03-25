@@ -54,6 +54,12 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Déploiement (Railway / Docker)
+
+- **Variables** : `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `DB_*` (PostgreSQL sur Railway), `PORT` injecté par la plateforme.
+- **Pre-deploy** : `php artisan migrate --force` recommandé une fois les migrations compatibles PostgreSQL.
+- **Healthcheck** : `GET /up` (léger, défini dans `bootstrap/app.php`) est adapté comme chemin de healthcheck Railway ; `GET /api/health` renvoie un JSON avec vérifications (les compteurs de stats sont optionnels si la base est indisponible).
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
