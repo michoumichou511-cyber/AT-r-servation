@@ -15,10 +15,13 @@ WORKDIR /app
 # Install composer deps first (better layer caching)
 COPY composer.json composer.lock ./
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 # Copy the rest of the app
 COPY . .
+
+RUN composer dump-autoload --optimize \
+  && php artisan package:discover --ansi
 
 # Railway provides $PORT
 CMD ["sh", "-lc", "php artisan serve --host 0.0.0.0 --port ${PORT:-8000}"]
