@@ -58,7 +58,8 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 - **Variables** : `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `DB_*` (PostgreSQL sur Railway), `PORT` injecté par la plateforme.
 - **Pre-deploy** : `php artisan migrate --force` recommandé une fois les migrations compatibles PostgreSQL.
-- **Healthcheck** : `GET /up` (léger, défini dans `bootstrap/app.php`) est adapté comme chemin de healthcheck Railway ; `GET /api/health` renvoie un JSON avec vérifications (les compteurs de stats sont optionnels si la base est indisponible).
+- **Démarrage HTTP** : l’image utilise `php -S 0.0.0.0:$PORT -t public public/index.php` (plus fiable que `php artisan serve` derrière le proxy Railway).
+- **Healthcheck** : le fichier `railway.toml` du backend propose `GET /up` (léger, `bootstrap/app.php`). Tu peux aussi configurer manuellement le même chemin dans le dashboard. `GET /api/health` reste disponible pour un JSON détaillé.
 
 ## License
 

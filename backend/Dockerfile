@@ -23,5 +23,5 @@ COPY . .
 RUN composer dump-autoload --optimize \
   && php artisan package:discover --ansi
 
-# Railway provides $PORT
-CMD ["sh", "-lc", "php artisan serve --host 0.0.0.0 --port ${PORT:-8000}"]
+# Railway injecte PORT — le serveur intégré de PHP est plus fiable que `artisan serve` dans Docker
+CMD ["/bin/sh", "-c", "exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php"]

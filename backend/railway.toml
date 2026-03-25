@@ -1,0 +1,5 @@
+# Railway : healthcheck minimal Laravel (bootstrap/app.php → health: '/up')
+# Si tu gardes /api/health dans le dashboard, retirer healthcheckPath ici ou l’aligner.
+[deploy]
+healthcheckPath = "/up"
+healthcheckTimeout = 300
