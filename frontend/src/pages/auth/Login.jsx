@@ -30,9 +30,18 @@ export default function Login() {
       navigate('/')
     } catch (err) {
       if (!err.response) {
-        setError(
-          'Serveur injoignable. Lancez l’API : `php artisan serve` (port 8000) et vérifiez l’URL dans api.js.',
-        )
+        const apiBase =
+          import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+        const apiLooksLocal = /localhost|127\.0\.0\.1/.test(apiBase)
+        if (import.meta.env.PROD && apiLooksLocal) {
+          setError(
+            'Déploiement : définissez VITE_API_URL sur Vercel (URL Railway + /api), redéployez, et FRONTEND_URL côté Railway pour le CORS. Voir frontend/README.md.',
+          )
+        } else {
+          setError(
+            'Serveur injoignable. Lancez l’API : `php artisan serve` (port 8000) et vérifiez l’URL dans api.js.',
+          )
+        }
       } else {
         setError(
           err.response?.data?.message

@@ -57,6 +57,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## Déploiement (Railway / Docker)
 
 - **Variables** : `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `DB_*` (PostgreSQL sur Railway), `PORT` injecté par la plateforme.
+- **`FRONTEND_URL`** : origine du frontend en production (ex. `https://ton-app.vercel.app`). Plusieurs domaines : liste séparée par des virgules. Utilisée par `config/cors.php` pour autoriser les appels API depuis Vercel (voir `frontend/README.md` côté `VITE_API_URL`).
 - **Pre-deploy** : `php artisan migrate --force` recommandé une fois les migrations compatibles PostgreSQL.
 - **Démarrage HTTP** : script `scripts/railway-entrypoint.sh` → `php -S 0.0.0.0:$PORT -t public public/index.php` (écoute sur `0.0.0.0`, variable `PORT` Railway). Dans l’UI Railway, laisse **Start command** vide ou identique pour ne pas écraser le `CMD` / `startCommand` du `railway.toml`.
 - **Healthcheck** : `railway.toml` utilise `GET /railway-health.php` (réponse statique, sans Laravel). Pour une vérif applicative ensuite : `GET /up` ou `GET /api/health`.

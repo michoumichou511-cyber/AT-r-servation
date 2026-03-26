@@ -1,5 +1,13 @@
 # React + Vite
 
+## Déploiement Vercel
+
+1. **Variable d’environnement** `VITE_API_URL` : URL publique du backend **avec le suffixe `/api`** (ex. `https://ton-service.up.railway.app/api`). C’est la base utilisée par `src/services/api.js`.
+2. **Build** : Vite remplace `import.meta.env.VITE_API_URL` **au moment du `vite build`**. Après toute création ou modification de la variable sur le dashboard Vercel, **redéployer** le projet (ou pousser un commit) pour régénérer le build.
+3. **CORS** : le backend Laravel doit autoriser l’origine de ton site Vercel. Sur Railway, définis **`FRONTEND_URL`** (ex. `https://ton-app.vercel.app`, sans slash final) — voir `backend/README.md` section Déploiement.
+
+---
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
