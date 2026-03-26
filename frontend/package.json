@@ -2,6 +2,7 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "npmrc": "legacy-peer-deps=true",
   "type": "module",
   "scripts": {
     "dev": "vite",
