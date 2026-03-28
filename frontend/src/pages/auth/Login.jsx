@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
@@ -32,6 +32,7 @@ function LoginMobileAnimated({
   setShowPass,
   handleSubmit,
   comptes,
+  darkMode,
 }) {
   const canvasRef = useRef(null)
   const floatBubbles = useMemo(() => AT_FLOAT_BUBBLES, [])
@@ -42,15 +43,26 @@ function LoginMobileAnimated({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const COL_GREEN = { r: 0, g: 212, b: 122 }
-    const COL_BLUE = { r: 0, g: 150, b: 214 }
+    const isDark = darkMode
+    const COL_GREEN = isDark
+      ? { r: 0, g: 212, b: 122 }
+      : { r: 0, g: 150, b: 70 }
+    const COL_BLUE = isDark
+      ? { r: 0, g: 150, b: 214 }
+      : { r: 0, g: 80, b: 200 }
     const LINK_DIST = 100
 
-    const waves = [
-      { yRatio: 0.75, color: 'rgba(0,150,214,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
-      { yRatio: 0.82, color: 'rgba(0,180,120,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
-      { yRatio: 0.9, color: 'rgba(0,120,200,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
-    ]
+    const waves = isDark
+      ? [
+          { yRatio: 0.75, color: 'rgba(0,150,214,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
+          { yRatio: 0.82, color: 'rgba(0,180,120,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
+          { yRatio: 0.9, color: 'rgba(0,120,200,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
+        ]
+      : [
+          { yRatio: 0.75, color: 'rgba(0,100,180,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
+          { yRatio: 0.82, color: 'rgba(0,140,100,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
+          { yRatio: 0.9, color: 'rgba(0,80,160,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
+        ]
 
     let animId = 0
     let t = 0
@@ -124,7 +136,8 @@ function LoginMobileAnimated({
         const c = p.isGreen ? COL_GREEN : COL_BLUE
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${p.opacity})`
+        const fillAlpha = isDark ? p.opacity : 1
+        ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${fillAlpha})`
         ctx.fill()
       })
 
@@ -140,7 +153,7 @@ function LoginMobileAnimated({
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
     }
-  }, [])
+  }, [darkMode])
 
   const demoBtns = [
     { label: 'Administrateur', key: 'admin', color: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -149,11 +162,51 @@ function LoginMobileAnimated({
     { label: 'Demandeur', key: 'demandeur', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
   ]
 
+  const mt = darkMode
+    ? {
+        pageBg: '#0b1220',
+        cardBg: 'rgba(255,255,255,0.06)',
+        cardBorder: 'rgba(255,255,255,0.12)',
+        title: '#fff',
+        subtitle: 'rgba(255,255,255,0.65)',
+        h2: 'rgba(255,255,255,0.95)',
+        hint: 'rgba(255,255,255,0.55)',
+        inputBorder: 'rgba(255,255,255,0.15)',
+        inputBg: 'rgba(255,255,255,0.08)',
+        inputColor: '#fff',
+        iconBtn: 'rgba(255,255,255,0.55)',
+        sep: 'rgba(255,255,255,0.12)',
+        sepLabel: 'rgba(255,255,255,0.45)',
+        footerMuted: 'rgba(255,255,255,0.5)',
+        footerSmall: 'rgba(255,255,255,0.45)',
+        radial:
+          'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.22) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.15) 0%, transparent 60%)',
+      }
+    : {
+        pageBg: '#f0f4ff',
+        cardBg: 'rgba(255,255,255,0.92)',
+        cardBorder: 'rgba(0,61,165,0.14)',
+        title: '#1A1D26',
+        subtitle: 'rgba(26,29,38,0.65)',
+        h2: '#1A1D26',
+        hint: 'rgba(26,29,38,0.55)',
+        inputBorder: 'rgba(0,61,165,0.2)',
+        inputBg: 'rgba(255,255,255,0.95)',
+        inputColor: '#1A1D26',
+        iconBtn: 'rgba(26,29,38,0.55)',
+        sep: 'rgba(0,61,165,0.15)',
+        sepLabel: 'rgba(26,29,38,0.45)',
+        footerMuted: 'rgba(26,29,38,0.65)',
+        footerSmall: 'rgba(26,29,38,0.5)',
+        radial:
+          'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.08) 0%, transparent 60%)',
+      }
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: '#0F1117',
+        background: mt.pageBg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -213,8 +266,7 @@ function LoginMobileAnimated({
         style={{
           position: 'fixed',
           inset: 0,
-          background:
-            'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.22) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.15) 0%, transparent 60%)',
+          background: mt.radial,
           pointerEvents: 'none',
           zIndex: 0,
         }}
@@ -227,13 +279,13 @@ function LoginMobileAnimated({
           zIndex: 1,
           width: '100%',
           maxWidth: 440,
-          background: 'rgba(255,255,255,0.06)',
+          background: mt.cardBg,
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: `1px solid ${mt.cardBorder}`,
           borderRadius: 24,
           padding: 32,
-          boxShadow: '0 25px 50px rgba(0,0,0,0.35)',
+          boxShadow: darkMode ? '0 25px 50px rgba(0,0,0,0.35)' : '0 20px 40px rgba(0,61,165,0.12)',
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
@@ -252,7 +304,7 @@ function LoginMobileAnimated({
           />
           <h1
             style={{
-              color: '#fff',
+              color: mt.title,
               fontWeight: 800,
               fontSize: 22,
               marginBottom: 4,
@@ -260,14 +312,14 @@ function LoginMobileAnimated({
           >
             AT Réservations
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
+          <p style={{ color: mt.subtitle, fontSize: 13 }}>
             Algérie Télécom
           </p>
         </div>
 
         <h2
           style={{
-            color: 'rgba(255,255,255,0.95)',
+            color: mt.h2,
             fontWeight: 800,
             fontSize: 20,
             marginBottom: 4,
@@ -275,7 +327,7 @@ function LoginMobileAnimated({
         >
           Connexion
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginBottom: 20 }}>
+        <p style={{ color: mt.hint, fontSize: 13, marginBottom: 20 }}>
           Entrez vos identifiants Algérie Télécom
         </p>
 
@@ -315,9 +367,9 @@ function LoginMobileAnimated({
               style={{
                 width: '100%',
                 borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.08)',
-                color: '#fff',
+                border: `1px solid ${mt.inputBorder}`,
+                background: mt.inputBg,
+                color: mt.inputColor,
                 fontSize: 14,
                 fontFamily: 'inherit',
                 paddingLeft: 44,
@@ -326,7 +378,11 @@ function LoginMobileAnimated({
                 paddingBottom: 14,
                 outline: 'none',
               }}
-              className="placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]"
+              className={
+                darkMode
+                  ? 'placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]'
+                  : 'placeholder:text-[rgba(26,29,38,0.4)] focus:border-[#00A650]'
+              }
             />
           </div>
           <div style={{ position: 'relative', marginBottom: 24 }}>
@@ -422,19 +478,19 @@ function LoginMobileAnimated({
             marginBottom: 14,
           }}
         >
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.12)' }} />
+          <div style={{ flex: 1, height: 1, background: mt.sep }} />
           <span
             style={{
               fontSize: 10,
               fontWeight: 600,
-              color: 'rgba(255,255,255,0.45)',
+              color: mt.sepLabel,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
             }}
           >
             Comptes de démonstration
           </span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.12)' }} />
+          <div style={{ flex: 1, height: 1, background: mt.sep }} />
         </div>
 
         <div
@@ -470,17 +526,17 @@ function LoginMobileAnimated({
           ))}
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 16, lineHeight: 1.5 }}>
+        <p style={{ textAlign: 'center', fontSize: 11, color: mt.footerMuted, marginBottom: 16, lineHeight: 1.5 }}>
           Mot de passe démo (tous les comptes) :
           {' '}
-          <strong style={{ color: '#7AB8FF', fontFamily: 'monospace' }}>Password@123</strong>
+          <strong style={{ color: darkMode ? '#7AB8FF' : '#003DA5', fontFamily: 'monospace' }}>Password@123</strong>
           <br />
-          <span style={{ fontSize: 10 }}>Cliquez un rôle ci-dessus pour remplir email + mot de passe.</span>
+          <span style={{ fontSize: 10, color: mt.footerSmall }}>Cliquez un rôle ci-dessus pour remplir email + mot de passe.</span>
         </p>
-        <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+        <p style={{ textAlign: 'center', fontSize: 12, color: mt.footerSmall }}>
           Problème de connexion ?
           {' '}
-          <a href="mailto:it-support@at.dz" style={{ color: '#4ADE80', fontWeight: 600, textDecoration: 'none' }}>
+          <a href="mailto:it-support@at.dz" style={{ color: darkMode ? '#4ADE80' : '#00A650', fontWeight: 600, textDecoration: 'none' }}>
             Contacter le support IT
           </a>
         </p>
@@ -495,7 +551,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPass, setShowPass] = useState(false)
-  const { login } = useAuth()
+  const { login, darkMode, toggleDarkMode } = useAuth()
   const navigate = useNavigate()
 
   const comptes = {
@@ -551,31 +607,50 @@ export default function Login() {
     return () => mq.removeEventListener('change', apply)
   }, [])
 
+  const themeToggle = (
+    <motion.button
+      type="button"
+      onClick={toggleDarkMode}
+      whileTap={{ rotate: 180 }}
+      transition={{ duration: 0.3 }}
+      className="fixed top-4 right-4 z-[100] p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 transition-colors"
+      aria-label={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
+    >
+      {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+    </motion.button>
+  )
+
   if (isMobile) {
     return (
-      <LoginMobileAnimated
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        loading={loading}
-        error={error}
-        showPass={showPass}
-        setShowPass={setShowPass}
-        handleSubmit={handleSubmit}
-        comptes={comptes}
-      />
+      <>
+        {themeToggle}
+        <LoginMobileAnimated
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          loading={loading}
+          error={error}
+          showPass={showPass}
+          setShowPass={setShowPass}
+          handleSubmit={handleSubmit}
+          comptes={comptes}
+          darkMode={darkMode}
+        />
+      </>
     )
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100vh',
-        fontFamily: 'IBM Plex Sans, sans-serif',
-      }}
-    >
+    <>
+      {themeToggle}
+      <div
+        style={{
+          display: 'flex',
+          height: '100vh',
+          fontFamily: 'IBM Plex Sans, sans-serif',
+        }}
+      >
       {/* ═══ GAUCHE ═══ */}
       <div
         style={{
@@ -808,22 +883,47 @@ export default function Login() {
 
       {/* ═══ DROITE ═══ */}
       <div
-        className="flex flex-1 flex-col justify-center px-10 py-12 sm:px-12 max-w-[520px] bg-white dark:bg-[#1A1D2E] transition-colors"
+        className="flex flex-1 flex-col justify-center px-10 py-12 sm:px-12 max-w-[520px] transition-colors"
         style={{
           display: 'flex',
           flexDirection: 'column',
+          background: darkMode ? '#0b1220' : '#ffffff',
         }}
       >
-        <h1 className="text-[28px] font-extrabold text-[#1A1D26] dark:text-white mb-1">
+        <div
+          className="flex flex-col flex-1 w-full min-h-0"
+          style={
+            darkMode
+              ? {
+                  background: 'rgba(15,25,45,0.95)',
+                  borderRadius: 16,
+                  padding: '28px 24px',
+                }
+              : undefined
+          }
+        >
+        <h1
+          className={`text-[28px] font-extrabold mb-1 ${
+            darkMode ? 'text-white' : 'text-[#1A1D26]'
+          }`}
+        >
           Connexion
         </h1>
-        <p className="text-[13px] text-[#9AA0AE] dark:text-gray-400 mb-8">
+        <p
+          className={`text-[13px] mb-8 ${
+            darkMode ? 'text-gray-300' : 'text-[#9AA0AE]'
+          }`}
+        >
           Entrez vos identifiants Algérie Télécom
         </p>
 
         {error && (
           <div
-            className="rounded-[10px] border px-4 py-3 mb-4 text-[13px] bg-[#FEF2F2] border-[#FECACA] border-l-4 border-l-[#EF4444] text-[#B91C1C] dark:bg-red-950/40 dark:border-red-800/60 dark:text-red-200 dark:border-l-red-500"
+            className={`rounded-[10px] border px-4 py-3 mb-4 text-[13px] border-l-4 ${
+              darkMode
+                ? 'bg-red-950/40 border-red-800/60 text-red-200 border-l-red-500'
+                : 'bg-[#FEF2F2] border-[#FECACA] border-l-[#EF4444] text-[#B91C1C]'
+            }`}
           >
             {error}
           </div>
@@ -855,9 +955,12 @@ export default function Login() {
               onChange={e => setEmail(e.target.value)}
               placeholder="prenom.nom@at.dz"
               required
-              className="w-full rounded-xl border-2 border-[#EAECF0] dark:border-gray-600 text-[13px] text-[#1A1D26] dark:text-white outline-none font-inherit pl-11 pr-3.5 py-3.5 dark:placeholder:text-gray-500"
+              className={`w-full rounded-xl border-2 text-[13px] outline-none font-inherit pl-11 pr-3.5 py-3.5 ${
+                darkMode
+                  ? 'border-[rgba(255,255,255,0.1)] text-white placeholder:text-gray-500 bg-[rgba(255,255,255,0.06)]'
+                  : 'border-[#EAECF0] text-[#1A1D26] bg-[#F8F9FC] placeholder:text-gray-400'
+              }`}
               style={{
-                background: 'var(--input-bg, #F8F9FC)',
                 fontFamily: 'inherit',
               }}
             />
@@ -905,7 +1008,7 @@ export default function Login() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#C0C5D0',
+                color: darkMode ? 'rgba(255,255,255,0.55)' : '#C0C5D0',
               }}
             >
               {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -955,13 +1058,21 @@ export default function Login() {
             marginBottom: 14,
           }}
         >
-          <div className="flex-1 h-px bg-[#EAECF0] dark:bg-gray-600" />
+          <div
+            className="flex-1 h-px"
+            style={{ background: darkMode ? 'rgba(255,255,255,0.12)' : '#EAECF0' }}
+          />
           <span
-            className="text-[10px] font-semibold text-[#C0C5D0] dark:text-gray-500 uppercase tracking-wider whitespace-nowrap"
+            className={`text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap ${
+              darkMode ? 'text-gray-500' : 'text-[#C0C5D0]'
+            }`}
           >
             Comptes de démonstration
           </span>
-          <div className="flex-1 h-px bg-[#EAECF0] dark:bg-gray-600" />
+          <div
+            className="flex-1 h-px"
+            style={{ background: darkMode ? 'rgba(255,255,255,0.12)' : '#EAECF0' }}
+          />
         </div>
 
         {/* Boutons démo */}
@@ -1003,28 +1114,42 @@ export default function Login() {
           ))}
         </div>
 
-        <p className="text-center text-[11px] text-[#9AA0AE] dark:text-gray-400 mb-4 leading-snug">
+        <p
+          className={`text-center text-[11px] mb-4 leading-snug ${
+            darkMode ? 'text-gray-400' : 'text-[#9AA0AE]'
+          }`}
+        >
           Mot de passe démo (tous les comptes) :
           {' '}
-          <strong className="text-[#003DA5] dark:text-[#7AB8FF] font-mono">
+          <strong
+            className={`font-mono ${darkMode ? 'text-[#7AB8FF]' : 'text-[#003DA5]'}`}
+          >
             Password@123
           </strong>
           <br />
-          <span className="text-[10px] text-[#C0C5D0] dark:text-gray-500">
+          <span
+            className={`text-[10px] ${darkMode ? 'text-gray-500' : 'text-[#C0C5D0]'}`}
+          >
             Cliquez un rôle ci-dessus pour remplir email + mot de passe.
           </span>
         </p>
 
-        <p className="text-center text-xs text-[#C0C5D0] dark:text-gray-500">
+        <p
+          className={`text-center text-xs ${darkMode ? 'text-gray-500' : 'text-[#C0C5D0]'}`}
+        >
           Problème de connexion ?{' '}
           <a
             href="mailto:it-support@at.dz"
-            className="text-[#00A650] dark:text-[#4ADE80] font-semibold no-underline"
+            className={`font-semibold no-underline ${
+              darkMode ? 'text-[#4ADE80]' : 'text-[#00A650]'
+            }`}
           >
             Contacter le support IT
           </a>
         </p>
+        </div>
       </div>
     </div>
+    </>
   )
 }
