@@ -108,8 +108,8 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AnimatedBackground />
       <AuthProvider>
+        <AnimatedBackground />
         <SessionExpiredNav />
         <Toaster
           position="top-right"

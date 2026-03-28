@@ -213,7 +213,7 @@ export default function Navbar({ onMenuClick }) {
         </button>
 
         {/* Avatar + dropdown */}
-        <div className="relative">
+        <div className="relative" style={{ position: 'relative', zIndex: 9999 }}>
           <button
             onClick={() => setDropdownOpen(v => !v)}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl
@@ -244,6 +244,7 @@ export default function Navbar({ onMenuClick }) {
                   transition={{ duration: 0.15 }}
                   className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl
                              border border-gray-100 z-20 py-1.5 overflow-hidden"
+                  style={{ position: 'absolute', zIndex: 9999, isolation: 'isolate' }}
                 >
                   {/* Infos utilisateur */}
                   <div className="px-4 py-2.5 border-b border-gray-100">
