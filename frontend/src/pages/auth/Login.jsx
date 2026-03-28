@@ -1,185 +1,340 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import AnimatedBalls from '../../components/Dashboard/AnimatedBalls'
+import Particles from '../../components/Dashboard/Particles'
+import FloatingBubbles from '../../components/Common/FloatingBubbles'
 
-const MOBILE_MQ = '(max-width: 768px)'
+const MOBILE_MQ = '(max-width: 767px)'
 
-/** Arrière-plan animé mobile uniquement : bulles CSS + canvas (particules + vagues). */
-function LoginMobileAmbient() {
-  const canvasRef = useRef(null)
-
-  const bubbles = useMemo(
-    () => [
-      { left: 6, top: 8, size: 92, delay: 0, dur: 22, color: 'rgba(0,212,122,0.15)' },
-      { left: 72, top: 12, size: 68, delay: 2, dur: 26, color: 'rgba(0,150,255,0.12)' },
-      { left: 18, top: 58, size: 118, delay: 4, dur: 20, color: 'rgba(0,212,122,0.15)' },
-      { left: 55, top: 42, size: 76, delay: 1, dur: 24, color: 'rgba(0,150,255,0.12)' },
-      { left: 82, top: 68, size: 104, delay: 6, dur: 28, color: 'rgba(0,212,122,0.15)' },
-      { left: 38, top: 78, size: 64, delay: 3, dur: 21, color: 'rgba(0,150,255,0.12)' },
-    ],
-    [],
-  )
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const COLORS = ['#00D47A', '#0096D6']
-    const waves = [
-      { yRatio: 0.78, color: 'rgba(0,150,214,0.12)', speed: 0.7, freq: 0.01, amp: 14 },
-      { yRatio: 0.84, color: 'rgba(0,180,120,0.09)', speed: -0.55, freq: 0.014, amp: 12 },
-      { yRatio: 0.9, color: 'rgba(0,120,200,0.08)', speed: 0.95, freq: 0.018, amp: 10 },
-    ]
-
-    let animId = 0
-    let t = 0
-    let w = 0
-    let h = 0
-
-    const particles = []
-
-    const resize = () => {
-      w = window.innerWidth
-      h = window.innerHeight
-      canvas.width = w
-      canvas.height = h
-    }
-
-    resize()
-    for (let i = 0; i < 20; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.28,
-        vy: (Math.random() - 0.5) * 0.28,
-        r: 2 + Math.random() * 2,
-        colorIndex: Math.random() > 0.5 ? 0 : 1,
-      })
-    }
-    window.addEventListener('resize', resize)
-
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h)
-
-      waves.forEach((wv) => {
-        ctx.beginPath()
-        ctx.moveTo(0, h)
-        for (let x = 0; x <= w; x += 2) {
-          const y =
-            h * wv.yRatio
-            + Math.sin(x * wv.freq + t * wv.speed) * wv.amp
-          ctx.lineTo(x, y)
-        }
-        ctx.lineTo(w, h)
-        ctx.closePath()
-        ctx.fillStyle = wv.color
-        ctx.fill()
-      })
-
-      particles.forEach((p) => {
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < 0) p.x = w
-        if (p.x > w) p.x = 0
-        if (p.y < 0) p.y = h
-        if (p.y > h) p.y = 0
-      })
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 80) {
-            const alpha = (1 - dist / 80) * 0.45
-            ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `rgba(0, 180, 140, ${alpha * 0.6})`
-            ctx.lineWidth = 0.5
-            ctx.stroke()
-          }
-        }
-      }
-
-      particles.forEach((p) => {
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = COLORS[p.colorIndex]
-        ctx.globalAlpha = 0.85
-        ctx.fill()
-        ctx.globalAlpha = 1
-      })
-
-      t += 0.018
-      animId = window.requestAnimationFrame(draw)
-    }
-
-    animId = window.requestAnimationFrame(draw)
-
-    return () => {
-      window.cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
-    }
-  }, [])
+/**
+ * Connexion mobile uniquement : fond sombre + AnimatedBalls + Particles + FloatingBubbles
+ * (aucun canvas). Le bureau utilise le layout d’origine ci-dessous.
+ */
+function LoginMobileAnimated({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  loading,
+  error,
+  showPass,
+  setShowPass,
+  handleSubmit,
+  comptes,
+}) {
+  const demoBtns = [
+    { label: 'Administrateur', key: 'admin', color: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
+    { label: 'Validateur', key: 'validateur', color: '#1D4ED8', bg: '#EFF6FF', border: '#BFDBFE' },
+    { label: 'Utilisateur', key: 'utilisateur', color: '#15803D', bg: '#F0FDF4', border: '#BBF7D0' },
+    { label: 'Demandeur', key: 'demandeur', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
+  ]
 
   return (
-    <>
-      <style>
-        {`
-@media (max-width: 768px) {
-  @keyframes loginMbFloat {
-    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-    25% { transform: translate3d(12px, -28px, 0) scale(1.06); }
-    50% { transform: translate3d(-8px, 12px, 0) scale(0.97); }
-    75% { transform: translate3d(6px, -18px, 0) scale(1.04); }
-  }
-  .login-mb-bubble {
-    animation-name: loginMbFloat;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    will-change: transform;
-  }
-}
-`}
-      </style>
-      {bubbles.map((b, i) => (
-        <div
-          key={i}
-          className="login-mb-bubble"
-          style={{
-            position: 'fixed',
-            left: `${b.left}%`,
-            top: `${b.top}%`,
-            width: b.size,
-            height: b.size,
-            borderRadius: '50%',
-            background: b.color,
-            zIndex: 0,
-            pointerEvents: 'none',
-            animationDuration: `${b.dur}s`,
-            animationDelay: `${b.delay}s`,
-          }}
-          aria-hidden
-        />
-      ))}
-      <canvas
-        ref={canvasRef}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#0F1117',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: 'IBM Plex Sans, sans-serif',
+        padding: 16,
+      }}
+    >
+      <div
+        style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+        aria-hidden
+      >
+        <FloatingBubbles count={8} />
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <AnimatedBalls />
+        </div>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Particles />
+        </div>
+      </div>
+      <div
         style={{
           position: 'fixed',
           inset: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 0,
+          background:
+            'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.2) 0%, transparent 60%)',
           pointerEvents: 'none',
+          zIndex: 1,
         }}
         aria-hidden
       />
-    </>
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: 440,
+          background: 'rgba(255,255,255,0.06)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 24,
+          padding: 32,
+          boxShadow: '0 25px 50px rgba(0,0,0,0.35)',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <img
+            src="/logo-at.jpg"
+            alt="Algérie Télécom"
+            style={{
+              height: 56,
+              width: 'auto',
+              objectFit: 'contain',
+              borderRadius: 12,
+              background: 'rgba(255,255,255,0.95)',
+              padding: 4,
+              marginBottom: 12,
+            }}
+          />
+          <h1
+            style={{
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: 22,
+              marginBottom: 4,
+            }}
+          >
+            AT Réservations
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
+            Algérie Télécom
+          </p>
+        </div>
+
+        <h2
+          style={{
+            color: 'rgba(255,255,255,0.95)',
+            fontWeight: 800,
+            fontSize: 20,
+            marginBottom: 4,
+          }}
+        >
+          Connexion
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginBottom: 20 }}>
+          Entrez vos identifiants Algérie Télécom
+        </p>
+
+        {error && (
+          <div
+            className="rounded-[10px] border px-4 py-3 mb-4 text-[13px]"
+            style={{
+              background: 'rgba(254, 242, 242, 0.12)',
+              borderColor: 'rgba(252, 165, 165, 0.45)',
+              color: '#fecaca',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ position: 'relative', marginBottom: 14 }}>
+            <span
+              style={{
+                position: 'absolute',
+                left: 15,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: 16,
+                opacity: 0.75,
+              }}
+            >
+              ✉️
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="prenom.nom@at.dz"
+              required
+              style={{
+                width: '100%',
+                borderRadius: 12,
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                paddingLeft: 44,
+                paddingRight: 12,
+                paddingTop: 14,
+                paddingBottom: 14,
+                outline: 'none',
+              }}
+              className="placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]"
+            />
+          </div>
+          <div style={{ position: 'relative', marginBottom: 24 }}>
+            <span
+              style={{
+                position: 'absolute',
+                left: 15,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: 16,
+                opacity: 0.75,
+              }}
+            >
+              🔒
+            </span>
+            <input
+              type={showPass ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mot de passe"
+              required
+              style={{
+                width: '100%',
+                borderRadius: 12,
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                paddingLeft: 44,
+                paddingRight: 44,
+                paddingTop: 14,
+                paddingBottom: 14,
+                outline: 'none',
+              }}
+              className="placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              style={{
+                position: 'absolute',
+                right: 14,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'rgba(255,255,255,0.55)',
+              }}
+            >
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: 15,
+              borderRadius: 12,
+              border: 'none',
+              background: 'linear-gradient(135deg, #003DA5, #00A650)',
+              color: 'white',
+              fontSize: 14,
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              marginBottom: 20,
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                Connexion...
+              </>
+            ) : (
+              'Se connecter →'
+            )}
+          </button>
+        </form>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            marginBottom: 14,
+          }}
+        >
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.12)' }} />
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.45)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Comptes de démonstration
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.12)' }} />
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 8,
+            marginBottom: 20,
+          }}
+        >
+          {demoBtns.map(b => (
+            <button
+              key={b.key}
+              type="button"
+              onClick={() => {
+                setEmail(comptes[b.key].email)
+                setPassword(comptes[b.key].password)
+              }}
+              style={{
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: `1.5px solid ${b.border}`,
+                background: b.bg,
+                color: b.color,
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 16, lineHeight: 1.5 }}>
+          Mot de passe démo (tous les comptes) :
+          {' '}
+          <strong style={{ color: '#7AB8FF', fontFamily: 'monospace' }}>Password@123</strong>
+          <br />
+          <span style={{ fontSize: 10 }}>Cliquez un rôle ci-dessus pour remplir email + mot de passe.</span>
+        </p>
+        <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+          Problème de connexion ?
+          {' '}
+          <a href="mailto:it-support@at.dz" style={{ color: '#4ADE80', fontWeight: 600, textDecoration: 'none' }}>
+            Contacter le support IT
+          </a>
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -191,16 +346,6 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
-
-  const [isMobileLoginBg, setIsMobileLoginBg] = useState(false)
-
-  useEffect(() => {
-    const mq = window.matchMedia(MOBILE_MQ)
-    const apply = () => setIsMobileLoginBg(mq.matches)
-    apply()
-    mq.addEventListener('change', apply)
-    return () => mq.removeEventListener('change', apply)
-  }, [])
 
   const comptes = {
     admin: { email: 'admin@at.dz', password: 'Password@123' },
@@ -241,6 +386,35 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_MQ).matches,
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ)
+    const apply = () => setIsMobile(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  if (isMobile) {
+    return (
+      <LoginMobileAnimated
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        loading={loading}
+        error={error}
+        showPass={showPass}
+        setShowPass={setShowPass}
+        handleSubmit={handleSubmit}
+        comptes={comptes}
+      />
+    )
   }
 
   return (
@@ -489,14 +663,6 @@ export default function Login() {
           flexDirection: 'column',
         }}
       >
-        {isMobileLoginBg ? <LoginMobileAmbient /> : null}
-        <div
-          style={
-            isMobileLoginBg
-              ? { position: 'relative', zIndex: 1 }
-              : undefined
-          }
-        >
         <h1 className="text-[28px] font-extrabold text-[#1A1D26] dark:text-white mb-1">
           Connexion
         </h1>
@@ -707,7 +873,6 @@ export default function Login() {
             Contacter le support IT
           </a>
         </p>
-        </div>
       </div>
     </div>
   )
