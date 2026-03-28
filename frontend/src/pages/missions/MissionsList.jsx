@@ -141,7 +141,7 @@ export default function MissionsList() {
         transition={{ duration: 0.3, delay: 0.05 }}
         className="at-card-surface mb-6 p-4 md:p-5"
       >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
           <div>
             <label className="mb-2 block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE]">
               Statut

@@ -325,7 +325,7 @@ export function DashboardValidateur({
         />
       </div>
 
-      <div className="relative z-[1] mb-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-5">
+      <div className="relative z-[1] mb-6 grid grid-cols-4-kpi grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-5">
         <KPICard
           title="Missions à valider"
           value={aValider}

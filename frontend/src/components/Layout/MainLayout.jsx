@@ -32,11 +32,13 @@ export default function MainLayout() {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <div className={`
-        fixed md:static inset-y-0 left-0 z-30
+      <div
+        className={`
+        sidebar-mobile fixed md:static inset-y-0 left-0 z-30
         transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+        ${sidebarOpen ? 'open translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}
+      >
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 

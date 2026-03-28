@@ -1,8 +1,13 @@
 import axios from 'axios'
 
+/** En dev (vite), pointer vers l’API locale si VITE_API_URL n’est pas défini — évite de taper Railway par erreur. */
+const defaultBaseURL = import.meta.env.VITE_API_URL
+  ?? (import.meta.env.DEV
+    ? 'http://127.0.0.1:8000/api'
+    : 'https://backend-production-170c.up.railway.app/api')
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
-    ?? 'https://backend-production-170c.up.railway.app/api',
+  baseURL: defaultBaseURL,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -54,6 +59,18 @@ export const missionsAPI = {
     }),
   deleteDocument:(missionId, docId) =>
     api.delete(`/missions/${missionId}/documents/${docId}`),
+}
+
+/** Documents mission — routes `/missions/{id}/documents` et `/documents/{id}` */
+export const documentsAPI = {
+  list:       (missionId) => api.get(`/missions/${missionId}/documents`),
+  upload:     (missionId, data) =>
+    api.post(`/missions/${missionId}/documents`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  telecharger:(id) =>
+    api.get(`/documents/${id}/telecharger`, { responseType: 'blob' }),
+  delete:     (id) => api.delete(`/documents/${id}`),
 }
 
 // ── Réservations ─────────────────────

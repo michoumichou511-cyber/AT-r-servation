@@ -1,17 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import AnimatedBalls from '../../components/Dashboard/AnimatedBalls'
-import Particles from '../../components/Dashboard/Particles'
-import FloatingBubbles from '../../components/Common/FloatingBubbles'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
+/** Bulles larges AT — rgba comme demandé, mouvement type FloatingBubbles.jsx */
+const AT_FLOAT_BUBBLES = [
+  { x: 6, y: 10, size: 88, dur: 26, delay: 0, fill: 'rgba(0,212,122,0.15)' },
+  { x: 72, y: 8, size: 72, dur: 30, delay: 2, fill: 'rgba(0,150,255,0.12)' },
+  { x: 18, y: 58, size: 96, dur: 24, delay: 4, fill: 'rgba(0,212,122,0.15)' },
+  { x: 52, y: 42, size: 64, dur: 28, delay: 1, fill: 'rgba(0,150,255,0.12)' },
+  { x: 84, y: 70, size: 76, dur: 22, delay: 6, fill: 'rgba(0,212,122,0.15)' },
+  { x: 34, y: 78, size: 58, dur: 32, delay: 3, fill: 'rgba(0,150,255,0.12)' },
+]
+
 /**
- * Connexion mobile uniquement : fond sombre + AnimatedBalls + Particles + FloatingBubbles
- * (aucun canvas). Le bureau utilise le layout d’origine ci-dessous.
+ * Connexion mobile : canvas (vagues AnimatedBackground + réseau type ParticleBackground,
+ * 25 pts #00D47A / #0096D6, liens &lt; 100px) + bulles AT. Desktop inchangé.
  */
 function LoginMobileAnimated({
   email,
@@ -25,6 +33,115 @@ function LoginMobileAnimated({
   handleSubmit,
   comptes,
 }) {
+  const canvasRef = useRef(null)
+  const floatBubbles = useMemo(() => AT_FLOAT_BUBBLES, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const COL_GREEN = { r: 0, g: 212, b: 122 }
+    const COL_BLUE = { r: 0, g: 150, b: 214 }
+    const LINK_DIST = 100
+
+    const waves = [
+      { yRatio: 0.75, color: 'rgba(0,150,214,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
+      { yRatio: 0.82, color: 'rgba(0,180,120,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
+      { yRatio: 0.9, color: 'rgba(0,120,200,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
+    ]
+
+    let animId = 0
+    let t = 0
+    let particles = []
+
+    const seed = () => {
+      particles = []
+      for (let i = 0; i < 25; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          radius: Math.random() * 2 + 1.2,
+          opacity: Math.random() * 0.45 + 0.35,
+          isGreen: i % 2 === 0,
+        })
+      }
+    }
+
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+      seed()
+    }
+
+    const draw = () => {
+      const w = canvas.width
+      const h = canvas.height
+      ctx.clearRect(0, 0, w, h)
+
+      waves.forEach((wv) => {
+        ctx.beginPath()
+        ctx.moveTo(0, h)
+        for (let x = 0; x <= w; x++) {
+          ctx.lineTo(x, h * wv.yRatio + Math.sin(x * wv.freq + t * wv.speed) * wv.amp)
+        }
+        ctx.lineTo(w, h)
+        ctx.closePath()
+        ctx.fillStyle = wv.color
+        ctx.fill()
+      })
+
+      particles.forEach((p) => {
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0 || p.x > w) p.vx *= -1
+        if (p.y < 0 || p.y > h) p.vy *= -1
+      })
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i]
+          const b = particles[j]
+          const dx = a.x - b.x
+          const dy = a.y - b.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          if (distance < LINK_DIST) {
+            const alpha = (1 - distance / LINK_DIST) * 0.35
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.strokeStyle = `rgba(0, 200, 140, ${alpha * 0.5})`
+            ctx.lineWidth = 0.65
+            ctx.stroke()
+          }
+        }
+      }
+
+      particles.forEach((p) => {
+        const c = p.isGreen ? COL_GREEN : COL_BLUE
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${p.opacity})`
+        ctx.fill()
+      })
+
+      t += 0.025
+      animId = requestAnimationFrame(draw)
+    }
+
+    resize()
+    draw()
+    window.addEventListener('resize', resize)
+
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
   const demoBtns = [
     { label: 'Administrateur', key: 'admin', color: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
     { label: 'Validateur', key: 'validateur', color: '#1D4ED8', bg: '#EFF6FF', border: '#BFDBFE' },
@@ -46,26 +163,60 @@ function LoginMobileAnimated({
         padding: 16,
       }}
     >
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+        aria-hidden
+      />
       <div
-        style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+        className="pointer-events-none fixed inset-0 overflow-hidden"
+        style={{ zIndex: 0 }}
         aria-hidden
       >
-        <FloatingBubbles count={8} />
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <AnimatedBalls />
-        </div>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <Particles />
-        </div>
+        {floatBubbles.map((b, i) => (
+          <motion.div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${b.x}%`,
+              top: `${b.y}%`,
+              width: b.size,
+              height: b.size,
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 35% 35%, ${b.fill}, transparent 72%)`,
+              border: `1px solid ${i % 2 === 0 ? 'rgba(0,212,122,0.22)' : 'rgba(0,150,255,0.2)'}`,
+              willChange: 'transform',
+            }}
+            animate={{
+              y: [0, -36, 0],
+              x: [0, 14, 0],
+              scale: [1, 1.06, 1],
+            }}
+            transition={{
+              duration: b.dur,
+              repeat: Infinity,
+              delay: b.delay,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
       </div>
       <div
         style={{
           position: 'fixed',
           inset: 0,
           background:
-            'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.2) 0%, transparent 60%)',
+            'radial-gradient(ellipse at 20% 50%, rgba(0,61,165,0.22) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(0,166,80,0.15) 0%, transparent 60%)',
           pointerEvents: 'none',
-          zIndex: 1,
+          zIndex: 0,
         }}
         aria-hidden
       />
@@ -73,7 +224,7 @@ function LoginMobileAnimated({
       <div
         style={{
           position: 'relative',
-          zIndex: 10,
+          zIndex: 1,
           width: '100%',
           maxWidth: 440,
           background: 'rgba(255,255,255,0.06)',
