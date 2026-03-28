@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
-const isDark = () => {
-  return document.documentElement.classList.contains("dark");
-};
-
-function getColors() {
-  const dark = isDark();
+function getColors(dark: boolean) {
   if (dark) {
     return {
       particleColors: [[0, 212, 122], [0, 150, 255]] as [number, number, number][],
@@ -32,6 +28,13 @@ function getColors() {
 
 export default function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { darkMode } = useAuth();
+  const darkModeRef = useRef(darkMode);
+  darkModeRef.current = darkMode;
+
+  useEffect(() => {
+    document.body.style.background = darkMode ? "#0b1220" : "#f8faff";
+  }, [darkMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -56,23 +59,16 @@ export default function AnimatedBackground() {
       colorIndex: Math.random() > 0.5 ? 0 : 1,
     }));
 
-    const observer = new MutationObserver(() => {
-      /* Theme changed; getColors() will pick it up on next draw frame */
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme", "data-color-mode"],
-    });
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
-    });
-
     function draw() {
-      const colors = getColors();
+      const dm = darkModeRef.current;
+      const colors = getColors(dm);
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
+      if (dm) {
+        ctx.fillStyle = "#0b1220";
+        ctx.fillRect(0, 0, w, h);
+      }
 
       colors.waves.forEach((wv) => {
         ctx.beginPath();
@@ -125,7 +121,6 @@ export default function AnimatedBackground() {
     draw();
 
     return () => {
-      observer.disconnect();
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
     };
