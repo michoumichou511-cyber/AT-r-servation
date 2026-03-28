@@ -1,8 +1,187 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
+
+const MOBILE_MQ = '(max-width: 768px)'
+
+/** Arrière-plan animé mobile uniquement : bulles CSS + canvas (particules + vagues). */
+function LoginMobileAmbient() {
+  const canvasRef = useRef(null)
+
+  const bubbles = useMemo(
+    () => [
+      { left: 6, top: 8, size: 92, delay: 0, dur: 22, color: 'rgba(0,212,122,0.15)' },
+      { left: 72, top: 12, size: 68, delay: 2, dur: 26, color: 'rgba(0,150,255,0.12)' },
+      { left: 18, top: 58, size: 118, delay: 4, dur: 20, color: 'rgba(0,212,122,0.15)' },
+      { left: 55, top: 42, size: 76, delay: 1, dur: 24, color: 'rgba(0,150,255,0.12)' },
+      { left: 82, top: 68, size: 104, delay: 6, dur: 28, color: 'rgba(0,212,122,0.15)' },
+      { left: 38, top: 78, size: 64, delay: 3, dur: 21, color: 'rgba(0,150,255,0.12)' },
+    ],
+    [],
+  )
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const COLORS = ['#00D47A', '#0096D6']
+    const waves = [
+      { yRatio: 0.78, color: 'rgba(0,150,214,0.12)', speed: 0.7, freq: 0.01, amp: 14 },
+      { yRatio: 0.84, color: 'rgba(0,180,120,0.09)', speed: -0.55, freq: 0.014, amp: 12 },
+      { yRatio: 0.9, color: 'rgba(0,120,200,0.08)', speed: 0.95, freq: 0.018, amp: 10 },
+    ]
+
+    let animId = 0
+    let t = 0
+    let w = 0
+    let h = 0
+
+    const particles = []
+
+    const resize = () => {
+      w = window.innerWidth
+      h = window.innerHeight
+      canvas.width = w
+      canvas.height = h
+    }
+
+    resize()
+    for (let i = 0; i < 20; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        r: 2 + Math.random() * 2,
+        colorIndex: Math.random() > 0.5 ? 0 : 1,
+      })
+    }
+    window.addEventListener('resize', resize)
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h)
+
+      waves.forEach((wv) => {
+        ctx.beginPath()
+        ctx.moveTo(0, h)
+        for (let x = 0; x <= w; x += 2) {
+          const y =
+            h * wv.yRatio
+            + Math.sin(x * wv.freq + t * wv.speed) * wv.amp
+          ctx.lineTo(x, y)
+        }
+        ctx.lineTo(w, h)
+        ctx.closePath()
+        ctx.fillStyle = wv.color
+        ctx.fill()
+      })
+
+      particles.forEach((p) => {
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0) p.x = w
+        if (p.x > w) p.x = 0
+        if (p.y < 0) p.y = h
+        if (p.y > h) p.y = 0
+      })
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x
+          const dy = particles[i].y - particles[j].y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 80) {
+            const alpha = (1 - dist / 80) * 0.45
+            ctx.beginPath()
+            ctx.moveTo(particles[i].x, particles[i].y)
+            ctx.lineTo(particles[j].x, particles[j].y)
+            ctx.strokeStyle = `rgba(0, 180, 140, ${alpha * 0.6})`
+            ctx.lineWidth = 0.5
+            ctx.stroke()
+          }
+        }
+      }
+
+      particles.forEach((p) => {
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = COLORS[p.colorIndex]
+        ctx.globalAlpha = 0.85
+        ctx.fill()
+        ctx.globalAlpha = 1
+      })
+
+      t += 0.018
+      animId = window.requestAnimationFrame(draw)
+    }
+
+    animId = window.requestAnimationFrame(draw)
+
+    return () => {
+      window.cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return (
+    <>
+      <style>
+        {`
+@media (max-width: 768px) {
+  @keyframes loginMbFloat {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    25% { transform: translate3d(12px, -28px, 0) scale(1.06); }
+    50% { transform: translate3d(-8px, 12px, 0) scale(0.97); }
+    75% { transform: translate3d(6px, -18px, 0) scale(1.04); }
+  }
+  .login-mb-bubble {
+    animation-name: loginMbFloat;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+}
+`}
+      </style>
+      {bubbles.map((b, i) => (
+        <div
+          key={i}
+          className="login-mb-bubble"
+          style={{
+            position: 'fixed',
+            left: `${b.left}%`,
+            top: `${b.top}%`,
+            width: b.size,
+            height: b.size,
+            borderRadius: '50%',
+            background: b.color,
+            zIndex: 0,
+            pointerEvents: 'none',
+            animationDuration: `${b.dur}s`,
+            animationDelay: `${b.delay}s`,
+          }}
+          aria-hidden
+        />
+      ))}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+        aria-hidden
+      />
+    </>
+  )
+}
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -12,6 +191,16 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  const [isMobileLoginBg, setIsMobileLoginBg] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ)
+    const apply = () => setIsMobileLoginBg(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
 
   const comptes = {
     admin: { email: 'admin@at.dz', password: 'Password@123' },
@@ -300,6 +489,14 @@ export default function Login() {
           flexDirection: 'column',
         }}
       >
+        {isMobileLoginBg ? <LoginMobileAmbient /> : null}
+        <div
+          style={
+            isMobileLoginBg
+              ? { position: 'relative', zIndex: 1 }
+              : undefined
+          }
+        >
         <h1 className="text-[28px] font-extrabold text-[#1A1D26] dark:text-white mb-1">
           Connexion
         </h1>
@@ -510,6 +707,7 @@ export default function Login() {
             Contacter le support IT
           </a>
         </p>
+        </div>
       </div>
     </div>
   )
