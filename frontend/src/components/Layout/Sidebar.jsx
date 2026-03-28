@@ -124,7 +124,14 @@ export default function Sidebar({ onClose }) {
   const isValidateur = hasRole('validateur', 'admin')
 
   return (
-    <aside className="sb-root">
+    <aside
+      className="sb-root"
+      style={{
+        background: 'rgba(10, 15, 30, 0.85)',
+        position: 'relative',
+        zIndex: 1,
+      }}
+    >
       <div className="sb-particles" aria-hidden>
         {[1, 2, 3, 4, 5].map((i) => (
           <span key={i} className="sb-particle" />

@@ -109,10 +109,18 @@ export default function Navbar({ onMenuClick }) {
   const initiales = [user?.prenom?.[0], user?.nom?.[0]].filter(Boolean).join('').toUpperCase()
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 shadow-sm
-                       dark:bg-[#1A1D2E] dark:border-[#2A2D3E]
+    <header
+      className="h-16 border-b border-gray-100 shadow-sm
+                       dark:border-[#2A2D3E]
                        flex items-center justify-between px-4 md:px-6
-                       sticky top-0 z-20 flex-shrink-0">
+                       flex-shrink-0"
+      style={{
+        background: 'rgba(10, 15, 30, 0.85)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1,
+      }}
+    >
 
       {/* GAUCHE */}
       <div className="flex items-center gap-3">
