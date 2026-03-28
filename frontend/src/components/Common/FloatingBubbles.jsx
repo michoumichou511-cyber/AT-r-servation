@@ -31,6 +31,7 @@ export default function FloatingBubbles({ count = 8 }) {
       {bubbles.map((b, i) => (
         <motion.div
           key={i}
+          className="floating-bubble"
           style={{
             position: 'absolute',
             left: `${b.x}%`,
