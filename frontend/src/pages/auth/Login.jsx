@@ -1,11 +1,29 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react'
 
 const MOBILE_MQ = '(max-width: 767px)'
+
+const LoginDecor3D = lazy(() => import('../../components/auth/LoginDecor3D'))
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const apply = () => setReduced(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+  return reduced
+}
 
 /** Bulles larges AT — rgba comme demandé, mouvement type FloatingBubbles.jsx */
 const AT_FLOAT_BUBBLES = [
@@ -36,11 +54,12 @@ function LoginMobileAnimated({
 }) {
   const canvasRef = useRef(null)
   const floatBubbles = useMemo(() => AT_FLOAT_BUBBLES, [])
+  const reducedMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
     const isDark = darkMode
@@ -51,6 +70,7 @@ function LoginMobileAnimated({
       ? { r: 0, g: 150, b: 214 }
       : { r: 0, g: 80, b: 200 }
     const LINK_DIST = 100
+    const LINK_DIST_SQ = LINK_DIST * LINK_DIST
 
     const waves = isDark
       ? [
@@ -68,12 +88,12 @@ function LoginMobileAnimated({
     let t = 0
     let particles = []
 
-    const seed = () => {
+    const seed = (lw, lh) => {
       particles = []
       for (let i = 0; i < 25; i++) {
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: Math.random() * lw,
+          y: Math.random() * lh,
           vx: (Math.random() - 0.5) * 0.5,
           vy: (Math.random() - 0.5) * 0.5,
           radius: Math.random() * 2 + 1.2,
@@ -84,14 +104,20 @@ function LoginMobileAnimated({
     }
 
     const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-      seed()
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+      const lw = window.innerWidth
+      const lh = window.innerHeight
+      canvas.width = Math.floor(lw * dpr)
+      canvas.height = Math.floor(lh * dpr)
+      canvas.style.width = `${lw}px`
+      canvas.style.height = `${lh}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      seed(lw, lh)
     }
 
-    const draw = () => {
-      const w = canvas.width
-      const h = canvas.height
+    const loop = () => {
+      const w = window.innerWidth
+      const h = window.innerHeight
       ctx.clearRect(0, 0, w, h)
 
       waves.forEach((wv) => {
@@ -119,8 +145,9 @@ function LoginMobileAnimated({
           const b = particles[j]
           const dx = a.x - b.x
           const dy = a.y - b.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          if (distance < LINK_DIST) {
+          const distSq = dx * dx + dy * dy
+          if (distSq < LINK_DIST_SQ) {
+            const distance = Math.sqrt(distSq)
             const alpha = (1 - distance / LINK_DIST) * 0.35
             ctx.beginPath()
             ctx.moveTo(a.x, a.y)
@@ -142,16 +169,25 @@ function LoginMobileAnimated({
       })
 
       t += 0.025
-      animId = requestAnimationFrame(draw)
+      animId = requestAnimationFrame(loop)
+    }
+
+    const onVisibility = () => {
+      cancelAnimationFrame(animId)
+      if (document.visibilityState === 'visible') {
+        animId = requestAnimationFrame(loop)
+      }
     }
 
     resize()
-    draw()
+    animId = requestAnimationFrame(loop)
     window.addEventListener('resize', resize)
+    document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [darkMode])
 
@@ -235,7 +271,7 @@ function LoginMobileAnimated({
         aria-hidden
       >
         {floatBubbles.map((b, i) => (
-          <motion.div
+          <m.div
             key={i}
             style={{
               position: 'absolute',
@@ -246,17 +282,21 @@ function LoginMobileAnimated({
               borderRadius: '50%',
               background: `radial-gradient(circle at 35% 35%, ${b.fill}, transparent 72%)`,
               border: `1px solid ${i % 2 === 0 ? 'rgba(0,212,122,0.22)' : 'rgba(0,150,255,0.2)'}`,
-              willChange: 'transform',
+              willChange: reducedMotion ? undefined : 'transform',
             }}
-            animate={{
-              y: [0, -36, 0],
-              x: [0, 14, 0],
-              scale: [1, 1.06, 1],
-            }}
+            animate={
+              reducedMotion
+                ? undefined
+                : {
+                    y: [0, -36, 0],
+                    x: [0, 14, 0],
+                    scale: [1, 1.06, 1],
+                  }
+            }
             transition={{
-              duration: b.dur,
-              repeat: Infinity,
-              delay: b.delay,
+              duration: reducedMotion ? 0 : b.dur,
+              repeat: reducedMotion ? 0 : Infinity,
+              delay: reducedMotion ? 0 : b.delay,
               ease: 'easeInOut',
             }}
           />
@@ -607,22 +647,25 @@ export default function Login() {
     return () => mq.removeEventListener('change', apply)
   }, [])
 
+  const reducedMotion = usePrefersReducedMotion()
+
   const themeToggle = (
-    <motion.button
+    <m.button
       type="button"
       onClick={toggleDarkMode}
-      whileTap={{ rotate: 180 }}
+      whileTap={reducedMotion ? undefined : { rotate: 180 }}
       transition={{ duration: 0.3 }}
       className="fixed top-4 right-4 z-[100] p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 transition-colors"
       aria-label={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
     >
       {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-    </motion.button>
+    </m.button>
   )
 
   if (isMobile) {
     return (
-      <>
+      <LazyMotion features={domAnimation}>
+        <>
         {themeToggle}
         <LoginMobileAnimated
           email={email}
@@ -637,11 +680,13 @@ export default function Login() {
           comptes={comptes}
           darkMode={darkMode}
         />
-      </>
+        </>
+      </LazyMotion>
     )
   }
 
   return (
+    <LazyMotion features={domAnimation}>
     <>
       {themeToggle}
       <div
@@ -692,6 +737,12 @@ export default function Login() {
             pointerEvents: 'none',
           }}
         />
+
+        {!reducedMotion && (
+          <Suspense fallback={null}>
+            <LoginDecor3D />
+          </Suspense>
+        )}
 
         {/* Cercle déco haut droite */}
         <div
@@ -890,7 +941,7 @@ export default function Login() {
           background: darkMode ? '#0b1220' : '#ffffff',
         }}
       >
-        <div
+        <m.div
           className="flex flex-col flex-1 w-full min-h-0"
           style={
             darkMode
@@ -901,6 +952,9 @@ export default function Login() {
                 }
               : undefined
           }
+          initial={reducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={reducedMotion ? false : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
         <h1
           className={`text-[28px] font-extrabold mb-1 ${
@@ -1016,9 +1070,11 @@ export default function Login() {
           </div>
 
           {/* Bouton connexion */}
-          <button
+          <m.button
             type="submit"
             disabled={loading}
+            whileHover={reducedMotion || loading ? undefined : { scale: 1.01 }}
+            whileTap={reducedMotion || loading ? undefined : { scale: 0.99 }}
             style={{
               width: '100%',
               padding: 15,
@@ -1046,7 +1102,7 @@ export default function Login() {
             ) : (
               'Se connecter →'
             )}
-          </button>
+          </m.button>
         </form>
 
         {/* Séparateur */}
@@ -1090,13 +1146,15 @@ export default function Login() {
             { label: 'Utilisateur', key: 'utilisateur', color: '#15803D', bg: '#F0FDF4', border: '#BBF7D0' },
             { label: 'Demandeur', key: 'demandeur', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
           ].map(b => (
-            <button
+            <m.button
               key={b.key}
               type="button"
               onClick={() => {
                 setEmail(comptes[b.key].email)
                 setPassword(comptes[b.key].password)
               }}
+              whileHover={reducedMotion ? undefined : { scale: 1.02 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               style={{
                 padding: '10px 12px',
                 borderRadius: 10,
@@ -1110,7 +1168,7 @@ export default function Login() {
               }}
             >
               {b.label}
-            </button>
+            </m.button>
           ))}
         </div>
 
@@ -1147,9 +1205,10 @@ export default function Login() {
             Contacter le support IT
           </a>
         </p>
-        </div>
+        </m.div>
       </div>
     </div>
     </>
+    </LazyMotion>
   )
 }
