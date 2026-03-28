@@ -516,7 +516,7 @@ export default function Login() {
     } catch (err) {
       if (!err.response) {
         const apiBase =
-          import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+          import.meta.env.VITE_API_URL || 'https://backend-production-170c.up.railway.app/api'
         const apiLooksLocal = /localhost|127\.0\.0\.1/.test(apiBase)
         if (import.meta.env.PROD && apiLooksLocal) {
           setError(

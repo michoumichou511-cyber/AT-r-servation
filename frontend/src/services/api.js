@@ -1,10 +1,8 @@
 import axios from 'axios'
 
-/** En dev (vite), pointer vers l’API locale si VITE_API_URL n’est pas défini — évite de taper Railway par erreur. */
+/** Base API : Railway par défaut si VITE_API_URL n’est pas défini. */
 const defaultBaseURL = import.meta.env.VITE_API_URL
-  ?? (import.meta.env.DEV
-    ? 'http://127.0.0.1:8000/api'
-    : 'https://backend-production-170c.up.railway.app/api')
+  ?? 'https://backend-production-170c.up.railway.app/api'
 
 const api = axios.create({
   baseURL: defaultBaseURL,
