@@ -115,10 +115,18 @@ export default function Navbar({ onMenuClick }) {
                        flex items-center justify-between px-4 md:px-6
                        flex-shrink-0"
       style={{
-        background: 'rgba(10, 15, 30, 0.85)',
         position: 'sticky',
         top: 0,
         zIndex: 1,
+        ...(darkMode
+          ? {
+              background: 'rgba(10, 15, 30, 0.85)',
+              borderBottom: '1px solid #2A2D3E',
+            }
+          : {
+              background: 'rgba(255,255,255,0.9)',
+              borderBottom: '1px solid #e5e7eb',
+            }),
       }}
     >
 

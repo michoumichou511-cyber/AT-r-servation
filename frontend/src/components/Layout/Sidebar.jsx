@@ -82,7 +82,7 @@ function NavItem({
 }
 
 export default function Sidebar({ onClose }) {
-  const { user, hasRole, logout } = useAuth()
+  const { user, hasRole, logout, darkMode } = useAuth()
   const navigate = useNavigate()
   const [msgCount, setMsgCount] = useState(0)
   const [notifCount, setNotifCount] = useState(0)
@@ -127,9 +127,14 @@ export default function Sidebar({ onClose }) {
     <aside
       className="sb-root"
       style={{
-        background: 'rgba(10, 15, 30, 0.85)',
         position: 'relative',
         zIndex: 1,
+        ...(!darkMode
+          ? {
+              background: '#ffffff',
+              borderRight: '1px solid #e5e7eb',
+            }
+          : {}),
       }}
     >
       <div className="sb-particles" aria-hidden>
