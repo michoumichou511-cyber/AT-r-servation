@@ -57,9 +57,9 @@ class DocumentController extends Controller
 
         // Validation
         $request->validate([
-            'fichier' => 'required|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
-            'type_document' => 'required|in:ordre_mission,autorisation,facture,rapport,justificatif,contrat,autre',
-            'description' => 'nullable|string',
+            // max en KB => 5120 = 5MB
+            'fichier' => 'required|file|max:5120|mimes:pdf,doc,docx,jpg,jpeg',
+            'type_document' => 'required|in:ordre_mission,formulaire,autorisation',
         ]);
 
         $file = $request->file('fichier');
@@ -77,9 +77,10 @@ class DocumentController extends Controller
             'documentable_id' => $mission_id,
             'nom_fichier' => $nom_fichier,
             'chemin' => $chemin_complet,
-            'type_document' => $request->type_document ?? 'autre',
+            'type_document' => $request->type_document,
             'taille' => $taille,
             'uploaded_by' => $user->id,
+            'uploaded_at' => now(),
         ]);
 
         AuditLog::create([

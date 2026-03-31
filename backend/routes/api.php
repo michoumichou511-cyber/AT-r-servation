@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     // MISSIONS
     Route::get('/missions', [MissionController::class, 'index']);
     Route::post('/missions', [MissionController::class, 'store']);
+    Route::get('/missions/export', [MissionController::class, 'export']);
     Route::get('/missions/{id}', [MissionController::class, 'show']);
     Route::put('/missions/{id}', [MissionController::class, 'update']);
     Route::delete('/missions/{id}', [MissionController::class, 'destroy']);

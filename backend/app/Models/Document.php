@@ -17,6 +17,7 @@ class Document extends Model
         'type_document',
         'taille',
         'uploaded_by',
+        'uploaded_at',
     ];
 
     // ========== RELATIONS ==========
@@ -72,6 +73,7 @@ class Document extends Model
     {
         return match ($this->type_document) {
             'ordre_mission' => '📋 Ordre de Mission',
+            'formulaire' => '📝 Formulaire de demande',
             'formulaire_reservation' => '📝 Formulaire Réservation',
             'autorisation' => '🔐 Autorisation',
             'facture' => '💳 Facture',
