@@ -204,6 +204,13 @@ export default function Sidebar({ onClose }) {
             animDelay={0.1}
           />
           <NavItem
+            to="/organigramme"
+            icon={ClipboardList}
+            label="Organigramme"
+            onClick={onClose}
+            animDelay={0.12}
+          />
+          <NavItem
             to="/missions"
             icon={FileText}
             label="Mes missions"

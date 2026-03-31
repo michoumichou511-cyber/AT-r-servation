@@ -7,6 +7,7 @@ import { setUnauthorizedHandler } from './services/api';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import MainLayout       from './components/Layout/MainLayout';
 import PrivateRoute     from './components/Common/PrivateRoute';
+import Organigramme from './pages/Organigramme';
 
 const Login            = React.lazy(() => import('./pages/auth/Login'));
 const Register         = React.lazy(() => import('./pages/auth/Register'));
@@ -66,6 +67,7 @@ function AppRoutes() {
 
         <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
           <Route path="/"                    element={<Dashboard />} />
+          <Route path="/organigramme"        element={<Organigramme />} />
           <Route path="/missions"            element={<MissionsList />} />
           <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
           <Route path="/missions/:id"        element={<MissionDetail />} />
