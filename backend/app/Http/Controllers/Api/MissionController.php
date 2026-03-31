@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\MissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MissionController extends Controller
 {
@@ -314,6 +315,57 @@ class MissionController extends Controller
         ]);
 
         return $pdf->download('ordre_mission_'.$mission->numero_unique.'.pdf');
+    }
+
+    public function export(Request $request)
+    {
+        $user = $request->user()->load('role');
+        $format = strtolower((string) $request->query('format', 'xlsx'));
+
+        if (! in_array($format, ['xlsx', 'pdf'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format invalide. Utilisez ?format=xlsx ou ?format=pdf',
+            ], 422);
+        }
+
+        $query = Mission::query()->with(['user']);
+
+        $roleName = strtolower($user->role->name ?? '');
+
+        if ($roleName === 'admin') {
+            // admin : tout
+        } elseif (str_contains($roleName, 'validateur')) {
+            // validateur : missions de sa structure (direction)
+            $direction = $user->direction;
+            if (! empty($direction)) {
+                $query->whereHas('user', function ($q) use ($direction) {
+                    $q->where('direction', $direction);
+                });
+            } else {
+                // fallback : ne rien exposer si la structure est inconnue
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
+        }
+
+        $missions = $query->orderBy('created_at', 'desc')->get();
+
+        $date = now()->format('Y-m-d_H-i-s');
+
+        if ($format === 'xlsx') {
+            return Excel::download(
+                new \App\Exports\MissionsExportCompact($missions),
+                "missions_export_{$date}.xlsx"
+            );
+        }
+
+        return Pdf::loadView('pdf.missions_export', [
+            'missions' => $missions,
+            'date_generation' => now()->format('d/m/Y H:i'),
+            'user' => $user,
+        ])->download("missions_export_{$date}.pdf");
     }
 
     public function historique($id)
