@@ -66,56 +66,48 @@ function StatistiquesPage() {
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
+    const now = new Date()
+    const currentYear = now.getFullYear()
+
     try {
-      const now = new Date()
-      const currentYear = now.getFullYear()
-
-      const [statsRes, depensesRes, missionsRes] = await Promise.allSettled([
-        dashboardAPI.stats(),
-        dashboardAPI.depensesParDirection({ annee: currentYear }),
-        missionsAPI.list({ page: 1, per_page: 100 }),
-      ])
-
-      if (statsRes.status === 'fulfilled') {
-        const raw = statsRes.value.data?.data ?? statsRes.value.data ?? {}
-        setStats(typeof raw === 'object' && raw !== null ? raw : {})
-      } else {
-        setStats({})
-        toast('Statistiques partiellement indisponibles', { icon: '⚠️' })
-      }
-
-      if (depensesRes.status === 'fulfilled') {
-        const d =
-          depensesRes.value.data?.data?.depenses ??
-          depensesRes.value.data?.depenses ??
-          []
-        setDepensesDir(
-          Array.isArray(d)
-            ? d.map((row) => ({
-              direction: row?.direction ?? '—',
-              total: Number(row?.total ?? 0) || 0,
-            }))
-            : []
-        )
-      } else {
-        setDepensesDir([])
-      }
-
-      if (missionsRes.status === 'fulfilled') {
-        const body = missionsRes.value.data
-        const ms = body?.data
-        setMissionsSample(Array.isArray(ms) ? ms : [])
-      } else {
-        setMissionsSample([])
-      }
+      const statsRes = await dashboardAPI.stats()
+      const raw = statsRes.data?.data ?? statsRes.data ?? {}
+      setStats(typeof raw === 'object' && raw !== null ? raw : {})
     } catch {
       setStats({})
-      setDepensesDir([])
-      setMissionsSample([])
-      toast('Statistiques partiellement indisponibles', { icon: '⚠️' })
-    } finally {
-      setLoading(false)
+      toast('Statistiques dashboard indisponibles', { icon: '⚠️' })
     }
+
+    try {
+      const depensesRes = await dashboardAPI.depensesParDirection({ annee: currentYear })
+      const d =
+        depensesRes.data?.data?.depenses ??
+        depensesRes.data?.depenses ??
+        []
+      setDepensesDir(
+        Array.isArray(d)
+          ? d.map((row) => ({
+            direction: row?.direction ?? '—',
+            total: Number(row?.total ?? 0) || 0,
+          }))
+          : []
+      )
+    } catch {
+      setDepensesDir([])
+      toast('Dépenses par direction indisponibles', { icon: '⚠️' })
+    }
+
+    try {
+      const missionsRes = await missionsAPI.list({ page: 1, per_page: 100 })
+      const body = missionsRes.data
+      const ms = body?.data
+      setMissionsSample(Array.isArray(ms) ? ms : [])
+    } catch {
+      setMissionsSample([])
+      toast('Échantillon missions indisponible', { icon: '⚠️' })
+    }
+
+    setLoading(false)
   }, [])
 
   useEffect(() => {

@@ -112,7 +112,7 @@ export default function MissionDetail() {
     setLoadingReservations(true)
     setErrorReservations('')
     try {
-      const res = await reservationsAPI.list(missionId)
+      const res = await reservationsAPI.getByMission(missionId)
       const raw = res?.data?.data ?? res?.data?.reservations ?? res?.data
       const list = Array.isArray(raw) ? raw : []
       setReservations(list)
@@ -131,7 +131,8 @@ export default function MissionDetail() {
     setErrorDocuments('')
     try {
       const res = await documentsAPI.list(missionId)
-      const list = Array.isArray(res.data) ? res.data : []
+      const body = res?.data?.data ?? res?.data
+      const list = Array.isArray(body) ? body : []
       setDocuments(list)
     } catch (err) {
       setDocuments([])
@@ -148,7 +149,8 @@ export default function MissionDetail() {
     setErrorHistorique('')
     try {
       const res = await missionsAPI.historique(missionId)
-      const list = Array.isArray(res.data) ? res.data : []
+      const raw = res?.data?.data ?? res?.data
+      const list = Array.isArray(raw) ? raw : []
       setHistorique(list)
     } catch (err) {
       setHistorique([])
@@ -211,7 +213,7 @@ export default function MissionDetail() {
 
   const soumettreMission = async () => {
     try {
-      const res = await missionsAPI.submit(missionId)
+      const res = await missionsAPI.soumettre(missionId)
       const next = res.data?.data ?? null
       if (next) setMission(next)
       toast.success('Mission soumise ✅')
@@ -226,7 +228,7 @@ export default function MissionDetail() {
 
   const annulerMission = async () => {
     try {
-      await missionsAPI.cancel(missionId)
+      await missionsAPI.annuler(missionId)
       await chargerMission()
       toast.success('Mission annulée ✅')
     } catch (err) {
