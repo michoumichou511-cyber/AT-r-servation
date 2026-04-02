@@ -48,6 +48,7 @@ export default function Utilisateurs() {
     matricule: '',
     service: '',
     direction: '',
+    structure_id: '',
     poste: '',
     telephone: '',
   })
@@ -122,6 +123,7 @@ export default function Utilisateurs() {
       matricule: '',
       service: '',
       direction: '',
+      structure_id: '',
       poste: '',
       telephone: '',
     })
@@ -140,6 +142,7 @@ export default function Utilisateurs() {
         matricule: form.matricule || undefined,
         service: form.service || undefined,
         direction: form.direction || undefined,
+        structure_id: form.structure_id || undefined,
         poste: form.poste || undefined,
         telephone: form.telephone || undefined,
       }
@@ -420,12 +423,76 @@ export default function Utilisateurs() {
               value={form.direction}
               onChange={(e) => setForm(f => ({ ...f, direction: e.target.value }))}
             />
-            <Input
-              label="Poste (optionnel)"
-              value={form.poste}
-              onChange={(e) => setForm(f => ({ ...f, poste: e.target.value }))}
-            />
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Structure</label>
+              <select
+                name="structure_id"
+                value={form.structure_id}
+                onChange={(e) => setForm(f => ({ ...f, structure_id: e.target.value }))}
+                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                           focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
+              >
+                <option value="">— Choisir une structure —</option>
+                <optgroup label="Direction Générale">
+                  <option value="pdg">PDG — Président Directeur Général</option>
+                  <option value="cellule">Cellule Reporting & Analyse</option>
+                  <option value="inspection">Inspection Générale</option>
+                </optgroup>
+                <optgroup label="Division Systèmes d'Information (DSI)">
+                  <option value="dsi">Division DSI</option>
+                  <option value="dir-secu">Direction Sécurité SI</option>
+                  <option value="dir-infra">Direction Infrastructures Informatiques</option>
+                  <option value="dir-dev">Direction Développement SI</option>
+                  <option value="dir-billing">Direction Systèmes Billings</option>
+                </optgroup>
+                <optgroup label="Division RH et Formation">
+                  <option value="drh">Division RH et Formation</option>
+                  <option value="dir-carrieres">Direction Carrières et Compétences</option>
+                  <option value="dir-formation">Direction de la Formation</option>
+                  <option value="dept-qualite">Département Qualité</option>
+                  <option value="dept-competences">Département Compétences</option>
+                  <option value="dept-veille">Département Veille Formation</option>
+                  <option value="s-qualite">Service Management Qualité</option>
+                  <option value="s-etude">Service Etude Formation</option>
+                  <option value="s-support">Service Support & Reporting</option>
+                  <option value="s-tech">Service Formations Techniques</option>
+                  <option value="s-manag">Service Formations Managériales</option>
+                  <option value="s-cadres">Service Formations Cadres Supérieurs</option>
+                  <option value="s-veille">Service Veille Partenariats</option>
+                  <option value="s-etude2">Service Etude & Dev Formation</option>
+                  <option value="dir-relations">Direction Relations Socioprofessionnelles</option>
+                  <option value="dir-etudes">Direction des Etudes</option>
+                </optgroup>
+                <optgroup label="Autres Divisions">
+                  <option value="dcm">Division Commerciale & Marketing</option>
+                  <option value="dfc">Division Finances & Comptabilité</option>
+                  <option value="dir-interconnexion">Division Interconnexion & Relations Internationales</option>
+                  <option value="dir-achats">Division Achats, Moyens & Patrimoine</option>
+                  <option value="dir-surete">Direction Sûreté Interne</option>
+                  <option value="dir-juridique">Direction Affaires Juridiques</option>
+                  <option value="dir-audit">Direction Audit Interne</option>
+                </optgroup>
+                <optgroup label="Pôle Infrastructures & Réseaux">
+                  <option value="pole-infra">Pôle Infrastructures et Réseaux</option>
+                  <option value="div-transport">Division Réseaux Transport</option>
+                  <option value="div-core">Division Réseau Core</option>
+                  <option value="div-acces">Division Réseaux Accès</option>
+                </optgroup>
+                <optgroup label="Directions Opérationnelles">
+                  <option value="do-alger1">DOT Alger Centre</option>
+                  <option value="do-alger2">DOT Alger Est</option>
+                  <option value="do-alger3">DOT Alger Ouest</option>
+                  <option value="do">Autre Direction Opérationnelle</option>
+                </optgroup>
+              </select>
+            </div>
           </div>
+
+          <Input
+            label="Poste (optionnel)"
+            value={form.poste}
+            onChange={(e) => setForm(f => ({ ...f, poste: e.target.value }))}
+          />
 
           <Input
             label="Téléphone (optionnel)"

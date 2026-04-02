@@ -29,6 +29,7 @@ import toast from 'react-hot-toast'
 
 import { dashboardAPI, missionsAPI } from '../../services/api'
 import PageHeader from '../../components/Common/PageHeader'
+import ErrorBoundary from '../../components/Common/ErrorBoundary'
 import { Badge, Button, EmptyState, SkeletonCard } from '../../components/UI'
 import { formatDZD } from '../../utils/format'
 
@@ -54,7 +55,7 @@ function parseCreatedAt(iso) {
   return d
 }
 
-export default function Statistiques() {
+function StatistiquesPage() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
@@ -401,5 +402,13 @@ export default function Statistiques() {
         </>
       )}
     </div>
+  )
+}
+
+export default function Statistiques() {
+  return (
+    <ErrorBoundary>
+      <StatistiquesPage />
+    </ErrorBoundary>
   )
 }

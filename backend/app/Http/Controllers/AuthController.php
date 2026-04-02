@@ -37,6 +37,7 @@ class AuthController extends Controller
             'matricule' => $validated['matricule'] ?? null,
             'service' => $validated['service'] ?? null,
             'direction' => $validated['direction'] ?? null,
+            'structure_id' => $validated['structure_id'] ?? null,
             'telephone' => $validated['telephone'] ?? null,
             'poste' => $validated['poste'] ?? null,
             'role_id' => $role?->id,

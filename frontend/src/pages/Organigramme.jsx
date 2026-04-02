@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 // ============================================================
 // DONNÉES OFFICIELLES extraites des documents AT
@@ -282,10 +283,11 @@ const orgData = {
 // ============================================================
 // COMPOSANT CARTE
 // ============================================================
-function OrgCard({ node, depth, onSelect, selected }) {
+function OrgCard({ node, depth, onSelect, selected, usersByStructure }) {
   const isSelected = selected?.id === node.id;
   const hasChildren = node.children && node.children.length > 0;
   const isRoot = depth === 0;
+  const nodeUsers = usersByStructure?.[node.id] || [];
 
   const bgColor = isRoot
     ? "#003DA5"
@@ -346,6 +348,23 @@ function OrgCard({ node, depth, onSelect, selected }) {
       }}>
         {node.name}
       </div>
+      {/* Badge utilisateurs (dynamique BD) */}
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          padding: "4px 8px",
+          borderRadius: 999,
+          fontSize: 10,
+          fontWeight: 700,
+          background: nodeUsers.length > 0 ? "#16a34a" : "#9ca3af",
+          color: "#fff",
+          border: "1px solid rgba(255,255,255,0.35)",
+        }}
+      >
+        {nodeUsers.length > 0 ? `${nodeUsers.length} 👤` : "Poste vacant"}
+      </div>
       {hasChildren && (
         <div style={{
           position: "absolute",
@@ -373,14 +392,14 @@ function OrgCard({ node, depth, onSelect, selected }) {
 // ============================================================
 // NOEUD D'ARBRE (récursif)
 // ============================================================
-function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand }) {
+function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, usersByStructure }) {
   const isExpanded = expandedIds.includes(node.id);
   const hasChildren = node.children && node.children.length > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ position: "relative" }}>
-        <OrgCard node={node} depth={depth} onSelect={onSelect} selected={selected} />
+        <OrgCard node={node} depth={depth} onSelect={onSelect} selected={selected} usersByStructure={usersByStructure} />
         {hasChildren && (
           <button
             onClick={(e) => { e.stopPropagation(); toggleExpand(node.id); }}
@@ -433,6 +452,7 @@ function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand }
                   selected={selected}
                   expandedIds={expandedIds}
                   toggleExpand={toggleExpand}
+                  usersByStructure={usersByStructure}
                 />
               </div>
             ))}
@@ -446,9 +466,18 @@ function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand }
 // ============================================================
 // PANNEAU DÉTAIL
 // ============================================================
-function DetailPanel({ node, onClose }) {
+function DetailPanel({ node, onClose, usersByStructure }) {
   if (!node) return null;
   const bgColor = node.color === "#00A650" ? "#00A650" : node.color === "#003DA5" ? "#003DA5" : "#4b5563";
+  const nodeUsers = usersByStructure?.[node.id] || [];
+
+  const roleStyle = (role) => {
+    const r = (role || "").toLowerCase();
+    if (r === "admin") return { background: "#2563eb", color: "#fff" };
+    if (r === "validateur") return { background: "#f59e0b", color: "#111827" };
+    if (r === "demandeur") return { background: "#16a34a", color: "#fff" };
+    return { background: "#9ca3af", color: "#fff" };
+  };
 
   return (
     <div style={{
@@ -489,9 +518,11 @@ function DetailPanel({ node, onClose }) {
           fontWeight: "bold",
           marginBottom: 12,
         }}>
-          {node.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+          {(nodeUsers[0]?.name || node.name).split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
         </div>
-        <div style={{ fontSize: 18, fontWeight: "700", marginBottom: 4 }}>{node.name}</div>
+        <div style={{ fontSize: 18, fontWeight: "700", marginBottom: 4 }}>
+          {nodeUsers.length > 0 ? `${nodeUsers.length} utilisateur(s)` : "Poste vacant"}
+        </div>
         <div style={{ fontSize: 13, opacity: 0.85 }}>{node.title}</div>
       </div>
 
@@ -502,6 +533,65 @@ function DetailPanel({ node, onClose }) {
         {node.children && node.children.length > 0 && (
           <InfoRow icon="👥" label="Sous-structures" value={`${node.children.length} unité(s)`} />
         )}
+
+        {/* Utilisateurs réels (BD) */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#111827", marginBottom: 10 }}>
+            Utilisateurs affectés
+          </div>
+          {nodeUsers.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {nodeUsers.map((u) => (
+                <div
+                  key={u.id}
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    background: "#fff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{u.name}</div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 800,
+                        padding: "3px 8px",
+                        borderRadius: 999,
+                        ...roleStyle(u.role),
+                      }}
+                    >
+                      {u.role || "—"}
+                    </span>
+                  </div>
+                  <div style={{ marginTop: 4, fontSize: 12, color: "#6b7280" }}>{u.email}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: "12px 12px", borderRadius: 10, background: "#f9fafb", border: "1px dashed #d1d5db" }}>
+              <div style={{ fontSize: 12, color: "#6b7280" }}>Aucun utilisateur affecté à cette structure.</div>
+              <button
+                onClick={() => window.location.assign(`/admin/users/create?structure=${encodeURIComponent(node.id)}`)}
+                style={{
+                  marginTop: 10,
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 10,
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  background: "#00A650",
+                  color: "#fff",
+                }}
+              >
+                ➕ Affecter un utilisateur
+              </button>
+            </div>
+          )}
+        </div>
 
         <div style={{
           marginTop: 20,
@@ -546,6 +636,21 @@ export default function Organigramme() {
   const [selected, setSelected] = useState(null);
   const [expandedIds, setExpandedIds] = useState(["pdg"]);
   const [search, setSearch] = useState("");
+  const [usersByStructure, setUsersByStructure] = useState({});
+
+  useEffect(() => {
+    let mounted = true;
+    api.get("/users/by-structure")
+      .then((res) => {
+        if (!mounted) return;
+        setUsersByStructure(res.data || {});
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setUsersByStructure({});
+      });
+    return () => { mounted = false; };
+  }, []);
 
   const toggleExpand = (id) => {
     setExpandedIds((prev) =>
@@ -696,13 +801,14 @@ export default function Organigramme() {
             selected={selected}
             expandedIds={expandedIds}
             toggleExpand={toggleExpand}
+            usersByStructure={usersByStructure}
           />
         </div>
       </div>
 
       {/* PANNEAU DÉTAIL */}
       {selected && (
-        <DetailPanel node={selected} onClose={() => setSelected(null)} />
+        <DetailPanel node={selected} onClose={() => setSelected(null)} usersByStructure={usersByStructure} />
       )}
     </div>
   );

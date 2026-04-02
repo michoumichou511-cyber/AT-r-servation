@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             MissionsSeeder::class,
             BudgetsSeeder::class,
+            ATUsersSeeder::class,
         ]);
     }
 }

@@ -113,7 +113,8 @@ export default function MissionDetail() {
     setErrorReservations('')
     try {
       const res = await reservationsAPI.list(missionId)
-      const list = Array.isArray(res.data) ? res.data : []
+      const raw = res?.data?.data ?? res?.data?.reservations ?? res?.data
+      const list = Array.isArray(raw) ? raw : []
       setReservations(list)
     } catch (err) {
       setReservations([])
@@ -237,7 +238,7 @@ export default function MissionDetail() {
 
   const telechargerPDF = async () => {
     try {
-      const res = await missionsAPI.exportPdf(missionId)
+      const res = await missionsAPI.exportOrdreMissionPdf(missionId)
       // res.data est un Blob car responseType=blob
       // On utilise directement l'API utilitaire côté service si besoin plus tard.
       const blob = res.data

@@ -24,6 +24,7 @@ class RegisterRequest extends FormRequest
             'matricule' => ['nullable', 'string', 'unique:users,matricule', 'max:255'],
             'service' => ['nullable', 'string', 'max:255'],
             'direction' => ['nullable', 'string', 'max:255'],
+            'structure_id' => ['nullable', 'string', 'max:255'],
             'poste' => ['nullable', 'string', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:255'],
         ];

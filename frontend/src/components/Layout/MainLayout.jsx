@@ -3,18 +3,15 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ErrorBoundary from '../Common/ErrorBoundary'
 import FloatingBubbles from '../Common/FloatingBubbles'
-import CustomCursor from '../Dashboard/CustomCursor'
 import Sidebar from './Sidebar'
 import Navbar  from './Navbar'
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
-  const isDashboard = location.pathname === '/'
 
   return (
     <div className="flex h-screen bg-transparent overflow-hidden relative z-[1]">
-      {isDashboard && <CustomCursor />}
       <FloatingBubbles count={8} />
 
       {/* Overlay mobile */}

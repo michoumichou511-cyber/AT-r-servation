@@ -56,7 +56,8 @@ export default function Step4Recap({ missionId, onPrev }) {
       ])
 
       const m = mRes?.data?.data ?? mRes?.data ?? null
-      const rList = Array.isArray(rRes?.data) ? rRes.data : []
+      const rRaw = rRes?.data?.data ?? rRes?.data?.reservations ?? rRes?.data
+      const rList = Array.isArray(rRaw) ? rRaw : []
       const dList = Array.isArray(dRes?.data) ? dRes.data : []
 
       setMission(m)

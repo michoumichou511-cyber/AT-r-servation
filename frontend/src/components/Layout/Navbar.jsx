@@ -117,7 +117,7 @@ export default function Navbar({ onMenuClick }) {
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 1,
+        zIndex: 9999,
         ...(darkMode
           ? {
               background: 'rgba(10, 15, 30, 0.85)',
@@ -244,7 +244,11 @@ export default function Navbar({ onMenuClick }) {
           <AnimatePresence>
             {dropdownOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+                <div
+                  className="fixed inset-0"
+                  style={{ zIndex: 9999 }}
+                  onClick={() => setDropdownOpen(false)}
+                />
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: -8 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -252,7 +256,7 @@ export default function Navbar({ onMenuClick }) {
                   transition={{ duration: 0.15 }}
                   className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl
                              border border-gray-100 z-20 py-1.5 overflow-hidden"
-                  style={{ position: 'absolute', zIndex: 9999, isolation: 'isolate' }}
+                  style={{ position: 'absolute', zIndex: 10000, isolation: 'isolate' }}
                 >
                   {/* Infos utilisateur */}
                   <div className="px-4 py-2.5 border-b border-gray-100">

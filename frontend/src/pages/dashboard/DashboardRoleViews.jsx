@@ -110,7 +110,7 @@ export function DashboardAdmin({
 
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
       style={{ paddingTop: 16 }}
     >
       {!dashboardLite && (
@@ -311,7 +311,7 @@ export function DashboardValidateur({
 
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
       style={{ paddingTop: 16 }}
     >
       {!dashboardLite && (
@@ -469,7 +469,7 @@ export function DashboardUtilisateur({
 
   return (
     <div
-      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard at-kimi-cursor-on"
+      className="relative isolate overflow-x-hidden overflow-y-visible rounded-2xl px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8 at-kimi-dashboard"
       style={{ paddingTop: 16 }}
     >
       {!dashboardLite && (

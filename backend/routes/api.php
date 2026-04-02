@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\RestaurationController;
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ValidationController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Mail;
@@ -47,6 +48,8 @@ Route::middleware('throttle:5,1')->group(function () {
 Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function () {
     // AUTH
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/users/by-structure', [UserController::class, 'byStructure']);
+
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
