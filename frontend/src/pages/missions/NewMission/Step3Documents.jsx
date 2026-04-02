@@ -16,35 +16,35 @@ function dlFromBlob(data, nom) {
   URL.revokeObjectURL(url)
 }
 
-const TYPE_DOCUMENT_OPTIONS = [
-  { value: '', label: 'Sélectionner…' },
-  { value: 'ordre_mission', label: 'Ordre de mission' },
-  { value: 'autorisation', label: 'Autorisation' },
-  { value: 'facture', label: 'Facture' },
-  { value: 'rapport', label: 'Rapport' },
-  { value: 'justificatif', label: 'Justificatif' },
-  { value: 'contrat', label: 'Contrat' },
-  { value: 'autre', label: 'Autre' },
-]
+const ACCEPT = '.pdf,.doc,.docx,.jpg,.jpeg'
+const MAX_BYTES = 5 * 1024 * 1024
 
 export default function Step3Documents({ missionId, onNext, onPrev }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [documents, setDocuments] = useState([])
 
-  const [typeDoc, setTypeDoc] = useState('ordre_mission')
-  const [description, setDescription] = useState('')
-  const [file, setFile] = useState(null)
-  const [uploading, setUploading] = useState(false)
+  const [files, setFiles] = useState({
+    ordre_mission: null,
+    formulaire: null,
+    autorisation: null,
+  })
+  const [uploading, setUploading] = useState({
+    ordre_mission: false,
+    formulaire: false,
+    autorisation: false,
+  })
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
   const [deleting, setDeleting] = useState(false)
 
   const resetForm = () => {
-    setTypeDoc('ordre_mission')
-    setDescription('')
-    setFile(null)
+    setFiles({
+      ordre_mission: null,
+      formulaire: null,
+      autorisation: null,
+    })
   }
 
   const loadDocuments = useCallback(async () => {
@@ -72,26 +72,40 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
     loadDocuments()
   }, [loadDocuments])
 
-  const canUpload = useMemo(() => !!file && !!typeDoc && !uploading, [file, typeDoc, uploading])
+  const anyUploading = uploading.ordre_mission || uploading.formulaire || uploading.autorisation
 
-  const handleUpload = async (e) => {
-    e.preventDefault()
-    if (!missionId || !file || !typeDoc) return
-    setUploading(true)
+  const validateClientFile = (f) => {
+    if (!f) return 'Aucun fichier sélectionné'
+    if (f.size > MAX_BYTES) return 'Fichier trop volumineux (max 5MB)'
+    return null
+  }
+
+  const handleSelect = (type, f) => {
+    setFiles((prev) => ({ ...prev, [type]: f ?? null }))
+  }
+
+  const uploadOne = async (type) => {
+    const file = files[type]
+    if (!missionId || !file) return
+
+    const clientErr = validateClientFile(file)
+    if (clientErr) {
+      toast.error(clientErr)
+      return
+    }
+
+    setUploading((prev) => ({ ...prev, [type]: true }))
     setError('')
     try {
       const fd = new FormData()
       fd.append('fichier', file)
-      fd.append('type_document', typeDoc)
-      if (String(description ?? '').trim()) fd.append('description', description.trim())
-
+      fd.append('type_document', type)
       const res = await documentsAPI.upload(missionId, fd)
       const created = res?.data ?? null
       if (!created?.id) throw new Error("Réponse invalide lors de l'upload du document")
-
       setDocuments((prev) => [created, ...prev])
       toast.success('Document uploadé ✅')
-      resetForm()
+      setFiles((prev) => ({ ...prev, [type]: null }))
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
@@ -100,7 +114,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
           "Erreur lors de l'upload du document"
       )
     } finally {
-      setUploading(false)
+      setUploading((prev) => ({ ...prev, [type]: false }))
     }
   }
 
@@ -162,7 +176,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
       <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
         <div>
           <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Documents</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">Ajoutez vos pièces jointes (optionnel pour soumission).</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">Téléversez vos pièces justificatives (PDF/DOC/DOCX/JPG, max 5MB).</p>
         </div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-at-blue/10 border border-at-blue/20 text-at-blue text-xs font-semibold">
           <FileText size={14} /> Étape 3/4
@@ -179,56 +193,44 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 at-card-surface p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Upload</div>
-            <Button variant="ghost" size="sm" onClick={resetForm} disabled={uploading} className="px-2">
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Pièces justificatives</div>
+            <Button variant="ghost" size="sm" onClick={resetForm} disabled={anyUploading} className="px-2">
               <RotateCcw size={16} />
             </Button>
           </div>
 
-          <form onSubmit={handleUpload} className="space-y-3">
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type de document</label>
-            <select
-              value={typeDoc}
-              onChange={(e) => setTypeDoc(e.target.value)}
-              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
-            >
-              {TYPE_DOCUMENT_OPTIONS.map((o) => (
-                <option key={o.value || 'x'} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Fichier</label>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              disabled={uploading}
-              className="w-full text-sm text-gray-700 dark:text-gray-200"
-            />
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Description (optionnel)</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Ex: justifications pour l’ordre"
-                rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                           focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
-              />
-            </div>
-
-            <Button type="submit" loading={uploading} disabled={!canUpload} className="w-full">
-              <Upload size={16} /> Envoyer
-            </Button>
-
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Formats acceptés : PDF/DOC/DOCX/XLS/XLSX/JPG/PNG.
-            </div>
-          </form>
+          <div className="space-y-4">
+            {[
+              { key: 'ordre_mission', label: 'Ordre de mission' },
+              { key: 'formulaire', label: 'Formulaire de demande' },
+              { key: 'autorisation', label: 'Autorisation' },
+            ].map((row) => (
+              <div key={row.key} className="space-y-2">
+                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">{row.label}</div>
+                <input
+                  type="file"
+                  accept={ACCEPT}
+                  onChange={(e) => handleSelect(row.key, e.target.files?.[0] ?? null)}
+                  disabled={uploading[row.key]}
+                  className="w-full text-sm text-gray-700 dark:text-gray-200"
+                />
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {files[row.key]?.name ? `Fichier : ${files[row.key].name}` : 'Aucun fichier sélectionné'}
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => uploadOne(row.key)}
+                    loading={uploading[row.key]}
+                    disabled={!files[row.key] || uploading[row.key]}
+                    className="shrink-0"
+                  >
+                    <Upload size={16} /> Upload
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="lg:col-span-3">
@@ -292,10 +294,10 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
       </div>
 
       <div className="flex justify-between gap-3 mt-6 flex-wrap">
-        <Button variant="outline" onClick={onPrev} disabled={uploading}>
+        <Button variant="outline" onClick={onPrev} disabled={anyUploading}>
           ← Précédent
         </Button>
-        <Button onClick={onNext} disabled={uploading} className="min-w-[220px]">
+        <Button onClick={onNext} disabled={anyUploading} className="min-w-[220px]">
           Suivant → Récapitulatif
         </Button>
       </div>

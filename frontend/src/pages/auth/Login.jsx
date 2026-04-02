@@ -693,6 +693,7 @@ export default function Login() {
         style={{
           display: 'flex',
           height: '100vh',
+          overflow: 'hidden',
           fontFamily: 'IBM Plex Sans, sans-serif',
         }}
       >
@@ -708,7 +709,7 @@ export default function Login() {
           justifyContent: 'space-between',
           padding: 40,
         }}
-        className="hidden md:flex"
+        className="hidden md:flex overflow-hidden relative"
       >
         <video
           autoPlay
@@ -822,6 +823,7 @@ export default function Login() {
           style={{
             position: 'relative',
             zIndex: 10,
+            paddingBottom: 24,
           }}
         >
           <div
@@ -888,6 +890,7 @@ export default function Login() {
 
         {/* Bloc accès sécurisé */}
         <div
+          className="backdrop-blur-sm max-w-xs"
           style={{
             background: 'rgba(255,255,255,0.08)',
             border: '1px solid rgba(255,255,255,0.12)',
@@ -895,6 +898,7 @@ export default function Login() {
             padding: 16,
             position: 'relative',
             zIndex: 10,
+            marginTop: 'auto',
           }}
         >
           <p

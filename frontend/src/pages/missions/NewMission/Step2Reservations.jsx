@@ -72,8 +72,9 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     setError('')
     try {
       const res = await reservationsAPI.list(missionId)
-      const list = Array.isArray(res.data) ? res.data : res?.data ?? []
-      setReservations(Array.isArray(list) ? list : [])
+      const raw = res?.data?.data ?? res?.data?.reservations ?? res?.data
+      const list = Array.isArray(raw) ? raw : []
+      setReservations(list)
     } catch (err) {
       setReservations([])
       setError(

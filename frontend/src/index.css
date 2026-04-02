@@ -194,12 +194,6 @@ body {
   }
 } */
 
-/* Curseur personnalisé dashboard (CustomCursor) */
-.at-kimi-dashboard.at-kimi-cursor-on,
-.at-kimi-dashboard.at-kimi-cursor-on * {
-  cursor: none !important;
-}
-
 /* ─── Design system AT Réservations (aligné Dashboard) ─── */
 .at-gradient-title {
   background: linear-gradient(135deg, #003da5, #00a650);

@@ -10,6 +10,7 @@ import {
   SkeletonCard,
 } from '../../components/UI'
 import { missionsAPI } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 const STATUT_OPTIONS = [
   { label: 'Tous', value: '' },
@@ -40,6 +41,7 @@ const BORDER_STATUT = {
 
 export default function MissionsList() {
   const navigate = useNavigate()
+  const { hasRole } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -106,6 +108,34 @@ export default function MissionsList() {
   const missionsCount = missions.length
   const total = pagination?.total ?? missionsCount
 
+  const canExport = hasRole('admin', 'validateur')
+
+  const downloadBlob = (blob, filename) => {
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const handleExport = async (format) => {
+    const res = await missionsAPI.export(format)
+    const date = new Date()
+    const stamp = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0'),
+      '-',
+      String(date.getHours()).padStart(2, '0'),
+      String(date.getMinutes()).padStart(2, '0'),
+    ].join('')
+    const ext = format === 'pdf' ? 'pdf' : 'xlsx'
+    downloadBlob(res.data, `missions_export_${stamp}.${ext}`)
+  }
+
   const bordureStatut = (st) => {
     const s = (st ?? '').toLowerCase()
     return BORDER_STATUT[s] ?? '#94A3B8'
@@ -122,15 +152,37 @@ export default function MissionsList() {
         title="Mes missions"
         subtitle={`${total} mission(s) au total`}
         right={(
-          <Button
-            type="button"
-            variant="gradient"
-            size="md"
-            onClick={() => navigate('/missions/nouvelle')}
-          >
-            <Plus size={16} />
-            Nouvelle mission
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {canExport && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleExport('xlsx')}
+                  className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white"
+                  style={{ background: '#00A650' }}
+                >
+                  📥 Export Excel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExport('pdf')}
+                  className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white"
+                  style={{ background: '#dc2626' }}
+                >
+                  📄 Export PDF
+                </button>
+              </>
+            )}
+            <Button
+              type="button"
+              variant="gradient"
+              size="md"
+              onClick={() => navigate('/missions/nouvelle')}
+            >
+              <Plus size={16} />
+              Nouvelle mission
+            </Button>
+          </div>
         )}
       />
 
