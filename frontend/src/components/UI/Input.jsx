@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 
 export default function Input({
   label,
@@ -12,8 +12,12 @@ export default function Input({
   required,
   disabled,
   placeholder,
+  id: idProp,
   ...props
 }) {
+  const generatedId = useId();
+  const inputId = idProp ?? generatedId;
+  const errorId = `${inputId}-error`;
   const [focused, setFocused] = useState(false);
   const hasValue = value !== '' && value !== undefined && value !== null;
   const floatLabel = focused || hasValue;
@@ -22,11 +26,12 @@ export default function Input({
     <div className={`relative ${className}`}>
       <div className="relative">
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" aria-hidden>
             <Icon size={16} />
           </div>
         )}
         <input
+          id={inputId}
           type={type}
           value={value}
           onChange={onChange}
@@ -34,9 +39,12 @@ export default function Input({
           placeholder={floatLabel ? (placeholder || '') : ''}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={errorMessage ? errorId : undefined}
           className={[
             'w-full px-3 pt-5 pb-2 rounded-lg border text-sm text-gray-800 bg-white',
             'transition-all duration-200 outline-none peer',
+            'focus-visible:ring-2 focus-visible:ring-at-green/35 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
             'dark:bg-gray-800 dark:text-white',
             Icon ? 'pl-9' : '',
             error
@@ -48,6 +56,7 @@ export default function Input({
         />
         {label && (
           <label
+            htmlFor={inputId}
             className={[
               'absolute left-3 transition-all duration-200 pointer-events-none',
               Icon ? 'left-9' : 'left-3',
@@ -64,7 +73,9 @@ export default function Input({
         )}
       </div>
       {errorMessage && (
-        <p className="mt-1 text-xs text-red-500">{errorMessage}</p>
+        <p id={errorId} role="status" aria-live="polite" className="mt-1 text-xs text-red-500">
+          {errorMessage}
+        </p>
       )}
     </div>
   );

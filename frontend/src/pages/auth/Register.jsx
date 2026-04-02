@@ -141,27 +141,28 @@ export default function Register() {
             animate="show"
             onSubmit={handleSubmit}
             className="space-y-4"
+            aria-label="Inscription AT Réservations"
           >
             <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-              <Input label="Prénom" value={form.prenom} onChange={set('prenom')} icon={User}
+              <Input label="Prénom" name="given-name" autoComplete="given-name" value={form.prenom} onChange={set('prenom')} icon={User}
                      error={!!errors.prenom} errorMessage={errors.prenom?.[0]} required />
-              <Input label="Nom"    value={form.nom}    onChange={set('nom')}    icon={User}
-                     error={!!errors.nom}    errorMessage={errors.nom?.[0]}    required />
+              <Input label="Nom" name="family-name" autoComplete="family-name" value={form.nom} onChange={set('nom')} icon={User}
+                     error={!!errors.nom} errorMessage={errors.nom?.[0]} required />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Email"     type="email" value={form.email}     onChange={set('email')}
+              <Input label="Email" name="email" type="email" autoComplete="email" value={form.email} onChange={set('email')}
                      icon={Mail} error={!!errors.email} errorMessage={errors.email?.[0]} required />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Matricule" value={form.matricule} onChange={set('matricule')}
+              <Input label="Matricule" name="matricule" autoComplete="username" value={form.matricule} onChange={set('matricule')}
                      icon={Hash} error={!!errors.matricule} errorMessage={errors.matricule?.[0]} />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Mot de passe" type="password" value={form.password} onChange={set('password')}
+              <Input label="Mot de passe" name="new-password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')}
                      icon={Lock} error={!!errors.password} errorMessage={errors.password?.[0]} required />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Confirmer le mot de passe" type="password"
+              <Input label="Confirmer le mot de passe" name="new-password-confirm" type="password" autoComplete="new-password"
                      value={form.password_confirmation} onChange={set('password_confirmation')}
                      icon={Lock} required />
             </motion.div>

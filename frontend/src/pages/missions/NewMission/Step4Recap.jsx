@@ -275,7 +275,11 @@ export default function Step4Recap({ missionId, onPrev }) {
               <Button variant="secondary" onClick={saveDraft} disabled={submitting}>
                 Enregistrer brouillon
               </Button>
-              <Button onClick={submit} disabled={!canSubmit || submitting} className="min-w-[200px]">
+              <Button
+                onClick={submit}
+                disabled={!canSubmit || submitting}
+                className={`min-w-[200px] transition-opacity ${submitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
                 Soumettre la mission
               </Button>

@@ -4,6 +4,15 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem',
+      },
+      boxShadow: {
+        'at-card': '0 8px 24px rgba(0, 61, 165, 0.08)',
+        'at-card-lg': '0 20px 40px rgba(0, 61, 165, 0.12)',
+        'at-elevated': '0 4px 14px rgba(26, 29, 38, 0.08)',
+      },
       colors: {
         'at-green':       '#00A650',
         'at-green-dark':  '#007A3A',

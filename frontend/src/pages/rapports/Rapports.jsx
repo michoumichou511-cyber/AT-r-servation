@@ -1,3 +1,7 @@
+/**
+ * Exports : aucun appel API au montage — uniquement au clic sur les boutons
+ * (évite le throttle 429 sur les routes /export).
+ */
 import { useCallback, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -87,12 +91,20 @@ export default function Rapports() {
     }
   }, [annee, mois, direction, statut, type_mission])
 
+  const makeStamp = useCallback(() => {
+    const d = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`
+  }, [])
+
   const runExport = useCallback(
     async (key, fn, filenamePrefix, suffix, params) => {
+      if (exportLoadingKey !== null) return
       try {
         setExportLoadingKey(key)
         const res = await fn(params)
-        dlFromBlob(res.data, `${filenamePrefix}_${suffix}`)
+        const stamp = makeStamp()
+        dlFromBlob(res.data, `${filenamePrefix}_${stamp}${suffix}`)
         toast.success('Téléchargement lancé ✅')
       } catch (err) {
         toast.error(
@@ -105,14 +117,8 @@ export default function Rapports() {
         setExportLoadingKey(null)
       }
     },
-    []
+    [exportLoadingKey, makeStamp]
   )
-
-  const stamp = useMemo(() => {
-    const d = new Date()
-    const pad = (n) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`
-  }, [])
 
   return (
     <motion.div
@@ -249,7 +255,7 @@ export default function Rapports() {
                 'missions_excel',
                 exportAPI.missionsExcel,
                 'missions_excel',
-                `${stamp}.xlsx`,
+                '.xlsx',
                 paramsMissions
               )
             }
@@ -265,7 +271,7 @@ export default function Rapports() {
                 'missions_pdf',
                 exportAPI.missionsPdf,
                 'missions_pdf',
-                `${stamp}.pdf`,
+                '.pdf',
                 paramsMissions
               )
             }
@@ -282,7 +288,7 @@ export default function Rapports() {
                 'depenses_excel',
                 exportAPI.depensesExcel,
                 'depenses_excel',
-                `${stamp}.csv`,
+                '.csv',
                 { annee }
               )
             }
@@ -299,7 +305,7 @@ export default function Rapports() {
                 'rapport_direction',
                 exportAPI.depensesExcel,
                 'rapport_direction',
-                `${stamp}.csv`,
+                '.csv',
                 { annee, direction }
               )
             }
@@ -316,7 +322,7 @@ export default function Rapports() {
                 'rapport_prestataires',
                 exportAPI.prestatairesExcel,
                 'rapport_prestataires',
-                `${stamp}.csv`,
+                '.csv',
                 {}
               )
             }
@@ -333,7 +339,7 @@ export default function Rapports() {
                 'prestataires_excel',
                 exportAPI.prestatairesExcel,
                 'prestataires_excel',
-                `${stamp}.csv`,
+                '.csv',
                 {}
               )
             }

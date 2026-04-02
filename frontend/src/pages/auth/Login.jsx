@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
+import { useState, useEffect, useRef, useMemo, lazy, Suspense, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
@@ -55,6 +55,9 @@ function LoginMobileAnimated({
   const canvasRef = useRef(null)
   const floatBubbles = useMemo(() => AT_FLOAT_BUBBLES, [])
   const reducedMotion = usePrefersReducedMotion()
+  const emailFieldId = useId()
+  const passwordFieldId = useId()
+  const loginErrorId = useId()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -71,6 +74,28 @@ function LoginMobileAnimated({
       : { r: 0, g: 80, b: 200 }
     const LINK_DIST = 100
     const LINK_DIST_SQ = LINK_DIST * LINK_DIST
+
+    if (reducedMotion) {
+      const paintStatic = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+        const lw = window.innerWidth
+        const lh = window.innerHeight
+        canvas.width = Math.floor(lw * dpr)
+        canvas.height = Math.floor(lh * dpr)
+        canvas.style.width = `${lw}px`
+        canvas.style.height = `${lh}px`
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        ctx.clearRect(0, 0, lw, lh)
+        const g = ctx.createLinearGradient(0, 0, 0, lh)
+        g.addColorStop(0, isDark ? 'rgba(0, 26, 94, 0.4)' : 'rgba(230, 240, 255, 0.95)')
+        g.addColorStop(1, isDark ? 'rgba(0, 61, 165, 0.25)' : 'rgba(0, 166, 80, 0.12)')
+        ctx.fillStyle = g
+        ctx.fillRect(0, 0, lw, lh)
+      }
+      paintStatic()
+      window.addEventListener('resize', paintStatic)
+      return () => window.removeEventListener('resize', paintStatic)
+    }
 
     const waves = isDark
       ? [
@@ -90,7 +115,8 @@ function LoginMobileAnimated({
 
     const seed = (lw, lh) => {
       particles = []
-      for (let i = 0; i < 25; i++) {
+      const count = lw < 400 ? 12 : 25
+      for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * lw,
           y: Math.random() * lh,
@@ -189,7 +215,7 @@ function LoginMobileAnimated({
       window.removeEventListener('resize', resize)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [darkMode])
+  }, [darkMode, reducedMotion])
 
   const demoBtns = [
     { label: 'Administrateur', key: 'admin', color: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -373,6 +399,9 @@ function LoginMobileAnimated({
 
         {error && (
           <div
+            id={loginErrorId}
+            role="alert"
+            aria-live="assertive"
             className="rounded-[10px] border px-4 py-3 mb-4 text-[13px]"
             style={{
               background: 'rgba(254, 242, 242, 0.12)',
@@ -384,9 +413,13 @@ function LoginMobileAnimated({
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-describedby={error ? loginErrorId : undefined}>
+          <label htmlFor={emailFieldId} className="sr-only">
+            Adresse e-mail professionnelle
+          </label>
           <div style={{ position: 'relative', marginBottom: 14 }}>
             <span
+              aria-hidden
               style={{
                 position: 'absolute',
                 left: 15,
@@ -399,7 +432,10 @@ function LoginMobileAnimated({
               ✉️
             </span>
             <input
+              id={emailFieldId}
               type="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="prenom.nom@at.dz"
@@ -414,19 +450,24 @@ function LoginMobileAnimated({
                 fontFamily: 'inherit',
                 paddingLeft: 44,
                 paddingRight: 12,
+                minHeight: 44,
                 paddingTop: 14,
                 paddingBottom: 14,
                 outline: 'none',
               }}
               className={
                 darkMode
-                  ? 'placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]'
-                  : 'placeholder:text-[rgba(26,29,38,0.4)] focus:border-[#00A650]'
+                  ? 'placeholder:text-[rgba(255,255,255,0.4)] focus-visible:border-[#00A650] focus-visible:ring-2 focus-visible:ring-[#00A650]/35'
+                  : 'placeholder:text-[rgba(26,29,38,0.4)] focus-visible:border-[#00A650] focus-visible:ring-2 focus-visible:ring-[#00A650]/35'
               }
             />
           </div>
+          <label htmlFor={passwordFieldId} className="sr-only">
+            Mot de passe
+          </label>
           <div style={{ position: 'relative', marginBottom: 24 }}>
             <span
+              aria-hidden
               style={{
                 position: 'absolute',
                 left: 15,
@@ -439,7 +480,10 @@ function LoginMobileAnimated({
               🔒
             </span>
             <input
+              id={passwordFieldId}
               type={showPass ? 'text' : 'password'}
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Mot de passe"
@@ -447,39 +491,40 @@ function LoginMobileAnimated({
               style={{
                 width: '100%',
                 borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.08)',
-                color: '#fff',
+                border: `1px solid ${mt.inputBorder}`,
+                background: mt.inputBg,
+                color: mt.inputColor,
                 fontSize: 14,
                 fontFamily: 'inherit',
                 paddingLeft: 44,
-                paddingRight: 44,
+                paddingRight: 48,
+                minHeight: 44,
                 paddingTop: 14,
                 paddingBottom: 14,
                 outline: 'none',
               }}
-              className="placeholder:text-[rgba(255,255,255,0.4)] focus:border-[#00A650]"
+              className={
+                darkMode
+                  ? 'placeholder:text-[rgba(255,255,255,0.4)] focus-visible:border-[#00A650] focus-visible:ring-2 focus-visible:ring-[#00A650]/35'
+                  : 'placeholder:text-[rgba(26,29,38,0.4)] focus-visible:border-[#00A650] focus-visible:ring-2 focus-visible:ring-[#00A650]/35'
+              }
             />
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
+              aria-label={showPass ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 min-w-[44px] items-center justify-center rounded-lg bg-transparent border-0 cursor-pointer"
               style={{
-                position: 'absolute',
-                right: 14,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'rgba(255,255,255,0.55)',
+                color: mt.iconBtn,
               }}
             >
-              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPass ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
             </button>
           </div>
           <button
             type="submit"
             disabled={loading}
+            className="min-h-[44px]"
             style={{
               width: '100%',
               padding: 15,
@@ -545,10 +590,12 @@ function LoginMobileAnimated({
             <button
               key={b.key}
               type="button"
+              aria-label={`Remplir avec le compte démo ${b.label}`}
               onClick={() => {
                 setEmail(comptes[b.key].email)
                 setPassword(comptes[b.key].password)
               }}
+              className="min-h-[44px]"
               style={{
                 padding: '10px 12px',
                 borderRadius: 10,
@@ -648,6 +695,9 @@ export default function Login() {
   }, [])
 
   const reducedMotion = usePrefersReducedMotion()
+  const desktopEmailId = useId()
+  const desktopPasswordId = useId()
+  const desktopFormErrorId = useId()
 
   const themeToggle = (
     <m.button
@@ -655,7 +705,7 @@ export default function Login() {
       onClick={toggleDarkMode}
       whileTap={reducedMotion ? undefined : { rotate: 180 }}
       transition={{ duration: 0.3 }}
-      className="fixed top-4 right-4 z-[100] p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 transition-colors"
+      className="fixed top-4 right-4 z-[100] inline-flex h-11 min-w-[44px] items-center justify-center rounded-xl p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 transition-colors"
       aria-label={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
     >
       {darkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -977,6 +1027,9 @@ export default function Login() {
 
         {error && (
           <div
+            id={desktopFormErrorId}
+            role="alert"
+            aria-live="assertive"
             className={`rounded-[10px] border px-4 py-3 mb-4 text-[13px] border-l-4 ${
               darkMode
                 ? 'bg-red-950/40 border-red-800/60 text-red-200 border-l-red-500'
@@ -987,7 +1040,10 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-describedby={error ? desktopFormErrorId : undefined}>
+          <label htmlFor={desktopEmailId} className="sr-only">
+            Adresse e-mail professionnelle
+          </label>
           {/* Email */}
           <div
             style={{
@@ -996,6 +1052,7 @@ export default function Login() {
             }}
           >
             <span
+              aria-hidden
               style={{
                 position: 'absolute',
                 left: 15,
@@ -1008,12 +1065,15 @@ export default function Login() {
               ✉️
             </span>
             <input
+              id={desktopEmailId}
+              name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="prenom.nom@at.dz"
               required
-              className={`w-full rounded-xl border-2 text-[13px] outline-none font-inherit pl-11 pr-3.5 py-3.5 ${
+              className={`min-h-[44px] w-full rounded-xl border-2 text-[13px] outline-none font-inherit pl-11 pr-3.5 py-3.5 focus-visible:ring-2 focus-visible:ring-[#00A650]/40 ${
                 darkMode
                   ? 'border-[rgba(255,255,255,0.1)] text-white placeholder:text-gray-500 bg-[rgba(255,255,255,0.06)]'
                   : 'border-[#EAECF0] text-[#1A1D26] bg-[#F8F9FC] placeholder:text-gray-400'
@@ -1024,6 +1084,9 @@ export default function Login() {
             />
           </div>
 
+          <label htmlFor={desktopPasswordId} className="sr-only">
+            Mot de passe
+          </label>
           {/* Password */}
           <div
             style={{
@@ -1032,6 +1095,7 @@ export default function Login() {
             }}
           >
             <span
+              aria-hidden
               style={{
                 position: 'absolute',
                 left: 15,
@@ -1044,12 +1108,15 @@ export default function Login() {
               🔒
             </span>
             <input
+              id={desktopPasswordId}
+              name="password"
               type={showPass ? 'text' : 'password'}
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Mot de passe"
               required
-              className="w-full rounded-xl border-2 border-[#EAECF0] dark:border-gray-600 text-[13px] text-[#1A1D26] dark:text-white outline-none font-inherit px-11 py-3.5 dark:placeholder:text-gray-500"
+              className="min-h-[44px] w-full rounded-xl border-2 border-[#EAECF0] dark:border-gray-600 text-[13px] text-[#1A1D26] dark:text-white outline-none font-inherit px-11 py-3.5 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#00A650]/40"
               style={{
                 background: 'var(--input-bg, #F8F9FC)',
                 fontFamily: 'inherit',
@@ -1058,18 +1125,13 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
+              aria-label={showPass ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 min-w-[44px] items-center justify-center rounded-lg border-0 bg-transparent cursor-pointer"
               style={{
-                position: 'absolute',
-                right: 14,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
                 color: darkMode ? 'rgba(255,255,255,0.55)' : '#C0C5D0',
               }}
             >
-              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPass ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
             </button>
           </div>
 
@@ -1079,6 +1141,7 @@ export default function Login() {
             disabled={loading}
             whileHover={reducedMotion || loading ? undefined : { scale: 1.01 }}
             whileTap={reducedMotion || loading ? undefined : { scale: 0.99 }}
+            className="min-h-[44px]"
             style={{
               width: '100%',
               padding: 15,
@@ -1153,12 +1216,14 @@ export default function Login() {
             <m.button
               key={b.key}
               type="button"
+              aria-label={`Remplir avec le compte démo ${b.label}`}
               onClick={() => {
                 setEmail(comptes[b.key].email)
                 setPassword(comptes[b.key].password)
               }}
               whileHover={reducedMotion ? undefined : { scale: 1.02 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              className="min-h-[44px]"
               style={{
                 padding: '10px 12px',
                 borderRadius: 10,
