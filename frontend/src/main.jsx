@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client'
 
 // CSS de base
 import './index.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import 'aos/dist/aos.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-circular-progressbar/dist/styles.css'

@@ -45,7 +45,8 @@ export default function Button({
       className={[
         'inline-flex items-center justify-center font-medium rounded-xl',
         'transition-all duration-150 select-none',
-        'focus:outline-none focus:ring-2 focus:ring-at-green/40',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-at-green/50 focus-visible:ring-offset-2',
+        'dark:focus-visible:ring-offset-gray-900',
         variants[loading ? 'loading' : variant],
         sizes[size],
         fullWidth ? 'w-full' : '',

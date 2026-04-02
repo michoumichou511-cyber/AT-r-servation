@@ -573,7 +573,7 @@ function DetailPanel({ node, onClose, usersByStructure }) {
             <div style={{ padding: "12px 12px", borderRadius: 10, background: "#f9fafb", border: "1px dashed #d1d5db" }}>
               <div style={{ fontSize: 12, color: "#6b7280" }}>Aucun utilisateur affecté à cette structure.</div>
               <button
-                onClick={() => window.location.assign(`/admin/users/create?structure=${encodeURIComponent(node.id)}`)}
+                onClick={() => window.location.assign(`/admin/utilisateurs?structure=${encodeURIComponent(node.id)}`)}
                 style={{
                   marginTop: 10,
                   width: "100%",

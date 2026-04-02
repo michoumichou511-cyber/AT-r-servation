@@ -243,6 +243,8 @@ export default function MissionsList() {
 
       {!loading && error && (
         <motion.div
+          role="alert"
+          aria-live="assertive"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 rounded-[20px] border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30"

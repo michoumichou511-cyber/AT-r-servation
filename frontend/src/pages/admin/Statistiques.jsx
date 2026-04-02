@@ -23,13 +23,14 @@ import {
   RotateCcw,
   TrendingUp,
   PieChart as PieChartIcon,
+  Building2,
+  AlertCircle,
 } from 'lucide-react'
 
 import toast from 'react-hot-toast'
 
-import { dashboardAPI, missionsAPI } from '../../services/api'
+import { adminAPI, dashboardAPI, missionsAPI } from '../../services/api'
 import PageHeader from '../../components/Common/PageHeader'
-import ErrorBoundary from '../../components/Common/ErrorBoundary'
 import { Badge, Button, EmptyState, SkeletonCard } from '../../components/UI'
 import { formatDZD } from '../../utils/format'
 
@@ -55,56 +56,91 @@ function parseCreatedAt(iso) {
   return d
 }
 
-function StatistiquesPage() {
+function extractDashboardStats(res) {
+  const d = res?.data
+  if (!d || typeof d !== 'object') return {}
+  if (d.missions != null || d.missions_par_mois != null) return d
+  if (d.data != null && typeof d.data === 'object') return d.data
+  return {}
+}
+
+export default function Statistiques() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
 
   const [stats, setStats] = useState(null)
-  const [depensesDir, setDepensesDir] = useState([])
+  const [missionsTotal, setMissionsTotal] = useState(0)
   const [missionsSample, setMissionsSample] = useState([])
+  const [prestatairesTotal, setPrestatairesTotal] = useState(0)
+  const [prestatairesList, setPrestatairesList] = useState([])
+
+  const [fetchErrors, setFetchErrors] = useState({
+    stats: null,
+    missions: null,
+    prestataires: null,
+  })
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
-    const now = new Date()
-    const currentYear = now.getFullYear()
+    setFetchErrors({ stats: null, missions: null, prestataires: null })
 
-    try {
-      const statsRes = await dashboardAPI.stats()
-      const raw = statsRes.data?.data ?? statsRes.data ?? {}
+    const settled = await Promise.allSettled([
+      dashboardAPI.stats(),
+      missionsAPI.list({ page: 1, per_page: 5 }),
+      adminAPI.prestataires({ page: 1, per_page: 50 }),
+    ])
+
+    const [statsResult, missionsResult, prestatairesResult] = settled
+
+    if (statsResult.status === 'fulfilled') {
+      const raw = extractDashboardStats(statsResult.value)
       setStats(typeof raw === 'object' && raw !== null ? raw : {})
-    } catch {
+    } else {
       setStats({})
-      toast('Statistiques dashboard indisponibles', { icon: '⚠️' })
+      const msg =
+        statsResult.reason?.response?.data?.message ||
+        statsResult.reason?.message ||
+        'Statistiques dashboard indisponibles'
+      setFetchErrors((e) => ({ ...e, stats: msg }))
+      toast.error(msg)
     }
 
-    try {
-      const depensesRes = await dashboardAPI.depensesParDirection({ annee: currentYear })
-      const d =
-        depensesRes.data?.data?.depenses ??
-        depensesRes.data?.depenses ??
-        []
-      setDepensesDir(
-        Array.isArray(d)
-          ? d.map((row) => ({
-            direction: row?.direction ?? '—',
-            total: Number(row?.total ?? 0) || 0,
-          }))
-          : []
-      )
-    } catch {
-      setDepensesDir([])
-      toast('Dépenses par direction indisponibles', { icon: '⚠️' })
-    }
-
-    try {
-      const missionsRes = await missionsAPI.list({ page: 1, per_page: 100 })
-      const body = missionsRes.data
+    if (missionsResult.status === 'fulfilled') {
+      const r = missionsResult.value
+      const body = r?.data
       const ms = body?.data
-      setMissionsSample(Array.isArray(ms) ? ms : [])
-    } catch {
+      const pag = body?.pagination
+      const list = Array.isArray(ms) ? ms : []
+      setMissionsSample(list)
+      setMissionsTotal(Number(pag?.total ?? list.length) || 0)
+    } else {
       setMissionsSample([])
-      toast('Échantillon missions indisponible', { icon: '⚠️' })
+      setMissionsTotal(0)
+      const msg =
+        missionsResult.reason?.response?.data?.message ||
+        missionsResult.reason?.message ||
+        'Liste missions indisponible'
+      setFetchErrors((e) => ({ ...e, missions: msg }))
+      toast.error(msg)
+    }
+
+    if (prestatairesResult.status === 'fulfilled') {
+      const r = prestatairesResult.value
+      const data = r?.data?.data ?? r?.data ?? []
+      const pag = r?.data?.pagination
+      const list = Array.isArray(data) ? data : []
+      setPrestatairesList(list)
+      setPrestatairesTotal(Number(pag?.total ?? list.length) || 0)
+    } else {
+      setPrestatairesList([])
+      setPrestatairesTotal(0)
+      const msg =
+        prestatairesResult.reason?.response?.data?.message ||
+        prestatairesResult.reason?.message ||
+        'Prestataires indisponibles'
+      setFetchErrors((e) => ({ ...e, prestataires: msg }))
+      toast.error(msg)
     }
 
     setLoading(false)
@@ -121,20 +157,22 @@ function StatistiquesPage() {
     const missions = s.missions ?? {}
     const reservations = s.reservations ?? {}
 
-    const totalMissions = Number(missions.total ?? missions.total_missions ?? 0) || 0
+    const totalMissionsListed = missionsTotal
     const approuvees = Number(missions.approuvees ?? missions.missions_approuvees ?? 0) || 0
-    const taux = totalMissions > 0 ? Math.round((approuvees / totalMissions) * 100) : 0
+    const totalFromStats = Number(missions.total ?? missions.total_missions ?? 0) || 0
+    const denom = totalFromStats > 0 ? totalFromStats : totalMissionsListed
+    const taux = denom > 0 ? Math.round((approuvees / denom) * 100) : 0
 
     const budgets = Array.isArray(s.budgets) ? s.budgets : []
     const budgetTotal = budgets.reduce((sum, b) => sum + (Number(b?.montant_alloue ?? 0) || 0), 0)
 
     return {
-      totalMissions,
+      totalMissionsListed,
       taux,
       budgetTotal,
       confirmeReservations: Number(reservations?.confirmees ?? 0) || 0,
     }
-  }, [stats])
+  }, [stats, missionsTotal])
 
   const lineData = useMemo(() => {
     const raw = Array.isArray(stats?.missions_par_mois) ? stats.missions_par_mois : []
@@ -143,6 +181,14 @@ function StatistiquesPage() {
     return last6.map((x) => ({
       mois: x?.mois ?? '',
       total: Number(x?.total ?? 0) || 0,
+    }))
+  }, [stats])
+
+  const depensesParTypeChart = useMemo(() => {
+    const raw = Array.isArray(stats?.depenses_par_type) ? stats.depenses_par_type : []
+    return raw.map((row) => ({
+      type: row?.type ?? '—',
+      montant: Number(row?.montant ?? 0) || 0,
     }))
   }, [stats])
 
@@ -161,7 +207,6 @@ function StatistiquesPage() {
   }, [missionsSample])
 
   const delayMoyen = useMemo(() => {
-    // Moyenne (jours) créée_at -> date_depart sur l'échantillon
     let sum = 0
     let count = 0
     for (const m of missionsSample) {
@@ -182,14 +227,22 @@ function StatistiquesPage() {
   }, [missionsSample])
 
   const topPrestataires = useMemo(() => {
-    const raw = Array.isArray(stats?.top_prestataires) ? stats.top_prestataires : []
-    return raw
-      .map((p) => ({
-        nom: p?.nom ?? '—',
-        nb_reservations: Number(p?.nb_reservations ?? p?.nb_reservations_count ?? 0) || 0,
-      }))
-      .sort((a, b) => b.nb_reservations - a.nb_reservations)
-  }, [stats])
+    const fromStats = Array.isArray(stats?.top_prestataires) ? stats.top_prestataires : []
+    if (fromStats.length > 0) {
+      return fromStats
+        .map((p) => ({
+          nom: p?.nom ?? '—',
+          nb_reservations: Number(p?.nb_reservations ?? p?.nb_reservations_count ?? 0) || 0,
+        }))
+        .sort((a, b) => b.nb_reservations - a.nb_reservations)
+    }
+    return (prestatairesList ?? []).slice(0, 8).map((p) => ({
+      nom: p?.nom ?? '—',
+      nb_reservations: Number(p?.nombre_evaluations ?? 0) || 0,
+    }))
+  }, [stats, prestatairesList])
+
+  const hasAnyFetchError = fetchErrors.stats || fetchErrors.missions || fetchErrors.prestataires
 
   return (
     <div>
@@ -204,6 +257,22 @@ function StatistiquesPage() {
         }
       />
 
+      {!loading && hasAnyFetchError && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="flex-shrink-0 mt-0.5" size={18} />
+            <div>
+              <div className="font-semibold">Certaines données n’ont pas pu être chargées</div>
+              <ul className="mt-1 list-disc list-inside text-xs opacity-90">
+                {fetchErrors.stats && <li>Dashboard : {fetchErrors.stats}</li>}
+                {fetchErrors.missions && <li>Missions : {fetchErrors.missions}</li>}
+                {fetchErrors.prestataires && <li>Prestataires : {fetchErrors.prestataires}</li>}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading && (
         <div className="space-y-3">
           {[0, 1, 2].map(i => (
@@ -214,7 +283,7 @@ function StatistiquesPage() {
 
       {!loading && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -227,15 +296,15 @@ function StatistiquesPage() {
                 </div>
               </div>
               <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
-                <CountUp end={kpis.totalMissions} duration={1.8} separator=" " />
+                <CountUp end={kpis.totalMissionsListed} duration={1.8} separator=" " />
               </div>
-              <div className="text-xs text-gray-500 mt-1">Total missions</div>
+              <div className="text-xs text-gray-500 mt-1">Total missions (GET /missions)</div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
               className="at-card-surface p-5"
             >
               <div className="p-2.5 bg-at-green-light rounded-xl text-at-green flex items-center justify-between">
@@ -244,13 +313,13 @@ function StatistiquesPage() {
               <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
                 <CountUp end={kpis.taux} duration={1.8} suffix="%" separator=" " />
               </div>
-              <div className="text-xs text-gray-500 mt-1">Taux d’approbation</div>
+              <div className="text-xs text-gray-500 mt-1">Taux d’approbation (dashboard)</div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
               className="at-card-surface p-5"
             >
               <div className="p-2.5 bg-orange-50 rounded-xl text-orange-500 flex items-center justify-between">
@@ -267,7 +336,22 @@ function StatistiquesPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
+              className="at-card-surface p-5"
+            >
+              <div className="p-2.5 bg-sky-50 rounded-xl text-sky-600 flex items-center justify-between">
+                <Building2 size={18} />
+              </div>
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+                <CountUp end={prestatairesTotal} duration={1.8} separator=" " />
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Prestataires (GET /prestataires)</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
               className="at-card-surface p-5"
             >
               <div className="p-2.5 bg-purple-50 rounded-xl text-purple-500 flex items-center justify-between">
@@ -277,7 +361,7 @@ function StatistiquesPage() {
                 <CountUp end={Math.round(delayMoyen.avgDays)} duration={1.8} suffix=" j" />
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                Délai moyen (création → départ) • échantillon {delayMoyen.sample}
+                Délai moyen création → départ • n={delayMoyen.sample}
               </div>
             </motion.div>
           </div>
@@ -289,7 +373,9 @@ function StatistiquesPage() {
                 <Badge status="actif" label={`${lineData.length} points`} />
               </div>
 
-              {lineData.length === 0 ? (
+              {fetchErrors.stats && lineData.length === 0 ? (
+                <EmptyState icon={FileText} title="Indisponible" subtitle={fetchErrors.stats} />
+              ) : lineData.length === 0 ? (
                 <EmptyState icon={FileText} title="Aucune donnée" subtitle="Impossible de tracer le graphe (données vides)." />
               ) : (
                 <div style={{ height: 260 }}>
@@ -307,18 +393,20 @@ function StatistiquesPage() {
             </div>
 
             <div className="at-card-surface p-5">
-              <div className="text-sm font-semibold text-gray-800 mb-3">Dépenses par direction (année)</div>
-              {depensesDir.length === 0 ? (
-                <EmptyState icon={DollarSign} title="Aucune donnée" subtitle="Aucune dépense trouvée pour l’année courante." />
+              <div className="text-sm font-semibold text-gray-800 mb-3">Dépenses par type (réservations confirmées)</div>
+              {fetchErrors.stats && depensesParTypeChart.length === 0 ? (
+                <EmptyState icon={DollarSign} title="Indisponible" subtitle={fetchErrors.stats} />
+              ) : depensesParTypeChart.length === 0 ? (
+                <EmptyState icon={DollarSign} title="Aucune donnée" subtitle="Aucune dépense agrégée pour le moment." />
               ) : (
                 <div style={{ height: 260 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={depensesDir}>
+                    <BarChart data={depensesParTypeChart}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                      <XAxis dataKey="direction" tick={{ fontSize: 10 }} />
+                      <XAxis dataKey="type" tick={{ fontSize: 10 }} />
                       <YAxis tick={{ fontSize: 11 }} />
                       <Tooltip />
-                      <Bar dataKey="total" name="Montant" fill="#00A650" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="montant" name="Montant" fill="#00A650" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -328,8 +416,10 @@ function StatistiquesPage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-6">
             <div className="at-card-surface p-5 xl:col-span-1">
-              <div className="text-sm font-semibold text-gray-800 mb-3">Missions par type (échantillon)</div>
-              {pieData.length === 0 ? (
+              <div className="text-sm font-semibold text-gray-800 mb-3">Missions par type (échantillon {missionsSample.length})</div>
+              {fetchErrors.missions && pieData.length === 0 ? (
+                <EmptyState icon={PieChartIcon} title="Indisponible" subtitle={fetchErrors.missions} />
+              ) : pieData.length === 0 ? (
                 <EmptyState icon={PieChartIcon} title="Aucune donnée" subtitle="Impossible de calculer les types (échantillon vide)." />
               ) : (
                 <div style={{ height: 280 }}>
@@ -355,7 +445,13 @@ function StatistiquesPage() {
                 </Button>
               </div>
 
-              {topPrestataires.length === 0 ? (
+              {fetchErrors.stats && fetchErrors.prestataires && topPrestataires.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="Indisponible"
+                  subtitle="Données prestataires non chargées."
+                />
+              ) : topPrestataires.length === 0 ? (
                 <EmptyState icon={FileText} title="Aucune donnée" subtitle="Aucun prestataire à afficher pour le moment." />
               ) : (
                 <div className="overflow-x-auto">
@@ -363,7 +459,9 @@ function StatistiquesPage() {
                     <thead className="at-table-head border-b border-[#EAECF0] dark:border-[#2A2D3E]">
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Prestataire</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Réservations confirmées</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">
+                          {stats?.top_prestataires?.length ? 'Réservations confirmées' : 'Indicateur'}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -391,16 +489,9 @@ function StatistiquesPage() {
               )}
             </div>
           </div>
+
         </>
       )}
     </div>
-  )
-}
-
-export default function Statistiques() {
-  return (
-    <ErrorBoundary>
-      <StatistiquesPage />
-    </ErrorBoundary>
   )
 }

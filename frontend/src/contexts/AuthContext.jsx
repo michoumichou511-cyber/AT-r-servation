@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -46,7 +47,15 @@ export function AuthProvider({ children }) {
           setUser(null);
           setIsAuth(false);
         }
-      } catch {
+      } catch (err) {
+        const status = err.response?.status;
+        if (!status) {
+          toast.error('Serveur injoignable. Vérifiez votre connexion ou réessayez plus tard.');
+        } else if (status !== 401) {
+          toast.error(
+            err.response?.data?.message ?? 'Impossible de restaurer la session.',
+          );
+        }
         localStorage.removeItem('at_token');
         localStorage.removeItem('at_user');
         setUser(null);

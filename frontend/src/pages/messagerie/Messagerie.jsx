@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, ChevronLeft, MessageCircle, UserRound } from 'lucide-react'
+import { Send, ChevronLeft, MessageCircle, UserRound, Plus } from 'lucide-react'
 
 import PageHeader from '../../components/Common/PageHeader'
 import Modal from '../../components/UI/Modal'
-import { EmptyState, SkeletonCard, SkeletonLine, Button } from '../../components/UI'
+import { EmptyState, SkeletonCard, SkeletonLine, Button, Input } from '../../components/UI'
 import toast from 'react-hot-toast'
-import { messagesAPI } from '../../services/api'
+import api, { messagesAPI } from '../../services/api'
 import { usePolling } from '../../hooks/usePolling'
-import { Badge } from '../../components/UI'
 
 function initialsFromName(name) {
   if (!name || typeof name !== 'string') return '?'
@@ -55,7 +54,24 @@ export default function Messagerie() {
 
   const [contenu, setContenu] = useState('')
 
+  const [newConvOpen, setNewConvOpen] = useState(false)
+  const [userSearch, setUserSearch] = useState('')
+  const [contactsResults, setContactsResults] = useState([])
+  const [loadingContacts, setLoadingContacts] = useState(false)
+  const [startingConv, setStartingConv] = useState(false)
+  const searchDebounceRef = useRef(null)
+
   const messageEndRef = useRef(null)
+
+  const refreshConversationsAndSelect = useCallback(async (otherUserId) => {
+    const convRes = await messagesAPI.conversations()
+    const data = convRes.data?.data ?? convRes.data
+    const list = data?.conversations ?? []
+    const arr = Array.isArray(list) ? list : []
+    setConversations(arr)
+    const found = arr.find((c) => c.interlocuteur?.id === otherUserId)
+    if (found) setActiveConvId(found.id)
+  }, [])
 
   const fetchConversations = useCallback(async () => {
     setLoadingConversations(true)
@@ -97,6 +113,57 @@ export default function Messagerie() {
   useEffect(() => {
     fetchConversations()
   }, [fetchConversations])
+
+  useEffect(() => {
+    if (!newConvOpen) return
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = setTimeout(async () => {
+      setLoadingContacts(true)
+      try {
+        const res = await api.get('/utilisateurs/contacts', {
+          params: { search: userSearch.trim() || undefined },
+        })
+        const raw = res.data?.data?.contacts ?? res.data?.contacts ?? []
+        setContactsResults(Array.isArray(raw) ? raw : [])
+      } catch {
+        setContactsResults([])
+        toast.error('Impossible de charger les contacts')
+      } finally {
+        setLoadingContacts(false)
+      }
+    }, 350)
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    }
+  }, [userSearch, newConvOpen])
+
+  const openNewConvModal = () => {
+    setUserSearch('')
+    setContactsResults([])
+    setNewConvOpen(true)
+  }
+
+  const startConversationWith = async (userId) => {
+    if (!userId || startingConv) return
+    setStartingConv(true)
+    try {
+      await messagesAPI.envoyer({
+        receiver_id: userId,
+        contenu: 'Bonjour',
+        mission_id: null,
+      })
+      toast.success('Conversation ouverte ✅')
+      setNewConvOpen(false)
+      setUserSearch('')
+      await refreshConversationsAndSelect(userId)
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'Impossible de démarrer la conversation'
+      )
+    } finally {
+      setStartingConv(false)
+    }
+  }
 
   // Auto-sélection conversation (pour éviter écran vide côté chat).
   useEffect(() => {
@@ -163,11 +230,20 @@ export default function Messagerie() {
             ].join(' ')}
           >
             <div className="border-b border-[#EAECF0] p-4 dark:border-[#2A2D3E]">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-3">
                 <MessageCircle size={18} className="text-[#00A650]" />
                 <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Conversations</div>
                 <div className="ml-auto text-xs text-[#9AA0AE]">{conversations.length}</div>
               </div>
+              <button
+                type="button"
+                onClick={openNewConvModal}
+                className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
+                style={{ background: '#00A650' }}
+              >
+                <Plus size={18} />
+                Nouvelle conversation
+              </button>
             </div>
 
             {loadingConversations && (
@@ -413,6 +489,53 @@ export default function Messagerie() {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={newConvOpen}
+        onClose={() => !startingConv && setNewConvOpen(false)}
+        title="Nouvelle conversation"
+        size="md"
+      >
+        <div className="space-y-3">
+          <Input
+            label="Rechercher un collègue"
+            value={userSearch}
+            onChange={(e) => setUserSearch(e.target.value)}
+            placeholder="Nom, prénom, e-mail…"
+          />
+          {loadingContacts && (
+            <div className="text-xs text-[#9AA0AE]">Recherche…</div>
+          )}
+          {!loadingContacts && contactsResults.length === 0 && (
+            <div className="text-sm text-[#9AA0AE] py-2">
+              {userSearch.trim() ? 'Aucun résultat' : 'Saisissez un nom ou parcourez la liste.'}
+            </div>
+          )}
+          {!loadingContacts && contactsResults.length > 0 && (
+            <ul className="max-h-[280px] overflow-y-auto space-y-1 border border-[#EAECF0] rounded-xl p-2 dark:border-[#2A2D3E]">
+              {contactsResults.map((u) => (
+                <li key={u.id}>
+                  <button
+                    type="button"
+                    disabled={startingConv}
+                    onClick={() => startConversationWith(u.id)}
+                    className="w-full text-left rounded-lg px-3 py-2.5 text-sm hover:bg-[#F0FDF4] dark:hover:bg-[#252840] disabled:opacity-50"
+                  >
+                    <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
+                      {(u.nom_complet && String(u.nom_complet).trim())
+                        || `${u.prenom ?? ''} ${u.nom ?? ''}`.trim()
+                        || 'Utilisateur'}
+                    </div>
+                    {u.email && (
+                      <div className="text-xs text-[#9AA0AE] truncate">{u.email}</div>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

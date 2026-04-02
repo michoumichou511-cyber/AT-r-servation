@@ -21,10 +21,29 @@ export const setUnauthorizedHandler = (fn) => {
   unauthorizedHandler = fn
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
 api.interceptors.response.use(
   (r) => r,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const cfg = error.config
+    const status = error.response?.status
+    const method = (cfg?.method || 'get').toLowerCase()
+    const noResponse = !error.response
+    const gatewayOrUnavailable = status === 502 || status === 503 || status === 504
+    const safeMethod = method === 'get' || method === 'head'
+    const eligible =
+      cfg &&
+      !cfg.signal?.aborted &&
+      safeMethod &&
+      (noResponse || gatewayOrUnavailable)
+    const n = (cfg?.__atRetry ?? 0) + 1
+    if (eligible && n <= 2) {
+      cfg.__atRetry = n
+      await delay(350 * n)
+      return api(cfg)
+    }
+    if (status === 401) {
       try { unauthorizedHandler() } catch { /* ignore */ }
     }
     return Promise.reject(error)
