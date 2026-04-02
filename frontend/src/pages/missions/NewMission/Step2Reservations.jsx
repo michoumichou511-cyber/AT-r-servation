@@ -71,7 +71,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     setLoading(true)
     setError('')
     try {
-      const res = await reservationsAPI.list(missionId)
+      const res = await reservationsAPI.getByMission(missionId)
       const raw = res?.data?.data ?? res?.data?.reservations ?? res?.data
       const list = Array.isArray(raw) ? raw : []
       setReservations(list)
@@ -118,7 +118,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
         ...(getPayloadValue(formNotes) ? { notes: formNotes.trim() } : {}),
       }
 
-      const res = await reservationsAPI.create(missionId, payload)
+      const res = await reservationsAPI.creer(missionId, payload)
       const created = res?.data?.data ?? res?.data ?? null
       if (!created) throw new Error('Réservation créée mais réponse invalide')
 

@@ -51,14 +51,15 @@ export default function Step4Recap({ missionId, onPrev }) {
     try {
       const [mRes, rRes, dRes] = await Promise.all([
         missionsAPI.get(missionId),
-        reservationsAPI.list(missionId),
+        reservationsAPI.getByMission(missionId),
         documentsAPI.list(missionId),
       ])
 
       const m = mRes?.data?.data ?? mRes?.data ?? null
       const rRaw = rRes?.data?.data ?? rRes?.data?.reservations ?? rRes?.data
       const rList = Array.isArray(rRaw) ? rRaw : []
-      const dList = Array.isArray(dRes?.data) ? dRes.data : []
+      const dBody = dRes?.data?.data ?? dRes?.data
+      const dList = Array.isArray(dBody) ? dBody : []
 
       setMission(m)
       setReservations(rList)
@@ -108,7 +109,7 @@ export default function Step4Recap({ missionId, onPrev }) {
     setSubmitting(true)
     setError('')
     try {
-      await missionsAPI.submit(missionId)
+      await missionsAPI.soumettre(missionId)
       toast.success('Mission soumise ✅')
       navigate(`/missions/${missionId}`)
     } catch (err) {
