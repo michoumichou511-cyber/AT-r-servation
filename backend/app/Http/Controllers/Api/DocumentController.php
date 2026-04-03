@@ -86,7 +86,7 @@ class DocumentController extends Controller
         AuditLog::create([
             'user_id' => $user->id,
             'action' => 'create',
-            'module' => 'document',
+            'module' => 'mission',
             'description' => "Document uploadé pour mission {$mission->numero_unique}",
             'old_values' => null,
             'new_values' => [
@@ -122,7 +122,7 @@ class DocumentController extends Controller
         AuditLog::create([
             'user_id' => $user->id,
             'action' => 'delete',
-            'module' => 'document',
+            'module' => 'mission',
             'description' => "Document supprimé : {$document->nom_fichier}",
             'old_values' => ['id' => $document->id, 'nom' => $document->nom_fichier],
             'new_values' => null,

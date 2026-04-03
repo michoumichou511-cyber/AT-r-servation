@@ -274,7 +274,7 @@ export default function Utilisateurs() {
               </thead>
               <tbody>
                 {items.map((u, index) => {
-                  const roleName = u.role?.name ?? u.role ?? ''
+                  const roleName = u.role?.name ?? u.role?.nom ?? u.role ?? ''
                   const isActive = !!u.is_active
                   return (
                     <motion.tr
@@ -306,7 +306,7 @@ export default function Utilisateurs() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700">
-                        {u.direction ?? '—'}
+                        {u.direction || u.structure_id || '—'}
                       </td>
                       <td className="px-4 py-3">
                         <select

@@ -78,6 +78,7 @@ class AdminUserController extends Controller
 
         $utilisateurs = $query->select([
             'id', 'prenom', 'nom', 'email', 'matricule',
+            'role_id', 'structure_id',
             'direction', 'service', 'is_active', 'last_login_at',
             'created_at',
         ])

@@ -44,22 +44,22 @@ class ExportController extends Controller
         // Sert uniquement au nom de fichier export (évite l'erreur "undefined variable")
         $date = now()->format('Y-m-d_H-i-s');
 
-        // Récupérer les données de dépenses par direction et type
+        // Colonnes missions : destination, type_mission, budget_previsionnel (pas direction/service/budget_max)
         $depenses = Mission::selectRaw('
-                missions.direction,
-                missions.service,
+                missions.destination,
+                missions.type_mission,
                 reservations.type,
                 COUNT(DISTINCT missions.id) as nb_missions,
-                SUM(missions.budget_max) as montant_prevu,
-                SUM(reservations.montant) as montant_reel
+                SUM(COALESCE(missions.budget_previsionnel, 0)) as montant_prevu,
+                SUM(COALESCE(reservations.montant_reel, reservations.montant_estime, 0)) as montant_reel
             ')
             ->join('reservations', 'missions.id', '=', 'reservations.mission_id')
             ->whereYear('missions.created_at', $anneeCourante)
             ->where('missions.statut', 'approuve')
             ->where('reservations.statut', 'confirme')
-            ->groupBy('missions.direction', 'missions.service', 'reservations.type')
-            ->orderBy('missions.direction')
-            ->orderBy('missions.service')
+            ->groupBy('missions.destination', 'missions.type_mission', 'reservations.type')
+            ->orderBy('missions.destination')
+            ->orderBy('missions.type_mission')
             ->get();
 
         // Logger l'export
@@ -82,8 +82,8 @@ class ExportController extends Controller
 
             foreach ($depenses as $d) {
                 fputcsv($file, [
-                    $d->direction,
-                    $d->service,
+                    $d->destination,
+                    $d->type_mission,
                     $d->type,
                     $d->nb_missions,
                     $d->montant_prevu,
@@ -112,9 +112,9 @@ class ExportController extends Controller
         $prestataires = Prestataire::selectRaw('
                 prestataires.*,
                 COUNT(reservations.id) as nb_reservations,
-                COALESCE(AVG(reservations.montant), 0) as montant_moyen,
+                COALESCE(AVG(COALESCE(reservations.montant_reel, reservations.montant_estime)), 0) as montant_moyen,
                 MAX(reservations.created_at) as derniere_utilisation,
-                SUM(reservations.montant) as montant_total
+                SUM(COALESCE(reservations.montant_reel, reservations.montant_estime, 0)) as montant_total
             ')
             ->leftJoin('reservations', 'prestataires.id', '=', 'reservations.prestataire_id')
             ->where('reservations.statut', 'confirme')
