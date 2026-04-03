@@ -279,7 +279,7 @@ class ValidationController extends Controller
         // Annuler toutes les autres étapes
         CircuitValidation::where('mission_id', $mission->id)
             ->where('statut', 'en_attente')
-            ->update(['statut' => 'annule']);
+            ->update(['statut' => 'rejete']);
 
         // Notifier le demandeur
         NotificationCustom::create([

@@ -104,7 +104,7 @@ export default function Sidebar({ onClose }) {
     } catch {
       /* ignore */
     }
-  }, 10000, !!user)
+  }, 60000, !!user)
 
   usePolling(async () => {
     try {
