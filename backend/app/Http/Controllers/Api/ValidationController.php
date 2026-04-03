@@ -136,7 +136,7 @@ class ValidationController extends Controller
         }
 
         $request->validate([
-            'commentaire' => 'nullable|string',
+            'commentaire' => 'sometimes|nullable|string|max:65535',
         ]);
 
         $mission = $validation->mission;

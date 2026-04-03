@@ -131,7 +131,7 @@ export default function Validations() {
     }
 
     const payload = {
-      commentaire: commentaire?.trim() ? commentaire.trim() : undefined,
+      commentaire: commentaire || '',
     }
 
     setModalError('')

@@ -7,7 +7,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { searchAPI, notificationsAPI } from '../../services/api'
-import { usePolling } from '../../hooks/usePolling'
 
 const titresRoutes = {
   '/':                    'Tableau de bord',
@@ -41,15 +40,24 @@ export default function Navbar({ onMenuClick }) {
 
   const titre = titresRoutes[location.pathname] ?? 'AT Réservations'
 
-  // Polling notifications
-  usePolling(async () => {
-    try {
-      const res = await notificationsAPI.count()
-      setNotifCount(res.data?.data?.count ?? res.data?.count ?? 0)
-    } catch {
-      /* ignore */
+  // Notifications : un seul intervalle (60s) + nettoyage au démontage
+  useEffect(() => {
+    if (!user) {
+      setNotifCount(0)
+      return
     }
-  }, 30000, !!user)
+    const tick = async () => {
+      try {
+        const res = await notificationsAPI.count()
+        setNotifCount(res.data?.data?.count ?? res.data?.count ?? 0)
+      } catch {
+        /* ignore */
+      }
+    }
+    tick()
+    const id = setInterval(tick, 60000)
+    return () => clearInterval(id)
+  }, [user])
 
   // Recherche avec debounce
   const handleSearch = useCallback((q) => {
