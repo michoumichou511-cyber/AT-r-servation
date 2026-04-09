@@ -27,8 +27,5 @@ RUN composer dump-autoload --optimize \
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
   && chmod -R ug+rwX storage bootstrap/cache
 
-COPY scripts/railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
-RUN chmod +x /usr/local/bin/railway-entrypoint.sh
-
-# Railway injecte PORT — PHP built-in server (document root public/)
-CMD ["/usr/local/bin/railway-entrypoint.sh"]
+# Démarrage simple (à adapter selon le serveur / reverse-proxy de soutenance)
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "public/index.php"]

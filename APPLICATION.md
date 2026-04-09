@@ -16,7 +16,7 @@ Application web de **gestion de missions** (déplacements professionnels) : cré
 |--------|--------|------|
 | **Frontend** | `frontend/` | SPA React (Vite), consomme l’API REST |
 | **Backend** | `backend/` | API Laravel 12, préfixe `/api` |
-| **Déploiement Vercel** | `vercel.json` (racine) | Build du dossier `frontend/` → `frontend/dist` |
+| **Déploiement** | (selon environnement) | Serveur de soutenance / VM / Docker, au choix |
 
 ---
 
@@ -42,7 +42,7 @@ Application web de **gestion de missions** (déplacements professionnels) : cré
 ### Base de données
 
 - Développement local : souvent **SQLite** (voir `backend/.env.example`)
-- Production typique : **PostgreSQL** (ex. Railway) — migrations compatibles multi-SGBD (dont index via `DetectsMigrationIndex`)
+- Production typique : **PostgreSQL** — migrations compatibles multi-SGBD (dont index via `DetectsMigrationIndex`)
 
 ---
 
@@ -124,22 +124,22 @@ Toutes les routes ci-dessous sont sous le préfixe **`/api`** (ex. `https://hôt
 
 ## 8. Client HTTP (`frontend/src/services/api.js`)
 
-- `baseURL` : `import.meta.env.VITE_API_URL` si défini, sinon **URL de secours** codée en dur vers l’API Railway (à surcharger en production via variable Vercel)
+- `baseURL` : `import.meta.env.VITE_API_URL` (obligatoire)
 - Intercepteurs : jeton Bearer, gestion globale des **401**
 
 ---
 
 ## 9. Déploiement
 
-### Backend (Railway)
+### Backend
 
-- **Dockerfile** : `php:8.2-cli`, extensions `gd`, `pdo_pgsql`, `zip`, etc.
-- Entrée : `scripts/railway-entrypoint.sh` — serveur PHP intégré, `PORT` injecté par Railway
-- Fichiers utiles : `public/railway-health.php`, health Laravel `/up`, route `/api/health`
+- Démarrage local : `php artisan serve`
+- En soutenance : déployer sur un serveur/VM (Apache/Nginx) ou via Docker selon ton environnement
 
-### Frontend (Vercel)
+### Frontend
 
-- `vercel.json` : build `@vercel/static-build` sur `frontend/package.json`, sortie `frontend/dist`
+- Dév : `npm run dev`
+- Build : `npm run build` (sert ensuite les fichiers de `dist/`)
 
 ---
 
@@ -154,9 +154,9 @@ Toutes les routes ci-dessous sont sous le préfixe **`/api`** (ex. `https://hôt
 
 ### Frontend
 
-- **`VITE_API_URL`** — URL complète de l’API incluant `/api` (ex. `https://ton-backend.railway.app/api`)
+- **`VITE_API_URL`** — URL complète de l’API incluant `/api` (ex. `http://127.0.0.1:8000/api`)
 
-Ne pas committer de fichiers `.env` contenant des secrets ; utiliser les variables du tableau de bord Vercel / Railway.
+Ne pas committer de fichiers `.env` contenant des secrets.
 
 ---
 
