@@ -49,7 +49,7 @@ class HealthController extends Controller
                 $stats['total_missions'] = Mission::count();
                 $stats['total_reservations'] = Reservation::count();
             } catch (\Throwable $e) {
-                // Schéma incomplet ou erreur SQL : ne pas faire échouer le healthcheck HTTP (ex. Railway).
+                // Schéma incomplet ou erreur SQL : ne pas faire échouer le healthcheck HTTP.
             }
         }
 
