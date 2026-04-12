@@ -4,6 +4,7 @@ import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react'
+import FloatingBubbles from '../../components/Common/FloatingBubbles'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
@@ -740,6 +741,7 @@ export default function Login() {
     <>
       {themeToggle}
       <div
+        className="relative"
         style={{
           display: 'flex',
           height: '100vh',
@@ -747,6 +749,7 @@ export default function Login() {
           fontFamily: 'IBM Plex Sans, sans-serif',
         }}
       >
+      <FloatingBubbles count={15} />
       {/* ═══ GAUCHE ═══ */}
       <div
         style={{
