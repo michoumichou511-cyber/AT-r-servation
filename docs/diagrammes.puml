@@ -1,0 +1,337 @@
+' =============================================================================
+' AT Réservations — Diagrammes UML (Chapitre 2 : Analyse & Conception)
+' Génération PNG : java -jar plantuml.jar diagrammes.puml
+' =============================================================================
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam ArrowColor #003DA5
+skinparam ActorBorderColor #003DA5
+skinparam ActorBackgroundColor #E6F9EE
+skinparam UseCaseBorderColor #003DA5
+skinparam UseCaseBackgroundColor #F5FAFF
+skinparam ClassBorderColor #003DA5
+skinparam ClassBackgroundColor #FFFFFF
+skinparam SequenceLifeLineBorderColor #003DA5
+skinparam SequenceParticipantBorderColor #003DA5
+skinparam ActivityBorderColor #003DA5
+skinparam ActivityBackgroundColor #F5FAFF
+skinparam NodeBorderColor #003DA5
+skinparam NodeBackgroundColor #E6F9EE
+
+' Couleurs charte AT (commentaires)
+' Vert AT : #00A650 | Bleu AT : #003DA5
+
+@startuml diagramme_cas_utilisation
+title Diagramme de cas d'utilisation — AT Réservations
+
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam actor {
+  BackgroundColor #E6F9EE
+  BorderColor #003DA5
+}
+skinparam usecase {
+  BackgroundColor #F5FAFF
+  BorderColor #003DA5
+}
+
+actor "Administrateur" as Admin #E6F9EE
+actor "Validateur" as Val #E6F9EE
+actor "Demandeur" as Dem #E6F9EE
+actor "Utilisateur" as User #E6F9EE
+
+rectangle "Système AT Réservations" {
+  usecase "S'authentifier" as UC_Auth
+  usecase "Créer demande\nde mission" as UC_Creer
+  usecase "Soumettre\ndemande" as UC_Soum
+  usecase "Valider / rejeter\ndemande" as UC_Val
+  usecase "Consulter\nmes missions" as UC_Mes
+  usecase "Gérer\nutilisateurs" as UC_Gest
+  usecase "Consulter tableau\nde bord" as UC_Dash
+  usecase "Exporter\nrapport" as UC_Exp
+  usecase "Envoyer message\ninterne" as UC_Msg
+  usecase "Consulter\norganigramme" as UC_Org
+}
+
+' Acteurs — cas principaux
+Dem --> UC_Auth
+Dem --> UC_Creer
+Dem --> UC_Soum
+Dem --> UC_Mes
+Dem --> UC_Dash
+Dem --> UC_Msg
+Dem --> UC_Org
+
+Val --> UC_Auth
+Val --> UC_Val
+Val --> UC_Mes
+Val --> UC_Dash
+Val --> UC_Exp
+Val --> UC_Msg
+Val --> UC_Org
+
+User --> UC_Auth
+User --> UC_Mes
+User --> UC_Dash
+User --> UC_Msg
+User --> UC_Org
+
+Admin --> UC_Auth
+Admin --> UC_Gest
+Admin --> UC_Dash
+Admin --> UC_Exp
+Admin --> UC_Msg
+Admin --> UC_Org
+
+UC_Creer ..> UC_Soum : <<include>>
+
+note right of UC_Val
+  Décision hiérarchique
+  sur les demandes soumises
+end note
+
+@enduml
+
+
+@startuml diagramme_classes
+title Diagramme de classes — Modèle métier AT Réservations
+
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor white
+  BorderColor #003DA5
+  ArrowColor #003DA5
+}
+
+class Utilisateur {
+  + id : bigint
+  --
+  + nom : string
+  + prenom : string
+  + email : string
+  + role : enum
+  + direction : string
+}
+
+class Mission {
+  + id : bigint
+  --
+  + titre : string
+  + destination : string
+  + date_depart : date
+  + date_retour : date
+  + statut : enum
+  + type_mission : string
+  + description : text
+  + created_by : bigint <<FK>>
+}
+
+class Validation {
+  + id : bigint
+  --
+  + mission_id : bigint <<FK>>
+  + validateur_id : bigint <<FK>>
+  + statut : enum
+  + commentaire : text
+  + date_validation : datetime
+}
+
+class Document {
+  + id : bigint
+  --
+  + mission_id : bigint <<FK>>
+  + nom_fichier : string
+  + chemin : string
+  + type : string
+}
+
+class Message {
+  + id : bigint
+  --
+  + expediteur_id : bigint <<FK>>
+  + destinataire_id : bigint <<FK>>
+  + contenu : text
+  + lu : boolean
+  + created_at : datetime
+}
+
+class Notification {
+  + id : bigint
+  --
+  + user_id : bigint <<FK>>
+  + message : text
+  + type : string
+  + lu : boolean
+  + created_at : datetime
+}
+
+' Relations avec cardinalités
+Utilisateur "1" --> "*" Mission : crée\n(created_by)
+Mission "1" --> "*" Validation : fait l'objet de
+Utilisateur "1" --> "*" Validation : valide en tant que\nvalidateur
+Mission "1" --> "*" Document : joint
+Utilisateur "1" --> "*" Message : envoie
+Utilisateur "1" --> "*" Message : reçoit
+Utilisateur "1" --> "*" Notification : reçoit
+
+note bottom of Mission
+  Statut : brouillon, soumise,
+  en validation, approuvée,
+  rejetée, archivée, etc.
+end note
+
+@enduml
+
+
+@startuml diagramme_sequence_mission
+title Diagramme de séquence — Création et validation d'une mission
+
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 20
+
+actor "Demandeur" as D #E6F9EE
+participant "Frontend\n(React / Vite)" as FE #F5FAFF
+participant "API REST\n(Laravel 12)" as API #E6F9EE
+database "Base MySQL" as DB #F5FAFF
+actor "Validateur" as V #E6F9EE
+
+== Authentification ==
+D -> FE : Saisie identifiants
+FE -> API : POST /login (Sanctum)
+API -> DB : Vérifier utilisateur
+DB --> API : Jeton / session
+API --> FE : 200 + token
+FE --> D : Accès application
+
+== Création et soumission ==
+D -> FE : Remplir formulaire mission
+FE -> API : POST /missions (brouillon ou direct)
+API -> DB : INSERT mission (statut)
+DB --> API : mission_id
+API --> FE : Mission créée
+D -> FE : Soumettre pour validation
+FE -> API : PATCH mission (statut = soumise)
+API -> DB : UPDATE mission
+API -> DB : INSERT notification (validateur)
+DB --> API : OK
+API --> FE : 200
+
+== Notification validateur ==
+FE -> D : Confirmation soumission
+note over API : Notification au validateur\n(rôle / hiérarchie)
+
+== Décision validateur ==
+V -> FE : Consulter demandes
+FE -> API : GET /missions?statut=...
+API -> DB : SELECT
+DB --> API : Liste
+V -> FE : Valider la mission
+FE -> API : POST /validations
+API -> DB : INSERT validation + UPDATE mission
+API -> DB : INSERT notification (demandeur)
+DB --> API : OK
+API --> FE : Mission approuvée
+
+== Clôture côté demandeur ==
+FE -> D : Notification (mission approuvée)
+D -> FE : Consulter détail mission
+
+@enduml
+
+
+@startuml diagramme_activite_validation
+title Diagramme d'activités — Circuit de validation hiérarchique
+
+start
+
+:Boucle utilisateur authentifié;
+
+if (Rôle : demandeur ?) then (oui)
+  :Créer ou modifier\nune demande de mission;
+  if (Enregistrer brouillon ?) then (oui)
+    :Mission en statut\n« brouillon »;
+    stop
+  else (non)
+    :Soumettre la demande;
+    :Statut « en attente\nde validation »;
+    :Notifier le(s)\nvalidateur(s);
+  endif
+else (non)
+  :Autres parcours\n(consultation, etc.);
+endif
+
+partition "Validation hiérarchique" {
+  :Validateur ouvre\nla file d'attente;
+  if (Décision ?) then (Approuver)
+    :Statut « approuvée »;
+    :Notifier le demandeur;
+    :Archivage possible\naprès exécution;
+  elseif (Rejeter) then
+    :Statut « rejetée »;
+    :Notifier le demandeur\navec motif;
+    :Fin du flux pour\ncette version;
+  else (Retour pour modification)
+    :Statut « retour\npour modification »;
+    :Notifier le demandeur;
+    :Demandeur corrige\net resoumet;
+    note right
+      Nouveau cycle :
+      re-soumission pour
+      validation hiérarchique
+    end note
+  endif
+}
+
+if (Mission approuvée\net terminée ?) then (oui)
+  :Statut « archivée »;
+else (non)
+endif
+
+stop
+
+@enduml
+
+
+@startuml diagramme_deploiement
+title Diagramme de déploiement — Architecture AT Réservations
+
+skinparam node {
+  BackgroundColor #F5FAFF
+  BorderColor #003DA5
+}
+
+node "Poste client" as Client {
+  artifact "Navigateur web\n(Chrome, Firefox, Edge)" as Browser #E6F9EE
+  artifact "Bundle React 18\n(compilé Vite build,\nassets statiques)" as ReactBuild #E6F9EE
+}
+
+node "Serveur d'application" as Serv {
+  node "Serveur Web\n(Apache / Nginx + PHP-FPM)" as Web {
+    artifact "Application Laravel 12\n(API REST, Sanctum,\nlogique métier)" as Laravel #F5FAFF
+  }
+}
+
+database "MySQL" as DB #E6F9EE {
+  artifact "Schéma métier\n(missions, users,\nvalidations, …)" as Schema
+}
+
+Browser --> ReactBuild : charge SPA
+ReactBuild --> Laravel : HTTPS\n(JSON / API)
+Laravel --> Schema : PDO / Eloquent\nrequêtes SQL
+
+note right of ReactBuild
+  **Build production :** npm run build
+  (Vite) → fichiers JS/CSS
+  servis comme statiques
+end note
+
+note bottom of Laravel
+  Point d'entrée : public/index.php
+  Routes API + contrôleurs
+end note
+
+@enduml

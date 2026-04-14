@@ -1,0 +1,57 @@
+---
+description: Système de design AT Réservations — appliqué automatiquement à toutes les tâches UI
+globs:
+  - "src/**/*.tsx"
+  - "src/**/*.jsx"
+  - "src/**/*.css"
+  - "src/**/*.ts"
+alwaysApply: true
+---
+
+# Règle Design AT Réservations
+
+## Référence obligatoire
+Avant toute tâche UI (composant, page, style, layout), lire et appliquer **`DESIGN.md`** à la racine du repo frontend.
+
+## Identité AT — JAMAIS modifier
+- Vert primaire : `#00D47A` | `--at-green`
+- Bleu secondaire : `#0096D6` | `--at-blue`
+- Blanc : `#FFFFFF` | `--at-white`
+- Fond sombre (dark mode) : `#0A0F1E` | `--at-dark`
+- Surface (dark) : `#111827` | `--at-surface`
+- Typo : "Sora" ou "Plus Jakarta Sans" (titres) + "Inter" (corps)
+- Interdit : Arial, Roboto, gradients violet/blanc “SaaS” génériques
+
+## Animations Framer Motion — règles critiques
+- `animate` = état VISIBLE (opacity: 1, y: 0)
+- `initial` = état CACHÉ (opacity: 0, y: 12)
+- Ne JAMAIS écrire `animate={{ opacity: 0 }}` — cause disparition des éléments
+- Conserver : polling messages 60s, notifications 30s
+- Conserver : toutes les animations Framer Motion existantes intactes
+
+## Fichiers protégés — NE JAMAIS TOUCHER
+- `database/seeders/ATUsersSeeder.php`
+- `tailwind.config.js` (couleurs AT déjà définies)
+- `.env` (ne jamais committer)
+
+## Scope des modifications
+- **Un fichier par prompt Cursor** — jamais de modifications multi-fichiers simultanées
+- Après chaque modification frontend : `npm run build` pour vérifier l'absence d'erreurs
+
+## Stack
+- React 18 + Vite + TailwindCSS + Framer Motion
+- Lucide React pour les icônes (stroke-width: 1.75, héritage couleur)
+- Laravel 12 + Sanctum backend (port 8000), frontend port 5177
+- DB_HOST: `127.0.0.1` (jamais `localhost`)
+
+## Composants référence
+- Cards : `rounded-xl border border-white/10 p-6 shadow-lg`
+- Boutons primaires : `bg-[#00D47A] hover:opacity-90 text-black font-semibold rounded-lg px-6 py-3`
+- Boutons secondaires : `border border-[#0096D6] text-[#0096D6] rounded-lg`
+- Badges statut : en-attente=violet, validé=vert, refusé=rouge, en-cours=bleu
+
+## Skills design installés (chemins réels)
+- `.agents/skills/emil-design-eng/` → polish UI, micro-interactions
+- `.agents/skills/impeccable/` → typographie, espacement
+- `.agents/skills/stitch-design-taste/` → hiérarchie visuelle, goût éditorial
+- `.agents/skills/design-taste-frontend/` → UI frontend opinioné

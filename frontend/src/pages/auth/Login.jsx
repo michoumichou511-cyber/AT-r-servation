@@ -4,7 +4,7 @@ import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react'
-import FloatingBubbles from '../../components/Common/FloatingBubbles'
+import { FormParticlesCanvas, ParticlesBackgroundMobile } from '../../components/ParticlesBackground'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
@@ -53,170 +53,11 @@ function LoginMobileAnimated({
   comptes,
   darkMode,
 }) {
-  const canvasRef = useRef(null)
   const floatBubbles = useMemo(() => AT_FLOAT_BUBBLES, [])
   const reducedMotion = usePrefersReducedMotion()
   const emailFieldId = useId()
   const passwordFieldId = useId()
   const loginErrorId = useId()
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d', { alpha: true })
-    if (!ctx) return
-
-    const isDark = darkMode
-    const COL_GREEN = isDark
-      ? { r: 0, g: 212, b: 122 }
-      : { r: 0, g: 150, b: 70 }
-    const COL_BLUE = isDark
-      ? { r: 0, g: 150, b: 214 }
-      : { r: 0, g: 80, b: 200 }
-    const LINK_DIST = 100
-    const LINK_DIST_SQ = LINK_DIST * LINK_DIST
-
-    if (reducedMotion) {
-      const paintStatic = () => {
-        const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
-        const lw = window.innerWidth
-        const lh = window.innerHeight
-        canvas.width = Math.floor(lw * dpr)
-        canvas.height = Math.floor(lh * dpr)
-        canvas.style.width = `${lw}px`
-        canvas.style.height = `${lh}px`
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-        ctx.clearRect(0, 0, lw, lh)
-        const g = ctx.createLinearGradient(0, 0, 0, lh)
-        g.addColorStop(0, isDark ? 'rgba(0, 26, 94, 0.4)' : 'rgba(230, 240, 255, 0.95)')
-        g.addColorStop(1, isDark ? 'rgba(0, 61, 165, 0.25)' : 'rgba(0, 166, 80, 0.12)')
-        ctx.fillStyle = g
-        ctx.fillRect(0, 0, lw, lh)
-      }
-      paintStatic()
-      window.addEventListener('resize', paintStatic)
-      return () => window.removeEventListener('resize', paintStatic)
-    }
-
-    const waves = isDark
-      ? [
-          { yRatio: 0.75, color: 'rgba(0,150,214,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
-          { yRatio: 0.82, color: 'rgba(0,180,120,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
-          { yRatio: 0.9, color: 'rgba(0,120,200,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
-        ]
-      : [
-          { yRatio: 0.75, color: 'rgba(0,100,180,0.10)', speed: 0.8, freq: 0.012, amp: 18 },
-          { yRatio: 0.82, color: 'rgba(0,140,100,0.08)', speed: -0.6, freq: 0.016, amp: 18 },
-          { yRatio: 0.9, color: 'rgba(0,80,160,0.07)', speed: 1.1, freq: 0.02, amp: 18 },
-        ]
-
-    let animId = 0
-    let t = 0
-    let particles = []
-
-    const seed = (lw, lh) => {
-      particles = []
-      const count = lw < 400 ? 12 : 25
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * lw,
-          y: Math.random() * lh,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          radius: Math.random() * 2 + 1.2,
-          opacity: Math.random() * 0.45 + 0.35,
-          isGreen: i % 2 === 0,
-        })
-      }
-    }
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
-      const lw = window.innerWidth
-      const lh = window.innerHeight
-      canvas.width = Math.floor(lw * dpr)
-      canvas.height = Math.floor(lh * dpr)
-      canvas.style.width = `${lw}px`
-      canvas.style.height = `${lh}px`
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      seed(lw, lh)
-    }
-
-    const loop = () => {
-      const w = window.innerWidth
-      const h = window.innerHeight
-      ctx.clearRect(0, 0, w, h)
-
-      waves.forEach((wv) => {
-        ctx.beginPath()
-        ctx.moveTo(0, h)
-        for (let x = 0; x <= w; x++) {
-          ctx.lineTo(x, h * wv.yRatio + Math.sin(x * wv.freq + t * wv.speed) * wv.amp)
-        }
-        ctx.lineTo(w, h)
-        ctx.closePath()
-        ctx.fillStyle = wv.color
-        ctx.fill()
-      })
-
-      particles.forEach((p) => {
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < 0 || p.x > w) p.vx *= -1
-        if (p.y < 0 || p.y > h) p.vy *= -1
-      })
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i]
-          const b = particles[j]
-          const dx = a.x - b.x
-          const dy = a.y - b.y
-          const distSq = dx * dx + dy * dy
-          if (distSq < LINK_DIST_SQ) {
-            const distance = Math.sqrt(distSq)
-            const alpha = (1 - distance / LINK_DIST) * 0.35
-            ctx.beginPath()
-            ctx.moveTo(a.x, a.y)
-            ctx.lineTo(b.x, b.y)
-            ctx.strokeStyle = `rgba(0, 200, 140, ${alpha * 0.5})`
-            ctx.lineWidth = 0.65
-            ctx.stroke()
-          }
-        }
-      }
-
-      particles.forEach((p) => {
-        const c = p.isGreen ? COL_GREEN : COL_BLUE
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-        const fillAlpha = isDark ? p.opacity : 1
-        ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${fillAlpha})`
-        ctx.fill()
-      })
-
-      t += 0.025
-      animId = requestAnimationFrame(loop)
-    }
-
-    const onVisibility = () => {
-      cancelAnimationFrame(animId)
-      if (document.visibilityState === 'visible') {
-        animId = requestAnimationFrame(loop)
-      }
-    }
-
-    resize()
-    animId = requestAnimationFrame(loop)
-    window.addEventListener('resize', resize)
-    document.addEventListener('visibilitychange', onVisibility)
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-  }, [darkMode, reducedMotion])
 
   const demoBtns = [
     { label: 'Administrateur', key: 'admin', color: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -279,19 +120,7 @@ function LoginMobileAnimated({
         padding: 16,
       }}
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 0,
-          pointerEvents: 'none',
-        }}
-        aria-hidden
-      />
+      <ParticlesBackgroundMobile darkMode={darkMode} reducedMotion={reducedMotion} />
       <div
         className="pointer-events-none fixed inset-0 overflow-hidden"
         style={{ zIndex: 0 }}
@@ -696,6 +525,7 @@ export default function Login() {
   }, [])
 
   const reducedMotion = usePrefersReducedMotion()
+  const rightPanelRef = useRef(null)
   const desktopEmailId = useId()
   const desktopPasswordId = useId()
   const desktopFormErrorId = useId()
@@ -749,7 +579,6 @@ export default function Login() {
           fontFamily: 'IBM Plex Sans, sans-serif',
         }}
       >
-      <FloatingBubbles count={15} />
       {/* ═══ GAUCHE ═══ */}
       <div
         style={{
@@ -991,19 +820,37 @@ export default function Login() {
 
       {/* ═══ DROITE ═══ */}
       <div
-        className="flex flex-1 flex-col justify-center px-10 py-12 sm:px-12 max-w-[520px] transition-colors"
+        ref={rightPanelRef}
+        className="relative overflow-hidden flex flex-1 flex-col justify-center px-10 py-12 sm:px-12 max-w-[520px] transition-colors"
         style={{
           display: 'flex',
           flexDirection: 'column',
-          background: darkMode ? '#0b1220' : '#ffffff',
+          position: 'relative',
+          ...(darkMode
+            ? {
+                background: 'rgba(5, 8, 20, 0.25)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                borderLeft: '1px solid rgba(255,255,255,0.06)',
+              }
+            : {
+                background: '#ffffff',
+              }),
         }}
       >
+        <FormParticlesCanvas containerRef={rightPanelRef} reducedMotion={reducedMotion} />
+        <div
+          className="relative z-[1] flex flex-col flex-1 w-full min-h-0 justify-center"
+        >
         <m.div
           className="flex flex-col flex-1 w-full min-h-0"
           style={
             darkMode
               ? {
-                  background: 'rgba(15,25,45,0.95)',
+                  background: 'rgba(10, 15, 30, 0.45)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 16,
                   padding: '28px 24px',
                 }
@@ -1078,11 +925,18 @@ export default function Login() {
               required
               className={`min-h-[44px] w-full rounded-xl border-2 text-[13px] outline-none font-inherit pl-11 pr-3.5 py-3.5 focus-visible:ring-2 focus-visible:ring-[#00A650]/40 ${
                 darkMode
-                  ? 'border-[rgba(255,255,255,0.1)] text-white placeholder:text-gray-500 bg-[rgba(255,255,255,0.06)]'
+                  ? 'placeholder:text-gray-500'
                   : 'border-[#EAECF0] text-[#1A1D26] bg-[#F8F9FC] placeholder:text-gray-400'
               }`}
               style={{
                 fontFamily: 'inherit',
+                ...(darkMode
+                  ? {
+                      background: 'rgba(255,255,255,0.08)',
+                      borderColor: 'rgba(255,255,255,0.12)',
+                      color: '#ffffff',
+                    }
+                  : {}),
               }}
             />
           </div>
@@ -1119,10 +973,20 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               placeholder="Mot de passe"
               required
-              className="min-h-[44px] w-full rounded-xl border-2 border-[#EAECF0] dark:border-gray-600 text-[13px] text-[#1A1D26] dark:text-white outline-none font-inherit px-11 py-3.5 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#00A650]/40"
+              className={`min-h-[44px] w-full rounded-xl border-2 text-[13px] outline-none font-inherit px-11 py-3.5 focus-visible:ring-2 focus-visible:ring-[#00A650]/40 ${
+                darkMode ? 'placeholder:text-gray-500' : 'border-[#EAECF0] text-[#1A1D26] placeholder:text-gray-400'
+              }`}
               style={{
-                background: 'var(--input-bg, #F8F9FC)',
                 fontFamily: 'inherit',
+                ...(darkMode
+                  ? {
+                      background: 'rgba(255,255,255,0.08)',
+                      borderColor: 'rgba(255,255,255,0.12)',
+                      color: '#ffffff',
+                    }
+                  : {
+                      background: 'var(--input-bg, #F8F9FC)',
+                    }),
               }}
             />
             <button
@@ -1231,7 +1095,7 @@ export default function Login() {
                 padding: '10px 12px',
                 borderRadius: 10,
                 border: `1.5px solid ${b.border}`,
-                background: b.bg,
+                background: darkMode ? 'rgba(255,255,255,0.06)' : b.bg,
                 color: b.color,
                 fontSize: 12,
                 fontWeight: 600,
@@ -1278,6 +1142,7 @@ export default function Login() {
           </a>
         </p>
         </m.div>
+        </div>
       </div>
     </div>
     </>
