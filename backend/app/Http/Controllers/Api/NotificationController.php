@@ -8,6 +8,7 @@ use App\Models\NotificationCustom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -88,20 +89,35 @@ class NotificationController extends Controller
 
     public function nombreNonLues(Request $request)
     {
-        $userId = Auth::id();
-        $count = Cache::remember(
-            'notif_count_'.$userId,
-            30,
-            function () use ($userId) {
-                return NotificationCustom::where('user_id', $userId)
-                    ->where(function ($q) {
-                        $q->where('lue', false)->orWhereNull('lue');
-                    })
-                    ->count();
-            }
-        );
+        $user = auth()->user();
+        if (! $user) {
+            return ApiResponse::error('Non authentifié', 401);
+        }
 
-        return ApiResponse::success(['count' => $count]);
+        try {
+            $userId = $user->id;
+            $count = Cache::remember(
+                'notif_count_'.$userId,
+                30,
+                function () use ($userId) {
+                    return NotificationCustom::query()
+                        ->where('user_id', $userId)
+                        ->where(function ($q) {
+                            $q->where('lue', false)->orWhereNull('lue');
+                        })
+                        ->count();
+                }
+            );
+
+            return ApiResponse::success(['count' => $count]);
+        } catch (\Throwable $e) {
+            Log::error('notifications.non_lues.count.failed', [
+                'user_id' => $user->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ApiResponse::success(['count' => 0]);
+        }
     }
 
     public function supprimer(Request $request, $id)

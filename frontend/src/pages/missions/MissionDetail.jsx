@@ -191,10 +191,10 @@ export default function MissionDetail() {
     if (activeTab === 'reservations' && reservations.length === 0 && !loadingReservations) {
       chargerReservations()
     }
-    if (activeTab === 'documents' && documents.length === 0 && !loadingDocuments) {
+    if (activeTab === 'documents' && documents.length === 0 && !loadingDocuments && !errorDocuments) {
       chargerDocuments()
     }
-    if (activeTab === 'historique' && historique.length === 0 && !loadingHistorique) {
+    if (activeTab === 'historique' && historique.length === 0 && !loadingHistorique && !errorHistorique) {
       chargerHistorique()
     }
   }, [
@@ -204,7 +204,9 @@ export default function MissionDetail() {
     chargerHistorique,
     historique.length,
     loadingDocuments,
+    errorDocuments,
     loadingHistorique,
+    errorHistorique,
     loadingReservations,
     documents.length,
     reservations.length,

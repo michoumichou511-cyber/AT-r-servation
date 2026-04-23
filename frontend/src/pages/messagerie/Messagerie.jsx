@@ -37,6 +37,14 @@ function formatRelative(isoString) {
   return `il y a ${diffH} h`
 }
 
+function parseConversationsPayload(res) {
+  const data = res?.data?.data ?? res?.data
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.conversations)) return data.conversations
+  if (Array.isArray(data?.data)) return data.data
+  return []
+}
+
 export default function Messagerie() {
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [errorConversations, setErrorConversations] = useState('')
@@ -65,9 +73,7 @@ export default function Messagerie() {
 
   const refreshConversationsAndSelect = useCallback(async (otherUserId) => {
     const convRes = await messagesAPI.conversations()
-    const data = convRes.data?.data ?? convRes.data
-    const list = data?.conversations ?? []
-    const arr = Array.isArray(list) ? list : []
+    const arr = parseConversationsPayload(convRes)
     setConversations(arr)
     const found = arr.find((c) => c.interlocuteur?.id === otherUserId)
     if (found) setActiveConvId(found.id)
@@ -78,9 +84,7 @@ export default function Messagerie() {
     setErrorConversations('')
     try {
       const res = await messagesAPI.conversations()
-      const data = res.data?.data ?? res.data
-      const list = data?.conversations ?? []
-      setConversations(Array.isArray(list) ? list : [])
+      setConversations(parseConversationsPayload(res))
     } catch (err) {
       setConversations([])
       setErrorConversations(
@@ -91,22 +95,29 @@ export default function Messagerie() {
     }
   }, [])
 
-  const fetchMessages = useCallback(async (convId) => {
+  const fetchMessages = useCallback(async (convId, options = {}) => {
     if (!convId) return
-    setLoadingMessages(true)
-    setErrorMessages('')
+    const silent = options?.silent === true
+    if (!silent) {
+      setLoadingMessages(true)
+      setErrorMessages('')
+    }
     try {
       const res = await messagesAPI.messages(convId)
       const data = res.data?.data ?? res.data
       const list = data?.messages ?? []
       setMessages(Array.isArray(list) ? list : [])
     } catch (err) {
-      setMessages([])
+      if (!silent) {
+        setMessages([])
+      }
       setErrorMessages(
         err?.response?.data?.message || err?.message || 'Erreur chargement des messages'
       )
     } finally {
-      setLoadingMessages(false)
+      if (!silent) {
+        setLoadingMessages(false)
+      }
     }
   }, [])
 
@@ -179,7 +190,7 @@ export default function Messagerie() {
   // Sondage messages + rafraîchissement liste pour badges « non lus » (15 s)
   usePolling(async () => {
     if (!activeConvId) return
-    await fetchMessages(activeConvId)
+    await fetchMessages(activeConvId, { silent: true })
     await fetchConversations()
   }, 15000, !!activeConvId)
 

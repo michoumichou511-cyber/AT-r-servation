@@ -169,5 +169,6 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::post('/budgets', [AdminBudgetController::class, 'creerBudget']);
         Route::put('/budgets/{id}', [AdminBudgetController::class, 'modifierBudget']);
         Route::get('/audit-logs', [AdminAuditController::class, 'auditLogs']);
+        Route::get('/statistiques', [DashboardController::class, 'adminStatistiques']);
     });
 });

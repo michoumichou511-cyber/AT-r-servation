@@ -101,8 +101,8 @@ export default function Sidebar({ onClose }) {
     try {
       const res = await messagesAPI.nonLusCount()
       setMsgCount(res.data?.data?.count ?? res.data?.count ?? 0)
-    } catch {
-      /* ignore */
+    } catch (error) {
+      if (error?.response?.status === 500) throw error
     }
   }, 60000, !!user)
 
@@ -110,8 +110,8 @@ export default function Sidebar({ onClose }) {
     try {
       const res = await notificationsAPI.count()
       setNotifCount(res.data?.data?.count ?? res.data?.data ?? res.data?.count ?? 0)
-    } catch {
-      /* ignore */
+    } catch (error) {
+      if (error?.response?.status === 500) throw error
     }
   }, 30000, !!user)
 

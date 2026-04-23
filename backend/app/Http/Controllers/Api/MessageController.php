@@ -9,6 +9,7 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -148,17 +149,32 @@ class MessageController extends Controller
 
     public function nonLusCount(Request $request)
     {
-        $userId = Auth::id();
-        $count = Cache::remember(
-            'msg_count_'.$userId,
-            30,
-            function () use ($userId) {
-                return Message::where('receiver_id', $userId)
-                    ->where('lu', false)
-                    ->count();
-            }
-        );
+        $user = auth()->user();
+        if (! $user) {
+            return ApiResponse::error('Non authentifié', 401);
+        }
 
-        return ApiResponse::success(['count' => $count]);
+        try {
+            $userId = $user->id;
+            $count = Cache::remember(
+                'msg_count_'.$userId,
+                30,
+                function () use ($userId) {
+                    return Message::query()
+                        ->where('receiver_id', $userId)
+                        ->where('lu', false)
+                        ->count();
+                }
+            );
+
+            return ApiResponse::success(['count' => $count]);
+        } catch (\Throwable $e) {
+            Log::error('messages.non_lus.count.failed', [
+                'user_id' => $user->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ApiResponse::success(['count' => 0]);
+        }
     }
 }

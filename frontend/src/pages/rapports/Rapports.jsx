@@ -2,7 +2,7 @@
  * Exports : aucun appel API au montage — uniquement au clic sur les boutons
  * (évite le throttle 429 sur les routes /export).
  */
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Download,
@@ -17,16 +17,6 @@ import toast from 'react-hot-toast'
 import PageHeader from '../../components/Common/PageHeader'
 import { Badge, Button, Input } from '../../components/UI'
 import { exportAPI } from '../../services/api'
-
-function dlFromBlob(data, nom) {
-  const blob = data instanceof Blob ? data : new Blob([data])
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = nom
-  a.click()
-  URL.revokeObjectURL(url)
-}
 
 function formatISODate(d) {
   if (!d) return ''
@@ -78,7 +68,7 @@ export default function Rapports() {
   const [type_mission, setTypeMission] = useState('')
   const [statut, setStatut] = useState('')
 
-  const [exportLoadingKey, setExportLoadingKey] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const paramsMissions = useMemo(() => {
     const range = getDateRangeFromMonth(annee, mois ? Number(mois) : undefined)
@@ -91,34 +81,49 @@ export default function Rapports() {
     }
   }, [annee, mois, direction, statut, type_mission])
 
-  const makeStamp = useCallback(() => {
-    const d = new Date()
-    const pad = (n) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`
-  }, [])
+  const handleExport = async (type) => {
+    if (loading) return
+    try {
+      setLoading(true)
+      const response = await (type === 'excel'
+        ? exportAPI.missionsExcel(paramsMissions)
+        : type === 'pdf'
+          ? exportAPI.missionsPdf(paramsMissions)
+          : type === 'depenses'
+            ? exportAPI.depensesExcel({ annee })
+            : type === 'direction'
+              ? exportAPI.depensesExcel({ annee, direction })
+              : exportAPI.prestatairesExcel({}))
 
-  const runExport = useCallback(
-    async (key, fn, filenamePrefix, suffix, params) => {
-      if (exportLoadingKey !== null) return
-      try {
-        setExportLoadingKey(key)
-        const res = await fn(params)
-        const stamp = makeStamp()
-        dlFromBlob(res.data, `${filenamePrefix}_${stamp}${suffix}`)
-        toast.success('Téléchargement lancé ✅')
-      } catch (err) {
-        toast.error(
-          err?.response?.data?.message ||
-            err?.response?.data?.error ||
-            err?.message ||
-            "Erreur lors de l'export"
-        )
-      } finally {
-        setExportLoadingKey(null)
-      }
-    },
-    [exportLoadingKey, makeStamp]
-  )
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'],
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute(
+        'download',
+        type === 'excel'
+          ? 'missions.xlsx'
+          : type === 'pdf'
+            ? 'missions.pdf'
+            : type === 'depenses'
+              ? 'depenses.xlsx'
+              : type === 'direction'
+                ? 'rapport_direction.xlsx'
+                : 'prestataires.xlsx'
+      )
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      toast.success('Export téléchargé')
+    } catch (err) {
+      toast.error('Erreur export: ' + (err.message || 'inconnue'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <motion.div
@@ -250,101 +255,53 @@ export default function Rapports() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           <Button
             variant="gradient"
-            onClick={() =>
-              runExport(
-                'missions_excel',
-                exportAPI.missionsExcel,
-                'missions_excel',
-                '.xlsx',
-                paramsMissions
-              )
-            }
-            loading={exportLoadingKey === 'missions_excel'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('excel')}
+            loading={loading}
+            disabled={loading}
           >
             <FileSpreadsheet size={16} /> Missions Excel
           </Button>
 
           <Button
-            onClick={() =>
-              runExport(
-                'missions_pdf',
-                exportAPI.missionsPdf,
-                'missions_pdf',
-                '.pdf',
-                paramsMissions
-              )
-            }
-            loading={exportLoadingKey === 'missions_pdf'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('pdf')}
+            loading={loading}
+            disabled={loading}
           >
             <FileText size={16} /> Missions PDF
           </Button>
 
           <Button
             variant="gradient"
-            onClick={() =>
-              runExport(
-                'depenses_excel',
-                exportAPI.depensesExcel,
-                'depenses_excel',
-                '.csv',
-                { annee }
-              )
-            }
-            loading={exportLoadingKey === 'depenses_excel'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('depenses')}
+            loading={loading}
+            disabled={loading}
           >
             <Download size={16} /> Dépenses Excel
           </Button>
 
           <Button
             variant="gradient"
-            onClick={() =>
-              runExport(
-                'rapport_direction',
-                exportAPI.depensesExcel,
-                'rapport_direction',
-                '.csv',
-                { annee, direction }
-              )
-            }
-            loading={exportLoadingKey === 'rapport_direction'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('direction')}
+            loading={loading}
+            disabled={loading}
           >
             <Download size={16} /> Rapport Direction
           </Button>
 
           <Button
             variant="gradient"
-            onClick={() =>
-              runExport(
-                'rapport_prestataires',
-                exportAPI.prestatairesExcel,
-                'rapport_prestataires',
-                '.csv',
-                {}
-              )
-            }
-            loading={exportLoadingKey === 'rapport_prestataires'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('prestataires')}
+            loading={loading}
+            disabled={loading}
           >
             <Download size={16} /> Rapport Prestataires
           </Button>
 
           <Button
             variant="gradient"
-            onClick={() =>
-              runExport(
-                'prestataires_excel',
-                exportAPI.prestatairesExcel,
-                'prestataires_excel',
-                '.csv',
-                {}
-              )
-            }
-            loading={exportLoadingKey === 'prestataires_excel'}
-            disabled={exportLoadingKey !== null}
+            onClick={() => handleExport('prestataires')}
+            loading={loading}
+            disabled={loading}
           >
             <FileArchive size={16} /> Prestataires Excel
           </Button>

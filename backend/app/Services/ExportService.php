@@ -30,7 +30,7 @@ class ExportService
 
         $totalBudgetPrevu = $missions->sum('budget_max');
         $totalBudgetReel = $missions->sum(function ($mission) {
-            return $mission->reservations->where('statut', 'confirme')->sum('montant');
+            return $mission->reservations->where('statut', 'confirme')->sum('montant_estime');
         });
 
         $this->logExport('mission', "Export PDF missions - {$missions->count()} enregistrements", $user);
@@ -54,7 +54,7 @@ class ExportService
             $query->where('statut', $filters['statut']);
         }
         if (! empty($filters['direction'])) {
-            $query->where('direction', $filters['direction']);
+            $query->where('destination', $filters['direction']);
         }
         if (! empty($filters['date_debut'])) {
             $query->where('date_depart', '>=', $filters['date_debut']);

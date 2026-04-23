@@ -236,6 +236,8 @@ class MissionController extends Controller
 
     public function submit(Request $request, $id)
     {
+        set_time_limit(30);
+
         $mission = Mission::findOrFail($id);
         $user = $request->user();
 

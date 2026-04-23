@@ -17,6 +17,8 @@ class MissionService
      */
     public function submit(Mission $mission)
     {
+        set_time_limit(30);
+
         if ($mission->statut !== 'brouillon' && $mission->statut !== 'rejete') {
             throw new \Exception('Seule une mission en brouillon ou rejetée peut être soumise.');
         }
@@ -63,7 +65,11 @@ class MissionService
                 $demandeur = $mission->user;
                 if ($demandeur) {
                     foreach ($validateurs as $v) {
-                        Mail::to($v->email)->queue(new MissionSoumise($mission, $demandeur));
+                        try {
+                            Mail::to($v->email)->queue(new MissionSoumise($mission, $demandeur));
+                        } catch (\Exception $e) {
+                            \Log::error($e->getMessage());
+                        }
                     }
                 }
             }

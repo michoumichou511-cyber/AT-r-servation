@@ -247,6 +247,8 @@ class ValidationController extends Controller
 
     public function rejeter(Request $request, $id)
     {
+        set_time_limit(30);
+
         $validation = CircuitValidation::with('mission')->findOrFail($id);
         $user = Auth::user();
 
@@ -282,12 +284,16 @@ class ValidationController extends Controller
             ->update(['statut' => 'rejete']);
 
         // Notifier le demandeur
-        NotificationCustom::create([
-            'user_id' => $mission->user_id,
-            'titre' => '❌ Mission rejetée',
-            'message' => 'Votre mission a été rejetée. Motif: '.substr($request->commentaire, 0, 50).'...',
-            'type' => 'danger',
-        ]);
+        try {
+            NotificationCustom::create([
+                'user_id' => $mission->user_id,
+                'titre' => '❌ Mission rejetée',
+                'message' => 'Votre mission a été rejetée. Motif: '.substr($request->commentaire, 0, 50).'...',
+                'type' => 'danger',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Notification rejection failed: '.$e->getMessage());
+        }
 
         try {
             $mission->loadMissing('user');

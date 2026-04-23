@@ -203,4 +203,95 @@ class DashboardController extends Controller
             ]),
         ]);
     }
+
+    public function adminStatistiques(Request $request)
+    {
+        $annee = (int) $request->get('annee', now()->year);
+
+        $missionsParMois = Mission::query()
+            ->whereYear('created_at', $annee)
+            ->selectRaw('MONTH(created_at) as mois_num, COUNT(*) as total')
+            ->groupBy('mois_num')
+            ->orderBy('mois_num')
+            ->get()
+            ->map(fn ($row) => [
+                'mois' => str_pad((string) $row->mois_num, 2, '0', STR_PAD_LEFT)."/{$annee}",
+                'total' => (int) $row->total,
+            ])
+            ->values();
+
+        $budgetGlobal = Budget::query()
+            ->where('annee', $annee)
+            ->selectRaw('
+                COALESCE(SUM(montant_alloue), 0) as montant_alloue,
+                COALESCE(SUM(montant_consomme), 0) as montant_consomme
+            ')
+            ->first();
+
+        $alloue = (float) ($budgetGlobal->montant_alloue ?? 0);
+        $consomme = (float) ($budgetGlobal->montant_consomme ?? 0);
+
+        $directionParMissions = collect();
+        if (in_array('direction', Schema::getColumnListing('users'), true)) {
+            $directionParMissions = Mission::query()
+                ->join('users', 'missions.user_id', '=', 'users.id')
+                ->whereYear('missions.created_at', $annee)
+                ->selectRaw('
+                    COALESCE(users.direction, "Non défini") as direction,
+                    COUNT(missions.id) as total_missions,
+                    COALESCE(SUM(missions.budget_previsionnel), 0) as budget_missions
+                ')
+                ->groupBy('users.direction')
+                ->orderByDesc('total_missions')
+                ->get()
+                ->keyBy('direction');
+        }
+
+        $directionParBudget = Budget::query()
+            ->where('annee', $annee)
+            ->selectRaw('
+                COALESCE(direction, "Non défini") as direction,
+                COALESCE(SUM(montant_alloue), 0) as budget_alloue,
+                COALESCE(SUM(montant_consomme), 0) as budget_consomme
+            ')
+            ->groupBy('direction')
+            ->get()
+            ->keyBy('direction');
+
+        $directions = $directionParMissions
+            ->keys()
+            ->merge($directionParBudget->keys())
+            ->unique()
+            ->values()
+            ->map(function ($direction) use ($directionParMissions, $directionParBudget) {
+                $m = $directionParMissions->get($direction);
+                $b = $directionParBudget->get($direction);
+                $budgetAlloue = (float) ($b->budget_alloue ?? 0);
+                $budgetConsomme = (float) ($b->budget_consomme ?? 0);
+
+                return [
+                    'direction' => $direction,
+                    'missions_total' => (int) ($m->total_missions ?? 0),
+                    'budget_missions' => (float) ($m->budget_missions ?? 0),
+                    'budget_alloue' => $budgetAlloue,
+                    'budget_consomme' => $budgetConsomme,
+                    'taux_consommation' => $budgetAlloue > 0
+                        ? round(($budgetConsomme / $budgetAlloue) * 100, 2)
+                        : 0,
+                ];
+            })
+            ->sortByDesc('missions_total')
+            ->values();
+
+        return ApiResponse::success([
+            'annee' => $annee,
+            'directions' => $directions,
+            'missions_par_mois' => $missionsParMois,
+            'consommation_budget' => [
+                'montant_alloue' => $alloue,
+                'montant_consomme' => $consomme,
+                'taux_consommation' => $alloue > 0 ? round(($consomme / $alloue) * 100, 2) : 0,
+            ],
+        ]);
+    }
 }
