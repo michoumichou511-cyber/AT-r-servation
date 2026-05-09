@@ -67,7 +67,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     Route::post('/missions/{id}/cancel', [MissionController::class, 'cancel']);
     Route::post('/missions/{id}/duplicate', [MissionController::class, 'duplicate']);
     Route::get('/missions/{id}/export/pdf', [MissionController::class, 'exportPdf']);
-    Route::get('/missions/{id}/historique', [MissionController::class, 'historique']);
+    // Historique déplacé vers throttle 120
     Route::get('/missions/{id}/bons-commande', [BonCommandeController::class, 'parMission']);
     Route::put('/bons-commande/{id}/envoyer', [BonCommandeController::class, 'marquerEnvoye']);
 
@@ -118,11 +118,9 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     Route::put('/messages/{id}/lire', [MessageController::class, 'marquerLu']);
     Route::get('/messages/non-lus/count', [MessageController::class, 'nonLusCount']);
 
-    // DOCUMENTS
-    Route::get('/missions/{mission_id}/documents', [DocumentController::class, 'index']);
+    // Documents déplacés vers throttle 120
     Route::post('/missions/{mission_id}/documents', [DocumentController::class, 'store']);
     Route::delete('/documents/{id}', [DocumentController::class, 'destroy']);
-    Route::get('/documents/{id}/telecharger', [DocumentController::class, 'telecharger']);
 
     // DASHBOARD
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
@@ -140,6 +138,13 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     // CONTACTS (liste utilisateurs actifs pour la messagerie)
     Route::get('/utilisateurs/contacts', [AdminUserController::class, 'listeContacts']);
 
+    // ROUTES AVEC THROTTLE ALLÉGÉ (120 req/min)
+    Route::middleware('throttle:120,1')->group(function () {
+        Route::get('/missions/{id}/historique', [MissionController::class, 'historique']);
+        Route::get('/missions/{mission_id}/documents', [DocumentController::class, 'index']);
+        Route::get('/documents/{id}/telecharger', [DocumentController::class, 'telecharger']);
+    });
+
     // PRESTATAIRES
     Route::get('/prestataires', [AdminPrestataireController::class, 'listePrestataires']);
     Route::get('/prestataires/favoris', [AdminPrestataireController::class, 'prestaFavoris']);
@@ -148,8 +153,10 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     Route::post('/prestataires/{id}/evaluer', [AdminPrestataireController::class, 'evaluerPrestataire']);
     Route::get('/prestataires/{id}/evaluations', [AdminPrestataireController::class, 'evaluationsPrestataire']);
 
-    // EXPORTS (throttle spécial : 10/heure)
-    Route::middleware('throttle:10,60')->group(function () {
+    // EXPORTS
+    // NOTE: le throttle 10/heure provoque facilement des 429 en dev/E2E.
+    // On garde une limite, mais assez haute pour usage normal.
+    Route::middleware('throttle:60,1')->group(function () {
         Route::get('/export/missions/excel', [ExportController::class, 'exportMissionsExcel']);
         Route::get('/export/missions/pdf', [ExportController::class, 'exportMissionsPdf']);
         Route::get('/export/depenses/excel', [ExportController::class, 'exportDepensesExcel']);

@@ -428,25 +428,25 @@ export default function Profil() {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                   <div className="at-card-surface p-5">
                     <div className="text-xs font-semibold text-gray-500">Total missions</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {totalMissions}
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
                     <div className="text-xs font-semibold text-gray-500">Taux d&apos;approbation</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {taux}%
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
                     <div className="text-xs font-semibold text-gray-500">Budget total approuvé</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {formatDZD(budgetTotal)}
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
                     <div className="text-xs font-semibold text-gray-500">Destination favorite</div>
-                    <div className="text-sm font-semibold text-gray-900 mt-2">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
                       {destFav || 'Aucune'}
                     </div>
                   </div>
@@ -498,7 +498,7 @@ export default function Profil() {
                           className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 bg-[#F8FAFC]"
                         >
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                               {m.titre ?? '—'}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">

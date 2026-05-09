@@ -215,7 +215,7 @@ export default function Notifications() {
                       {icon}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-gray-900 text-sm truncate">
+                      <div className="font-bold text-gray-900 dark:text-white text-sm truncate">
                         {n.titre ?? 'Notification'}
                       </div>
                       <div className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">

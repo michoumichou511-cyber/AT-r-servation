@@ -47,6 +47,7 @@ export default function Input({
             'focus-visible:ring-2 focus-visible:ring-at-green/35 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
             'dark:bg-gray-800 dark:text-white',
             Icon ? 'pl-9' : '',
+            props.suffix ? 'pr-9' : '',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
               : 'border-gray-200 focus:border-at-green focus:ring-1 focus:ring-at-green/30',
@@ -70,6 +71,11 @@ export default function Input({
           >
             {label}{required && ' *'}
           </label>
+        )}
+        {props.suffix && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">
+            {props.suffix}
+          </div>
         )}
       </div>
       {errorMessage && (

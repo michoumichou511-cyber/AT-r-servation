@@ -323,7 +323,7 @@ export default function Prestataires() {
                     <div className="p-5 flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="font-bold text-gray-900 text-base truncate">
+                          <div className="font-bold text-gray-900 dark:text-white text-base truncate">
                             {p.nom ?? 'Prestataire'}
                           </div>
                           <Badge status={isActive ? 'actif' : 'inactif'} />

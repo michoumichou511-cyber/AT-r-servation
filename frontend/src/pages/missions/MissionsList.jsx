@@ -149,7 +149,7 @@ export default function MissionsList() {
       className="pb-2"
     >
       <ATPageHeader
-        title="Mes missions"
+        title={hasRole('admin') ? 'Toutes les missions' : 'Mes missions'}
         subtitle={`${total} mission(s) au total`}
         right={(
           <div className="flex flex-wrap items-center gap-2">

@@ -164,7 +164,7 @@ export default function Budgets() {
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-gray-900 dark:text-white">
                           {b.direction ?? '—'} / {b.service ?? '—'}
                         </div>
                         <div className="text-xs font-semibold text-gray-500 bg-[#F8FAFC] border border-gray-100 px-2 py-1 rounded-full">
@@ -174,7 +174,7 @@ export default function Budgets() {
                       <div className="text-xs text-gray-500 mt-1">
                         Consommé : {formatDZD(b.montant_consomme)} / Alloué : {formatDZD(b.montant_alloue)}
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 mt-2">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
                         {pInfo.icon} {pInfo.label} • {safeP}% consommé
                       </div>
                     </div>

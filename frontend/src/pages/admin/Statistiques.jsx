@@ -29,7 +29,7 @@ import {
 
 import toast from 'react-hot-toast'
 
-import { adminAPI, dashboardAPI, missionsAPI } from '../../services/api'
+import { adminAPI, missionsAPI } from '../../services/api'
 import PageHeader from '../../components/Common/PageHeader'
 import { Badge, Button, EmptyState, SkeletonCard } from '../../components/UI'
 import { formatDZD } from '../../utils/format'
@@ -86,7 +86,7 @@ export default function Statistiques() {
     setFetchErrors({ stats: null, missions: null, prestataires: null })
 
     const settled = await Promise.allSettled([
-      dashboardAPI.stats(),
+      adminAPI.statistiques.general({ annee: new Date().getFullYear() }),
       missionsAPI.list({ page: 1, per_page: 5 }),
       adminAPI.prestataires({ page: 1, per_page: 50 }),
     ])
@@ -295,7 +295,7 @@ export default function Statistiques() {
                   <TrendingUp size={18} />
                 </div>
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={kpis.totalMissionsListed} duration={1.8} separator=" " />
               </div>
               <div className="text-xs text-gray-500 mt-1">Total missions (GET /missions)</div>
@@ -310,7 +310,7 @@ export default function Statistiques() {
               <div className="p-2.5 bg-at-green-light rounded-xl text-at-green flex items-center justify-between">
                 <Calendar size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={kpis.taux} duration={1.8} suffix="%" separator=" " />
               </div>
               <div className="text-xs text-gray-500 mt-1">Taux d’approbation (dashboard)</div>
@@ -325,7 +325,7 @@ export default function Statistiques() {
               <div className="p-2.5 bg-orange-50 rounded-xl text-orange-500 flex items-center justify-between">
                 <DollarSign size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white">
                 <span className="tabular-nums">
                   {formatDZD(kpis.budgetTotal).replace(/[\s\u202f]*DZD.*$/i, '').trim()}
                 </span>
@@ -342,7 +342,7 @@ export default function Statistiques() {
               <div className="p-2.5 bg-sky-50 rounded-xl text-sky-600 flex items-center justify-between">
                 <Building2 size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={prestatairesTotal} duration={1.8} separator=" " />
               </div>
               <div className="text-xs text-gray-500 mt-1">Prestataires (GET /prestataires)</div>
@@ -357,7 +357,7 @@ export default function Statistiques() {
               <div className="p-2.5 bg-purple-50 rounded-xl text-purple-500 flex items-center justify-between">
                 <FileText size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={Math.round(delayMoyen.avgDays)} duration={1.8} suffix=" j" />
               </div>
               <div className="text-xs text-gray-500 mt-1">

@@ -235,7 +235,7 @@ export default function Validations() {
                         )}
                       </div>
 
-                      <div className="mt-2 font-bold text-gray-900 text-base truncate">
+                      <div className="mt-2 font-bold text-gray-900 dark:text-white text-base truncate">
                         {mission.titre ?? 'Sans titre'}
                       </div>
 

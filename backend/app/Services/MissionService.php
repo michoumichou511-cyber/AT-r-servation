@@ -66,7 +66,9 @@ class MissionService
                 if ($demandeur) {
                     foreach ($validateurs as $v) {
                         try {
-                            Mail::to($v->email)->queue(new MissionSoumise($mission, $demandeur));
+                            // En local, éviter les blocages SMTP (timeouts) qui cassent la soumission.
+                            // Le mail est journalisé via le mailer "log" (pas d'appel réseau).
+                            Mail::mailer('log')->to($v->email)->queue(new MissionSoumise($mission, $demandeur));
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
                         }

@@ -62,15 +62,20 @@ class ExportController extends Controller
             ->orderBy('missions.type_mission')
             ->get();
 
-        // Logger l'export
-        AuditLog::create([
-            'user_id' => $user->id,
-            'action' => 'export',
-            'module' => 'depense',
-            'description' => 'Export Excel dépenses par direction',
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        // Logger l'export (ne doit jamais bloquer l'export)
+        // audit_logs.module est un ENUM limité (voir migration). On mappe "dépenses" -> "budget".
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'export',
+                'module' => 'budget',
+                'description' => 'Export Excel dépenses par direction',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        } catch (\Throwable $e) {
+            // ignore : l'export doit continuer même si audit_logs échoue
+        }
 
         // Stream the CSV response
         return response()->streamDownload(function () use ($depenses) {
@@ -108,9 +113,13 @@ class ExportController extends Controller
         // Sert uniquement au nom de fichier export (évite l'erreur "undefined variable")
         $date = now()->format('Y-m-d_H-i-s');
 
-        // Récupérer les prestataires avec stats
+        // Récupérer les prestataires avec stats (compatible ONLY_FULL_GROUP_BY)
         $prestataires = Prestataire::selectRaw('
-                prestataires.*,
+                prestataires.id,
+                prestataires.nom,
+                prestataires.type,
+                prestataires.ville,
+                prestataires.note_performance,
                 COUNT(reservations.id) as nb_reservations,
                 COALESCE(AVG(COALESCE(reservations.montant_reel, reservations.montant_estime)), 0) as montant_moyen,
                 MAX(reservations.created_at) as derniere_utilisation,
@@ -118,7 +127,13 @@ class ExportController extends Controller
             ')
             ->leftJoin('reservations', 'prestataires.id', '=', 'reservations.prestataire_id')
             ->where('reservations.statut', 'confirme')
-            ->groupBy('prestataires.id')
+            ->groupBy(
+                'prestataires.id',
+                'prestataires.nom',
+                'prestataires.type',
+                'prestataires.ville',
+                'prestataires.note_performance'
+            )
             ->orderBy('nb_reservations', 'desc')
             ->get()
             ->map(function ($prestataire) {
@@ -134,15 +149,20 @@ class ExportController extends Controller
                 ];
             });
 
-        // Logger l'export
-        AuditLog::create([
-            'user_id' => $user->id,
-            'action' => 'export',
-            'module' => 'prestataire',
-            'description' => 'Export Excel prestataires - '.$prestataires->count().' enregistrements',
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        // Logger l'export (ne doit jamais bloquer l'export)
+        // audit_logs.module est un ENUM limité. On mappe "prestataires" -> "reservation".
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'export',
+                'module' => 'reservation',
+                'description' => 'Export Excel prestataires - '.$prestataires->count().' enregistrements',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        } catch (\Throwable $e) {
+            // ignore : l'export doit continuer même si audit_logs échoue
+        }
 
         // Stream the CSV response
         return response()->streamDownload(function () use ($prestataires) {

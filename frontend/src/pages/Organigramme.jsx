@@ -1,5 +1,21 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+
+// Détecte la classe .dark sur <html> (thème sombre Tailwind)
+function useDarkMode() {
+  const [isDark, setIsDark] = useState(
+    () => document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() =>
+      setIsDark(document.documentElement.classList.contains("dark"))
+    );
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
 
 // ============================================================
 // DONNÉES OFFICIELLES extraites des documents AT
@@ -283,7 +299,7 @@ const orgData = {
 // ============================================================
 // COMPOSANT CARTE
 // ============================================================
-function OrgCard({ node, depth, onSelect, selected, usersByStructure }) {
+function OrgCard({ node, depth, onSelect, selected, usersByStructure, isDark = false }) {
   const isSelected = selected?.id === node.id;
   const hasChildren = node.children && node.children.length > 0;
   const isRoot = depth === 0;
@@ -335,7 +351,7 @@ function OrgCard({ node, depth, onSelect, selected, usersByStructure }) {
       <div style={{
         fontSize: isRoot ? 13 : 10,
         fontWeight: "700",
-        color: isSelected ? bgColor : "#1f2937",
+        color: isSelected ? bgColor : (isDark ? "#f9fafb" : "#1f2937"),
         lineHeight: 1.3,
         marginBottom: 4,
       }}>
@@ -392,14 +408,14 @@ function OrgCard({ node, depth, onSelect, selected, usersByStructure }) {
 // ============================================================
 // NOEUD D'ARBRE (récursif)
 // ============================================================
-function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, usersByStructure }) {
+function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, usersByStructure, isDark = false }) {
   const isExpanded = expandedIds.includes(node.id);
   const hasChildren = node.children && node.children.length > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ position: "relative" }}>
-        <OrgCard node={node} depth={depth} onSelect={onSelect} selected={selected} usersByStructure={usersByStructure} />
+        <OrgCard node={node} depth={depth} onSelect={onSelect} selected={selected} usersByStructure={usersByStructure} isDark={isDark} />
         {hasChildren && (
           <button
             onClick={(e) => { e.stopPropagation(); toggleExpand(node.id); }}
@@ -453,6 +469,7 @@ function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, 
                   expandedIds={expandedIds}
                   toggleExpand={toggleExpand}
                   usersByStructure={usersByStructure}
+                  isDark={isDark}
                 />
               </div>
             ))}
@@ -466,7 +483,7 @@ function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, 
 // ============================================================
 // PANNEAU DÉTAIL
 // ============================================================
-function DetailPanel({ node, onClose, usersByStructure }) {
+function DetailPanel({ node, onClose, usersByStructure, isDark = false }) {
   if (!node) return null;
   const bgColor = node.color === "#00A650" ? "#00A650" : node.color === "#003DA5" ? "#003DA5" : "#4b5563";
   const nodeUsers = usersByStructure?.[node.id] || [];
@@ -486,7 +503,7 @@ function DetailPanel({ node, onClose, usersByStructure }) {
       top: 0,
       bottom: 0,
       width: 320,
-      background: "#fff",
+      background: isDark ? "#1e293b" : "#fff",
       boxShadow: "-4px 0 30px rgba(0,0,0,0.15)",
       zIndex: 1000,
       display: "flex",
@@ -496,7 +513,9 @@ function DetailPanel({ node, onClose, usersByStructure }) {
       <style>{`@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
       {/* Header */}
       <div style={{ background: bgColor, padding: "24px 20px", color: "#fff" }}>
-        <button onClick={onClose} style={{
+        <button
+          onClick={onClose}
+          style={{
           background: "rgba(255,255,255,0.2)",
           border: "none",
           borderRadius: 6,
@@ -505,7 +524,10 @@ function DetailPanel({ node, onClose, usersByStructure }) {
           padding: "4px 10px",
           fontSize: 12,
           marginBottom: 12,
-        }}>← Fermer</button>
+        }}
+        >
+          ← Retour
+        </button>
         <div style={{
           width: 60,
           height: 60,
@@ -528,15 +550,15 @@ function DetailPanel({ node, onClose, usersByStructure }) {
 
       {/* Body */}
       <div style={{ padding: 20, flex: 1, overflowY: "auto" }}>
-        <InfoRow icon="✉️" label="Email" value={node.email} />
-        <InfoRow icon="📞" label="Téléphone" value={node.phone} />
+        <InfoRow icon="✉️" label="Email" value={node.email} isDark={isDark} />
+        <InfoRow icon="📞" label="Téléphone" value={node.phone} isDark={isDark} />
         {node.children && node.children.length > 0 && (
-          <InfoRow icon="👥" label="Sous-structures" value={`${node.children.length} unité(s)`} />
+          <InfoRow icon="👥" label="Sous-structures" value={`${node.children.length} unité(s)`} isDark={isDark} />
         )}
 
         {/* Utilisateurs réels (BD) */}
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#111827", marginBottom: 10 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: isDark ? "#f9fafb" : "#111827", marginBottom: 10 }}>
             Utilisateurs affectés
           </div>
           {nodeUsers.length > 0 ? (
@@ -545,14 +567,14 @@ function DetailPanel({ node, onClose, usersByStructure }) {
                 <div
                   key={u.id}
                   style={{
-                    border: "1px solid #e5e7eb",
+                    border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
                     borderRadius: 10,
                     padding: "10px 12px",
-                    background: "#fff",
+                    background: isDark ? "#0f172a" : "#fff",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{u.name}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? "#f9fafb" : "#111827" }}>{u.name}</div>
                     <span
                       style={{
                         fontSize: 11,
@@ -589,6 +611,10 @@ function DetailPanel({ node, onClose, usersByStructure }) {
               >
                 ➕ Affecter un utilisateur
               </button>
+              <div style={{ marginTop: 10, fontSize: 11, color: "#6b7280", lineHeight: 1.5 }}>
+                Vous serez redirigé vers <strong>Utilisateurs</strong>. Après l’affectation, revenez ici via le menu “Organigramme”
+                pour voir le badge 👤 se mettre à jour.
+              </div>
             </div>
           )}
         </div>
@@ -612,18 +638,18 @@ function DetailPanel({ node, onClose, usersByStructure }) {
   );
 }
 
-function InfoRow({ icon, label, value }) {
+function InfoRow({ icon, label, value, isDark = false }) {
   return (
     <div style={{
       display: "flex",
       gap: 12,
       padding: "12px 0",
-      borderBottom: "1px solid #f3f4f6",
+      borderBottom: `1px solid ${isDark ? "#334155" : "#f3f4f6"}`,
     }}>
       <span style={{ fontSize: 18 }}>{icon}</span>
       <div>
         <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: "600", marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: 13, color: "#1f2937" }}>{value}</div>
+        <div style={{ fontSize: 13, color: isDark ? "#f9fafb" : "#1f2937" }}>{value}</div>
       </div>
     </div>
   );
@@ -633,6 +659,8 @@ function InfoRow({ icon, label, value }) {
 // COMPOSANT PRINCIPAL
 // ============================================================
 export default function Organigramme() {
+  const navigate = useNavigate();
+  const isDark = useDarkMode();
   const [selected, setSelected] = useState(null);
   const [expandedIds, setExpandedIds] = useState(["pdg"]);
   const [search, setSearch] = useState("");
@@ -682,7 +710,7 @@ export default function Organigramme() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#f8fafc",
+      background: isDark ? "#0f172a" : "#f8fafc",
       fontFamily: "'Segoe UI', sans-serif",
     }}>
       {/* HEADER */}
@@ -697,6 +725,25 @@ export default function Organigramme() {
         gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 10,
+              border: "1px solid rgba(255,255,255,0.25)",
+              background: "rgba(255,255,255,0.15)",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 700,
+              backdropFilter: "blur(4px)",
+            }}
+            aria-label="Retour"
+            title="Retour"
+          >
+            ← Retour
+          </button>
           <div style={{
             width: 44,
             height: 44,
@@ -802,13 +849,14 @@ export default function Organigramme() {
             expandedIds={expandedIds}
             toggleExpand={toggleExpand}
             usersByStructure={usersByStructure}
+            isDark={isDark}
           />
         </div>
       </div>
 
       {/* PANNEAU DÉTAIL */}
       {selected && (
-        <DetailPanel node={selected} onClose={() => setSelected(null)} usersByStructure={usersByStructure} />
+        <DetailPanel node={selected} onClose={() => setSelected(null)} usersByStructure={usersByStructure} isDark={isDark} />
       )}
     </div>
   );

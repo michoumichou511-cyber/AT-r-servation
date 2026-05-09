@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, Plus, RotateCcw, KeyRound, ShieldCheck, XCircle } from 'lucide-react'
+import { Users, Plus, RotateCcw, KeyRound, ShieldCheck, XCircle, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import PageHeader from '../../components/Common/PageHeader'
@@ -52,6 +52,15 @@ export default function Utilisateurs() {
     poste: '',
     telephone: '',
   })
+  const [showPassword, setShowPassword] = useState(false)
+
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return null
+    if (pwd.length < 6) return { label: 'Faible', color: 'text-red-500' }
+    if (pwd.length < 10) return { label: 'Moyen', color: 'text-orange-500' }
+    return { label: 'Fort', color: 'text-green-500' }
+  }
+  const strength = getPasswordStrength(form.password)
 
   const fetchUsers = useCallback(
     async (p = page) => {
@@ -297,7 +306,7 @@ export default function Utilisateurs() {
                             <span className="text-sm font-bold text-gray-700">{initials(u.prenom, u.nom)}</span>
                           </div>
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                               {u.prenom} {u.nom}
                             </div>
                             <div className="text-xs text-gray-500 truncate">{u.email}</div>
@@ -395,13 +404,29 @@ export default function Utilisateurs() {
               value={form.email}
               onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
             />
-            <Input
-              label="Mot de passe"
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-              required
-            />
+            <div className="space-y-1">
+              <Input
+                label="Mot de passe"
+                type={showPassword ? 'text' : 'password'}
+                value={form.password}
+                onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                required
+                suffix={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+              />
+              {strength && (
+                <div className={`text-[10px] font-bold uppercase tracking-wider ${strength.color}`}>
+                  Sécurité : {strength.label}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
