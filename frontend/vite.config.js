@@ -9,6 +9,9 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
+  optimizeDeps: {
+    include: ['react-countup'],
+  },
   test: {
     environment: 'jsdom',
     globals: true,

@@ -131,8 +131,11 @@ class MissionService
      */
     public function getTimeline(Mission $mission)
     {
-        $logs = AuditLog::where('description', 'LIKE', "%{$mission->numero_unique}%")
-            ->orWhere('description', 'LIKE', "%Mission #{$mission->id}%")
+        $logs = AuditLog::with('user')
+            ->where(function ($q) use ($mission) {
+                $q->where('description', 'LIKE', "%{$mission->numero_unique}%")
+                  ->orWhere('description', 'LIKE', "%Mission #{$mission->id}%");
+            })
             ->orderBy('created_at')
             ->get();
 
@@ -141,9 +144,11 @@ class MissionService
 
         foreach ($logs as $log) {
             $timeline[] = [
-                'date' => $log->created_at->format('d/m/Y H:i:s'),
-                'action' => $log->action,
-                'description' => $log->description,
+                'date' => $log->created_at
+                    ? $log->created_at->format('d/m/Y H:i:s')
+                    : now()->format('d/m/Y H:i:s'),
+                'action' => $log->action ?? '',
+                'description' => $log->description ?? '',
                 'par' => $log->user ? $log->user->nom_complet : 'Système',
                 'icone' => 'activity',
                 'couleur' => 'blue',
@@ -152,7 +157,9 @@ class MissionService
 
         foreach ($circuit as $step) {
             $timeline[] = [
-                'date' => $step->updated_at->format('d/m/Y H:i:s'),
+                'date' => $step->updated_at
+                    ? $step->updated_at->format('d/m/Y H:i:s')
+                    : now()->format('d/m/Y H:i:s'),
                 'action' => 'Validation '.$step->statut.' - Étape '.$step->ordre_validation,
                 'par' => $step->validateur
                     ? ($step->validateur->prenom.' '.$step->validateur->nom)

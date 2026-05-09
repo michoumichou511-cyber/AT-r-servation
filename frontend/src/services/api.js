@@ -218,6 +218,10 @@ export const adminAPI = {
       api.delete(`/admin/utilisateurs/${id}`),
     toggleActive: (id) =>
       api.put(`/admin/utilisateurs/${id}/toggle-active`),
+    changeRole: (id, data) =>
+      api.put(`/admin/utilisateurs/${id}/role`, data),
+    changeStructure: (id, data) =>
+      api.put(`/admin/utilisateurs/${id}/structure`, data),
   },
   prestatairesCrud: {
     list:   (params) =>
@@ -267,7 +271,7 @@ export const adminAPI = {
   // Aliases de compatibilité (évite la duplication réelle des endpoints)
   utilisateurs:  (params) => adminAPI.users.list(params),
   toggleActif:   (id) => adminAPI.users.toggleActive(id),
-  changerRole:   (id, data) => adminAPI.users.update(id, data),
+  changerRole:   (id, data) => adminAPI.users.changeRole(id, data),
   creerUtilisateur: (data) => adminAPI.users.create(data),
   modifierUtilisateur: (id, data) => adminAPI.users.update(id, data),
   supprimerUtilisateur: (id) => adminAPI.users.delete(id),

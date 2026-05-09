@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import CountUp from 'react-countup'
+import { useEffect, useMemo, useState } from 'react'
+import _CountUpImport from 'react-countup'
+// react-countup est un module CJS — Vite peut retourner l'objet entier ou le composant directement
+const CountUp = (_CountUpImport?.default && typeof _CountUpImport.default === 'function')
+  ? _CountUpImport.default
+  : _CountUpImport
 import {
   ResponsiveContainer,
   LineChart,
@@ -81,76 +85,87 @@ export default function Statistiques() {
     prestataires: null,
   })
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true)
-    setFetchErrors({ stats: null, missions: null, prestataires: null })
-
-    const settled = await Promise.allSettled([
-      adminAPI.statistiques.general({ annee: new Date().getFullYear() }),
-      missionsAPI.list({ page: 1, per_page: 5 }),
-      adminAPI.prestataires({ page: 1, per_page: 50 }),
-    ])
-
-    const [statsResult, missionsResult, prestatairesResult] = settled
-
-    if (statsResult.status === 'fulfilled') {
-      const raw = extractDashboardStats(statsResult.value)
-      setStats(typeof raw === 'object' && raw !== null ? raw : {})
-    } else {
-      setStats({})
-      const msg =
-        statsResult.reason?.response?.data?.message ||
-        statsResult.reason?.message ||
-        'Statistiques dashboard indisponibles'
-      setFetchErrors((e) => ({ ...e, stats: msg }))
-      toast.error(msg)
-    }
-
-    if (missionsResult.status === 'fulfilled') {
-      const r = missionsResult.value
-      const body = r?.data
-      const ms = body?.data
-      const pag = body?.pagination
-      const list = Array.isArray(ms) ? ms : []
-      setMissionsSample(list)
-      setMissionsTotal(Number(pag?.total ?? list.length) || 0)
-    } else {
-      setMissionsSample([])
-      setMissionsTotal(0)
-      const msg =
-        missionsResult.reason?.response?.data?.message ||
-        missionsResult.reason?.message ||
-        'Liste missions indisponible'
-      setFetchErrors((e) => ({ ...e, missions: msg }))
-      toast.error(msg)
-    }
-
-    if (prestatairesResult.status === 'fulfilled') {
-      const r = prestatairesResult.value
-      const data = r?.data?.data ?? r?.data ?? []
-      const pag = r?.data?.pagination
-      const list = Array.isArray(data) ? data : []
-      setPrestatairesList(list)
-      setPrestatairesTotal(Number(pag?.total ?? list.length) || 0)
-    } else {
-      setPrestatairesList([])
-      setPrestatairesTotal(0)
-      const msg =
-        prestatairesResult.reason?.response?.data?.message ||
-        prestatairesResult.reason?.message ||
-        'Prestataires indisponibles'
-      setFetchErrors((e) => ({ ...e, prestataires: msg }))
-      toast.error(msg)
-    }
-
-    setLoading(false)
-  }, [])
+  // Trigger state: incrémenter pour forcer un rechargement (bouton Rafraîchir)
+  const [trigger, setTrigger] = useState(0)
 
   useEffect(() => {
-    fetchAll()
-  }, [fetchAll])
+    let cancelled = false
 
-  const retry = () => fetchAll()
+    const load = async () => {
+      setLoading(true)
+      setFetchErrors({ stats: null, missions: null, prestataires: null })
+
+      const settled = await Promise.allSettled([
+        adminAPI.statistiques.general({ annee: new Date().getFullYear() }),
+        missionsAPI.list({ page: 1, per_page: 5 }),
+        adminAPI.prestataires({ page: 1, per_page: 50 }),
+      ])
+
+      // Ne pas mettre à jour le state si le composant a été démonté entre-temps
+      if (cancelled) return
+
+      const [statsResult, missionsResult, prestatairesResult] = settled
+
+      if (statsResult.status === 'fulfilled') {
+        const raw = extractDashboardStats(statsResult.value)
+        setStats(typeof raw === 'object' && raw !== null ? raw : {})
+      } else {
+        setStats({})
+        const msg =
+          statsResult.reason?.response?.data?.message ||
+          statsResult.reason?.message ||
+          'Statistiques dashboard indisponibles'
+        setFetchErrors((e) => ({ ...e, stats: msg }))
+        toast.error(msg)
+      }
+
+      if (missionsResult.status === 'fulfilled') {
+        const r = missionsResult.value
+        const body = r?.data
+        const ms = body?.data
+        const pag = body?.pagination
+        const list = Array.isArray(ms) ? ms : []
+        setMissionsSample(list)
+        setMissionsTotal(Number(pag?.total ?? list.length) || 0)
+      } else {
+        setMissionsSample([])
+        setMissionsTotal(0)
+        const msg =
+          missionsResult.reason?.response?.data?.message ||
+          missionsResult.reason?.message ||
+          'Liste missions indisponible'
+        setFetchErrors((e) => ({ ...e, missions: msg }))
+        toast.error(msg)
+      }
+
+      if (prestatairesResult.status === 'fulfilled') {
+        const r = prestatairesResult.value
+        const data = r?.data?.data ?? r?.data ?? []
+        const pag = r?.data?.pagination
+        const list = Array.isArray(data) ? data : []
+        setPrestatairesList(list)
+        setPrestatairesTotal(Number(pag?.total ?? list.length) || 0)
+      } else {
+        setPrestatairesList([])
+        setPrestatairesTotal(0)
+        const msg =
+          prestatairesResult.reason?.response?.data?.message ||
+          prestatairesResult.reason?.message ||
+          'Prestataires indisponibles'
+        setFetchErrors((e) => ({ ...e, prestataires: msg }))
+        toast.error(msg)
+      }
+
+      setLoading(false)
+    }
+
+    load()
+
+    // Cleanup : annule les mises à jour d'état si le composant démonte (StrictMode safe)
+    return () => { cancelled = true }
+  }, [trigger]) // se relance uniquement au montage et quand trigger change
+
+  const retry = () => setTrigger((t) => t + 1)
 
   const kpis = useMemo(() => {
     const s = stats ?? {}

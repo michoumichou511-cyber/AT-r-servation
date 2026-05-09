@@ -80,6 +80,15 @@ export default function ParticleBackground({ isDarkMode, zIndex = 2, opacity = 1
       createParticles()
     }
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationId)
+      } else {
+        animationId = requestAnimationFrame(drawParticles)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
     resize()
     createParticles()
     drawParticles()
@@ -88,6 +97,7 @@ export default function ParticleBackground({ isDarkMode, zIndex = 2, opacity = 1
     return () => {
       cancelAnimationFrame(animationId)
       window.removeEventListener('resize', onResize)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [isDarkMode])
 
@@ -96,7 +106,7 @@ export default function ParticleBackground({ isDarkMode, zIndex = 2, opacity = 1
       <canvas
         ref={canvasRef}
         className="pointer-events-none absolute inset-0 h-full min-h-[480px] w-full"
-        style={{ zIndex, opacity }}
+        style={{ zIndex, opacity, willChange: 'transform' }}
         aria-hidden
       />
       <motion.div

@@ -484,6 +484,7 @@ function TreeNode({ node, depth, onSelect, selected, expandedIds, toggleExpand, 
 // PANNEAU DÉTAIL
 // ============================================================
 function DetailPanel({ node, onClose, usersByStructure, isDark = false }) {
+  const navigate = useNavigate();
   if (!node) return null;
   const bgColor = node.color === "#00A650" ? "#00A650" : node.color === "#003DA5" ? "#003DA5" : "#4b5563";
   const nodeUsers = usersByStructure?.[node.id] || [];
@@ -500,7 +501,7 @@ function DetailPanel({ node, onClose, usersByStructure, isDark = false }) {
     <div style={{
       position: "fixed",
       right: 0,
-      top: 0,
+      top: 64,
       bottom: 0,
       width: 320,
       background: isDark ? "#1e293b" : "#fff",
@@ -595,7 +596,7 @@ function DetailPanel({ node, onClose, usersByStructure, isDark = false }) {
             <div style={{ padding: "12px 12px", borderRadius: 10, background: "#f9fafb", border: "1px dashed #d1d5db" }}>
               <div style={{ fontSize: 12, color: "#6b7280" }}>Aucun utilisateur affecté à cette structure.</div>
               <button
-                onClick={() => window.location.assign(`/admin/utilisateurs?structure=${encodeURIComponent(node.id)}`)}
+                onClick={() => navigate(`/admin/utilisateurs?structure=${encodeURIComponent(node.id)}`)}
                 style={{
                   marginTop: 10,
                   width: "100%",
@@ -715,6 +716,9 @@ export default function Organigramme() {
     }}>
       {/* HEADER */}
       <div style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 500,
         background: "linear-gradient(135deg, #003DA5 0%, #00A650 100%)",
         padding: "20px 24px",
         color: "#fff",

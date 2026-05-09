@@ -195,4 +195,42 @@ class AdminUserController extends Controller
             'Rôle modifié avec succès'
         );
     }
+
+    /**
+     * Modifier la structure/direction d'un utilisateur existant.
+     */
+    public function modifierStructure(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if (! $user->hasRole('admin')) {
+            return ApiResponse::forbidden();
+        }
+
+        $request->validate([
+            'structure_id' => 'nullable|string|max:100',
+            'direction'    => 'nullable|string|max:150',
+        ]);
+
+        $targetUser = User::findOrFail($id);
+
+        $targetUser->update([
+            'structure_id' => $request->structure_id,
+            'direction'    => $request->direction ?? $request->structure_id,
+        ]);
+
+        AuditLog::create([
+            'user_id'     => $user->id,
+            'action'      => 'update',
+            'module'      => 'user',
+            'description' => "Structure de {$targetUser->prenom} {$targetUser->nom} modifiée → {$request->structure_id}",
+            'ip_address'  => $request->ip(),
+            'user_agent'  => $request->userAgent(),
+        ]);
+
+        return ApiResponse::success(
+            ['user' => $targetUser->load('role')],
+            'Structure mise à jour ✅'
+        );
+    }
 }

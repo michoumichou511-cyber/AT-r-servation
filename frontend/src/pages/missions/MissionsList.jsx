@@ -173,15 +173,17 @@ export default function MissionsList() {
                 </button>
               </>
             )}
-            <Button
-              type="button"
-              variant="gradient"
-              size="md"
-              onClick={() => navigate('/missions/nouvelle')}
-            >
-              <Plus size={16} />
-              Nouvelle mission
-            </Button>
+            {!hasRole('admin') && (
+              <Button
+                type="button"
+                variant="gradient"
+                size="md"
+                onClick={() => navigate('/missions/nouvelle')}
+              >
+                <Plus size={16} />
+                Nouvelle mission
+              </Button>
+            )}
           </div>
         )}
       />

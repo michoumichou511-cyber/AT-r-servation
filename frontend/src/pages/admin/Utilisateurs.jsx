@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, Plus, RotateCcw, KeyRound, ShieldCheck, XCircle, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -24,6 +25,9 @@ const ROLE_OPTIONS = [
 ]
 
 export default function Utilisateurs() {
+  const [searchParams] = useSearchParams()
+  const structureFromUrl = searchParams.get('structure') || ''
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [items, setItems] = useState([])
@@ -111,6 +115,18 @@ export default function Utilisateurs() {
     }
   }
 
+  const handleAffecterStructure = async (userId) => {
+    if (!structureFromUrl) return
+    try {
+      const res = await adminAPI.users.changeStructure(userId, { structure_id: structureFromUrl })
+      const user = res.data?.data?.user
+      setItems(prev => prev.map(u => (u.id === userId ? { ...u, ...user } : u)))
+      toast.success(`Utilisateur affecté à "${structureFromUrl}" ✅`)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Erreur d\'affectation')
+    }
+  }
+
   const handleChangeRole = async (id, role) => {
     try {
       const res = await adminAPI.changerRole(id, { role })
@@ -132,7 +148,7 @@ export default function Utilisateurs() {
       matricule: '',
       service: '',
       direction: '',
-      structure_id: '',
+      structure_id: structureFromUrl,
       poste: '',
       telephone: '',
     })
@@ -191,6 +207,18 @@ export default function Utilisateurs() {
           </Button>
         }
       />
+
+      {/* Bandeau structure depuis Organigramme */}
+      {structureFromUrl && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
+          <span className="text-lg">🏢</span>
+          <span>
+            Vous avez été redirigé depuis l&apos;Organigramme pour la structure&nbsp;
+            <strong className="font-bold">{structureFromUrl}</strong>.
+            Cliquez sur <strong>+ Nouvel utilisateur</strong> pour créer un agent et l&apos;affecter automatiquement à cette structure.
+          </span>
+        </div>
+      )}
 
       {/* Filtres */}
       <div className="at-card-surface mb-6 p-4">
@@ -334,6 +362,18 @@ export default function Utilisateurs() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2 flex-wrap">
+                          {structureFromUrl && u.structure_id !== structureFromUrl && (
+                            <Button
+                              size="sm"
+                              variant="gradient"
+                              onClick={() => handleAffecterStructure(u.id)}
+                            >
+                              🏢 Affecter
+                            </Button>
+                          )}
+                          {structureFromUrl && u.structure_id === structureFromUrl && (
+                            <span className="text-xs font-semibold text-green-600 px-2">✅ Affecté</span>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

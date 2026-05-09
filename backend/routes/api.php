@@ -168,6 +168,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::get('/utilisateurs', [AdminUserController::class, 'listeUtilisateurs']);
         Route::put('/utilisateurs/{id}/toggle-active', [AdminUserController::class, 'activerDesactiver']);
         Route::put('/utilisateurs/{id}/role', [AdminUserController::class, 'changerRole']);
+        Route::put('/utilisateurs/{id}/structure', [AdminUserController::class, 'modifierStructure']);
         Route::post('/prestataires', [AdminPrestataireController::class, 'creerPrestataire']);
         Route::get('/prestataires/{id}', [AdminPrestataireController::class, 'show']);
         Route::put('/prestataires/{id}', [AdminPrestataireController::class, 'modifierPrestataire']);

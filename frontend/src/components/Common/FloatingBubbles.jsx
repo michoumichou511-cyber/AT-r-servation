@@ -83,10 +83,20 @@ export default function FloatingBubbles({ count = 8 }) {
       animId = requestAnimationFrame(draw)
     }
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId)
+      } else {
+        animId = requestAnimationFrame(draw)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
     draw()
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', resize)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [count])
 
@@ -101,6 +111,7 @@ export default function FloatingBubbles({ count = 8 }) {
         height: '100%',
         zIndex: 0,
         pointerEvents: 'none',
+        willChange: 'transform',
       }}
     />
   )
