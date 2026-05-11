@@ -5,25 +5,42 @@ import {
   LayoutDashboard, FileText, CheckSquare, MessageCircle,
   Bell, User, Users, Building2, Wallet, ClipboardList,
   BarChart3, FileBarChart, LogOut, ChevronDown,
-  X,
+  X, Truck, UserPlus,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { messagesAPI, notificationsAPI } from '../../services/api'
 import { usePolling } from '../../hooks/usePolling'
 import './Sidebar.css'
 
+// Mapping labels lisibles des 5 rôles officiels
+const ROLE_LABELS = {
+  admin:      'Administrateur',
+  directeur:  'Directeur',
+  assistante: 'Assistante',
+  demandeur:  'Demandeur',
+  agent_dml:  'Agent DML',
+}
+
 const roleCouleurs = {
-  admin: 'bg-gradient-to-br from-purple-500 to-violet-600',
+  admin:      'bg-gradient-to-br from-purple-500 to-violet-600',
+  directeur:  'bg-gradient-to-br from-blue-500 to-blue-700',
+  assistante: 'bg-gradient-to-br from-green-500 to-emerald-700',
+  demandeur:  'bg-gradient-to-br from-orange-500 to-amber-700',
+  agent_dml:  'bg-gradient-to-br from-teal-500 to-cyan-700',
+  // Aliases rétro-compat
   validateur: 'bg-gradient-to-br from-blue-500 to-blue-700',
-  utilisateur: 'bg-gradient-to-br from-green-500 to-emerald-700',
-  demandeur: 'bg-gradient-to-br from-orange-500 to-amber-700',
+  utilisateur:'bg-gradient-to-br from-green-500 to-emerald-700',
 }
 
 const roleBadgeClass = {
-  admin: '',
+  admin:      '',
+  directeur:  'sb-badge--validateur',
+  assistante: 'sb-badge--utilisateur',
+  demandeur:  'sb-badge--demandeur',
+  agent_dml:  'sb-badge--defaut',
+  // Aliases rétro-compat
   validateur: 'sb-badge--validateur',
-  utilisateur: 'sb-badge--utilisateur',
-  demandeur: 'sb-badge--demandeur',
+  utilisateur:'sb-badge--utilisateur',
 }
 
 function appendRipple(e, el) {
@@ -120,8 +137,11 @@ export default function Sidebar({ onClose }) {
     navigate('/login')
   }
 
-  const isAdmin = hasRole('admin')
-  const isValidateur = hasRole('validateur', 'admin')
+  const isAdmin       = hasRole('admin')
+  const isDirecteur   = hasRole('directeur')
+  const isAssistante  = hasRole('assistante')
+  const isAgentDml    = hasRole('agent_dml')
+  const isValidateur  = hasRole('directeur', 'admin') // alias rétro-compat
 
   return (
     <aside
@@ -188,7 +208,7 @@ export default function Sidebar({ onClose }) {
                 {user.prenom} {user.nom}
               </div>
               <span className={`sb-profile-badge ${badgeModifier}`}>
-                {role}
+                {ROLE_LABELS[role] ?? role}
               </span>
             </div>
           </div>
@@ -225,6 +245,28 @@ export default function Sidebar({ onClose }) {
               label="Validations"
               onClick={onClose}
               animDelay={0.18}
+            />
+          )}
+
+          {/* Lien assistante : créer une mission pour un demandeur */}
+          {isAssistante && (
+            <NavItem
+              to="/missions/nouvelle?pour-demandeur=1"
+              icon={UserPlus}
+              label="Créer pour un agent"
+              onClick={onClose}
+              animDelay={0.19}
+            />
+          )}
+
+          {/* Liens agent DML : missions à traiter */}
+          {isAgentDml && (
+            <NavItem
+              to="/dml/missions"
+              icon={Truck}
+              label="Missions à traiter"
+              onClick={onClose}
+              animDelay={0.19}
             />
           )}
 

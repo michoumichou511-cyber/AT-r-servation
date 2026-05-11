@@ -656,21 +656,26 @@ export default function Dashboard() {
   })
   const [loading, setLoading] = useState(true)
 
-  const isAdmin = hasRole('admin')
-  const isValidateur = hasRole('validateur')
-  const isUtilisateur = hasRole('utilisateur')
-  const isDemandeur = hasRole('demandeur')
+  const isAdmin       = hasRole('admin')
+  const isValidateur  = hasRole('directeur')   // ex-validateur, alias conservé pour compatibilité
+  const isDirecteur   = hasRole('directeur')
+  const isAssistante  = hasRole('assistante')  // ex-utilisateur
+  const isUtilisateur = hasRole('assistante')  // alias conservé
+  const isDemandeur   = hasRole('demandeur')
+  const isAgentDml    = hasRole('agent_dml')
 
   const prenom = user?.prenom ?? user?.nom ?? 'Utilisateur'
   const displayName = user?.prenom ?? (typeof user?.nom === 'string' ? user.nom.split(' ')[0] : null) ?? 'Utilisateur'
 
   const dashboardViewKey = isAdmin
     ? 'admin'
-    : isValidateur
-      ? 'validateur'
+    : isDirecteur
+      ? 'directeur'
       : isDemandeur
         ? 'demandeur'
-        : 'utilisateur'
+        : isAgentDml
+          ? 'agent_dml'
+          : 'assistante'
 
   useEffect(() => {
     const load = async () => {

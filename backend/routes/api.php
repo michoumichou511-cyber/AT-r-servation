@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdminAuditController;
+use App\Http\Controllers\Api\DmlController;
 use App\Http\Controllers\Api\AdminBudgetController;
 use App\Http\Controllers\Api\AdminPrestataireController;
 use App\Http\Controllers\Api\AdminUserController;
@@ -161,6 +162,17 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::get('/export/missions/pdf', [ExportController::class, 'exportMissionsPdf']);
         Route::get('/export/depenses/excel', [ExportController::class, 'exportDepensesExcel']);
         Route::get('/export/prestataires/excel', [ExportController::class, 'exportPrestatairesExcel']);
+    });
+
+    // ASSISTANTE — créer une mission pour un demandeur
+    Route::middleware('role:assistante')->group(function () {
+        Route::post('/missions/pour-demandeur', [MissionController::class, 'storeForDemandeur']);
+    });
+
+    // AGENT DML — traitement logistique des missions validées
+    Route::middleware('role:agent_dml')->prefix('dml')->group(function () {
+        Route::get('/missions-validees', [DmlController::class, 'missionsValidees']);
+        Route::post('/missions/{id}/traiter', [DmlController::class, 'traiter']);
     });
 
     // ADMIN (role:admin uniquement)

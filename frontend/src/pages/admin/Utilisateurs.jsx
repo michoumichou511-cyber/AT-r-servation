@@ -17,11 +17,21 @@ function initials(prenom, nom) {
   return (a + b).toUpperCase() || '?'
 }
 
+// Mapping centralisé des 5 rôles officiels
+export const ROLE_LABELS = {
+  admin:      'Administrateur',
+  directeur:  'Directeur',
+  assistante: 'Assistante',
+  demandeur:  'Demandeur',
+  agent_dml:  'Agent DML',
+}
+
 const ROLE_OPTIONS = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'validateur', label: 'Validateur' },
-  { value: 'utilisateur', label: 'Utilisateur' },
-  { value: 'demandeur', label: 'Demandeur' },
+  { value: 'admin',      label: 'Administrateur' },
+  { value: 'directeur',  label: 'Directeur' },
+  { value: 'assistante', label: 'Assistante' },
+  { value: 'demandeur',  label: 'Demandeur' },
+  { value: 'agent_dml',  label: 'Agent DML' },
 ]
 
 export default function Utilisateurs() {

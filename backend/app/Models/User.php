@@ -119,19 +119,35 @@ class User extends Authenticatable
         return $this->role?->name === Role::ADMIN;
     }
 
-    public function isValidateur()
+    public function isDirecteur()
     {
-        return $this->role?->name === Role::VALIDATEUR;
+        return $this->role?->name === Role::DIRECTEUR;
     }
 
-    public function isUtilisateur()
+    public function isAssistante()
     {
-        return $this->role?->name === Role::UTILISATEUR;
+        return $this->role?->name === Role::ASSISTANTE;
     }
 
     public function isDemandeur()
     {
         return $this->role?->name === Role::DEMANDEUR;
+    }
+
+    public function isAgentDml()
+    {
+        return $this->role?->name === Role::AGENT_DML;
+    }
+
+    // Aliases rétro-compatibilité
+    public function isValidateur()
+    {
+        return $this->isDirecteur();
+    }
+
+    public function isUtilisateur()
+    {
+        return $this->isAssistante();
     }
 
     public function hasRole(string $role): bool

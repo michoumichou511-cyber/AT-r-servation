@@ -8,11 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    /**
+     * Accepte un ou plusieurs rôles (ex : role:admin  ou  role:directeur,admin).
+     * L'utilisateur doit avoir l'un des rôles listés.
+     */
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        $user = $request->user();
+        $user     = $request->user();
+        $userRole = $user?->role?->name;
 
-        if (! $user || $user->role?->name !== $role) {
+        if (! $user || ! in_array($userRole, $roles, true)) {
             abort(403, 'Accès refusé.');
         }
 

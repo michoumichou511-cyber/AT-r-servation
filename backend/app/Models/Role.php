@@ -19,14 +19,16 @@ class Role extends Model
         'permissions' => 'array',
     ];
 
-    // Constants
-    const ADMIN = 'admin';
+    // Constants — 5 rôles officiels
+    const ADMIN      = 'admin';
+    const DIRECTEUR  = 'directeur';   // ex-validateur
+    const ASSISTANTE = 'assistante';  // ex-utilisateur
+    const DEMANDEUR  = 'demandeur';
+    const AGENT_DML  = 'agent_dml';
 
-    const VALIDATEUR = 'validateur';
-
-    const UTILISATEUR = 'utilisateur';
-
-    const DEMANDEUR = 'demandeur';
+    // Aliases de rétro-compatibilité (à supprimer quand tout le code est migré)
+    const VALIDATEUR  = 'directeur';
+    const UTILISATEUR = 'assistante';
 
     // ========== RELATIONS ==========
 
@@ -42,19 +44,35 @@ class Role extends Model
         return $this->name === self::ADMIN;
     }
 
-    public function isValidateur()
+    public function isDirecteur()
     {
-        return $this->name === self::VALIDATEUR;
+        return $this->name === self::DIRECTEUR;
     }
 
-    public function isUtilisateur()
+    public function isAssistante()
     {
-        return $this->name === self::UTILISATEUR;
+        return $this->name === self::ASSISTANTE;
     }
 
     public function isDemandeur()
     {
         return $this->name === self::DEMANDEUR;
+    }
+
+    public function isAgentDml()
+    {
+        return $this->name === self::AGENT_DML;
+    }
+
+    // Alias rétro-compatibilité
+    public function isValidateur()
+    {
+        return $this->isDirecteur();
+    }
+
+    public function isUtilisateur()
+    {
+        return $this->isAssistante();
     }
 
     public function hasPermission($permission)
