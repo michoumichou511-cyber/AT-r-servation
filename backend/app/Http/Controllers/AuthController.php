@@ -122,6 +122,14 @@ class AuthController extends Controller
 
         \Cache::forget($key);
 
+        // ── Restriction mobile : admin non autorisé sur mobile ──────────
+        if ($request->header('X-Client-Type') === 'mobile' && $user->role?->name === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => "L'accès administrateur n'est pas disponible sur mobile. Veuillez utiliser la version web.",
+            ], 403);
+        }
+
         // ── Compte désactivé ─────────────────────────────────────────────
         if (! $user->is_active) {
             return response()->json([

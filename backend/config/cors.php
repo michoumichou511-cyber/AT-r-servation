@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 $localOrigins = [
     'http://localhost:3000',
@@ -15,6 +15,8 @@ $localOrigins = [
     'http://127.0.0.1:5176',
     'http://127.0.0.1:5177',
     'http://127.0.0.1:5178',
+    'http://192.168.1.12:8000',
+    'http://192.168.1.12:19000',
 ];
 
 $fromEnv = env('FRONTEND_URL');
@@ -30,9 +32,8 @@ if (is_string($fromEnv) && $fromEnv !== '') {
 
 return [
     'paths' => ['api/*'],
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     'allowed_origins' => array_values(array_unique(array_merge($localOrigins, $extraOrigins))),
-    /** Vite peut prendre n’importe quel port libre (5173+) */
     'allowed_origins_patterns' => [
         '#^https?://(localhost|127\.0\.0\.1)(:\d+)?$#',
     ],
@@ -42,6 +43,7 @@ return [
         'X-Requested-With',
         'Accept',
         'Origin',
+        'X-Client-Type',
     ],
     'exposed_headers' => [],
     'max_age' => 3600,
