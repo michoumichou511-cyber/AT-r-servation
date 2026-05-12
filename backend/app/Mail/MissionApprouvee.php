@@ -5,25 +5,32 @@ namespace App\Mail;
 use App\Models\Mission;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class MissionApprouvee extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Mission $mission;
+    public function __construct(public Mission $mission) {}
 
-    public function __construct(Mission $mission)
+    public function envelope(): Envelope
     {
-        $this->mission = $mission;
+        return new Envelope(
+            subject: '✅ Mission approuvée — AT Réservations',
+        );
     }
 
-    public function build()
+    public function content(): Content
     {
-        $ref = $this->mission->numero_unique ?? $this->mission->reference ?? (string) $this->mission->id;
-
-        return $this
-            ->subject('Mission approuvée — '.$ref)
-            ->view('emails.mission-approuvee');
+        return new Content(
+            view: 'emails.mission_validee',
+            with: [
+                'mission'    => $this->mission,
+                'appUrl'     => config('app.url'),
+                'nomComplet' => trim(($this->mission->user?->prenom ?? '') . ' ' . ($this->mission->user?->nom ?? '')),
+            ],
+        );
     }
 }

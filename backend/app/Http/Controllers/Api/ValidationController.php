@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\MissionApprouvee;
+use App\Mail\MissionModificationDemandee;
 use App\Mail\MissionRejetee;
 use App\Models\AuditLog;
 use App\Models\BonCommande;
@@ -21,7 +22,7 @@ class ValidationController extends Controller
         $user = Auth::user();
 
         // Seulement validateur et admin
-        if (! in_array($user->role->name, ['validateur', 'admin'])) {
+        if (! in_array($user->role->name, ['directeur', 'admin'])) {
             return response()->json(['error' => 'Non autorisé'], 403);
         }
 
@@ -30,8 +31,8 @@ class ValidationController extends Controller
                 $q->with(['user', 'reservations']);
             }, 'validateur']);
 
-        // Si validateur: voir UNIQUEMENT ses validations
-        if ($user->role->name === 'validateur') {
+        // Si directeur: voir UNIQUEMENT ses validations
+        if ($user->role->name === 'directeur') {
             $query->where('validateur_id', $user->id);
         }
         // Si admin: voir toutes les validations
@@ -348,6 +349,15 @@ class ValidationController extends Controller
             'message' => 'Des modifications sont demandées pour votre mission',
             'type' => 'warning',
         ]);
+
+        try {
+            $mission->loadMissing('user');
+            if ($mission->user?->email) {
+                Mail::to($mission->user->email)->queue(new MissionModificationDemandee($mission, $request->commentaire));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Email modification request failed: '.$e->getMessage());
+        }
 
         AuditLog::create([
             'user_id' => $user->id,

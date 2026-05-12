@@ -9,31 +9,31 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MissionRejetee extends Mailable
+class MissionModificationDemandee extends Mailable
 {
     use Queueable, SerializesModels;
 
     public function __construct(
         public Mission $mission,
-        public string  $motif = ''
+        public string  $commentaire = ''
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '❌ Mission refusée — AT Réservations',
+            subject: '🔄 Modification demandée pour votre mission — AT Réservations',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.mission_rejetee',
+            view: 'emails.mission_modification_demandee',
             with: [
-                'mission'    => $this->mission,
-                'motif'      => $this->motif,
-                'appUrl'     => config('app.url'),
-                'nomComplet' => trim(($this->mission->user?->prenom ?? '') . ' ' . ($this->mission->user?->nom ?? '')),
+                'mission'      => $this->mission,
+                'commentaire'  => $this->commentaire,
+                'appUrl'       => config('app.url'),
+                'nomComplet'   => trim(($this->mission->user?->prenom ?? '') . ' ' . ($this->mission->user?->nom ?? '')),
             ],
         );
     }

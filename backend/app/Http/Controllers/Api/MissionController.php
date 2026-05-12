@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MissionStoreRequest;
 use App\Http\Requests\MissionUpdateRequest;
 use App\Http\Resources\MissionResource;
+use App\Mail\MissionSoumiseMail;
 use App\Models\Budget;
 use App\Models\Mission;
 use App\Models\NotificationCustom;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Services\MissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MissionController extends Controller
@@ -244,6 +246,15 @@ class MissionController extends Controller
 
         try {
             $mission = $this->missionService->submit($mission);
+
+            try {
+                $mission->loadMissing('user');
+                if ($mission->user?->email) {
+                    Mail::to($mission->user->email)->queue(new MissionSoumiseMail($mission));
+                }
+            } catch (\Exception $mailException) {
+                \Log::error('Email submission failed: '.$mailException->getMessage());
+            }
 
             return response()->json([
                 'success' => true,

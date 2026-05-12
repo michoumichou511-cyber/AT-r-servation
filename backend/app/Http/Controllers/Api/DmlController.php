@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MissionResource;
+use App\Mail\MissionLogistiqueOkMail;
 use App\Models\HotelConvention;
 use App\Models\Mission;
 use App\Models\MissionTraitementDml;
 use App\Models\Vehicule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * DmlController — traitement logistique des missions validées (agent_dml + admin).
@@ -182,6 +184,15 @@ class DmlController extends Controller
         ]);
 
         $mission->update(['statut' => 'en_traitement_logistique']);
+
+        try {
+            $mission->loadMissing('user');
+            if ($mission->user?->email) {
+                Mail::to($mission->user->email)->queue(new MissionLogistiqueOkMail($mission, $traitement->load(['hotel', 'vehicule'])));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Email logistique OK failed: '.$e->getMessage());
+        }
 
         return \App\Helpers\ApiResponse::success(
             [
