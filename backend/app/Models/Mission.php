@@ -81,4 +81,9 @@ class Mission extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function traitementDml()
+    {
+        return $this->hasOne(MissionTraitementDml::class);
+    }
 }

@@ -25,6 +25,7 @@ const Budgets          = React.lazy(() => import('./pages/admin/Budgets'));
 const AuditLogs        = React.lazy(() => import('./pages/admin/AuditLogs'));
 const Statistiques     = React.lazy(() => import('./pages/admin/Statistiques'));
 const Rapports         = React.lazy(() => import('./pages/rapports/Rapports'));
+const DmlDashboard     = React.lazy(() => import('./pages/dml/DmlDashboard'));
 const Page404          = React.lazy(() => import('./pages/errors/Page404'));
 const Page403          = React.lazy(() => import('./pages/errors/Page403'));
 
@@ -81,7 +82,7 @@ function AppRoutes() {
           <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
           <Route path="/missions/:id"        element={<MissionDetail />} />
           <Route path="/validations"         element={
-            <PrivateRoute roles={['validateur', 'admin']}>
+            <PrivateRoute roles={['directeur', 'admin']}>
               <Validations />
             </PrivateRoute>
           } />
@@ -89,8 +90,13 @@ function AppRoutes() {
           <Route path="/notifications"       element={<Notifications />} />
           <Route path="/profil"              element={<Profil />} />
           <Route path="/rapports"            element={
-            <PrivateRoute roles={['admin', 'validateur']}>
+            <PrivateRoute roles={['admin', 'directeur']}>
               <Rapports />
+            </PrivateRoute>
+          } />
+          <Route path="/dml"               element={
+            <PrivateRoute roles={['agent_dml']}>
+              <DmlDashboard />
             </PrivateRoute>
           } />
           <Route path="/admin/utilisateurs"  element={

@@ -262,7 +262,7 @@ export default function Sidebar({ onClose }) {
           {/* Liens agent DML : missions à traiter */}
           {isAgentDml && (
             <NavItem
-              to="/dml/missions"
+              to="/dml"
               icon={Truck}
               label="Missions à traiter"
               onClick={onClose}

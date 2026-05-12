@@ -328,6 +328,22 @@ export const bonCommandeAPI = {
   telecharger: () => Promise.reject(new Error('Bons de commande: téléchargement indisponible via cette API.')),
 }
 
+// ── DML — Agent logistique ────────────
+export const dmlAPI = {
+  getMissionsValidees:    (params)           => api.get('/dml/missions-validees', { params }),
+  getMissionsEnTraitement:(params)           => api.get('/dml/missions-en-traitement', { params }),
+  assignerHotel:          (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
+  assignerVehicule:       (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
+  marquerLogistiqueOk:    (missionId)        => api.post(`/dml/missions/${missionId}/logistique-ok`),
+  getHotelsConventions:   (params)           => api.get('/dml/hotels-conventions', { params }),
+  getVehiculesDisponibles:(params)           => api.get('/dml/vehicules-disponibles', { params }),
+  // Admin CRUD
+  adminHotels:            (params)           => api.get('/admin/dml/hotels', { params }),
+  adminCreateHotel:       (data)             => api.post('/admin/dml/hotels', data),
+  adminVehicules:         (params)           => api.get('/admin/dml/vehicules', { params }),
+  adminCreateVehicule:    (data)             => api.post('/admin/dml/vehicules', data),
+}
+
 // ── Recherche ─────────────────────────
 export const searchAPI = {
   global: (q) =>

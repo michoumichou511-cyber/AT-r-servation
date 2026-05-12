@@ -171,8 +171,13 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
 
     // AGENT DML — traitement logistique des missions validées
     Route::middleware('role:agent_dml')->prefix('dml')->group(function () {
-        Route::get('/missions-validees', [DmlController::class, 'missionsValidees']);
-        Route::post('/missions/{id}/traiter', [DmlController::class, 'traiter']);
+        Route::get('/missions-validees',               [DmlController::class, 'missionsValidees']);
+        Route::get('/missions-en-traitement',          [DmlController::class, 'missionsEnTraitement']);
+        Route::post('/missions/{id}/assigner-hotel',   [DmlController::class, 'assignerHotel']);
+        Route::post('/missions/{id}/assigner-vehicule',[DmlController::class, 'assignerVehicule']);
+        Route::post('/missions/{id}/logistique-ok',    [DmlController::class, 'marquerLogistiqueOk']);
+        Route::get('/hotels-conventions',              [DmlController::class, 'hotelsConventions']);
+        Route::get('/vehicules-disponibles',           [DmlController::class, 'vehiculesDisponibles']);
     });
 
     // ADMIN (role:admin uniquement)
@@ -190,5 +195,11 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::put('/budgets/{id}', [AdminBudgetController::class, 'modifierBudget']);
         Route::get('/audit-logs', [AdminAuditController::class, 'auditLogs']);
         Route::get('/statistiques', [DashboardController::class, 'adminStatistiques']);
+
+        // ADMIN — DML : hôtels conventions & véhicules
+        Route::get('/dml/hotels',    [DmlController::class, 'adminHotelsList']);
+        Route::post('/dml/hotels',   [DmlController::class, 'adminHotelsCreate']);
+        Route::get('/dml/vehicules', [DmlController::class, 'adminVehiculesList']);
+        Route::post('/dml/vehicules',[DmlController::class, 'adminVehiculesCreate']);
     });
 });
