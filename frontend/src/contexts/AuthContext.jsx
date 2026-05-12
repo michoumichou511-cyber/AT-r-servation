@@ -17,6 +17,9 @@ export function AuthProvider({ children }) {
   const [user, setUser]              = useState(null);
   const [loading, setLoading]        = useState(true);
   const [isAuthenticated, setIsAuth] = useState(false);
+  const [authMethod, setAuthMethod]  = useState(
+    () => localStorage.getItem('at_auth_method') ?? 'db'
+  );
   const [darkMode, setDarkMode]      = useState(
     localStorage.getItem('at_dark') === 'true'
   );
@@ -71,16 +74,21 @@ export function AuthProvider({ children }) {
   const clearSession = useCallback(() => {
     localStorage.removeItem('at_token');
     localStorage.removeItem('at_user');
+    localStorage.removeItem('at_auth_method');
     setUser(null);
     setIsAuth(false);
+    setAuthMethod('db');
   }, []);
 
   const login = async (email, password) => {
-    // 1. Login pour obtenir le token
+    // 1. Login pour obtenir le token + auth_method
     const res  = await authAPI.login({ email, password });
     const body = res.data;
     const t    = body?.data?.token ?? body?.token;
+    const am   = body?.data?.auth_method ?? 'db';
     localStorage.setItem('at_token', t);
+    localStorage.setItem('at_auth_method', am);
+    setAuthMethod(am);
 
     // 2. Récupère le profil complet avec le rôle via /auth/me
     const meRes   = await authAPI.me();
@@ -100,8 +108,10 @@ export function AuthProvider({ children }) {
     try { await authAPI.logout(); } catch { /* ignore */ }
     localStorage.removeItem('at_token');
     localStorage.removeItem('at_user');
+    localStorage.removeItem('at_auth_method');
     setUser(null);
     setIsAuth(false);
+    setAuthMethod('db');
   };
 
   const updateUser = (data) => {
@@ -127,6 +137,7 @@ export function AuthProvider({ children }) {
       user, loading, isAuthenticated,
       login, logout, clearSession, updateUser,
       hasRole, darkMode, toggleDarkMode,
+      authMethod,
     }}>
       {children}
     </AuthContext.Provider>

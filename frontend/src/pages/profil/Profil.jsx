@@ -33,7 +33,7 @@ function formatDZD(v) {
 }
 
 export default function Profil() {
-  const { user, updateUser } = useAuth()
+  const { user, updateUser, authMethod } = useAuth()
 
   const [activeTab, setActiveTab] = useState('informations')
 
@@ -305,6 +305,27 @@ export default function Profil() {
             {user.direction && (
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>{user.direction}</span>
             )}
+            {/* Badge méthode d'authentification */}
+            <span
+              title={authMethod === 'ldap' ? 'Authentifié via Active Directory (LDAP)' : 'Authentifié via compte local'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: 11,
+                fontWeight: 600,
+                padding: '3px 10px',
+                borderRadius: 20,
+                background: authMethod === 'ldap'
+                  ? 'rgba(59,130,246,0.85)'
+                  : 'rgba(107,114,128,0.75)',
+                color: 'white',
+                letterSpacing: '0.3px',
+                backdropFilter: 'blur(4px)',
+              }}
+            >
+              {authMethod === 'ldap' ? '🔐 Active Directory' : '🔑 Compte local'}
+            </span>
           </div>
         </div>
       </div>

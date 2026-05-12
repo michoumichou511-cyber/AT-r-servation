@@ -12,6 +12,7 @@ use App\Models\AuditLog;
 use App\Models\Mission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\LdapAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -70,38 +71,89 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $validated = $request->validated();
-        $key = 'login_attempts_'.$request->email;
+
+        // ── Protection anti-brute-force ──────────────────────────────────
+        $key      = 'login_attempts_' . $request->email;
         $attempts = \Cache::get($key, 0);
         if ($attempts >= 5) {
-            return \App\Helpers\ApiResponse::error(
+            return ApiResponse::error(
                 'Compte temporairement bloqué après 5 tentatives. Réessayez dans 15 minutes.',
                 429
             );
         }
-        if (! Auth::attempt($validated)) {
-            \Cache::put($key, $attempts + 1, 900); // 15 minutes
 
-            return \App\Helpers\ApiResponse::error('Identifiants invalides.', 401);
+        // ── Récupérer l'utilisateur actif ────────────────────────────────
+        $user = User::where('email', $validated['email'])
+            ->where('is_active', true)
+            ->first();
+
+        if (! $user) {
+            \Cache::put($key, $attempts + 1, 900);
+            return ApiResponse::error('Identifiants invalides.', 401);
         }
+
+        // ── Authentification dual-mode : LDAP → fallback DB ──────────────
+        $authenticated = false;
+        $authMethod    = 'db';
+
+        // Tentative LDAP uniquement si ext-ldap est disponible et serveur configuré
+        $ldapHost = env('LDAP_HOST');
+        if ($ldapHost) {
+            $ldap = new LdapAuthService();
+            if ($ldap->isAvailable()) {
+                $username      = explode('@', $validated['email'])[0];
+                $authenticated = $ldap->authenticate($username, $validated['password']);
+                if ($authenticated) {
+                    $authMethod = 'ldap';
+                }
+            }
+        }
+
+        // Fallback : authentification bcrypt locale
+        if (! $authenticated) {
+            $authenticated = Hash::check($validated['password'], $user->password);
+            $authMethod    = 'db';
+        }
+
+        if (! $authenticated) {
+            \Cache::put($key, $attempts + 1, 900);
+            return ApiResponse::error('Identifiants invalides.', 401);
+        }
+
         \Cache::forget($key);
-        $user = Auth::user();
 
+        // ── Compte désactivé ─────────────────────────────────────────────
         if (! $user->is_active) {
-            Auth::logout();
-
             return response()->json([
                 'success' => false,
                 'message' => 'Votre compte a été désactivé',
             ], 403);
         }
 
+        // ── Audit ────────────────────────────────────────────────────────
+        try {
+            AuditLog::create([
+                'user_id'     => $user->id,
+                'action'      => 'login',
+                'module'      => 'user',
+                'description' => "Connexion via {$authMethod}",
+                'auth_method' => $authMethod,
+                'ip_address'  => $request->ip(),
+                'user_agent'  => $request->userAgent(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('AuditLog login failed: ' . $e->getMessage());
+        }
+
+        $user->update(['last_login_at' => now()]);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'success' => true,
+            'success'     => true,
             'data' => [
-                'token' => $token,
-                'user' => new UserResource($user),
+                'token'       => $token,
+                'user'        => new UserResource($user->load('role')),
+                'auth_method' => $authMethod,
             ],
         ]);
     }
