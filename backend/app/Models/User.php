@@ -26,6 +26,8 @@ class User extends Authenticatable
         'role_id',
         'structure_id',
         'is_active',
+        'is_online',
+        'last_seen',
         'last_login_at',
         'preferences',
     ];
@@ -36,9 +38,11 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'preferences' => 'array',
-        'is_active' => 'boolean',
+        'last_login_at'     => 'datetime',
+        'last_seen'         => 'datetime',
+        'preferences'       => 'array',
+        'is_active'         => 'boolean',
+        'is_online'         => 'boolean',
     ];
 
     // ========== RELATIONS ==========

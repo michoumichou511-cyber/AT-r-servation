@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../design/design_system.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../services/presence_service.dart';
 
 // ─── Model ─────────────────────────────────────────────────────────────────
 class MessageModel {
@@ -67,6 +68,8 @@ class _ConversationScreenState extends State<ConversationScreen>
   bool   _sending = false;
   bool   _typingIndicator = false;
   Timer? _timer;
+  Timer? _presenceTimer;
+  PresenceStatus? _presenceStatus;
   late int _convId;
   int? _receiverId;
   final _ctrl   = TextEditingController();
@@ -82,8 +85,11 @@ class _ConversationScreenState extends State<ConversationScreen>
     _sendCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     _load();
+    _loadPresence();
     _timer = Timer.periodic(const Duration(seconds: 30),
         (_) => _load(silent: true));
+    _presenceTimer = Timer.periodic(const Duration(minutes: 1),
+        (_) => _loadPresence());
     _ctrl.addListener(() {
       final hasText = _ctrl.text.isNotEmpty;
       if (hasText != _typingIndicator) {
@@ -93,9 +99,18 @@ class _ConversationScreenState extends State<ConversationScreen>
     });
   }
 
+  Future<void> _loadPresence() async {
+    if (_receiverId == null) return;
+    final status = await PresenceService().fetchStatus(_receiverId!);
+    if (mounted && status != null) {
+      setState(() => _presenceStatus = status);
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
+    _presenceTimer?.cancel();
     _ctrl.dispose();
     _scroll.dispose();
     _inputFocus.dispose();
@@ -282,15 +297,20 @@ class _ConversationScreenState extends State<ConversationScreen>
                   width: 6, height: 6,
                   margin: const EdgeInsets.only(right: 5),
                   decoration: BoxDecoration(
-                    color: DS.success,
+                    color: (_presenceStatus?.isOnline ?? false)
+                        ? DS.success
+                        : Colors.white38,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(
-                      color: DS.success.withValues(alpha: 0.5),
-                      blurRadius: 4, spreadRadius: 1,
-                    )],
+                    boxShadow: (_presenceStatus?.isOnline ?? false)
+                        ? [BoxShadow(
+                            color: DS.success.withValues(alpha: 0.5),
+                            blurRadius: 4, spreadRadius: 1,
+                          )]
+                        : null,
                   ),
                 ),
-                Text('En ligne',
+                Text(
+                  _presenceStatus?.label ?? 'En ligne',
                   style: GoogleFonts.inter(
                     fontSize: 11, color: Colors.white70)),
               ]),

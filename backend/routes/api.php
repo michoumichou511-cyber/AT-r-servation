@@ -50,6 +50,8 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
     // AUTH
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/users/by-structure', [UserController::class, 'byStructure']);
+    Route::patch('/user/presence', [UserController::class, 'updatePresence']);
+    Route::get('/users/{id}/presence', [UserController::class, 'getPresence']);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
