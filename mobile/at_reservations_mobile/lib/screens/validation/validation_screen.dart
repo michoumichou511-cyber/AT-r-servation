@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import '../../design/design_system.dart';
 import '../../models/mission.dart';
 import '../../services/api_service.dart';
@@ -25,7 +25,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
     if (!mounted) return;
     setState(() => _loading = true);
     try {
-      final data = await ApiService().get('/validations');
+      final data = await ApiService().get('/validations/mes-validations');
       final dynamic raw = data['data'];
       final list = raw is List ? raw
           : (raw is Map<String, dynamic> ? (raw['data'] ?? raw)
@@ -43,11 +43,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
     final count = _validations.length;
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FF),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        color: DS.primary,
-        displacement: 120,
-        child: CustomScrollView(
+      body: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ── Hero AppBar ─────────────────────────────────────────────
@@ -197,7 +193,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                     index: i,
                     onAction: () {
                       HapticFeedback.mediumImpact();
-                      setState(() => _validations.removeAt(i));
+                      _load();
                     },
                     onRefresh: _load,
                   )
@@ -209,10 +205,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 ),
               ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 110)),
+            const SliverToBoxAdapter(child: SizedBox(height: 140)),
           ],
         ),
-      ),
     );
   }
 }
@@ -432,7 +427,7 @@ class _ValidationItemState extends State<_ValidationItem> {
         mission: widget.mission,
         showUser: true,
         index: widget.index,
-      ),
+      ).animate(delay: (widget.index * 80).ms).fadeIn().slideY(begin: 0.1),
       // Action buttons row
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -440,8 +435,7 @@ class _ValidationItemState extends State<_ValidationItem> {
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: CircularProgressIndicator(
-                      color: DS.primary, strokeWidth: 2.5),
+                  child: SpinKitFadingCircle(color: DS.primary, size: 28),
                 ),
               )
             : Row(children: [
@@ -468,7 +462,7 @@ class _ValidationItemState extends State<_ValidationItem> {
                     onTap: _acting ? null : () => _actionWithComment(
                         'Demander modifications',
                         'Modifications souhaitées…',
-                        DS.warning, 'demander-modification'),
+                        DS.warning, 'modifier'),
                   ),
                 ),
                 const SizedBox(width: 6),

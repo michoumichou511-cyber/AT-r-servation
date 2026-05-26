@@ -58,8 +58,8 @@ class DocumentController extends Controller
         // Validation
         $request->validate([
             // max en KB => 5120 = 5MB
-            'fichier' => 'required|file|max:5120|mimes:pdf,doc,docx,jpg,jpeg',
-            'type_document' => 'required|in:ordre_mission,formulaire,autorisation',
+            'fichier' => 'required|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,xls,xlsx,txt',
+            'type_document' => 'required|in:ordre_mission,formulaire,autorisation,justificatif,autre',
         ]);
 
         $file = $request->file('fichier');

@@ -377,8 +377,8 @@ class ValidationController extends Controller
 
         $validations = CircuitValidation::where('validateur_id', $user->id)
             ->with(['mission', 'validateur'])
-            ->where('statut', '!=', 'en_attente')
-            ->orderBy('date_validation', 'desc')
+            ->where('statut', 'en_attente')
+            ->orderBy('created_at', 'asc')
             ->paginate(20);
 
         return response()->json($validations);
