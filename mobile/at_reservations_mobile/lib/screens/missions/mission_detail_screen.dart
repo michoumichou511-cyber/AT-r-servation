@@ -56,8 +56,48 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
           ? const Center(child: SpinKitWave(color: DS.primary, size: 30))
           : _error != null
               ? _buildError()
-              : _buildBody(),
+              : _buildBodySafe(),
     );
+  }
+
+  Widget _buildBodySafe() {
+    try {
+      return _buildBody();
+    } catch (e) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              'Impossible de charger cette mission',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              e.toString(),
+              style: GoogleFonts.inter(
+                color: Colors.grey, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: DS.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildError() => Scaffold(
@@ -227,11 +267,11 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
             initiallyExpanded: true,
             children: [
               _DetailRow(label: 'N° unique',    value: m.numeroUnique),
-              _DetailRow(label: 'Titre',        value: m.titre),
-              _DetailRow(label: 'Objet',        value: m.objetMission),
-              _DetailRow(label: 'Destination',  value: m.destination),
-              _DetailRow(label: 'Type',         value: m.typeMission),
-              _DetailRow(label: 'Statut',       value: m.statut,
+              _DetailRow(label: 'Titre',        value: m.titre ?? m.objetMission ?? 'Sans titre'),
+              _DetailRow(label: 'Objet',        value: m.objetMission ?? m.titre ?? 'Non renseigné'),
+              _DetailRow(label: 'Destination',  value: m.destination ?? 'Non renseignée'),
+              _DetailRow(label: 'Type',         value: _typeMissionLabel(m.typeMission)),
+              _DetailRow(label: 'Statut',       value: statusLabel(m.statut),
                   valueColor: statColor),
             ],
           ).animate(delay: 80.ms).fadeIn(duration: 300.ms).slideY(begin: 0.06),
@@ -286,6 +326,27 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     ]);
   }
 
+  /// Convertit une valeur numérique ou String en String lisible.
+  static String? _toStr(dynamic v) {
+    if (v == null) return null;
+    if (v is String) return v.isNotEmpty ? v : null;
+    if (v is num)   return v.toStringAsFixed(v.truncateToDouble() == v ? 0 : 2);
+    return v.toString();
+  }
+
+  static String? _typeMissionLabel(String? t) {
+    if (t == null) return null;
+    switch (t.toLowerCase()) {
+      case 'formation':   return 'Formation';
+      case 'conference':  return 'Conférence';
+      case 'reunion':     return 'Réunion';
+      case 'inspection':  return 'Inspection';
+      case 'audit':       return 'Audit';
+      case 'autre':       return 'Autre';
+      default:            return t;
+    }
+  }
+
   List<Widget> _buildReservations(Map<String, dynamic> raw) {
     // L'API renvoie raw['reservations'] via ReservationResource
     final List? reservations = raw['reservations'] as List?;
@@ -296,9 +357,9 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       final rm   = r as Map<String, dynamic>;
       final type = rm['type_label'] as String?
           ?? rm['type'] as String? ?? 'Réservation';
-      final notes  = rm['notes'] as String?;
-      final montant = rm['montant_estime'] as String?;
-      final statut = rm['statut'] as String? ?? '';
+      final notes   = _toStr(rm['notes']);
+      final montant = _toStr(rm['montant_estime']);
+      final statut  = rm['statut'] as String? ?? '';
       final icon = switch (rm['type'] as String? ?? '') {
         'hebergement' => Icons.hotel_outlined,
         'billet'      => Icons.confirmation_number_outlined,
