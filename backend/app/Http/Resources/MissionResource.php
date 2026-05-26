@@ -12,12 +12,16 @@ class MissionResource extends JsonResource
         $dateDepart = $this->date_depart;
         $dateRetour = $this->date_retour;
 
-        // Handle both Carbon and string dates
-        if (is_string($dateDepart)) {
-            $dateDepart = \Carbon\Carbon::parse($dateDepart);
+        // Handle both Carbon and string dates — null-safe
+        if (is_string($dateDepart) && $dateDepart !== '') {
+            try { $dateDepart = \Carbon\Carbon::parse($dateDepart); } catch (\Exception $e) { $dateDepart = null; }
+        } elseif (!($dateDepart instanceof \Carbon\Carbon)) {
+            $dateDepart = null;
         }
-        if (is_string($dateRetour)) {
-            $dateRetour = \Carbon\Carbon::parse($dateRetour);
+        if (is_string($dateRetour) && $dateRetour !== '') {
+            try { $dateRetour = \Carbon\Carbon::parse($dateRetour); } catch (\Exception $e) { $dateRetour = null; }
+        } elseif (!($dateRetour instanceof \Carbon\Carbon)) {
+            $dateRetour = null;
         }
 
         return [
@@ -27,8 +31,8 @@ class MissionResource extends JsonResource
             'objet_mission' => $this->objet_mission,
             'destination' => $this->destination,
             'dates' => [
-                'depart' => $dateDepart->format('d/m/Y'),
-                'retour' => $dateRetour->format('d/m/Y'),
+                'depart' => $dateDepart?->format('d/m/Y'),
+                'retour' => $dateRetour?->format('d/m/Y'),
             ],
             'type_mission' => $this->type_mission,
             'priorite' => $this->priorite ?? 'normale',

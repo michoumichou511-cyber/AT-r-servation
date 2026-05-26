@@ -12,10 +12,11 @@ class DocumentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'nom' => $this->nom,
-            'type' => $this->type,
+            'nom_fichier' => $this->nom_fichier,
+            'nom' => $this->nom_fichier,
+            'type' => $this->type_document ?? $this->type,
             'mime_type' => $this->mime_type,
-            'url' => $this->file_path ? Storage::url($this->file_path) : null,
+            'url' => $this->chemin ? Storage::url($this->chemin) : ($this->file_path ? Storage::url($this->file_path) : null),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }

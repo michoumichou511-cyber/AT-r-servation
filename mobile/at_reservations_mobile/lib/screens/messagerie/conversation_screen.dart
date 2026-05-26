@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
@@ -47,10 +48,12 @@ class MessageModel {
 class ConversationScreen extends StatefulWidget {
   final int conversationId;
   final String? nomCorrespondant;
+  final int? receiverId;
   const ConversationScreen({
     super.key,
     required this.conversationId,
     this.nomCorrespondant,
+    this.receiverId,
   });
 
   @override
@@ -64,6 +67,8 @@ class _ConversationScreenState extends State<ConversationScreen>
   bool   _sending = false;
   bool   _typingIndicator = false;
   Timer? _timer;
+  late int _convId;
+  int? _receiverId;
   final _ctrl   = TextEditingController();
   final _scroll = ScrollController();
   final _inputFocus = FocusNode();
@@ -72,16 +77,18 @@ class _ConversationScreenState extends State<ConversationScreen>
   @override
   void initState() {
     super.initState();
+    _convId = widget.conversationId;
+    _receiverId = widget.receiverId;
     _sendCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
     _load();
-    _timer = Timer.periodic(const Duration(seconds: 10),
+    _timer = Timer.periodic(const Duration(seconds: 30),
         (_) => _load(silent: true));
     _ctrl.addListener(() {
       final hasText = _ctrl.text.isNotEmpty;
       if (hasText != _typingIndicator) {
         setState(() => _typingIndicator = hasText);
-        if (hasText) _sendCtrl.forward(); else _sendCtrl.reverse();
+        if (hasText) { _sendCtrl.forward(); } else { _sendCtrl.reverse(); }
       }
     });
   }
@@ -97,25 +104,47 @@ class _ConversationScreenState extends State<ConversationScreen>
   }
 
   Future<void> _load({bool silent = false}) async {
+    // Nouvelle conversation pas encore créée → liste vide
+    if (_convId == 0) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
     if (!silent && mounted) setState(() => _loading = true);
     try {
-      final data = await ApiService()
-          .get('/conversations/${widget.conversationId}/messages');
-      final dynamic raw = data['data'];
-      final list = raw is List ? raw
-          : (raw is Map<String, dynamic> ? (raw['data'] ?? raw)
-          : (data is List ? data : []));
+      final data = await ApiService().get('/conversations/$_convId/messages');
+      // API retourne { data: { messages: [...] } }
+      final dynamic rawData = data['data'];
+      List list = const [];
+      if (rawData is Map<String, dynamic>) {
+        final m = rawData['messages'];
+        if (m is List) list = m;
+      } else if (rawData is List) {
+        list = rawData;
+      }
       if (mounted) {
         setState(() {
-          _messages = (list as List)
+          _messages = list
               .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
               .toList();
           _loading = false;
         });
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
       }
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loading = false);
+        if (!silent) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e is ApiException ? e.message : 'Erreur de chargement',
+                style: GoogleFonts.inter(color: Colors.white)),
+              backgroundColor: DS.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -131,21 +160,27 @@ class _ConversationScreenState extends State<ConversationScreen>
 
   Future<void> _send() async {
     final text = _ctrl.text.trim();
-    if (text.isEmpty || _sending) return;
+    if (text.isEmpty || _sending || _receiverId == null) return;
     HapticFeedback.lightImpact();
     _ctrl.clear();
     setState(() => _sending = true);
     try {
-      await ApiService().post(
-        '/conversations/${widget.conversationId}/messages',
-        {'contenu': text},
-      );
-      await _load(silent: true);
+      // POST /messages avec receiver_id — le backend crée la conv si besoin
+      await ApiService().post('/messages', {
+        'receiver_id': _receiverId,
+        'contenu': text,
+      });
+      // Si nouvelle conversation, trouver l'ID créé par le backend
+      if (_convId == 0) {
+        await _discoverConversation();
+      } else {
+        await _load(silent: true);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString(),
+            content: Text(e is ApiException ? e.message : e.toString(),
               style: GoogleFonts.inter(color: Colors.white)),
             backgroundColor: DS.error,
             behavior: SnackBarBehavior.floating,
@@ -157,6 +192,30 @@ class _ConversationScreenState extends State<ConversationScreen>
     } finally {
       if (mounted) setState(() => _sending = false);
     }
+  }
+
+  /// Après envoi du premier message, trouve la conversation créée.
+  Future<void> _discoverConversation() async {
+    try {
+      final data = await ApiService().get('/conversations');
+      final dynamic rawData = data['data'];
+      List list = const [];
+      if (rawData is Map<String, dynamic>) {
+        final c = rawData['conversations'];
+        if (c is List) list = c;
+      } else if (rawData is List) {
+        list = rawData;
+      }
+      for (final c in list) {
+        if (c is! Map<String, dynamic>) continue;
+        final inter = c['interlocuteur'] as Map<String, dynamic>?;
+        if (inter != null && inter['id'] == _receiverId) {
+          if (mounted) setState(() => _convId = c['id'] as int? ?? 0);
+          break;
+        }
+      }
+      await _load(silent: true);
+    } catch (_) {}
   }
 
   // Get initials from name
@@ -250,7 +309,7 @@ class _ConversationScreenState extends State<ConversationScreen>
         // ── Messages ────────────────────────────────────────────────────
         Expanded(
           child: _loading
-              ? Center(child: CircularProgressIndicator(color: DS.primary))
+              ? const Center(child: SpinKitWave(color: DS.primary, size: 30))
               : _messages.isEmpty
                   ? _EmptyConv()
                   : ListView.builder(
@@ -343,7 +402,7 @@ class _ConversationScreenState extends State<ConversationScreen>
                   // Send button
                   AnimatedBuilder(
                     animation: _sendCtrl,
-                    builder: (_, __) => Transform.scale(
+                    builder: (ctx, child) => Transform.scale(
                       scale: 0.85 + 0.15 * _sendCtrl.value,
                       child: _sending
                           ? Container(

@@ -32,7 +32,7 @@ _NotifStyle _styleFor(String? type) {
 }
 
 String _group(DateTime? d) {
-  if (d == null) return 'Date inconnue';
+  if (d == null) return "Aujourd'hui"; // date inconnue → groupe aujourd'hui
   final now   = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final day   = DateTime(d.year, d.month, d.day);
@@ -77,7 +77,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<void> _markAllRead() async {
     HapticFeedback.mediumImpact();
     try {
-      await ApiService().post('/notifications/mark-all-read');
+      await ApiService().put('/notifications/tout-lire');
       if (mounted) {
         setState(() => _notifs =
             _notifs.map((n) => n.copyWith(lu: true)).toList());
@@ -87,7 +87,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _markRead(int id) async {
     try {
-      await ApiService().post('/notifications/$id/read');
+      await ApiService().put('/notifications/$id/lire');
     } catch (_) {}
     if (mounted) {
       setState(() => _notifs = _notifs.map((n) =>
@@ -95,8 +95,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  void _dismiss(int id) {
+  Future<void> _dismiss(int id) async {
     HapticFeedback.lightImpact();
+    try {
+      await ApiService().delete('/notifications/$id');
+    } catch (_) {}
+    if (!mounted) return;
     setState(() => _notifs.removeWhere((n) => n.id == id));
   }
 
@@ -306,7 +310,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             SliverList(
               delegate: SliverChildListDelegate([
                 ..._buildGrouped(),
-                const SizedBox(height: 110),
+                const SizedBox(height: 140),
               ]),
             ),
         ],
@@ -432,7 +436,7 @@ class _NotifCard extends StatelessWidget {
     final style = _styleFor(notif.type);
     final dateStr = notif.createdAt != null
         ? DateFormat('dd MMM · HH:mm', 'fr_FR').format(notif.createdAt!)
-        : 'Date inconnue';
+        : 'À l\'instant';
 
     return Dismissible(
       key: ValueKey(notif.id),

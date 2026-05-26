@@ -101,8 +101,11 @@ class MissionController extends Controller
 
         $user = $request->user();
 
-        // Generate numero_unique
-        $count = Mission::whereYear('created_at', now()->year)->count() + 1;
+        // Generate numero_unique using max to avoid duplicates from deleted/failed missions
+        $maxNum = Mission::whereYear('created_at', now()->year)
+            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(numero_unique, '-', -1) AS UNSIGNED)) as max_num")
+            ->value('max_num');
+        $count = ($maxNum ?? 0) + 1;
         $numero = 'OM-'.now()->year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
 
         // Check budget
@@ -120,10 +123,12 @@ class MissionController extends Controller
             }
         }
 
+        $allowedStatuts = ['brouillon', 'soumis'];
+        $statutRequested = $request->input('statut', 'brouillon');
         $missionData = array_merge($validated, [
             'created_by' => $user->id,
             'numero_unique' => $numero,
-            'statut' => 'brouillon',
+            'statut' => in_array($statutRequested, $allowedStatuts) ? $statutRequested : 'brouillon',
             'destination' => ($validated['destination_ville'] ?? '').', '.($validated['destination_pays'] ?? ''),
         ]);
         if ($request->has('pour_user_id') && $request->pour_user_id) {

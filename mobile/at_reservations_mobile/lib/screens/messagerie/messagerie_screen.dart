@@ -19,33 +19,54 @@ class ConversationModel {
   final DateTime? lastAt;
   final int    unread;
   final String? initiales;
+  final int?   interlocuteurId;
 
   const ConversationModel({
     required this.id, required this.nom,
     this.lastMessage, this.lastAt,
     this.unread = 0, this.initiales,
+    this.interlocuteurId,
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> j) {
     String? nom;
-    final participants = j['participants'] as List?;
-    if (participants != null && participants.isNotEmpty) {
-      final other = participants.first as Map<String, dynamic>;
-      nom = '${other['prenom'] ?? ''} ${other['nom'] ?? ''}'.trim();
+    int? interlocuteurId;
+    // Format réel de l'API : {interlocuteur: {id, name, role}}
+    final inter = j['interlocuteur'] as Map<String, dynamic>?;
+    if (inter != null) {
+      nom = inter['name'] as String?;
+      interlocuteurId = inter['id'] as int?;
     }
-    nom ??= j['nom'] as String? ?? j['title'] as String? ?? 'Conversation';
+    // Fallback : liste participants
+    if (nom == null) {
+      final participants = j['participants'] as List?;
+      if (participants != null && participants.isNotEmpty &&
+          participants.first is Map<String, dynamic>) {
+        final other = participants.first as Map<String, dynamic>;
+        nom = '${other['prenom'] ?? ''} ${other['nom'] ?? ''}'.trim();
+        interlocuteurId ??= other['id'] as int?;
+      }
+    }
+    nom = (nom?.trim().isNotEmpty == true)
+        ? nom!
+        : (j['nom'] as String? ?? j['title'] as String? ?? 'Conversation');
     final init = nom.isNotEmpty
         ? nom.split(' ').take(2).map((w) => w.isNotEmpty ? w[0] : '').join()
         : '?';
     DateTime? lastAt;
-    final rawAt = j['last_message_at'] as String? ?? j['updated_at'] as String?;
+    final rawAt = j['dernier_message_at'] as String?
+        ?? j['last_message_at'] as String?
+        ?? j['updated_at'] as String?;
     if (rawAt != null) { try { lastAt = DateTime.parse(rawAt); } catch (_) {} }
     return ConversationModel(
-      id: j['id'] as int? ?? 0, nom: nom,
-      lastMessage: j['last_message'] as String? ?? j['dernier_message'] as String?,
+      id: j['id'] as int? ?? 0,
+      nom: nom,
+      lastMessage: j['dernier_message'] as String?
+          ?? j['last_message'] as String?,
       lastAt: lastAt,
-      unread: j['unread_count'] as int? ?? j['non_lus'] as int? ?? 0,
+      unread: j['non_lus'] as int? ?? j['unread_count'] as int? ?? 0,
       initiales: init,
+      interlocuteurId: interlocuteurId,
     );
   }
 }
@@ -102,12 +123,19 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
     if (!silent && mounted) setState(() => _loading = true);
     try {
       final data = await ApiService().get('/conversations');
-      final dynamic raw = data['data'];
-      final list = raw is List ? raw
-          : (raw is Map<String, dynamic> ? (raw['data'] ?? raw)
-          : (data is List ? data : []));
+      // L'API retourne { data: { conversations: [...] } }
+      final dynamic rawData = data['data'];
+      List list = const [];
+      if (rawData is Map<String, dynamic>) {
+        final c = rawData['conversations'];
+        if (c is List) list = c;
+      } else if (rawData is List) {
+        list = rawData;
+      } else if (data is List) {
+        list = data;
+      }
       if (mounted) {
-        final convs = (list as List)
+        final convs = list
             .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>))
             .toList();
         setState(() {
@@ -348,7 +376,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
           if (_loading)
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (_, __) => const _ConvSkeleton(),
+                (ctx, i) => const _ConvSkeleton(),
                 childCount: 7,
               ),
             )
@@ -363,14 +391,16 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (_, i) {
-                  if (i == _filtered.length) return const SizedBox(height: 100);
+                  if (i == _filtered.length) return const SizedBox(height: 140);
                   return _ConvTile(
                     conv: _filtered[i],
                     index: i,
-                    onTap: () => context.go(
-                      '/messagerie/${_filtered[i].id}',
-                      extra: _filtered[i].nom,
-                    ),
+                    onTap: () {
+                      final conv = _filtered[i];
+                      final nomEnc = Uri.encodeComponent(conv.nom);
+                      final recvId = conv.interlocuteurId ?? 0;
+                      context.go('/messagerie/${conv.id}?nom=$nomEnc&receiverId=$recvId');
+                    },
                   );
                 },
                 childCount: _filtered.length + 1,
@@ -385,56 +415,13 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
-              borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 24),
-          Container(
-            width: 64, height: 64,
-            decoration: BoxDecoration(
-              gradient: DS.gradientBlue,
-              shape: BoxShape.circle,
-              boxShadow: DS.shadowBlue,
-            ),
-            child: const Icon(Icons.chat_bubble_outline_rounded,
-                color: Colors.white, size: 28),
-          ),
-          const SizedBox(height: 16),
-          Text('Nouvelle conversation',
-            style: GoogleFonts.inter(
-              fontSize: 20, fontWeight: FontWeight.w800, color: DS.textPrimary)),
-          const SizedBox(height: 8),
-          Text('La messagerie est disponible via le portail web',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14)),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity, height: 54,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: DS.gradientGreen,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: DS.shadowGreen,
-              ),
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Compris',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 16, fontWeight: FontWeight.w700,
-                  )),
-              ),
-            ),
-          ),
-        ]),
+      isScrollControlled: true,
+      builder: (sheetCtx) => _NewConvSheet(
+        onSelectUser: (userId, userName) {
+          Navigator.pop(sheetCtx);
+          final nomEnc = Uri.encodeComponent(userName);
+          context.go('/messagerie/0?nom=$nomEnc&receiverId=$userId');
+        },
       ),
     );
   }
@@ -449,7 +436,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.fromLTRB(32, 32, 32, 120),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SizedBox(
           width: 110, height: 110,
@@ -676,6 +663,202 @@ class _ConvTileState extends State<_ConvTile> {
         .animate(delay: (widget.index * 50).ms)
         .fadeIn(duration: 280.ms, curve: Curves.easeOut)
         .slideX(begin: 0.06, duration: 280.ms, curve: Curves.easeOut);
+  }
+}
+
+// ─── New conversation sheet ───────────────────────────────────────────────
+class _NewConvSheet extends StatefulWidget {
+  final void Function(int userId, String userName) onSelectUser;
+  const _NewConvSheet({required this.onSelectUser});
+  @override
+  State<_NewConvSheet> createState() => _NewConvSheetState();
+}
+
+class _NewConvSheetState extends State<_NewConvSheet> {
+  List<Map<String, dynamic>> _users = [];
+  List<Map<String, dynamic>> _filtered = [];
+  bool _loading = true;
+  final _search = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+    _search.addListener(_onSearch);
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadUsers() async {
+    try {
+      // /utilisateurs/contacts retourne {data:{contacts:[{id,nom_complet,email,role,...}]}}
+      final resp = await ApiService().get('/utilisateurs/contacts');
+      final data = resp is Map<String, dynamic> ? resp['data'] : null;
+      final rawList = data is Map<String, dynamic> ? data['contacts'] : null;
+      final List<dynamic> source = rawList is List ? rawList : [];
+      final flat = source
+          .whereType<Map<String, dynamic>>()
+          .map((u) => {
+                'id':    u['id'],
+                'name':  u['nom_complet'] as String? ?? '${u['prenom'] ?? ''} ${u['nom'] ?? ''}'.trim(),
+                'email': u['email'] as String? ?? '',
+                'role':  u['role'] as String? ?? '',
+              })
+          .toList()
+        ..sort((a, b) => (a['name'] as String).compareTo(b['name'] as String));
+      if (mounted) {
+        setState(() { _users = flat; _filtered = flat; _loading = false; });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Impossible de charger les contacts : $e'),
+            backgroundColor: DS.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _onSearch() {
+    final q = _search.text.toLowerCase();
+    setState(() {
+      _filtered = q.isEmpty
+          ? _users
+          : _users.where((u) =>
+              (u['name'] as String? ?? '').toLowerCase().contains(q) ||
+              (u['email'] as String? ?? '').toLowerCase().contains(q) ||
+              (u['role'] as String? ?? '').toLowerCase().contains(q)).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sh = MediaQuery.of(context).size.height * 0.75;
+    return Container(
+      height: sh,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(children: [
+        // Handle
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Container(
+            width: 40, height: 4,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE5E7EB),
+              borderRadius: BorderRadius.circular(2))),
+        ),
+        // Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+          child: Row(children: [
+            Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(
+                gradient: DS.gradientBlue,
+                shape: BoxShape.circle,
+                boxShadow: DS.shadowBlue,
+              ),
+              child: const Icon(Icons.person_add_rounded,
+                  color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Nouvelle conversation',
+                  style: GoogleFonts.inter(
+                    fontSize: 17, fontWeight: FontWeight.w800,
+                    color: DS.textPrimary)),
+                Text('Sélectionnez un destinataire',
+                  style: GoogleFonts.inter(
+                    fontSize: 12, color: DS.textSecondary)),
+              ])),
+          ]),
+        ),
+        // Search
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: TextField(
+            controller: _search,
+            style: GoogleFonts.inter(fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'Rechercher un utilisateur…',
+              hintStyle: GoogleFonts.inter(
+                  color: DS.textPlaceholder, fontSize: 14),
+              prefixIcon: Icon(IconlyLight.search,
+                  color: DS.textPlaceholder, size: 18),
+              filled: true,
+              fillColor: const Color(0xFFF3F4F6),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 12),
+            ),
+          ),
+        ),
+        // List
+        Expanded(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _filtered.isEmpty
+                  ? Center(child: Text(
+                      _users.isEmpty
+                          ? 'Aucun utilisateur disponible'
+                          : 'Aucun résultat',
+                      style: GoogleFonts.inter(color: DS.textMuted)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      itemCount: _filtered.length,
+                      itemBuilder: (_, i) {
+                        final u = _filtered[i];
+                        final name = u['name'] as String? ?? '';
+                        final role = u['role'] as String? ?? '';
+                        final init = name.split(' ').take(2)
+                            .map((w) => w.isNotEmpty ? w[0] : '').join();
+                        final color = _avatarColor(name);
+                        return ListTile(
+                          leading: Container(
+                            width: 44, height: 44,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [color, color.withValues(alpha: 0.7)],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(child: Text(init,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700, fontSize: 16))),
+                          ),
+                          title: Text(name,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600, fontSize: 14,
+                              color: DS.textPrimary)),
+                          subtitle: Text(role,
+                            style: GoogleFonts.inter(
+                              fontSize: 12, color: DS.textMuted)),
+                          onTap: () => widget.onSelectUser(
+                              u['id'] as int, name),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        );
+                      },
+                    ),
+        ),
+        const SizedBox(height: 16),
+      ]),
+    );
   }
 }
 

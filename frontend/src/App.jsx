@@ -46,7 +46,7 @@ function SessionExpiredNav() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-[#F4F6FA]">
@@ -71,8 +71,8 @@ function AppRoutes() {
       </div>
     }>
       <Routes>
-        <Route path="/login"    element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
+        <Route path="/login"    element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Register />} />
         <Route path="/403"      element={<Page403 />} />
 
         <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>

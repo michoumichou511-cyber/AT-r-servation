@@ -106,11 +106,7 @@ class _MissionsScreenState extends State<MissionsScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FF),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        color: DS.primary,
-        displacement: 130,
-        child: CustomScrollView(
+      body: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ── Hero AppBar ───────────────────────────────────────────────
@@ -124,7 +120,7 @@ class _MissionsScreenState extends State<MissionsScreen>
               actions: [
                 IconButton(
                   icon: const Icon(IconlyLight.search),
-                  onPressed: () => context.go('/search'),
+                  onPressed: () => context.push('/search'),
                   tooltip: 'Rechercher',
                 ),
                 const SizedBox(width: 4),
@@ -279,16 +275,17 @@ class _MissionsScreenState extends State<MissionsScreen>
             ),
 
             // ── Filter chips ──────────────────────────────────────────────
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _FilterDelegate(
-                filters: _Filter.values,
-                selected: _filter,
-                counts: { for (final f in _Filter.values) f: _count(f) },
-                onSelect: (f) {
-                  HapticFeedback.selectionClick();
-                  setState(() => _filter = f);
-                },
+            SliverToBoxAdapter(
+              child: Builder(
+                builder: (ctx) => _FilterDelegate(
+                  filters: _Filter.values,
+                  selected: _filter,
+                  counts: { for (final f in _Filter.values) f: _count(f) },
+                  onSelect: (f) {
+                    HapticFeedback.selectionClick();
+                    setState(() => _filter = f);
+                  },
+                ).build(ctx, 0, false),
               ),
             ),
 
@@ -319,10 +316,9 @@ class _MissionsScreenState extends State<MissionsScreen>
                 ),
               ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 110)),
+            const SliverToBoxAdapter(child: SizedBox(height: 140)),
           ],
         ),
-      ),
       floatingActionButton: !_loading && _error == null
           ? ScaleTransition(
               scale: CurvedAnimation(parent: _fabCtrl, curve: Curves.elasticOut),
@@ -367,7 +363,7 @@ class _MissionsScreenState extends State<MissionsScreen>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => Container(
+      builder: (sheetCtx) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -399,44 +395,10 @@ class _MissionsScreenState extends State<MissionsScreen>
               color: DS.textPrimary,
             )),
           const SizedBox(height: 8),
-          Text('Créez votre demande depuis le portail web AT',
+          Text('Créez votre demande de mission directement depuis l\'application',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14)),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: DS.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: DS.primary.withValues(alpha: 0.15)),
-            ),
-            child: Row(children: [
-              Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(
-                  gradient: DS.gradientGreen,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.language_rounded,
-                    color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 14),
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Portail web AT',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w700,
-                        color: DS.textPrimary)),
-                  Text('at-reservations.dz',
-                    style: GoogleFonts.inter(color: DS.textSecondary,
-                        fontSize: 12)),
-                ],
-              )),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: DS.textMuted),
-            ]),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 28),
           SizedBox(
             width: double.infinity, height: 54,
             child: Container(
@@ -446,12 +408,22 @@ class _MissionsScreenState extends State<MissionsScreen>
                 boxShadow: DS.shadowGreen,
               ),
               child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Compris',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 16, fontWeight: FontWeight.w700,
-                  )),
+                onPressed: () {
+                  Navigator.pop(sheetCtx);
+                  context.push('/new-mission');
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Créer une mission',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 16, fontWeight: FontWeight.w700,
+                      )),
+                  ],
+                ),
               ),
             ),
           ),

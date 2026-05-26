@@ -74,7 +74,7 @@ export default function AuditLogs() {
       }
 
       const res = await adminAPI.auditLogs(params)
-      const paginator = res.data?.audit_logs ?? {}
+      const paginator = res.data?.data?.audit_logs ?? res.data?.audit_logs ?? {}
       const list = Array.isArray(paginator.data) ? paginator.data : []
       setItems(list)
       setPagination(paginator)

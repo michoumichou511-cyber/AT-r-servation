@@ -28,15 +28,6 @@ class MissionService
             throw new \Exception('Ajoutez au moins une réservation avant de soumettre');
         }
 
-        // Vérifier s'il y a des validateurs
-        $validateurs = User::whereHas('role', function ($q) {
-            $q->where('name', 'validateur');
-        })->get();
-
-        if ($validateurs->isEmpty()) {
-            throw new \Exception('Aucun validateur configuré');
-        }
-
         return DB::transaction(function () use ($mission) {
             // 1. Mettre à jour le statut
             $mission->update([

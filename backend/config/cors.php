@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 $localOrigins = [
     'http://localhost:3000',

@@ -483,9 +483,9 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      await login(email, password)
+      const roleName = await login(email, password)
       toast.success('Connexion réussie !')
-      navigate('/')
+      navigate(roleName === 'agent_dml' ? '/dml' : '/')
     } catch (err) {
       if (!err.response) {
         const apiBase = import.meta.env.VITE_API_URL
