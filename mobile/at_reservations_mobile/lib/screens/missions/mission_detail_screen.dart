@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../design/design_system.dart';
 import '../../models/mission.dart';
 import '../../services/api_service.dart';
@@ -242,7 +243,8 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                           border: Border.all(
                               color: Colors.white.withValues(alpha: 0.2)),
                         ),
-                        child: Text(m.typeMission!,
+                        child: Text(
+                          _typeMissionLabel(m.typeMission) ?? m.typeMission!,
                           style: GoogleFonts.inter(
                             color: Colors.white,
                             fontSize: 11, fontWeight: FontWeight.w600,
@@ -285,6 +287,15 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
               ),
             ],
           ).animate(delay: 80.ms).fadeIn(duration: 300.ms).slideY(begin: 0.06),
+          const SizedBox(height: 10),
+
+          // ── Demandeur (Amélioration 1) ───────────────────────────────
+          _ExpansionCard(
+            leading: const Icon(IconlyLight.profile, color: DS.secondary),
+            title: 'Demandeur',
+            initiallyExpanded: true,
+            children: _buildDemandeurSection(raw),
+          ).animate(delay: 120.ms).fadeIn(duration: 300.ms).slideY(begin: 0.06),
           const SizedBox(height: 10),
 
           // ── Déplacement ──────────────────────────────────────────────
@@ -345,43 +356,224 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
   }
 
   static String? _typeMissionLabel(String? t) {
-    if (t == null) return null;
-    switch (t.toLowerCase()) {
-      case 'formation':   return 'Formation';
-      case 'conference':  return 'Conférence';
-      case 'reunion':     return 'Réunion';
-      case 'inspection':  return 'Inspection';
-      case 'audit':       return 'Audit';
-      case 'autre':       return 'Autre';
-      default:            return t;
+    if (t == null || t.isEmpty) return null;
+    const m = {
+      'formation':  'Formation',
+      'conference': 'Conférence',
+      'reunion':    'Réunion',
+      'inspection': 'Inspection',
+      'audit':      'Audit',
+      'autre':      'Autre',
+    };
+    return m[t.toLowerCase()] ?? t;
+  }
+
+  // ── Bloc demandeur (Amélioration 1) ───────────────────────────────────
+  List<Widget> _buildDemandeurSection(Map<String, dynamic> raw) {
+    final dem = raw['demandeur'] as Map<String, dynamic>?
+        ?? raw['user'] as Map<String, dynamic>?;
+    if (dem == null) {
+      return [const _EmptySection('Demandeur non renseigné')];
     }
+    final prenom = (dem['prenom'] as String?) ?? '';
+    final nom    = (dem['nom']    as String?) ?? '';
+    final full   = (dem['nom_complet'] as String?) ??
+        '$prenom $nom'.trim();
+    final poste     = (dem['poste']     as String?) ??
+                      (dem['titre']     as String?) ??
+                      (raw['poste']     as String?);
+    final direction = (dem['direction'] as String?) ??
+                      (raw['direction'] as String?);
+
+    final initials = (
+      (prenom.isNotEmpty ? prenom[0] : '') +
+      (nom.isNotEmpty    ? nom[0]    : '')
+    ).toUpperCase();
+
+    return [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(children: [
+          Container(
+            width: 48, height: 48,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [Color(0xFF003DA5), Color(0xFF0057CC)],
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initials.isEmpty ? '?' : initials,
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  full.isEmpty ? 'Demandeur' : full,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: DS.textPrimary,
+                  ),
+                ),
+                if (poste != null && poste.isNotEmpty)
+                  Text(poste,
+                      style: const TextStyle(
+                          fontSize: 12, color: DS.textSecondary)),
+              ],
+            ),
+          ),
+        ]),
+      ),
+      _DetailRow(label: 'Nom complet', value: full.isNotEmpty ? full : null),
+      _DetailRow(label: 'Poste',       value: poste),
+      _DetailRow(label: 'Direction',   value: direction),
+      _DetailRow(label: 'Email',       value: dem['email'] as String?),
+      _DetailRow(label: 'Téléphone',   value: dem['telephone'] as String?),
+    ];
+  }
+
+  // Helper : valeur ou "En attente DML" en gris italique
+  Widget _attenteDmlRow(String label, String? value) {
+    final empty = value == null || value.trim().isEmpty;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+          width: 130,
+          child: Text(label,
+              style: const TextStyle(color: DS.textSecondary, fontSize: 13)),
+        ),
+        Expanded(
+          child: empty
+              ? const Text('En attente DML',
+                  style: TextStyle(
+                      color: DS.textPlaceholder,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 13))
+              : Text(value,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: DS.textPrimary)),
+        ),
+      ]),
+    );
+  }
+
+  // Mappe les statuts de réservation en libellé français
+  String _statutResaLabel(String s) {
+    switch (s.toLowerCase()) {
+      case 'confirme':   return 'Confirmé';
+      case 'en_attente': return 'En attente';
+      case 'annule':     return 'Annulé';
+      case 'refuse':     return 'Refusé';
+      default:           return s.isEmpty ? '—' : s;
+    }
+  }
+
+  // Bloc consolidé des informations logistiques (saisies DML directement sur la mission)
+  List<Widget> _buildLogistiqueDmlBlock(Map<String, dynamic> raw) {
+    final nomHotel  = raw['nom_hotel']             as String?;
+    final numBillet = raw['numero_billet']         as String?;
+    final compagnie = raw['compagnie']             as String?;
+    final prixReel  = raw['prix_hebergement_reel'];
+    final obs       = raw['observations_dml']      as String?;
+
+    final hasAny = (nomHotel != null && nomHotel.isNotEmpty) ||
+        (numBillet != null && numBillet.isNotEmpty) ||
+        (compagnie != null && compagnie.isNotEmpty) ||
+        (prixReel != null) ||
+        (obs != null && obs.isNotEmpty);
+
+    if (!hasAny) return const [];
+
+    return [
+      Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: DS.primary.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: DS.primary.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: const [
+              Icon(Icons.verified_outlined, color: DS.primary, size: 18),
+              SizedBox(width: 6),
+              Text('Logistique DML',
+                  style: TextStyle(
+                      color: DS.primary,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13)),
+            ]),
+            const SizedBox(height: 6),
+            _attenteDmlRow('Hôtel',         nomHotel),
+            _attenteDmlRow('N° billet',     numBillet),
+            _attenteDmlRow('Compagnie',     compagnie),
+            _attenteDmlRow('Prix réel',
+                prixReel != null
+                    ? '${NumberFormat('#,##0', 'fr_FR').format(prixReel is num ? prixReel : 0)} DA'
+                    : null),
+            if (obs != null && obs.isNotEmpty)
+              _attenteDmlRow('Observations', obs),
+          ],
+        ),
+      ),
+    ];
   }
 
   List<Widget> _buildReservations(Map<String, dynamic> raw) {
     // L'API renvoie raw['reservations'] via ReservationResource
     final List? reservations = raw['reservations'] as List?;
-    if (reservations == null || reservations.isEmpty) {
+    // Bloc consolidé DML (champs directement sur la mission)
+    final dmlBlock = _buildLogistiqueDmlBlock(raw);
+
+    if ((reservations == null || reservations.isEmpty) && dmlBlock.isEmpty) {
       return [const _EmptySection('Aucune réservation')];
     }
-    return reservations.map((r) {
-      final rm   = r as Map<String, dynamic>;
-      final type = rm['type_label'] as String?
-          ?? rm['type'] as String? ?? 'Réservation';
-      final notes   = _toStr(rm['notes']);
-      final montant = _toStr(rm['montant_estime']);
+    if (reservations == null || reservations.isEmpty) {
+      return dmlBlock;
+    }
+    final cards = reservations.map((r) {
+      final rm     = r as Map<String, dynamic>;
+      final tp     = rm['type'] as String? ?? '';
+      final type   = rm['type_label'] as String? ?? tp;
+      final notes  = _toStr(rm['notes']);
+      final montant     = _toStr(rm['montant_estime']);
+      final montantReel = _toStr(rm['montant_reel']);
       final statut  = rm['statut'] as String? ?? '';
-      final icon = switch (rm['type'] as String? ?? '') {
+      final icon = switch (tp) {
         'hebergement' => Icons.hotel_outlined,
         'billet'      => Icons.confirmation_number_outlined,
         'restauration'=> Icons.restaurant_outlined,
         _             => Icons.receipt_long_outlined,
       };
-      final color = switch (rm['type'] as String? ?? '') {
+      final color = switch (tp) {
         'hebergement' => DS.info,
         'billet'      => DS.primary,
         'restauration'=> DS.warning,
         _             => DS.secondary,
       };
+
+      // Champs spécifiques par type
+      final nomHotel  = rm['nom_hotel']     as String?;
+      final checkIn   = rm['check_in']      as String?;
+      final checkOut  = rm['check_out']     as String?;
+      final compagnie = rm['compagnie']     as String?;
+      final numBillet = rm['numero_billet'] as String?;
+
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Container(
@@ -391,39 +583,76 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 10),
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(type, style: TextStyle(
-                    fontWeight: FontWeight.w700, color: color, fontSize: 13)),
-                if (notes != null && notes.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(notes, style: const TextStyle(
-                        fontSize: 12, color: DS.textSecondary)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(type,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                          fontSize: 13)),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: _statutResaColor(statut).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                if (montant != null && montant.isNotEmpty)
-                  Text('Budget : $montant', style: const TextStyle(
-                      fontSize: 12, color: DS.textSecondary)),
+                  child: Text(_statutResaLabel(statut),
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _statutResaColor(statut))),
+                ),
+              ]),
+              const SizedBox(height: 6),
+              // Détails spécifiques par type (Amélioration 2)
+              if (tp == 'hebergement') ...[
+                _attenteDmlRow('Hôtel',     nomHotel),
+                _attenteDmlRow('Check-in',  checkIn),
+                _attenteDmlRow('Check-out', checkOut),
               ],
-            )),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: _statutResaColor(statut).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(statut, style: TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600,
-                  color: _statutResaColor(statut))),
-            ),
-          ]),
+              if (tp == 'billet') ...[
+                _attenteDmlRow('Compagnie',  compagnie),
+                _attenteDmlRow('N° billet',  numBillet),
+              ],
+              if (montant != null && montant.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text('Budget estimé : $montant DA',
+                      style: const TextStyle(
+                          fontSize: 12, color: DS.textSecondary)),
+                ),
+              if (montantReel != null && montantReel.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text('Prix réel : $montantReel DA',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: DS.success)),
+                ),
+              if (notes != null && notes.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(notes,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: DS.textSecondary)),
+                ),
+            ],
+          ),
         ),
       );
     }).toList();
+
+    return [...dmlBlock, ...cards];
   }
 
   Color _statutResaColor(String s) {
@@ -450,31 +679,92 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
   }
 
   List<Widget> _buildTimeline(Map<String, dynamic> raw) {
+    final fmt = DateFormat('dd/MM/yyyy HH:mm');
+    final events = <_TLEvent>[];
+
+    // 1. Événement Créée (depuis created_at + demandeur)
+    final createdAt = raw['created_at'] as String?;
+    if (createdAt != null) {
+      try {
+        final d = DateTime.parse(createdAt);
+        final demNom = _nameFromValidateur(raw['demandeur']) ??
+            (raw['user'] != null
+                ? _nameFromValidateur(raw['user'])
+                : null) ??
+            '';
+        events.add(_TLEvent(
+          action: 'Créée',
+          acteur: demNom,
+          date: fmt.format(d),
+          icon: '●',
+          color: DS.info,
+        ));
+      } catch (_) {}
+    }
+
+    // 2. Événement Soumise
+    final soumisLe = raw['soumis_le'] as String?;
+    if (soumisLe != null) {
+      try {
+        final d = DateTime.parse(soumisLe);
+        events.add(_TLEvent(
+          action: 'Soumise',
+          acteur: '',
+          date: fmt.format(d),
+          icon: '●',
+          color: DS.warning,
+        ));
+      } catch (_) {}
+    }
+
+    // 3. Historique de validation (validations / historique_validation)
     final List? history = raw['historique_validation'] as List?
         ?? raw['validations'] as List?;
-    if (history == null || history.isEmpty) {
+    if (history != null) {
+      for (final item in history) {
+        final m = item as Map<String, dynamic>;
+        final action = m['action'] as String?
+            ?? m['statut'] as String? ?? 'Action';
+        final acteur = m['acteur'] as String?
+            ?? _nameFromValidateur(m['validateur'])
+            ?? '';
+        final motif  = m['motif']     as String?
+            ?? m['commentaire'] as String?;
+        DateTime? d;
+        final rd = m['created_at'] as String?
+            ?? m['date_validation'] as String?
+            ?? m['date'] as String?;
+        if (rd != null) {
+          try { d = DateTime.parse(rd); } catch (_) {}
+        }
+        events.add(_TLEvent(
+          action: action,
+          acteur: acteur,
+          motif:  motif,
+          date:   d != null ? fmt.format(d) : '',
+          icon:   action.toLowerCase().contains('rejet') ? '❌'
+                : action.toLowerCase().contains('approu') ||
+                  action.toLowerCase().contains('valid')   ? '✅'
+                : '●',
+          color: _timelineColor(action),
+        ));
+      }
+    }
+
+    if (events.isEmpty) {
       return [const _EmptySection('Aucun historique')];
     }
-    return List.generate(history.length, (i) {
-      final item = history[i] as Map<String, dynamic>;
-      final action = item['action'] as String?
-          ?? item['statut'] as String? ?? 'Action';
-      // validateur peut être un Map complet ou une String — extraire le nom
-      final acteur = item['acteur'] as String?
-          ?? _nameFromValidateur(item['validateur'])
-          ?? '';
-      DateTime? date;
-      final rawDate = item['created_at'] as String?
-          ?? item['date'] as String?;
-      if (rawDate != null) {
-        try { date = DateTime.parse(rawDate); } catch (_) {}
-      }
+
+    return List.generate(events.length, (i) {
+      final e = events[i];
       return _TimelineItem(
-        action:   action,
-        acteur:   acteur,
-        date:     date != null ? DateFormat('dd/MM/yyyy HH:mm').format(date) : '',
-        isLast:   i == history.length - 1,
-        color:    _timelineColor(action),
+        action: '${e.icon} ${e.action}',
+        acteur: e.acteur + (e.motif != null && e.motif!.isNotEmpty
+            ? '\nMotif : ${e.motif}'
+            : ''),
+        date:   e.date,
+        isLast: i == events.length - 1,
+        color:  e.color,
       );
     });
   }
@@ -499,6 +789,10 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       final nom  = dm['nom_fichier'] as String?
           ?? dm['nom'] as String? ?? dm['name'] as String? ?? 'Document';
       final mime = dm['mime_type'] as String? ?? '';
+      final url  = dm['url'] as String?
+          ?? dm['chemin'] as String?
+          ?? dm['path'] as String?
+          ?? '';
       final isPdf = mime.contains('pdf') || nom.toLowerCase().endsWith('.pdf');
       final isImg = mime.contains('image');
       final icon  = isPdf ? Icons.picture_as_pdf_outlined
@@ -507,24 +801,66 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       final color = isPdf ? DS.error : isImg ? DS.info : DS.secondary;
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () => _downloadDocument(url, nom),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
+            ),
+            child: Row(children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 10),
+              Expanded(child: Text(nom, style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis)),
+              Icon(Icons.download_outlined, size: 18, color: color),
+            ]),
           ),
-          child: Row(children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(width: 10),
-            Expanded(child: Text(nom, style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis)),
-            Icon(Icons.download_outlined, size: 18, color: DS.textSecondary),
-          ]),
         ),
       );
     }).toList();
+  }
+
+  // ── Téléchargement / ouverture d'un document ─────────────────────────────
+  Future<void> _downloadDocument(String url, String nom) async {
+    if (url.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fichier "$nom" non disponible au téléchargement.'),
+          backgroundColor: DS.warning,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Impossible d\'ouvrir : $url'),
+            backgroundColor: DS.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur : $e'),
+          backgroundColor: DS.error,
+        ),
+      );
+    }
   }
 
   List<Widget> _buildActions(MissionModel m) {
@@ -556,7 +892,16 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
           onTap: () => _deleteDraft(m.id),
         ));
       }
-    } else if (s == 'soumis' || s == 'en_attente' || s == 'en_cours') {
+    } else if (s == 'soumis' || s == 'en_attente' || s == 'en_cours' ||
+        s == 'en_validation') {
+      // Amélioration 4 : bouton Contacter le validateur
+      actions.add(_ActionButton(
+        label: 'Contacter le validateur',
+        icon: Icons.message_outlined,
+        color: DS.secondary,
+        onTap: () => context.push('/messagerie'),
+      ));
+      actions.add(const SizedBox(height: 10));
       actions.add(_ActionButton(
         label: 'Annuler la demande',
         icon: Icons.cancel_outlined,
@@ -1028,6 +1373,24 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       }
     }
   }
+}
+
+// ─── Timeline event helper ─────────────────────────────────────────────────
+class _TLEvent {
+  final String action;
+  final String acteur;
+  final String? motif;
+  final String date;
+  final String icon;
+  final Color color;
+  const _TLEvent({
+    required this.action,
+    required this.acteur,
+    this.motif,
+    required this.date,
+    required this.icon,
+    required this.color,
+  });
 }
 
 // ─── ExpansionCard ─────────────────────────────────────────────────────────
