@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import '../../../config/theme.dart';
 import 'mission_draft.dart';
 
-// ─── Compagnies ────────────────────────────────────────────────────────────
-const List<Map<String, String>> _kCompagnies = [
+// ─── Compagnies aériennes ─────────────────────────────────────────────────
+const List<Map<String, String>> _kCompagniesAvion = [
   {'nom': 'Air Algérie',      'convention': 'true'},
   {'nom': 'Tassili Airlines', 'convention': 'true'},
   {'nom': 'Transavia',        'convention': 'false'},
@@ -13,6 +13,17 @@ const List<Map<String, String>> _kCompagnies = [
   {'nom': 'Turkish Airlines', 'convention': 'false'},
   {'nom': 'Autre',            'convention': 'false'},
 ];
+
+// ─── Opérateurs ferroviaires ──────────────────────────────────────────────
+const List<Map<String, String>> _kCompagniesTrain = [
+  {'nom': 'SNTF',  'convention': 'true'},
+  {'nom': 'Autre', 'convention': 'false'},
+];
+
+// Helper : retourne la liste appropriée selon le moyen de transport
+List<Map<String, String>> _compagniesFor(String transport) {
+  return transport == 'train' ? _kCompagniesTrain : _kCompagniesAvion;
+}
 
 // ─── Hôtels par wilaya ─────────────────────────────────────────────────────
 const Map<String, List<Map<String, String>>> _kHotelsByWilaya = {
@@ -139,15 +150,16 @@ class _Step2ReservationsState extends State<Step2Reservations> {
     return _kHotelsByWilaya[wilaya] ?? [];
   }
 
-  // Sécrise l'appel à onNext avec validation basique
-  void _handleNext() {
+  // Validation enrichie + confirmation si aucune option cochée
+  Future<void> _handleNext() async {
     // Validation hébergement
     if (widget.draft.hebergementRequis) {
       final nom = widget.draft.nomHotel ?? '';
       if (nom.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Veuillez renseigner le nom de l\'hôtel.'),
+          content: Text('Veuillez choisir un hôtel.'),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: ATColors.error,
         ));
         return;
       }
@@ -158,11 +170,52 @@ class _Step2ReservationsState extends State<Step2Reservations> {
         widget.draft.billetRequis &&
         widget.draft.compagnie == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Veuillez sélectionner une compagnie de transport.'),
+        content: Text('Veuillez sélectionner une compagnie.'),
         behavior: SnackBarBehavior.floating,
+        backgroundColor: ATColors.error,
       ));
       return;
     }
+
+    // Avertissement si aucune réservation cochée
+    final aucuneOption = !widget.draft.hebergementRequis &&
+        !widget.draft.restaurationRequise &&
+        !widget.draft.billetRequis;
+    if (aucuneOption) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (dCtx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(children: [
+            Icon(Icons.info_outline, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Aucune réservation'),
+          ]),
+          content: const Text(
+            'Aucune réservation ajoutée (hébergement, restauration ou billet). '
+            'Continuer ?',
+            style: TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dCtx, false),
+              child: const Text('Retour'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dCtx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ATColors.secondary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continuer'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
+
     widget.onNext();
   }
 
@@ -423,8 +476,8 @@ class _Step2ReservationsState extends State<Step2Reservations> {
   // ── Badge convention compagnie (sous le dropdown) ───────────────────────
   Widget _buildConventionBadgeCompagnie() {
     if (widget.draft.compagnie == null) return const SizedBox.shrink();
-    final match = _kCompagnies.where(
-        (c) => c['nom'] == widget.draft.compagnie);
+    final list = _compagniesFor(widget.draft.moyenTransport);
+    final match = list.where((c) => c['nom'] == widget.draft.compagnie);
     if (match.isEmpty) return const SizedBox.shrink();
 
     final isConvention = match.first['convention'] == 'true';
@@ -544,8 +597,13 @@ class _Step2ReservationsState extends State<Step2Reservations> {
           children: [
             SwitchListTile(
               value: widget.draft.restaurationRequise,
-              onChanged: (v) =>
-                  setState(() => widget.draft.restaurationRequise = v),
+              onChanged: (v) => setState(() {
+                widget.draft.restaurationRequise = v;
+                // Auto-suggestion : 3 repas/jour à l'activation si compteur à 0
+                if (v && widget.draft.nombreRepas == 0) {
+                  widget.draft.nombreRepas = 3;
+                }
+              }),
               title: const Text('Restauration requise ?'),
               subtitle: const Text('Prise en charge des repas'),
               activeThumbColor: ATColors.primary,
@@ -606,11 +664,12 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                     const SizedBox(height: 4),
                     Builder(builder: (_) {
                       final jours = widget.draft.dateRetour!
-                          .difference(widget.draft.dateDepart!)
-                          .inDays;
+                              .difference(widget.draft.dateDepart!)
+                              .inDays +
+                          1;
                       final total = jours * widget.draft.nombreRepas;
                       return _noteInfo(
-                          '📊 Total estimé : $total repas ($jours jour(s) × ${widget.draft.nombreRepas}/jour)');
+                          '📊 Estimation : $total repas sur $jours jour${jours > 1 ? "s" : ""} (${widget.draft.nombreRepas} repas/jour) — modifiable manuellement');
                     }),
                   ],
                   const SizedBox(height: 10),
@@ -673,16 +732,18 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                   children: [
                     const SizedBox(height: 8),
 
-                    // Dropdown compagnies avec badge Convention AT
-                    DropdownButtonFormField<String>(
+                    // Dropdown compagnies / opérateurs (selon transport)
+                    Builder(builder: (_) {
+                      final compagnies = _compagniesFor(transport);
+                      return DropdownButtonFormField<String>(
                       // ignore: deprecated_member_use
-                      value: _kCompagnies
+                      value: compagnies
                               .any((c) => c['nom'] == widget.draft.compagnie)
                           ? widget.draft.compagnie
                           : null,
                       decoration: InputDecoration(
                         labelText: transport == 'train'
-                            ? 'Opérateur ferroviaire'
+                            ? 'Compagnie ferroviaire / Opérateur'
                             : 'Compagnie aérienne',
                         prefixIcon: Icon(
                           transport == 'train'
@@ -699,7 +760,7 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                           ? 'Sélectionner un opérateur'
                           : 'Sélectionner une compagnie'),
                       isExpanded: true,
-                      items: _kCompagnies.map((c) {
+                      items: compagnies.map((c) {
                         final isConvention = c['convention'] == 'true';
                         return DropdownMenuItem<String>(
                           value: c['nom'],
@@ -736,7 +797,8 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                       }).toList(),
                       onChanged: (v) =>
                           setState(() => widget.draft.compagnie = v),
-                    ),
+                      );
+                    }),
 
                     // Correction 2 : badge convention/hors-convention sous le dropdown
                     _buildConventionBadgeCompagnie(),
