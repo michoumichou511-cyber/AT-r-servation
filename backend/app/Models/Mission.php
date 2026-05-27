@@ -29,6 +29,12 @@ class Mission extends Model
         'numero_unique',
         'budget_previsionnel',
         'soumis_le',
+        // Champs logistique DML
+        'nom_hotel',
+        'numero_billet',
+        'compagnie',
+        'prix_hebergement_reel',
+        'observations_dml',
     ];
 
     protected $casts = [

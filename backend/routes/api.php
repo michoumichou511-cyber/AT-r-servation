@@ -182,6 +182,10 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::get('/vehicules-disponibles',           [DmlController::class, 'vehiculesDisponibles']);
     });
 
+    // AGENT DML — mise à jour logistique (hors préfixe dml pour correspondre à l'URL mobile)
+    Route::middleware('role:agent_dml,admin')
+        ->patch('missions/{mission}/logistique', [MissionController::class, 'updateLogistique']);
+
     // ADMIN (role:admin uniquement)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/utilisateurs', [AdminUserController::class, 'listeUtilisateurs']);

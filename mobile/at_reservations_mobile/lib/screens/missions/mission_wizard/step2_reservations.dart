@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../config/theme.dart';
 import 'mission_draft.dart';
 
+// ─── Compagnies ────────────────────────────────────────────────────────────
 const List<Map<String, String>> _kCompagnies = [
   {'nom': 'Air Algérie',      'convention': 'true'},
   {'nom': 'Tassili Airlines', 'convention': 'true'},
@@ -12,6 +13,70 @@ const List<Map<String, String>> _kCompagnies = [
   {'nom': 'Turkish Airlines', 'convention': 'false'},
   {'nom': 'Autre',            'convention': 'false'},
 ];
+
+// ─── Hôtels par wilaya ─────────────────────────────────────────────────────
+const Map<String, List<Map<String, String>>> _kHotelsByWilaya = {
+  'Alger': [
+    {'nom': 'Hôtel El Aurassi',    'etoiles': '5', 'convention': 'true'},
+    {'nom': 'Hôtel Sofitel Alger', 'etoiles': '5', 'convention': 'false'},
+    {'nom': 'Hôtel El Djazair',    'etoiles': '5', 'convention': 'true'},
+    {'nom': 'Hôtel Mercure Alger', 'etoiles': '4', 'convention': 'false'},
+    {'nom': 'Autre hôtel',         'etoiles': '0', 'convention': 'false'},
+  ],
+  'Oran': [
+    {'nom': 'Hôtel Les Zianides',    'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Royal Oran',      'etoiles': '4', 'convention': 'false'},
+    {'nom': 'Hôtel Le Méridien Oran','etoiles': '5', 'convention': 'false'},
+    {'nom': 'Autre hôtel',           'etoiles': '0', 'convention': 'false'},
+  ],
+  'Constantine': [
+    {'nom': 'Hôtel Marriott Constantine', 'etoiles': '5', 'convention': 'true'},
+    {'nom': 'Hôtel Novotel Constantine',  'etoiles': '4', 'convention': 'false'},
+    {'nom': 'Autre hôtel',                'etoiles': '0', 'convention': 'false'},
+  ],
+  'Annaba': [
+    {'nom': 'Hôtel Seybouse International', 'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Juba Annaba',            'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',                  'etoiles': '0', 'convention': 'false'},
+  ],
+  'Blida': [
+    {'nom': 'Hôtel Chréa Blida',    'etoiles': '3', 'convention': 'true'},
+    {'nom': 'Hôtel Mitidja Blida',  'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',          'etoiles': '0', 'convention': 'false'},
+  ],
+  'Tizi Ouzou': [
+    {'nom': 'Hôtel Lalla Khedidja', 'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Belloua',        'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',          'etoiles': '0', 'convention': 'false'},
+  ],
+  'Béjaïa': [
+    {'nom': 'Hôtel Gouraya Béjaïa', 'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Yemma Gouraya',  'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',          'etoiles': '0', 'convention': 'false'},
+  ],
+  'Sétif': [
+    {'nom': 'Hôtel El Hana Sétif',  'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Djurdjura Sétif','etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',          'etoiles': '0', 'convention': 'false'},
+  ],
+  'Batna': [
+    {'nom': 'Hôtel Chelia Batna',   'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Timgad Batna',   'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',          'etoiles': '0', 'convention': 'false'},
+  ],
+  'Ouargla': [
+    {'nom': 'Hôtel Transatlantique Ouargla', 'etoiles': '4', 'convention': 'true'},
+    {'nom': 'Hôtel Ouargla Palace',          'etoiles': '3', 'convention': 'false'},
+    {'nom': 'Autre hôtel',                   'etoiles': '0', 'convention': 'false'},
+  ],
+};
+
+// Helper : génère la chaîne d'étoiles ★
+String _starStr(String etoiles) {
+  final n = int.tryParse(etoiles) ?? 0;
+  if (n <= 0) return '';
+  return '★' * n;
+}
 
 class Step2Reservations extends StatefulWidget {
   final MissionDraft draft;
@@ -30,16 +95,29 @@ class Step2Reservations extends StatefulWidget {
 }
 
 class _Step2ReservationsState extends State<Step2Reservations> {
-  late TextEditingController _hotelCtrl;
-  late TextEditingController _compagnieCtrl;
+  // Hôtel : soit choix dans la liste, soit texte libre si "Autre hôtel"
+  String? _selectedHotelNom;
+  late TextEditingController _hotelManuelCtrl;
+
   late TextEditingController _numeroBilletCtrl;
   late TextEditingController _budgetCtrl;
 
   @override
   void initState() {
     super.initState();
-    _hotelCtrl = TextEditingController(text: widget.draft.nomHotel ?? '');
-    _compagnieCtrl = TextEditingController(text: widget.draft.compagnie ?? '');
+
+    // Initialise depuis le draft
+    final currentHotel = widget.draft.nomHotel ?? '';
+    final hotels = _hotelsForCurrentWilaya();
+    final inList = hotels.any((h) => h['nom'] == currentHotel);
+    if (inList) {
+      _selectedHotelNom = currentHotel;
+      _hotelManuelCtrl  = TextEditingController();
+    } else {
+      _selectedHotelNom = currentHotel.isNotEmpty ? 'Autre hôtel' : null;
+      _hotelManuelCtrl  = TextEditingController(text: currentHotel);
+    }
+
     _numeroBilletCtrl =
         TextEditingController(text: widget.draft.numeroBillet ?? '');
     _budgetCtrl = TextEditingController(
@@ -49,18 +127,50 @@ class _Step2ReservationsState extends State<Step2Reservations> {
 
   @override
   void dispose() {
-    _hotelCtrl.dispose();
-    _compagnieCtrl.dispose();
+    _hotelManuelCtrl.dispose();
     _numeroBilletCtrl.dispose();
     _budgetCtrl.dispose();
     super.dispose();
   }
 
+  // Retourne la liste d'hôtels pour la wilaya d'arrivée du draft
+  List<Map<String, String>> _hotelsForCurrentWilaya() {
+    final wilaya = widget.draft.wilayaArrivee;
+    return _kHotelsByWilaya[wilaya] ?? [];
+  }
+
+  // Sécrise l'appel à onNext avec validation basique
+  void _handleNext() {
+    // Validation hébergement
+    if (widget.draft.hebergementRequis) {
+      final nom = widget.draft.nomHotel ?? '';
+      if (nom.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Veuillez renseigner le nom de l\'hôtel.'),
+          behavior: SnackBarBehavior.floating,
+        ));
+        return;
+      }
+    }
+    // Validation billet
+    final transport = widget.draft.moyenTransport;
+    if ((transport == 'avion' || transport == 'train') &&
+        widget.draft.billetRequis &&
+        widget.draft.compagnie == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Veuillez sélectionner une compagnie de transport.'),
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
+    widget.onNext();
+  }
+
   Future<void> _pickDate(BuildContext ctx, bool isCheckIn) async {
-    final now = DateTime.now();
+    final now  = DateTime.now();
     final base = widget.draft.dateDepart ?? now;
     final initial = isCheckIn
-        ? (widget.draft.checkIn ?? base)
+        ? (widget.draft.checkIn  ?? base)
         : (widget.draft.checkOut ?? base);
     final first = isCheckIn ? base : (widget.draft.checkIn ?? base);
 
@@ -83,6 +193,11 @@ class _Step2ReservationsState extends State<Step2Reservations> {
       setState(() {
         if (isCheckIn) {
           widget.draft.checkIn = picked;
+          // Reset checkOut si elle est avant le nouveau checkIn
+          if (widget.draft.checkOut != null &&
+              widget.draft.checkOut!.isBefore(picked)) {
+            widget.draft.checkOut = null;
+          }
         } else {
           widget.draft.checkOut = picked;
         }
@@ -119,11 +234,12 @@ class _Step2ReservationsState extends State<Step2Reservations> {
     );
   }
 
-  Widget _sectionCard(
-      {required String title,
-      required IconData icon,
-      required Color iconColor,
-      required List<Widget> children}) {
+  Widget _sectionCard({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required List<Widget> children,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -160,12 +276,231 @@ class _Step2ReservationsState extends State<Step2Reservations> {
     );
   }
 
+  // ── Widget dropdown hôtels par wilaya ───────────────────────────────────
+  Widget _buildHotelSelector() {
+    final hotels = _hotelsForCurrentWilaya();
+    final wilaya = widget.draft.wilayaArrivee;
+
+    // Pas de liste pour cette wilaya → texte libre
+    if (hotels.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _hotelManuelCtrl,
+            onChanged: (v) => widget.draft.nomHotel = v.trim().isEmpty ? null : v.trim(),
+            decoration: InputDecoration(
+              labelText: 'Nom de l\'hôtel',
+              prefixIcon: const Icon(Icons.business_outlined, size: 18),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              filled: true,
+              fillColor: ATColors.background,
+            ),
+          ),
+          const SizedBox(height: 6),
+          _noteInfo('💡 L\'agent DML peut modifier ce choix après approbation.'),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Titre wilaya
+        if (wilaya.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              'Hôtels disponibles à $wilaya',
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: ATColors.textSecondary,
+                  fontStyle: FontStyle.italic),
+            ),
+          ),
+        // Dropdown hôtels
+        DropdownButtonFormField<String>(
+          // ignore: deprecated_member_use
+          value: (_selectedHotelNom != null &&
+                  hotels.any((h) => h['nom'] == _selectedHotelNom))
+              ? _selectedHotelNom
+              : null,
+          decoration: InputDecoration(
+            labelText: 'Choisir un hôtel',
+            prefixIcon: const Icon(Icons.hotel_outlined, size: 18),
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            filled: true,
+            fillColor: ATColors.background,
+          ),
+          hint: const Text('Sélectionner un hôtel…'),
+          isExpanded: true,
+          items: hotels.map((h) {
+            final isConvention = h['convention'] == 'true';
+            final stars        = _starStr(h['etoiles'] ?? '0');
+            final isAutre      = h['nom'] == 'Autre hôtel';
+            return DropdownMenuItem<String>(
+              value: h['nom'],
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      isAutre ? '✏️ Autre hôtel (saisie manuelle)' : h['nom']!,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontStyle: isAutre
+                              ? FontStyle.italic
+                              : FontStyle.normal),
+                    ),
+                  ),
+                  if (stars.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Text(stars,
+                        style: const TextStyle(
+                            fontSize: 10,
+                            color: ATColors.warning)),
+                  ],
+                  if (isConvention) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00A650).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        '⭐ Convention AT',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF00A650),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (v) {
+            setState(() {
+              _selectedHotelNom = v;
+              if (v != null && v != 'Autre hôtel') {
+                widget.draft.nomHotel = v;
+                _hotelManuelCtrl.clear();
+              } else {
+                widget.draft.nomHotel = null;
+              }
+            });
+          },
+        ),
+
+        // Si "Autre hôtel" → saisie manuelle
+        if (_selectedHotelNom == 'Autre hôtel') ...[
+          const SizedBox(height: 10),
+          TextField(
+            controller: _hotelManuelCtrl,
+            onChanged: (v) =>
+                widget.draft.nomHotel = v.trim().isEmpty ? null : v.trim(),
+            decoration: InputDecoration(
+              labelText: 'Nom de l\'hôtel (saisie manuelle)',
+              prefixIcon: const Icon(Icons.edit_outlined, size: 18),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              filled: true,
+              fillColor: ATColors.background,
+            ),
+          ),
+        ],
+        const SizedBox(height: 6),
+        _noteInfo('💡 L\'agent DML peut modifier ce choix après approbation.'),
+      ],
+    );
+  }
+
+  // ── Badge convention compagnie (sous le dropdown) ───────────────────────
+  Widget _buildConventionBadgeCompagnie() {
+    if (widget.draft.compagnie == null) return const SizedBox.shrink();
+    final match = _kCompagnies.where(
+        (c) => c['nom'] == widget.draft.compagnie);
+    if (match.isEmpty) return const SizedBox.shrink();
+
+    final isConvention = match.first['convention'] == 'true';
+
+    if (isConvention) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Row(children: const [
+          Icon(Icons.verified, color: Color(0xFF00A650), size: 16),
+          SizedBox(width: 6),
+          Text(
+            'Convention AT — tarif négocié',
+            style: TextStyle(color: Color(0xFF00A650), fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+        ]),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: const [
+              Icon(Icons.info_outline, color: Colors.orange, size: 16),
+              SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Hors convention — remboursement sur justificatif',
+                  style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 4),
+            _noteWarning(
+                '⚠️ Les frais seront remboursés sur présentation de justificatifs originaux.'),
+          ],
+        ),
+      );
+    }
+  }
+
+  // ── Helpers notes ───────────────────────────────────────────────────────
+  Widget _noteInfo(String text) => Container(
+        margin: const EdgeInsets.only(top: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: ATColors.info.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(text,
+            style: const TextStyle(
+                fontSize: 11, color: ATColors.textSecondary)),
+      );
+
+  Widget _noteWarning(String text) => Container(
+        margin: const EdgeInsets.only(top: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(text,
+            style: const TextStyle(fontSize: 11, color: Colors.deepOrange)),
+      );
+
   @override
   Widget build(BuildContext context) {
+    final transport = widget.draft.moyenTransport;
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       children: [
-        // HEBERGEMENT
+        // ── HÉBERGEMENT ──────────────────────────────────────────────────
         _sectionCard(
           title: 'HÉBERGEMENT',
           icon: Icons.hotel_outlined,
@@ -189,21 +524,10 @@ class _Step2ReservationsState extends State<Step2Reservations> {
               secondChild: Column(
                 children: [
                   const SizedBox(height: 8),
-                  TextField(
-                    controller: _hotelCtrl,
-                    onChanged: (v) => widget.draft.nomHotel = v,
-                    decoration: InputDecoration(
-                      labelText: 'Nom de l\'hôtel',
-                      prefixIcon:
-                          const Icon(Icons.business_outlined, size: 18),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      filled: true,
-                      fillColor: ATColors.background,
-                    ),
-                  ),
+                  // Correction 1 : dropdown hôtels par wilaya
+                  _buildHotelSelector(),
                   const SizedBox(height: 10),
-                  _dateField('Check-in', widget.draft.checkIn, true),
+                  _dateField('Check-in',  widget.draft.checkIn,  true),
                   const SizedBox(height: 10),
                   _dateField('Check-out', widget.draft.checkOut, false),
                 ],
@@ -212,7 +536,7 @@ class _Step2ReservationsState extends State<Step2Reservations> {
           ],
         ),
 
-        // RESTAURATION
+        // ── RESTAURATION ─────────────────────────────────────────────────
         _sectionCard(
           title: 'RESTAURATION',
           icon: Icons.restaurant_outlined,
@@ -245,7 +569,7 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          if (widget.draft.nombreRepas > 1) {
+                          if (widget.draft.nombreRepas > 0) {
                             setState(() => widget.draft.nombreRepas--);
                           }
                         },
@@ -272,9 +596,23 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                       ),
                       const SizedBox(width: 8),
                       const Text('repas / jour',
-                          style: TextStyle(color: ATColors.textSecondary)),
+                          style:
+                              TextStyle(color: ATColors.textSecondary)),
                     ],
                   ),
+                  // Calcul automatique si dates connues
+                  if (widget.draft.dateDepart != null &&
+                      widget.draft.dateRetour != null) ...[
+                    const SizedBox(height: 4),
+                    Builder(builder: (_) {
+                      final jours = widget.draft.dateRetour!
+                          .difference(widget.draft.dateDepart!)
+                          .inDays;
+                      final total = jours * widget.draft.nombreRepas;
+                      return _noteInfo(
+                          '📊 Total estimé : $total repas ($jours jour(s) × ${widget.draft.nombreRepas}/jour)');
+                    }),
+                  ],
                   const SizedBox(height: 10),
                   TextField(
                     controller: _budgetCtrl,
@@ -302,14 +640,19 @@ class _Step2ReservationsState extends State<Step2Reservations> {
           ],
         ),
 
-        // BUG 3 — Section billet : visible UNIQUEMENT si transport = avion ou train
-        if (widget.draft.moyenTransport == 'avion' ||
-            widget.draft.moyenTransport == 'train')
+        // ── BILLET DE TRANSPORT (avion ou train uniquement) ───────────────
+        if (transport == 'avion' || transport == 'train')
           _sectionCard(
             title: 'BILLET DE TRANSPORT',
             icon: Icons.confirmation_number_outlined,
             iconColor: ATColors.primary,
             children: [
+              // Note informative en haut de la section
+              _noteInfo(
+                'ℹ️ Le billet est acheté par AT après approbation complète. '
+                'Le numéro sera renseigné par l\'agent DML.',
+              ),
+              const SizedBox(height: 10),
               SwitchListTile(
                 value: widget.draft.billetRequis,
                 onChanged: (v) =>
@@ -330,22 +673,32 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                   children: [
                     const SizedBox(height: 8),
 
-                    // BUG 4 — Dropdown compagnies avec badge Convention AT
+                    // Dropdown compagnies avec badge Convention AT
                     DropdownButtonFormField<String>(
+                      // ignore: deprecated_member_use
                       value: _kCompagnies
                               .any((c) => c['nom'] == widget.draft.compagnie)
                           ? widget.draft.compagnie
                           : null,
                       decoration: InputDecoration(
-                        labelText: 'Compagnie aérienne',
-                        prefixIcon:
-                            const Icon(Icons.flight_outlined, size: 18),
+                        labelText: transport == 'train'
+                            ? 'Opérateur ferroviaire'
+                            : 'Compagnie aérienne',
+                        prefixIcon: Icon(
+                          transport == 'train'
+                              ? Icons.train_outlined
+                              : Icons.flight_outlined,
+                          size: 18,
+                        ),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8)),
                         filled: true,
                         fillColor: ATColors.background,
                       ),
-                      hint: const Text('Sélectionner une compagnie'),
+                      hint: Text(transport == 'train'
+                          ? 'Sélectionner un opérateur'
+                          : 'Sélectionner une compagnie'),
+                      isExpanded: true,
                       items: _kCompagnies.map((c) {
                         final isConvention = c['convention'] == 'true';
                         return DropdownMenuItem<String>(
@@ -384,9 +737,13 @@ class _Step2ReservationsState extends State<Step2Reservations> {
                       onChanged: (v) =>
                           setState(() => widget.draft.compagnie = v),
                     ),
+
+                    // Correction 2 : badge convention/hors-convention sous le dropdown
+                    _buildConventionBadgeCompagnie(),
+
                     const SizedBox(height: 10),
 
-                    // BUG 6 — Numéro de billet optionnel
+                    // Numéro de billet optionnel
                     TextField(
                       controller: _numeroBilletCtrl,
                       onChanged: (v) => widget.draft.numeroBillet =
@@ -414,6 +771,7 @@ class _Step2ReservationsState extends State<Step2Reservations> {
             ],
           ),
 
+        // ── Navigation ────────────────────────────────────────────────────
         Row(
           children: [
             Expanded(
@@ -433,7 +791,7 @@ class _Step2ReservationsState extends State<Step2Reservations> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: widget.onNext,
+                onPressed: _handleNext,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text('Suivant',
                     style: TextStyle(fontWeight: FontWeight.w600)),

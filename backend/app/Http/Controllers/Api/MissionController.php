@@ -493,4 +493,32 @@ class MissionController extends Controller
 
         return response()->json(['events' => $events]);
     }
+
+    // ── Agent DML : mise à jour des informations logistiques ──────────────────
+    public function updateLogistique(Request $request, Mission $mission)
+    {
+        $validated = $request->validate([
+            'nom_hotel'             => 'nullable|string|max:255',
+            'numero_billet'         => 'nullable|string|max:100',
+            'compagnie'             => 'nullable|string|max:100',
+            'prix_hebergement_reel' => 'nullable|numeric|min:0',
+            'observations_dml'      => 'nullable|string|max:1000',
+        ]);
+
+        // Filtrer les null pour ne pas écraser des valeurs existantes non envoyées
+        $toUpdate = array_filter($validated, fn ($v) => $v !== null);
+
+        if (empty($toUpdate)) {
+            return response()->json([
+                'message' => 'Aucun champ à mettre à jour.',
+            ], 422);
+        }
+
+        $mission->update($toUpdate);
+
+        return response()->json([
+            'message' => 'Informations logistiques mises à jour avec succès.',
+            'mission' => new MissionResource($mission->fresh()),
+        ]);
+    }
 }
