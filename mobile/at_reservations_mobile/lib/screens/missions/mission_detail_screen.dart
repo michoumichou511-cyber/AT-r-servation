@@ -273,6 +273,16 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
               _DetailRow(label: 'Type',         value: _typeMissionLabel(m.typeMission)),
               _DetailRow(label: 'Statut',       value: statusLabel(m.statut),
                   valueColor: statColor),
+              _DetailRow(
+                label: 'Budget prévisionnel',
+                value: () {
+                  final b = raw['budget_previsionnel'];
+                  if (b is num && b > 0) {
+                    return '${NumberFormat('#,##0', 'fr_FR').format(b)} DA';
+                  }
+                  return 'Non renseigné';
+                }(),
+              ),
             ],
           ).animate(delay: 80.ms).fadeIn(duration: 300.ms).slideY(begin: 0.06),
           const SizedBox(height: 10),
@@ -424,6 +434,21 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     }
   }
 
+  /// Extrait le nom d'un validateur qui peut être String ou Map.
+  static String? _nameFromValidateur(dynamic v) {
+    if (v == null) return null;
+    if (v is String) return v.isNotEmpty ? v : null;
+    if (v is Map<String, dynamic>) {
+      final full = v['nom_complet'] as String?;
+      if (full != null && full.isNotEmpty) return full;
+      final p = v['prenom'] as String? ?? '';
+      final n = v['nom']   as String? ?? '';
+      final s = '$p $n'.trim();
+      return s.isNotEmpty ? s : null;
+    }
+    return null;
+  }
+
   List<Widget> _buildTimeline(Map<String, dynamic> raw) {
     final List? history = raw['historique_validation'] as List?
         ?? raw['validations'] as List?;
@@ -434,8 +459,10 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       final item = history[i] as Map<String, dynamic>;
       final action = item['action'] as String?
           ?? item['statut'] as String? ?? 'Action';
+      // validateur peut être un Map complet ou une String — extraire le nom
       final acteur = item['acteur'] as String?
-          ?? item['validateur'] as String? ?? '';
+          ?? _nameFromValidateur(item['validateur'])
+          ?? '';
       DateTime? date;
       final rawDate = item['created_at'] as String?
           ?? item['date'] as String?;
@@ -504,29 +531,31 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     final s = m.statut;
     final actions = <Widget>[];
 
-    if (s == 'brouillon') {
+    if (s == 'brouillon' || s == 'rejete' || s == 'rejetee') {
       actions.add(_ActionButton(
-        label: 'Soumettre la mission',
+        label: s == 'brouillon' ? 'Soumettre la mission' : 'Resoumettre la mission',
         icon: Icons.send_outlined,
         color: DS.primary,
         onTap: () => _submit(m.id),
       ));
-      actions.add(const SizedBox(height: 10));
-      actions.add(_ActionButton(
-        label: 'Modifier',
-        icon: Icons.edit_outlined,
-        color: DS.secondary,
-        outlined: true,
-        onTap: () => _editDraft(m),
-      ));
-      actions.add(const SizedBox(height: 10));
-      actions.add(_ActionButton(
-        label: 'Supprimer le brouillon',
-        icon: Icons.delete_outline_rounded,
-        color: DS.error,
-        outlined: true,
-        onTap: () => _deleteDraft(m.id),
-      ));
+      if (s == 'brouillon') {
+        actions.add(const SizedBox(height: 10));
+        actions.add(_ActionButton(
+          label: 'Modifier',
+          icon: Icons.edit_outlined,
+          color: DS.secondary,
+          outlined: true,
+          onTap: () => _editDraft(m),
+        ));
+        actions.add(const SizedBox(height: 10));
+        actions.add(_ActionButton(
+          label: 'Supprimer le brouillon',
+          icon: Icons.delete_outline_rounded,
+          color: DS.error,
+          outlined: true,
+          onTap: () => _deleteDraft(m.id),
+        ));
+      }
     } else if (s == 'soumis' || s == 'en_attente' || s == 'en_cours') {
       actions.add(_ActionButton(
         label: 'Annuler la demande',
