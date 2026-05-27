@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../config/theme.dart';
 import '../../models/mission.dart';
@@ -8,35 +12,31 @@ import '../../services/api_service.dart';
 import '../../widgets/mission_card.dart';
 import '../../widgets/tilt_3d.dart';
 
+enum _DmlFilter { toutes, enAttente, traitees }
+
 class DmlScreen extends StatefulWidget {
   const DmlScreen({super.key});
   @override
   State<DmlScreen> createState() => _DmlScreenState();
 }
 
-class _DmlScreenState extends State<DmlScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tab;
+class _DmlScreenState extends State<DmlScreen> {
   List<MissionModel> _missions = [];
   bool    _loading = true;
   String? _error;
+  _DmlFilter _filter = _DmlFilter.enAttente;
 
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this)
-      ..addListener(() => setState(() {}));
     _load();
   }
 
-  @override
-  void dispose() {
-    _tab.dispose();
-    super.dispose();
-  }
-
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final data = await ApiService().get('/dml/missions-validees');
       final dynamic raw = data['data'];
@@ -55,25 +55,45 @@ class _DmlScreenState extends State<DmlScreen>
     }
   }
 
-  List<MissionModel> _filtered(String statut) =>
-      _missions.where((m) => m.statut == statut).toList();
+  // ── Filtres locaux ───────────────────────────────────────────────────────
+  List<MissionModel> get _aTraiter =>
+      _missions.where((m) => m.statut == 'approuve').toList();
+  List<MissionModel> get _traitees => _missions
+      .where((m) =>
+          m.statut == 'en_traitement_logistique' || m.statut == 'termine')
+      .toList();
+
+  List<MissionModel> get _visibles {
+    switch (_filter) {
+      case _DmlFilter.toutes:    return _missions;
+      case _DmlFilter.enAttente: return _aTraiter;
+      case _DmlFilter.traitees:  return _traitees;
+    }
+  }
+
+  bool get _filterIsReadonly => _filter == _DmlFilter.traitees;
 
   @override
   Widget build(BuildContext context) {
-    final aTraiter  = _filtered('approuve');
-    final enCours   = _filtered('en_traitement_logistique');
-    final terminees = _filtered('termine');
-
     return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+      backgroundColor: const Color(0xFFF0F4FF),
+      body: CustomScrollView(
+        slivers: [
+          // ─── AppBar gradient + stats ────────────────────────────────────
           SliverAppBar(
-            expandedHeight: 160,
+            expandedHeight: 200,
             pinned: true,
             backgroundColor: ATColors.secondary,
             foregroundColor: Colors.white,
             title: const Text('Logistique DML',
                 style: TextStyle(fontWeight: FontWeight.w700)),
+            actions: [
+              IconButton(
+                tooltip: 'Rafraîchir',
+                icon: const Icon(Icons.refresh),
+                onPressed: _loading ? null : _load,
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
               background: Container(
@@ -84,95 +104,204 @@ class _DmlScreenState extends State<DmlScreen>
                     colors: [Color(0xFF003DA5), Color(0xFF1565C0)],
                   ),
                 ),
-                padding: const EdgeInsets.fromLTRB(20, 56, 20, 16),
-                child: Row(
+                padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Expanded(child: Tilt3D(intensity: 0.22,
-                        child: _StatCard('À traiter', aTraiter.length, ATColors.error))),
-                    const SizedBox(width: 10),
-                    Expanded(child: Tilt3D(intensity: 0.22,
-                        child: _StatCard('En cours', enCours.length, ATColors.warning))),
-                    const SizedBox(width: 10),
-                    Expanded(child: Tilt3D(intensity: 0.22,
-                        child: _StatCard('Terminées', terminees.length, ATColors.success))),
+                    // Amélioration 2 : compteur
+                    _buildCounter(),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(child: Tilt3D(intensity: 0.22,
+                            child: _StatCard('À traiter', _aTraiter.length, ATColors.error))),
+                        const SizedBox(width: 10),
+                        Expanded(child: Tilt3D(intensity: 0.22,
+                            child: _StatCard('Traitées', _traitees.length, ATColors.success))),
+                        const SizedBox(width: 10),
+                        Expanded(child: Tilt3D(intensity: 0.22,
+                            child: _StatCard('Total', _missions.length, ATColors.warning))),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
-            bottom: TabBar(
-              controller: _tab,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white54,
-              indicatorSize: TabBarIndicatorSize.label,
-              indicator: BoxDecoration(
-                color: ATColors.primary,
-                borderRadius: BorderRadius.circular(20),
+          ),
+
+          // ─── Filter chips ────────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Container(
+              color: const Color(0xFFF0F4FF),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  _filterChip('Toutes',              _DmlFilter.toutes,     _missions.length),
+                  const SizedBox(width: 8),
+                  _filterChip('En attente logistique', _DmlFilter.enAttente, _aTraiter.length),
+                  const SizedBox(width: 8),
+                  _filterChip('Traitées',            _DmlFilter.traitees,   _traitees.length),
+                ],
               ),
-              labelPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              tabs: const [
-                Tab(text: 'À traiter'),
-                Tab(text: 'En cours'),
-                Tab(text: 'Terminées'),
-              ],
             ),
           ),
+
+          // ─── Liste ──────────────────────────────────────────────────────
+          if (_loading)
+            const SliverFillRemaining(
+                child: _ShimmerDmlList())
+          else if (_error != null)
+            SliverFillRemaining(child: _buildErrorState())
+          else if (_visibles.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text('🚛', style: TextStyle(fontSize: 48)),
+                  SizedBox(height: 12),
+                  Text('Aucune mission ici',
+                      style: TextStyle(color: ATColors.textSecondary)),
+                ]),
+              ),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (ctx, i) => _DmlCard(
+                  mission: _visibles[i],
+                  index: i,
+                  onRefresh: _load,
+                  readonly: _filterIsReadonly,
+                ),
+                childCount: _visibles.length,
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
-        body: _loading
-            ? const _ShimmerDmlList()
-            : _error != null
-                ? _buildErrorState()
-                : TabBarView(
-                    controller: _tab,
-                    children: [
-                      _DmlList(missions: aTraiter,  onRefresh: _load),
-                      _DmlList(missions: enCours,   onRefresh: _load),
-                      _DmlList(missions: terminees, onRefresh: _load, readonly: true),
-                    ],
-                  ),
       ),
     );
   }
 
+  // ── Compteur principal ───────────────────────────────────────────────────
+  Widget _buildCounter() {
+    final n   = _aTraiter.length;
+    final hot = n > 0;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: hot
+            ? ATColors.error.withValues(alpha: 0.18)
+            : Colors.white.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: hot
+              ? ATColors.error.withValues(alpha: 0.45)
+              : Colors.white.withValues(alpha: 0.20),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            hot ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+            color: hot ? Colors.white : Colors.white70,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              hot
+                  ? '$n mission${n > 1 ? "s" : ""} en attente de traitement logistique'
+                  : 'Aucune mission en attente',
+              style: TextStyle(
+                color: hot ? Colors.white : Colors.white70,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Chip filter ──────────────────────────────────────────────────────────
+  Widget _filterChip(String label, _DmlFilter value, int count) {
+    final selected = _filter == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _filter = value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: selected ? ATColors.primary : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: selected ? ATColors.primary : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: selected
+                ? [BoxShadow(
+                    color: ATColors.primary.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3))]
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : ATColors.textPrimary,
+                  )),
+              const SizedBox(height: 2),
+              Text('$count',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: selected ? Colors.white : ATColors.secondary,
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Erreur réseau ────────────────────────────────────────────────────────
   Widget _buildErrorState() => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        width: 64, height: 64,
-        decoration: BoxDecoration(
-          color: ATColors.error.withValues(alpha: 0.10),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.wifi_off_outlined,
-            color: ATColors.error, size: 30),
-      ),
-      const SizedBox(height: 16),
-      const Text('Erreur de chargement',
-          style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              color: ATColors.textPrimary)),
-      const SizedBox(height: 8),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Text(_error!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-                color: ATColors.textSecondary, fontSize: 13)),
-      ),
-      const SizedBox(height: 20),
-      ElevatedButton.icon(
-        onPressed: _load,
-        icon: const Icon(Icons.refresh),
-        label: const Text('Réessayer'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: ATColors.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    ]),
-  );
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.wifi_off, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          const Text('Erreur de connexion',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(_error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Réessayer'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00A650),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            ),
+          ),
+        ]),
+      );
 }
 
 // ─── Mini stat card ────────────────────────────────────────────────────────
@@ -184,58 +313,22 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(vertical: 10),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-    ),
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Text('$count',
-          style: TextStyle(
-              color: color, fontSize: 22, fontWeight: FontWeight.w900)),
-      const SizedBox(height: 2),
-      Text(label,
-          style: const TextStyle(color: Colors.white70, fontSize: 11),
-          textAlign: TextAlign.center),
-    ]),
-  );
-}
-
-// ─── Liste DML ─────────────────────────────────────────────────────────────
-class _DmlList extends StatelessWidget {
-  final List<MissionModel> missions;
-  final VoidCallback onRefresh;
-  final bool readonly;
-  const _DmlList(
-      {required this.missions, required this.onRefresh, this.readonly = false});
-
-  @override
-  Widget build(BuildContext context) {
-    if (missions.isEmpty) {
-      return const Center(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('🚛', style: TextStyle(fontSize: 48)),
-          SizedBox(height: 12),
-          Text('Aucune mission ici',
-              style: TextStyle(color: ATColors.textSecondary)),
+          Text('$count',
+              style: TextStyle(
+                  color: color, fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 2),
+          Text(label,
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
+              textAlign: TextAlign.center),
         ]),
       );
-    }
-    return RefreshIndicator(
-      onRefresh: () async => onRefresh(),
-      child: ListView.builder(
-        padding: const EdgeInsets.only(top: 8, bottom: 140),
-        itemCount: missions.length,
-        itemBuilder: (ctx, i) => _DmlCard(
-          mission: missions[i],
-          index: i,
-          onRefresh: onRefresh,
-          readonly: readonly,
-        ),
-      ),
-    );
-  }
 }
 
 // ─── Carte DML ─────────────────────────────────────────────────────────────
@@ -257,44 +350,108 @@ class _DmlCard extends StatefulWidget {
 class _DmlCardState extends State<_DmlCard> {
   bool _acting = false;
 
-  // ── Dialog : Logistique OK (simple confirmation + observations) ─────────
+  // ── Helper initiales du demandeur ──────────────────────────────────────
+  String _initials(MissionUser? u) {
+    if (u == null) return '?';
+    final p = (u.prenom).isNotEmpty ? u.prenom[0] : '';
+    final n = (u.nom).isNotEmpty    ? u.nom[0]    : '';
+    final s = (p + n).toUpperCase();
+    return s.isEmpty ? '?' : s;
+  }
+
+  // ── Ouverture du détail mission ────────────────────────────────────────
+  void _openDetail() {
+    HapticFeedback.lightImpact();
+    context.push('/missions/${widget.mission.id}');
+  }
+
+  // ── Dialog confirmation Logistique OK (Amélioration 3) ─────────────────
   Future<void> _logistiqueOk() async {
+    final titre = widget.mission.displayTitre;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Confirmer le traitement'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Marquer la mission « $titre » comme traitée logistiquement ?',
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.mission.numeroUnique ?? 'Mission #${widget.mission.id}',
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: ATColors.textSecondary,
+                  fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.check, size: 18),
+            label: const Text('Confirmer'),
+            onPressed: () => Navigator.pop(dCtx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00A650),
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    if (!mounted) return;
+
+    // Dialog optionnel pour les observations
     final obsCtrl = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Confirmer logistique OK'),
+      builder: (dCtx) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Observations (optionnel)'),
         content: TextField(
           controller: obsCtrl,
           maxLines: 3,
           maxLength: 500,
           decoration: const InputDecoration(
-            labelText: 'Observations (optionnel)',
+            hintText: 'Notes ou remarques sur le traitement…',
             border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(dialogCtx, false),
+              onPressed: () => Navigator.pop(dCtx, false),
               child: const Text('Annuler')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(dialogCtx, true),
+            onPressed: () => Navigator.pop(dCtx, true),
             style: ElevatedButton.styleFrom(
-                backgroundColor: ATColors.primary),
-            child: const Text('Confirmer ✓'),
+                backgroundColor: ATColors.primary,
+                foregroundColor: Colors.white),
+            child: const Text('Valider ✓'),
           ),
         ],
       ),
     );
+    final obs = obsCtrl.text.trim();
     obsCtrl.dispose();
     if (ok != true) return;
+
     setState(() => _acting = true);
     try {
       await ApiService().post(
         '/dml/missions/${widget.mission.id}/logistique-ok',
-        obsCtrl.text.trim().isNotEmpty
-            ? {'observations': obsCtrl.text.trim()}
-            : null,
+        obs.isNotEmpty ? {'observations': obs} : null,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -305,8 +462,8 @@ class _DmlCardState extends State<_DmlCard> {
           ]),
           backgroundColor: ATColors.success,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
         ));
       }
       widget.onRefresh();
@@ -322,7 +479,7 @@ class _DmlCardState extends State<_DmlCard> {
     }
   }
 
-  // ── Dialog : Modifier logistique DML (correction 3) ────────────────────
+  // ── BottomSheet : Modifier logistique DML ──────────────────────────────
   Future<void> _modifierLogistique() async {
     final nomHotelCtrl     = TextEditingController();
     final numeroBilletCtrl = TextEditingController();
@@ -346,7 +503,6 @@ class _DmlCardState extends State<_DmlCard> {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             child: SingleChildScrollView(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                // Handle
                 Container(
                   width: 40,
                   height: 4,
@@ -355,17 +511,15 @@ class _DmlCardState extends State<_DmlCard> {
                       borderRadius: BorderRadius.circular(2)),
                 ),
                 const SizedBox(height: 16),
-                Row(children: [
-                  const Icon(Icons.edit_note_rounded,
+                Row(children: const [
+                  Icon(Icons.edit_note_rounded,
                       color: ATColors.secondary, size: 22),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Modifications logistiques',
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: ATColors.secondary),
-                  ),
+                  SizedBox(width: 8),
+                  Text('Modifications logistiques',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: ATColors.secondary)),
                 ]),
                 const SizedBox(height: 4),
                 Text(
@@ -374,8 +528,6 @@ class _DmlCardState extends State<_DmlCard> {
                       fontSize: 12, color: ATColors.textSecondary),
                 ),
                 const SizedBox(height: 20),
-
-                // Nom de l'hôtel
                 TextField(
                   controller: nomHotelCtrl,
                   decoration: InputDecoration(
@@ -390,15 +542,14 @@ class _DmlCardState extends State<_DmlCard> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Numéro de billet
                 TextField(
                   controller: numeroBilletCtrl,
                   decoration: InputDecoration(
                     labelText: 'Numéro de billet ✈',
                     hintText: 'Ex: AH1234567890',
-                    prefixIcon:
-                        const Icon(Icons.confirmation_number_outlined, size: 20),
+                    prefixIcon: const Icon(
+                        Icons.confirmation_number_outlined,
+                        size: 20),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
                     filled: true,
@@ -406,8 +557,6 @@ class _DmlCardState extends State<_DmlCard> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Compagnie aérienne
                 TextField(
                   controller: compagnieCtrl,
                   decoration: InputDecoration(
@@ -422,12 +571,10 @@ class _DmlCardState extends State<_DmlCard> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Prix hébergement réel
                 TextField(
                   controller: prixHebergCtrl,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true),
                   decoration: InputDecoration(
                     labelText: 'Prix hébergement réel (DZD)',
                     hintText: 'Montant facturé par l\'hôtel',
@@ -440,8 +587,6 @@ class _DmlCardState extends State<_DmlCard> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Bouton enregistrer
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -465,7 +610,6 @@ class _DmlCardState extends State<_DmlCard> {
                     onPressed: saving
                         ? null
                         : () async {
-                            // Vérifier qu'au moins un champ est rempli
                             final hasData = nomHotelCtrl.text.trim().isNotEmpty ||
                                 numeroBilletCtrl.text.trim().isNotEmpty ||
                                 compagnieCtrl.text.trim().isNotEmpty ||
@@ -473,7 +617,8 @@ class _DmlCardState extends State<_DmlCard> {
                             if (!hasData) {
                               ScaffoldMessenger.of(ctx).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Veuillez renseigner au moins un champ.'),
+                                  content: Text(
+                                      'Veuillez renseigner au moins un champ.'),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
@@ -483,14 +628,16 @@ class _DmlCardState extends State<_DmlCard> {
                             try {
                               final body = <String, dynamic>{};
                               if (nomHotelCtrl.text.trim().isNotEmpty) {
-                                body['nom_hotel'] = nomHotelCtrl.text.trim();
+                                body['nom_hotel'] =
+                                    nomHotelCtrl.text.trim();
                               }
                               if (numeroBilletCtrl.text.trim().isNotEmpty) {
                                 body['numero_billet'] =
                                     numeroBilletCtrl.text.trim();
                               }
                               if (compagnieCtrl.text.trim().isNotEmpty) {
-                                body['compagnie'] = compagnieCtrl.text.trim();
+                                body['compagnie'] =
+                                    compagnieCtrl.text.trim();
                               }
                               if (prixHebergCtrl.text.trim().isNotEmpty) {
                                 body['prix_hebergement_reel'] =
@@ -543,59 +690,135 @@ class _DmlCardState extends State<_DmlCard> {
     prixHebergCtrl.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) => Column(children: [
-    MissionCard(
-      mission: widget.mission,
-      index: widget.index,
-      showUser: true,
-    ),
-    if (!widget.readonly)
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+  // ── Bloc demandeur (Amélioration 4) ────────────────────────────────────
+  Widget _buildDemandeurBlock() {
+    final u = widget.mission.user;
+    if (u == null) return const SizedBox.shrink();
+    final initials = _initials(u);
+    final dateDepart = widget.mission.dates?.depart;
+    String? formattedDate;
+    if (dateDepart != null) {
+      try {
+        formattedDate =
+            DateFormat('dd/MM/yyyy').format(DateTime.parse(dateDepart));
+      } catch (_) {}
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(children: [
-          // Bouton Modifier logistique
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _acting ? null : _modifierLogistique,
-              icon: const Icon(Icons.edit_note_rounded, size: 18),
-              label: const Text('Modifier',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: ATColors.secondary,
-                side: const BorderSide(color: ATColors.secondary),
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+          // Avatar initiales
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF003DA5), Color(0xFF1565C0)],
               ),
+              shape: BoxShape.circle,
             ),
+            alignment: Alignment.center,
+            child: Text(initials,
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                )),
           ),
           const SizedBox(width: 10),
-          // Bouton Logistique OK
           Expanded(
-            flex: 2,
-            child: ElevatedButton.icon(
-              onPressed: _acting ? null : _logistiqueOk,
-              icon: _acting
-                  ? const SpinKitFadingCircle(color: Colors.white, size: 22)
-                  : const Icon(Icons.check_circle_outline),
-              label: const Text('Logistique OK',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ATColors.primary,
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 2,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  u.nomComplet,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: ATColors.textPrimary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (formattedDate != null)
+                  Text(
+                    'Mission prévue le $formattedDate',
+                    style: const TextStyle(
+                        fontSize: 11, color: ATColors.textSecondary),
+                  ),
+              ],
             ),
           ),
+          const Icon(Icons.chevron_right_rounded,
+              color: ATColors.textSecondary, size: 18),
         ]),
       ),
-  ])
-      .animate(delay: (widget.index * 70).ms)
-      .fadeIn(duration: 320.ms, curve: Curves.easeOut)
-      .slideY(begin: 0.08, duration: 320.ms, curve: Curves.easeOut);
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(children: [
+        // Carte mission cliquable (FIX 1)
+        MissionCard(
+          mission: widget.mission,
+          index: widget.index,
+          showUser: true,
+          onTap: _openDetail,
+        ),
+
+        // Bloc demandeur avec avatar (Amélioration 4)
+        _buildDemandeurBlock(),
+
+        if (!widget.readonly)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
+            child: Row(children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _acting ? null : _modifierLogistique,
+                  icon: const Icon(Icons.edit_note_rounded, size: 18),
+                  label: const Text('Modifier',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: ATColors.secondary,
+                    side: const BorderSide(color: ATColors.secondary),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: _acting ? null : _logistiqueOk,
+                  icon: _acting
+                      ? const SpinKitFadingCircle(
+                          color: Colors.white, size: 22)
+                      : const Icon(Icons.check_circle_outline),
+                  label: const Text('Logistique OK',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ATColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                  ),
+                ),
+              ),
+            ]),
+          ),
+      ])
+          .animate(delay: (widget.index * 70).ms)
+          .fadeIn(duration: 320.ms, curve: Curves.easeOut)
+          .slideY(begin: 0.08, duration: 320.ms, curve: Curves.easeOut);
 }
 
 // ─── Shimmer skeleton ──────────────────────────────────────────────────────
@@ -604,50 +827,62 @@ class _ShimmerDmlList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE8EDF5),
-    highlightColor: const Color(0xFFF5F8FF),
-    child: ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
-      itemCount: 5,
-      itemBuilder: (_, i) => Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12))),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Container(
-                    height: 13, width: double.infinity, color: Colors.white),
-                const SizedBox(height: 6),
-                Container(height: 10, width: 160, color: Colors.white),
-              ]),
+        baseColor: const Color(0xFFE8EDF5),
+        highlightColor: const Color(0xFFF5F8FF),
+        child: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
+          itemCount: 5,
+          itemBuilder: (_, i) => Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
             ),
-          ]),
-          const SizedBox(height: 12),
-          Container(height: 10, width: double.infinity, color: Colors.white),
-          const SizedBox(height: 6),
-          Container(height: 10, width: 220, color: Colors.white),
-          const SizedBox(height: 12),
-          Container(
-              height: 38,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10))),
-        ]),
-      ),
-    ),
-  );
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12))),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                                height: 13,
+                                width: double.infinity,
+                                color: Colors.white),
+                            const SizedBox(height: 6),
+                            Container(
+                                height: 10,
+                                width: 160,
+                                color: Colors.white),
+                          ]),
+                    ),
+                  ]),
+                  const SizedBox(height: 12),
+                  Container(
+                      height: 10,
+                      width: double.infinity,
+                      color: Colors.white),
+                  const SizedBox(height: 6),
+                  Container(
+                      height: 10, width: 220, color: Colors.white),
+                  const SizedBox(height: 12),
+                  Container(
+                      height: 38,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10))),
+                ]),
+          ),
+        ),
+      );
 }
