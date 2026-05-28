@@ -47,6 +47,14 @@ class MissionResource extends JsonResource
             'soumis_le' => $this->soumis_le,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            // Champs logistique DML (saisis par l'agent DML après approbation)
+            'nom_hotel' => $this->nom_hotel,
+            'numero_billet' => $this->numero_billet,
+            'compagnie' => $this->compagnie,
+            'prix_hebergement_reel' => $this->prix_hebergement_reel !== null
+                ? (float) $this->prix_hebergement_reel
+                : null,
+            'observations_dml' => $this->observations_dml,
         ];
     }
 }
