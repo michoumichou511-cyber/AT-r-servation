@@ -239,6 +239,46 @@ class _ConversationScreenState extends State<ConversationScreen>
     return nom.split(' ').take(2).map((w) => w.isNotEmpty ? w[0] : '').join();
   }
 
+  // Dialog d'information pour le bouton appel (VoIP non implémenté)
+  void _showCallDialog() {
+    showDialog(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(children: const [
+          Icon(Icons.call, color: Color(0xFF00A650)),
+          SizedBox(width: 8),
+          Text('Appel vocal'),
+        ]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.phone_forwarded,
+                size: 48, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            const Text(
+              'Fonctionnalité d\'appel vocal',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Les appels VoIP seront disponibles dans une prochaine '
+              'version de l\'application.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final me   = context.watch<AuthProvider>().user;
@@ -320,7 +360,8 @@ class _ConversationScreenState extends State<ConversationScreen>
         actions: [
           IconButton(
             icon: const Icon(IconlyLight.call, size: 20),
-            onPressed: () {},
+            tooltip: 'Appel vocal',
+            onPressed: () => _showCallDialog(),
           ),
           const SizedBox(width: 4),
         ],
