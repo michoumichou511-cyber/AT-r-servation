@@ -4,6 +4,17 @@ import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
+/**
+ * BUG-WEB-01 fix : on stocke le token + user dans sessionStorage (per-tab)
+ * au lieu de localStorage (partage entre onglets).
+ * Resultat : chaque onglet a sa propre session — on peut etre demandeur
+ * dans un onglet et validateur dans un autre sans collision de token.
+ *
+ * Les preferences UI (theme dark/light, auth_method) restent en localStorage
+ * car elles doivent etre partagees entre tous les onglets.
+ */
+const _authStore = sessionStorage;
+
 /** Extrait l'utilisateur depuis la réponse /auth/me (évite isAuthenticated sans user). */
 function extraireUser(payload) {
   if (payload == null) return null;
@@ -18,7 +29,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]        = useState(true);
   const [isAuthenticated, setIsAuth] = useState(false);
   const [authMethod, setAuthMethod]  = useState(
-    () => localStorage.getItem('at_auth_method') ?? 'db'
+    () => _authStore.getItem('at_auth_method') ?? 'db'
   );
   const [darkMode, setDarkMode]      = useState(
     localStorage.getItem('at_dark') === 'true'
@@ -35,7 +46,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const verifier = async () => {
-      const token = localStorage.getItem('at_token');
+      const token = _authStore.getItem('at_token');
       if (!token) { setLoading(false); return; }
       try {
         const res = await authAPI.me();
@@ -45,8 +56,8 @@ export function AuthProvider({ children }) {
           setUser(u);
           setIsAuth(true);
         } else {
-          localStorage.removeItem('at_token');
-          localStorage.removeItem('at_user');
+          _authStore.removeItem('at_token');
+          _authStore.removeItem('at_user');
           setUser(null);
           setIsAuth(false);
         }
@@ -59,8 +70,8 @@ export function AuthProvider({ children }) {
             err.response?.data?.message ?? 'Impossible de restaurer la session.',
           );
         }
-        localStorage.removeItem('at_token');
-        localStorage.removeItem('at_user');
+        _authStore.removeItem('at_token');
+        _authStore.removeItem('at_user');
         setUser(null);
         setIsAuth(false);
       } finally {
@@ -72,9 +83,9 @@ export function AuthProvider({ children }) {
 
   /** Nettoie session locale (401, token invalide) sans appel API */
   const clearSession = useCallback(() => {
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
-    localStorage.removeItem('at_auth_method');
+    _authStore.removeItem('at_token');
+    _authStore.removeItem('at_user');
+    _authStore.removeItem('at_auth_method');
     setUser(null);
     setIsAuth(false);
     setAuthMethod('db');
@@ -86,8 +97,8 @@ export function AuthProvider({ children }) {
     const body = res.data;
     const t    = body?.data?.token ?? body?.token;
     const am   = body?.data?.auth_method ?? 'db';
-    localStorage.setItem('at_token', t);
-    localStorage.setItem('at_auth_method', am);
+    _authStore.setItem('at_token', t);
+    _authStore.setItem('at_auth_method', am);
     setAuthMethod(am);
 
     // 2. Récupère le profil complet avec le rôle via /auth/me
@@ -98,7 +109,7 @@ export function AuthProvider({ children }) {
       clearSession();
       throw new Error('Profil utilisateur invalide après connexion');
     }
-    localStorage.setItem('at_user', JSON.stringify(u));
+    _authStore.setItem('at_user', JSON.stringify(u));
     setUser(u);
     setIsAuth(true);
     return u?.role?.name ?? u?.role ?? '';
@@ -106,9 +117,9 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await authAPI.logout(); } catch { /* ignore */ }
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
-    localStorage.removeItem('at_auth_method');
+    _authStore.removeItem('at_token');
+    _authStore.removeItem('at_user');
+    _authStore.removeItem('at_auth_method');
     setUser(null);
     setIsAuth(false);
     setAuthMethod('db');
@@ -118,7 +129,7 @@ export function AuthProvider({ children }) {
     if (!user || data == null) return;
     const updated = { ...user, ...data };
     setUser(updated);
-    localStorage.setItem('at_user', JSON.stringify(updated));
+    _authStore.setItem('at_user', JSON.stringify(updated));
   };
 
   const hasRole = (...roles) => {

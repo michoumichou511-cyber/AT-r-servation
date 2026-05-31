@@ -375,8 +375,10 @@ class ValidationController extends Controller
     {
         $user = Auth::user();
 
+        // Fix BUG-WEB-06 : eager-load mission.user pour que le demandeur soit
+        // accessible cote front-end ("Demandeur : —" remplace par nom complet).
         $validations = CircuitValidation::where('validateur_id', $user->id)
-            ->with(['mission', 'validateur'])
+            ->with(['mission.user', 'mission.reservations', 'validateur'])
             ->where('statut', 'en_attente')
             ->orderBy('created_at', 'asc')
             ->paginate(20);

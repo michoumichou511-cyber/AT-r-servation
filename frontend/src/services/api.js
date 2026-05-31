@@ -19,7 +19,8 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('at_token')
+  // BUG-WEB-01 fix : sessionStorage (per-tab) pour eviter collision multi-onglets
+  const token = sessionStorage.getItem('at_token')
   if (token)
     config.headers.Authorization = `Bearer ${token}`
   return config

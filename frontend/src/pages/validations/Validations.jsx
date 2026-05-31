@@ -197,7 +197,15 @@ export default function Validations() {
               const mission = v.mission ?? {}
               const depart = mission?.dates?.depart
               const budget = mission?.budget_previsionnel
-              const demandeur = v.demandeur?.nom_complet ?? '—'
+              // Le demandeur de la mission vient de mission.user (depuis mesValidations
+              // backend qui eager-load mission.user). Fallback v.demandeur pour
+              // compatibilite avec d'autres endpoints.
+              const demandeur = v.mission?.user?.nom_complet
+                ?? v.demandeur?.nom_complet
+                ?? (v.mission?.user
+                    ? `${v.mission.user.prenom ?? ''} ${v.mission.user.nom ?? ''}`.trim()
+                    : null)
+                ?? '—'
               const dateAttente =
                 v.created_at ?? v.date_creation ?? mission?.created_at ?? null
               const libelleAttente = calcAttente(dateAttente)
