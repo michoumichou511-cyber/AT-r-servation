@@ -82,7 +82,7 @@ function AppRoutes() {
           <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
           <Route path="/missions/:id"        element={<MissionDetail />} />
           <Route path="/validations"         element={
-            <PrivateRoute roles={['directeur', 'admin']}>
+            <PrivateRoute roles={['validateur', 'directeur', 'admin']}>
               <Validations />
             </PrivateRoute>
           } />

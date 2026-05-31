@@ -119,11 +119,16 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
   const handleSaveHotel = async () => {
     setSaving(true)
     try {
-      await dmlAPI.assignerHotel(missionId, {
-        hotel_convention_id: form.hotel_convention_id || null,
+      // Bug fix : ne pas envoyer "__libre__" comme hotel_convention_id
+      // (valeur sentinelle UI uniquement — backend rejette car invalide).
+      const conventionId = form.hotel_convention_id
+      const payload = {
+        hotel_convention_id:
+          conventionId && conventionId !== '__libre__' ? conventionId : null,
         hotel_nom_libre:     form.hotel_nom_libre || null,
         observations:        form.observations || null,
-      })
+      }
+      await dmlAPI.assignerHotel(missionId, payload)
       toast.success('Hébergement assigné')
     } catch (e) {
       toast.error(e?.response?.data?.message ?? 'Erreur lors de l\'assignation hôtel')

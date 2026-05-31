@@ -150,7 +150,10 @@ export const reservationsAPI = {
 
 // ── Validations ───────────────────────
 export const validationsAPI = {
-  list:    (params) => api.get('/validations', { params }),
+  // /validations est réservé directeur/admin. Pour les validateurs (et tous les autres),
+  // utiliser /mes-validations qui renvoie les missions qu'ils doivent traiter.
+  list:    (params) => api.get('/validations/mes-validations', { params }),
+  listAll: (params) => api.get('/validations', { params }), // admin/directeur only
   approuver:(id, data) =>
     api.post(`/validations/${id}/approuver`, data),
   rejeter: (id, data) =>
