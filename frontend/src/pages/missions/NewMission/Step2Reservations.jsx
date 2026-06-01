@@ -18,6 +18,26 @@ function getPayloadValue(v) {
   return s === '' ? undefined : s
 }
 
+/**
+ * Filtrage prestataires par type de reservation.
+ * Mapping :
+ *  - billet       -> compagnie_aerienne, agence_voyage
+ *  - hebergement  -> hotel
+ *  - restauration -> catering
+ * Fallback : aucun type connu -> liste vide (force la saisie correcte).
+ */
+const PRESTATAIRES_PAR_TYPE = {
+  billet:       ['compagnie_aerienne', 'agence_voyage'],
+  hebergement:  ['hotel'],
+  restauration: ['catering'],
+}
+
+function filtrerPrestataires(prestataires, type) {
+  const autorises = PRESTATAIRES_PAR_TYPE[type] ?? []
+  if (!autorises.length) return []
+  return prestataires.filter((p) => autorises.includes(p?.type))
+}
+
 function extractPrestataireIdFromReservation(r) {
   return r?.prestataire?.id ?? ''
 }
@@ -288,7 +308,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green disabled:opacity-60"
               >
                 <option value="">Aucun</option>
-                {prestataires.map((p) => (
+                {filtrerPrestataires(prestataires, formType).map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.nom} ({p.ville})
                   </option>
@@ -443,7 +463,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                        focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green disabled:opacity-60"
           >
             <option value="">Aucun</option>
-            {prestataires.map((p) => (
+            {filtrerPrestataires(prestataires, editType).map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nom} ({p.ville})
               </option>
