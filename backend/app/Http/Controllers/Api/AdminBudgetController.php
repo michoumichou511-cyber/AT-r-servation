@@ -112,4 +112,52 @@ class AdminBudgetController extends Controller
 
         return ApiResponse::success(['budget' => $budget->fresh()], 'Budget modifié avec succès');
     }
+
+    public function stats(Request $request)
+    {
+        $user = Auth::user();
+
+        if (! $user->hasRole('admin')) {
+            return ApiResponse::forbidden();
+        }
+
+        $annee = $request->input('annee', now()->year);
+
+        $budgets = Budget::where('annee', $annee)->get();
+
+        $totalAlloue = (float) $budgets->sum('montant_alloue');
+        $totalConsomme = (float) $budgets->sum('montant_consomme');
+        $totalRestant = $totalAlloue - $totalConsomme;
+        $pourcentageGlobal = $totalAlloue > 0
+            ? round(($totalConsomme / $totalAlloue) * 100, 1)
+            : 0;
+
+        $parDirection = $budgets->groupBy('direction')->map(function ($group, $direction) {
+            $alloue = (float) $group->sum('montant_alloue');
+            $consomme = (float) $group->sum('montant_consomme');
+            return [
+                'direction' => $direction,
+                'montant_alloue' => $alloue,
+                'montant_consomme' => $consomme,
+                'montant_restant' => $alloue - $consomme,
+                'pourcentage' => $alloue > 0 ? round(($consomme / $alloue) * 100, 1) : 0,
+            ];
+        })->values();
+
+        $alertes = $budgets->filter(function ($budget) {
+            return $budget->montant_alloue > 0
+                && ($budget->montant_consomme / $budget->montant_alloue) * 100 >= ($budget->alerte_seuil ?? 80);
+        })->count();
+
+        return ApiResponse::success([
+            'annee' => (int) $annee,
+            'total_alloue' => $totalAlloue,
+            'total_consomme' => $totalConsomme,
+            'total_restant' => $totalRestant,
+            'pourcentage_global' => $pourcentageGlobal,
+            'nombre_budgets' => $budgets->count(),
+            'nombre_alertes' => $alertes,
+            'par_direction' => $parDirection,
+        ]);
+    }
 }
