@@ -76,12 +76,24 @@ function normalizeStats(raw) {
   } else {
     taux = Number(taux) || 0
   }
+  // RETEST-3 fix : exposer en_attente + rejetees (lus par DashboardRoleViews)
+  // a partir de raw.missions.{soumises,en_validation,rejetees}
+  const enAttente =
+    Number(raw.en_attente ?? raw.demandes_en_attente ?? 0) ||
+    (Number(m.soumises ?? 0) + Number(m.en_validation ?? 0)) ||
+    0
+  const rejet =
+    Number(raw.rejetees ?? raw.demandes_rejetees ?? 0) ||
+    Number(m.rejetees ?? 0) ||
+    0
   return {
     ...raw,
     total_missions: total,
     missions_en_cours: enCours,
     missions_approuvees: approuv,
     taux_approbation: Math.min(100, Math.max(0, taux)),
+    en_attente: enAttente,
+    rejetees: rejet,
   }
 }
 
@@ -656,10 +668,14 @@ export default function Dashboard() {
   })
   const [loading, setLoading] = useState(true)
 
-  const isAdmin = hasRole('admin')
-  const isValidateur = hasRole('validateur')
-  const isUtilisateur = hasRole('utilisateur')
-  const isDemandeur = hasRole('demandeur')
+  // Detection des roles (canonique + alias pour compat avec ancien naming)
+  const isAdmin       = hasRole('admin')
+  const isValidateur  = hasRole('validateur') || hasRole('directeur')   // validateur canonique + alias directeur
+  const isDirecteur   = hasRole('directeur')
+  const isAssistante  = hasRole('assistante')
+  const isUtilisateur = hasRole('utilisateur') || hasRole('assistante') // utilisateur canonique + alias assistante
+  const isDemandeur   = hasRole('demandeur')
+  const isAgentDml    = hasRole('agent_dml')
 
   const prenom = user?.prenom ?? user?.nom ?? 'Utilisateur'
   const displayName = user?.prenom ?? (typeof user?.nom === 'string' ? user.nom.split(' ')[0] : null) ?? 'Utilisateur'
@@ -670,7 +686,9 @@ export default function Dashboard() {
       ? 'validateur'
       : isDemandeur
         ? 'demandeur'
-        : 'utilisateur'
+        : isAgentDml
+          ? 'agent_dml'
+          : 'utilisateur'
 
   useEffect(() => {
     const load = async () => {
@@ -868,6 +886,7 @@ export default function Dashboard() {
           prenom={prenom}
           displayName={displayName}
           isDemandeur={isDemandeur}
+          isAgentDml={isAgentDml}
           darkMode={!!darkMode}
           dashboardLite={dashboardLite}
           KPICard={KPICard}

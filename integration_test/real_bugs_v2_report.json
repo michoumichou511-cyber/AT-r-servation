@@ -189,23 +189,41 @@
     },
     {
       "id": "RETEST-3",
+      "page": "/ (dashboard Demandeur)",
       "titre": "Dashboard Demandeur KPI breakdown a 0",
-      "description": "Le KPI 'Mes demandes' affiche 28 (correct), mais En attente/Approuvees/Rejetees restent a 0 alors que des missions sont visibles dans la liste recente avec ces statuts.",
-      "files_modified": [],
-      "fix": "Non corrige - probable bug dans DashboardService::getStats() ou agregat SQL par statut. Cosmetique, ne bloque pas l'utilisation.",
-      "status": "OPEN",
-      "discovered_at": "2026-06-06 retest visuel",
-      "severity": "low"
+      "description": "Le KPI 'Mes demandes' affiche le total correct, mais En attente/Approuvees/Rejetees restent a 0 alors que des missions soumises/rejetees existent.",
+      "severite": "moyenne",
+      "fichier_corrige": "frontend/src/pages/dashboard/Dashboard.jsx",
+      "fix": "normalizeStats() etendue pour exposer en_attente (= raw.missions.soumises + en_validation) et rejetees (= raw.missions.rejetees) au niveau racine. Le backend renvoyait deja les bons chiffres dans stats.missions.{soumises,en_validation,rejetees} mais le composant lisait stats.en_attente et stats.rejetees.",
+      "verification": "Chrome MCP confirme 29 / 11 / 0 / 9 pour demandeur@at.dz. Croise avec DB: brouillon=5 + soumis=9 + en_validation=2 + approuve=0 + rejete=9 + annule=1 + en_traitement_logistique=3 = 29. En attente = soumis + en_validation = 11. Rejetees = 9. Match parfait.",
+      "corrige": true,
+      "status": "FIXED",
+      "discovered_at": "2026-06-06 retest visuel"
     },
     {
       "id": "RETEST-4",
+      "page": "/ (NotificationCard du dashboard)",
       "titre": "Notifications dashboard affichent 'Invalid Date'",
-      "description": "Les 3 notifications recentes affichent 'Invalid Date' au lieu d'une date relative. Le champ date dans la reponse API doit etre dans un format que le formatteur Date du frontend ne sait pas parser.",
-      "files_modified": [],
-      "fix": "Non corrige - verifier que le backend retourne created_at en ISO 8601 (ou que le frontend utilise dayjs/date-fns avec parser correct).",
+      "description": "Les notifications affichent 'Invalid Date'. Le backend NotificationController::index retourne created_at format 'd/m/Y H:i:s' (ex: '28/04/2026 18:39:01'). new Date('28/04/2026 18:39:01') => Invalid Date car format non-ISO.",
+      "severite": "faible",
+      "fichier_corrige": "frontend/src/components/Dashboard/NotificationCard.jsx",
+      "fix": "Ajout helper formatNotifDate() avec parser tolerant: tente new Date(raw) d'abord, fallback regex sur format 'd/m/Y H:i:s' qui reconstruit en ISO 8601. Retourne null si non parsable.",
+      "verification": "Chrome MCP confirme '28 avr., 18:39' affiche au lieu de 'Invalid Date'.",
+      "corrige": true,
+      "status": "FIXED",
+      "discovered_at": "2026-06-06 retest visuel"
+    },
+    {
+      "id": "RETEST-5",
+      "page": "Multiple (lazy routes)",
+      "titre": "Suspense intermittent sur routes lazy-loaded",
+      "description": "Routes lazy-loaded (Validations, Admin/*, MissionsList apres premier load) restent parfois bloquees sur le splash AT Reservations indefiniment. Le code se charge bien (network 200, recharts.js + composants telecharges), mais Suspense ne sort pas. Premier load souvent OK, rechargements ulterieurs hang.",
+      "severite": "haute",
+      "fichier_corrige": "non identifie",
+      "fix": "Non corrige - reproductible mais cause racine non triviale (possiblement related a AnimatedBackground canvas qui se reinitialise, ou un effet bloquant dans MainLayout). Workaround: F5 ou attendre 10+ secondes.",
+      "corrige": false,
       "status": "OPEN",
-      "discovered_at": "2026-06-06 retest visuel",
-      "severity": "low"
+      "discovered_at": "2026-06-06 retest visuel"
     }
   ],
   "tests_2026_06_06": {
@@ -241,15 +259,42 @@
       "D_demandeur_verifie": "Non teste"
     }
   },
+  "tests_2026_06_06_round2": {
+    "fix_RETEST-3": {
+      "before": "Mes demandes=28, En attente=0, Approuvees=0, Rejetees=0",
+      "after": "Mes demandes=29, En attente=11, Approuvees=0, Rejetees=9",
+      "verifie_db": "match parfait avec groupBy statut sur user_id=demandeur"
+    },
+    "fix_RETEST-4": {
+      "before": "Invalid Date sur les 3 notifications",
+      "after": "28 avr., 18:39 (format fr-FR avec parser tolerant)"
+    },
+    "audit_etendu": {
+      "API_filters": "OK (statut=brouillon retourne 3, search=Constantine retourne 5)",
+      "API_detail_mission": "OK (mission 57 avec 1 reservation, statut en_validation)",
+      "API_notifications_format": "OK (created_at en 'd/m/Y H:i:s' parse cote frontend)",
+      "API_validation_missing_fields": "OK (422 avec errors sur titre/destination_ville/destination_pays/date_depart/date_retour/type_mission)",
+      "API_admin_budgets_stats": "OK (200, 7 directions, total_alloue 24M DZD)",
+      "API_admin_users_changerRole": "OK (200, Role modifie avec succes)",
+      "API_export_pdf_mission": "OK (200 application/pdf meme sur missions en_validation)"
+    },
+    "zones_visuelles_non_completees_a_cause_de_RETEST-5": [
+      "TEST 1 Detail mission UI (boutons par statut)",
+      "TEST 5 Organigramme interactif",
+      "TEST 6 Validateur 'Demander modification' UI",
+      "TEST 7 Admin pages UI (audit, statistiques)",
+      "TEST 10 Mobile Flutter (port 3000 non verifie)"
+    ]
+  },
   "stats": {
     "bugs_demandes": 8,
     "bugs_fixes": 8,
     "bonus_fixes": 5,
-    "retest_bugs_found": 4,
-    "retest_bugs_fixed": 2,
-    "retest_bugs_open": 2,
-    "fichiers_modifies": 16,
-    "tests_e2e_api": "PASS (fetch via Chrome MCP)",
-    "tests_e2e_browser": "PASS (Chrome MCP local + workaround form_input)"
+    "retest_bugs_found": 5,
+    "retest_bugs_fixed": 4,
+    "retest_bugs_open": 1,
+    "fichiers_modifies": 18,
+    "tests_e2e_api": "PASS (12+ endpoints verifies)",
+    "tests_e2e_browser": "PASS pour zones critiques + workaround form_input + JS setVal"
   }
 }

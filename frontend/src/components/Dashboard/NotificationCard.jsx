@@ -26,6 +26,32 @@ function inferType(n) {
   return 'info'
 }
 
+/**
+ * RETEST-4 fix : parser tolerant pour created_at
+ * Le backend renvoie "d/m/Y H:i:s" (ex: "06/06/2026 21:31:45") qui n'est pas
+ * un format ISO 8601, donc new Date(...) retournait Invalid Date.
+ */
+function formatNotifDate(raw) {
+  if (!raw) return null
+  // Tente d'abord le parser natif (ISO 8601, timestamps, etc.)
+  let d = new Date(raw)
+  if (isNaN(d.getTime())) {
+    // Fallback : format backend "d/m/Y H:i:s" ou "d/m/Y"
+    const m = String(raw).match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?$/)
+    if (m) {
+      const [, dd, mm, yyyy, hh = '00', mi = '00', ss = '00'] = m
+      d = new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`)
+    }
+  }
+  if (isNaN(d.getTime())) return null
+  return d.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 export default function NotificationCard({ notifications = [], isDarkMode = false }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [hoveredId, setHoveredId] = useState(null)
@@ -194,14 +220,7 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
                           isDarkMode ? 'text-white/40' : 'text-gray-400'
                         }`}
                       >
-                        {n?.created_at
-                          ? new Date(n.created_at).toLocaleDateString('fr-FR', {
-                              day: 'numeric',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          : n?.time ?? '—'}
+                        {formatNotifDate(n?.created_at ?? n?.createdAt ?? n?.date) ?? n?.time ?? '—'}
                       </p>
                     </div>
 
