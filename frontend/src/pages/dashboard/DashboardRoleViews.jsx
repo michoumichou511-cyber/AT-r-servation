@@ -450,6 +450,7 @@ export function DashboardUtilisateur({
   prenom,
   displayName,
   isDemandeur,
+  isAgentDml,
   darkMode,
   dashboardLite = false,
   KPICard,
@@ -464,6 +465,8 @@ export function DashboardUtilisateur({
   const budgetPerso = Number(stats?.budget_consomme ?? stats?.budget_personnel ?? 0) || 0
   const enAttente = Number(stats?.en_attente ?? stats?.demandes_en_attente ?? 0) || 0
   const rejetees = Number(stats?.rejetees ?? stats?.demandes_rejetees ?? 0) || 0
+  // Bug 8 fix : DML ne consomme pas de budget, il traite la logistique.
+  const traiteesParDml = Number(stats?.missions?.terminees ?? stats?.terminees ?? 0) || 0
 
   const notifs = Array.isArray(notifications) ? notifications : []
 
@@ -495,6 +498,7 @@ export function DashboardUtilisateur({
           kpiVariant="missions_total"
           darkMode={!!darkMode}
           delay={0}
+          onClick={() => navigate('/missions')}
         />
         <KPICard
           title={isDemandeur ? 'En attente' : 'En cours'}
@@ -504,6 +508,7 @@ export function DashboardUtilisateur({
           kpiVariant="encours"
           darkMode={!!darkMode}
           delay={0.1}
+          onClick={() => navigate('/missions?statut=en_attente')}
         />
         <KPICard
           title="Approuvées"
@@ -513,16 +518,18 @@ export function DashboardUtilisateur({
           kpiVariant="approuve"
           darkMode={!!darkMode}
           delay={0.2}
+          onClick={() => navigate('/missions?statut=approuve')}
         />
         <KPICard
-          title={isDemandeur ? 'Rejetées' : 'Budget consommé'}
-          value={isDemandeur ? rejetees : budgetPerso}
-          suffix={isDemandeur ? '' : ' DZD'}
-          icon={isDemandeur ? AlertTriangle : Wallet}
-          color={isDemandeur ? 'warning' : 'violet'}
+          title={isAgentDml ? 'Missions traitees ce mois' : (isDemandeur ? 'Rejetées' : 'Budget consommé')}
+          value={isAgentDml ? traiteesParDml : (isDemandeur ? rejetees : budgetPerso)}
+          suffix={isAgentDml ? '' : (isDemandeur ? '' : ' DZD')}
+          icon={isAgentDml ? CheckCircle : (isDemandeur ? AlertTriangle : Wallet)}
+          color={isAgentDml ? 'primary' : (isDemandeur ? 'warning' : 'violet')}
           kpiVariant="taux"
           darkMode={!!darkMode}
           delay={0.3}
+          onClick={isAgentDml ? undefined : (isDemandeur ? () => navigate('/missions?statut=rejete') : undefined)}
         />
       </div>
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\BilletController;
 use App\Http\Controllers\Api\BonCommandeController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\DmlController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HebergementController;
@@ -159,6 +160,18 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::get('/export/prestataires/excel', [ExportController::class, 'exportPrestatairesExcel']);
     });
 
+    // H-02 fix : DML (role:agent_dml + admin) - les methodes existaient
+    // dans DmlController mais aucune route n'etait enregistree
+    Route::middleware('role:agent_dml,admin')->prefix('dml')->group(function () {
+        Route::get('/missions-validees', [DmlController::class, 'missionsValidees']);
+        Route::get('/missions-en-traitement', [DmlController::class, 'missionsEnTraitement']);
+        Route::get('/hotels-conventions', [DmlController::class, 'hotelsConventions']);
+        Route::get('/vehicules-disponibles', [DmlController::class, 'vehiculesDisponibles']);
+        Route::post('/missions/{missionId}/assigner-hotel', [DmlController::class, 'assignerHotel']);
+        Route::post('/missions/{missionId}/assigner-vehicule', [DmlController::class, 'assignerVehicule']);
+        Route::post('/missions/{missionId}/logistique-ok', [DmlController::class, 'marquerLogistiqueOk']);
+    });
+
     // ADMIN (role:admin uniquement)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/utilisateurs', [AdminUserController::class, 'listeUtilisateurs']);
@@ -173,5 +186,10 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::post('/budgets', [AdminBudgetController::class, 'creerBudget']);
         Route::put('/budgets/{id}', [AdminBudgetController::class, 'modifierBudget']);
         Route::get('/audit-logs', [AdminAuditController::class, 'auditLogs']);
+        // H-02 : admin DML CRUD hotels/vehicules
+        Route::get('/dml/hotels', [DmlController::class, 'adminHotelsList']);
+        Route::post('/dml/hotels', [DmlController::class, 'adminHotelsCreate']);
+        Route::get('/dml/vehicules', [DmlController::class, 'adminVehiculesList']);
+        Route::post('/dml/vehicules', [DmlController::class, 'adminVehiculesCreate']);
     });
 });

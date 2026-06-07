@@ -195,6 +195,7 @@ function KPICard({
   trend, trendValue,
   kpiVariant = 'approuve',
   darkMode = false,
+  onClick = null,
 }) {
   const [hovered, setHovered] = useState(false)
 
@@ -236,6 +237,10 @@ function KPICard({
       transition={{ delay, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={onClick || undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       className={`relative overflow-hidden rounded-[20px] p-6 backdrop-blur-xl cursor-pointer group ${
         darkMode
           ? 'bg-white/5 border border-white/10'
