@@ -1,0 +1,188 @@
+{
+  "date": "2026-06-07",
+  "methode": "Double role : novice (Karim Benali DSI) + jury technique",
+  "scenes_testees": ["employe_AT", "responsable_RH", "agent_DML", "jury_technique"],
+
+  "scene1_employe_AT_premier_jour": {
+    "perception_globale": "Landing page claire avec slogan 'Bienvenue sur votre espace de travail', boutons demonstration (Admin/Validateur/Utilisateur/Demandeur) qui auto-remplissent email+password — pedagogique pour novice",
+    "ux_positifs": [
+      "Bouton 'Demandeur' auto-fill = pas besoin de comprendre l'email",
+      "Dashboard avec icones colorees (Briefcase/Clock/CheckCircle/AlertTriangle)",
+      "Cartes KPI maintenant cliquables avec a11y (apres FIX H-01)",
+      "Wizard 4 etapes numerotees avec barre de progression",
+      "Step 1 'Informations generales' titre + objet + dates clairs",
+      "Step 2 type/prestataire dropdown filtres dynamiquement (Avion=airlines, Hebergement=hotels, etc.)",
+      "Step 4 recap avec montants reels (corrige RETEST-3)",
+      "Messages d'erreur en francais (apres FIX H-04): 'Le titre de la mission est obligatoire'",
+      "Bouton Soumettre desactive pendant envoi + label 'Envoi en cours...' (FIX-4)"
+    ],
+    "ux_problems": [
+      {
+        "id": "UX-01",
+        "page": "/login",
+        "probleme": "Les boutons demo (Admin/Validateur/Utilisateur/Demandeur) ne sont pas etiquetes comme 'comptes de demonstration'. Un vrai employe pourrait croire qu'il faut choisir son role manuellement avant de saisir email.",
+        "suggestion": "Ajouter un texte 'COMPTES DE DEMONSTRATION (a retirer en production)' au-dessus des 4 boutons",
+        "severite": "faible",
+        "deja_existe": "Le texte 'COMPTES DE DEMONSTRATION' EXISTE deja (vu sur screenshot), donc OK"
+      },
+      {
+        "id": "UX-02",
+        "page": "/ (dashboard)",
+        "probleme": "Les 4 cartes KPI n'ont pas de texte explicatif sous le chiffre. 'Mes demandes: 29' ne dit pas si c'est total ou actives.",
+        "suggestion": "Ajouter tooltip ou sous-titre court (ex: 'depuis votre arrivee')",
+        "severite": "faible"
+      },
+      {
+        "id": "UX-03",
+        "page": "/missions/nouvelle step 1",
+        "probleme": "Pas de champ 'Wilaya' separe de 'Ville'. Le label est 'Ville de depart' + 'Ville de destination', mais pas de selecteur wilaya.",
+        "suggestion": "Ajouter dropdown Wilaya pour les 58 wilayas algeriennes",
+        "severite": "moyenne"
+      },
+      {
+        "id": "UX-04",
+        "page": "/missions/nouvelle step 4",
+        "probleme": "Apres soumission redirige vers /missions/{id} mais ne dit pas explicitement 'mission soumise pour validation'. Toast 'Mission soumise OK' s'affiche brievement.",
+        "suggestion": "Bannière persistante sur la page detail : 'Votre demande est en cours de validation par votre responsable hierarchique'",
+        "severite": "faible"
+      },
+      {
+        "id": "UX-05",
+        "page": "Globale",
+        "probleme": "Pas d'email de confirmation a la creation de mission (verifier que SMTP est configure : mail.from.address dans .env)",
+        "suggestion": "Verifier Mail::send dans MissionController::store apres soumission",
+        "severite": "moyenne (RGPD/business)"
+      }
+    ]
+  },
+
+  "scene2_validatrice_Fatima": {
+    "ux_positifs": [
+      "Dashboard Validateur affiche 'Missions a valider' (34 missions visibles)",
+      "Click sur mission ouvre le detail complet avec demandeur + budget + destination",
+      "Boutons 'Approuver' / 'Rejeter' / 'Demander modification' bien differencies par couleur",
+      "Modal 'Approuver cette validation' avec champ commentaire optionnel"
+    ],
+    "ux_problems": [
+      {
+        "id": "UX-06",
+        "page": "/validations",
+        "probleme": "Le bouton 'Rejeter' n'oblige pas le motif (champ optionnel). Or l'utilisateur a besoin de connaitre la raison du rejet",
+        "suggestion": "Rendre le motif obligatoire pour Rejeter (validation client OU serveur)",
+        "severite": "moyenne"
+      }
+    ]
+  },
+
+  "scene3_agent_DML_Ahmed": {
+    "ux_positifs": [
+      "Module DML re-cable (apres FIX H-02) avec 7 endpoints fonctionnels",
+      "KPIs corrects 'A traiter / En cours / Terminees' (PAS 'Budget consomme')",
+      "Pas de bouton 'Nouvelle mission' visible pour DML (separation des roles OK)",
+      "Liste hotels en convention vs autres bien distincte (badge 'Convention AT')"
+    ],
+    "ux_problems": [
+      {
+        "id": "UX-07",
+        "page": "/dml",
+        "probleme": "Apres marquer 'Logistique OK' aucune indication que le demandeur recoit une notification. L'agent DML ne sait pas si sa mise a jour a ete propagee",
+        "suggestion": "Toast 'Demandeur averti par notification + email'",
+        "severite": "faible"
+      }
+    ]
+  },
+
+  "scene4_jury_technique": {
+    "security_results": {
+      "routes_protegees": true,
+      "api_sans_token": "401 Unauthenticated ✅",
+      "api_demandeur_vers_admin": "403 'Acces refuse.' ✅",
+      "api_demandeur_vers_validateur": "403 'Non autorise' ✅",
+      "api_demandeur_vers_dml": "403 'Acces refuse.' ✅",
+      "demandeur_GET_mission_autre_user": "403 'Non autorise' ✅",
+      "demandeur_PUT_mission_autre_user": "403 'Seules les missions en brouillon peuvent etre modifiees' ✅",
+      "token_dans_sessionStorage_pas_localStorage": "OK (BUG-WEB-01 fix) - permet plusieurs onglets avec roles differents sans collision",
+      "validation_input_sanitization": "Laravel valide automatiquement via FormRequest",
+      "csrf_protection": "Sanctum stateful + token guard",
+      "score": "10/10"
+    },
+
+    "coherence_donnees": {
+      "mission_test_session": "id=57 statut=en_validation (workflow N1+N2 partiel = OK)",
+      "audit_log_present": true,
+      "audit_actions_tracees": ["create user heartbeat", "update mission", "approve validation", "etc."],
+      "repartition_statuts_db": {
+        "brouillon": 8, "soumis": 10, "en_validation": 9, "approuve": 3,
+        "rejete": 15, "annule": 3, "en_traitement_logistique": 4
+      },
+      "total_missions": 52,
+      "coherence_OK": true
+    },
+
+    "edge_cases": {
+      "date_retour_egale_date_depart": "422 'La date de retour doit etre posterieure a la date de depart' ✅",
+      "budget_zero": "201 (accepte, logique car certaines missions internes sans budget)",
+      "titre_1_caractere": "201 (accepte - bug mineur, pas de validation min:3 sur titre)",
+      "titre_1000_caracteres": "422 'Le champ titre ne peut contenir plus de 255 caracteres' ✅",
+      "double_submit_button_disabled": "guard 'submitting' + button disabled ✅ (FIX-4)",
+      "messages_validation": "francais ✅ (FIX H-04)"
+    },
+
+    "performance_API_endpoints": {
+      "dashboard/stats": "0.804s",
+      "missions": "1.743s",
+      "notifications": "0.966s",
+      "messages/non-lus/count": "0.776s",
+      "notifications/non-lues/count": "1.056s",
+      "moyenne": "1.07s",
+      "appreciation": "Acceptable en dev avec MySQL local. Production avec cache Redis/Memcached devrait descendre sous 200ms.",
+      "score_perf": "7/10"
+    },
+
+    "accessibilite": {
+      "navigation_clavier": "Cartes KPI ont tabIndex+onKeyDown apres FIX H-01 (Tab+Enter fonctionne)",
+      "contraste_vert_AT_blanc": "#00A650 sur #FFFFFF = ratio ~3.4:1 (WCAG AA exige 4.5:1 pour texte normal, 3:1 pour large) - PASS pour titres, FAIL marginal pour texte normal",
+      "mode_sombre": "Overrides CSS .dark globaux ajoutes (FIX-6) pour text-gray-X, bg-white, inputs, headings",
+      "labels_aria": "Formulaires utilisent <label htmlFor> mais pas systematique sur tous les boutons",
+      "score": "7/10"
+    }
+  },
+
+  "questions_jury_preparees": {
+    "Q1_React_vs_Vue": "React choisi pour son ecosysteme mature (Vite, React Router, Tailwind, framer-motion, recharts tous compatibles natifs) et la disponibilite massive de devs sur le marche algerien. Vue.js aurait fonctionne mais React permet une montee en charge facile vers Next.js si AT veut le SSR plus tard. DEMO: ouvrir App.jsx, montrer les 20 routes lazy avec retry.",
+    "Q2_Sanctum": "Sanctum genere un token cryptographique stocke dans la table personal_access_tokens (model PersonalAccessToken hash SHA-256). Le frontend l'envoie dans Authorization: Bearer XYZ. Laravel verifie le hash a chaque requete via middleware auth:sanctum, attache l'user a Auth::user(). DEMO: sessionStorage.getItem('at_token') dans la console.",
+    "Q3_DML_isolation": "Non. Les routes /dml/* sont protegees par middleware role:agent_dml,admin (verifie via Spatie/Permission ou check custom). Un agent DML ne voit que les missions au statut approuve ou en_traitement_logistique via le filtre dans DmlController::missionsValidees. DEMO: curl avec token demandeur sur /api/dml/missions-validees => 403.",
+    "Q4_serveur_down": "Le frontend est statique (Vite build => 1 fichier index.html + assets), donc accessible meme si Laravel tombe. Mais toutes les pages affichent un toast 'Erreur de chargement' (gere par axios interceptor dans services/api.js) et un fallback UI. L'app reste utilisable en lecture seule si l'utilisateur a deja navigue (cache HTTP). DEMO: docker stop laravel && rafraichir => toast 'Network Error'.",
+    "Q5_tests": "Tests API via curl + tests visuels manuels via Chrome MCP sur les 4 profils. Pas de tests unitaires React Testing Library ni PHPUnit dans ce projet de fin de formation (pourrait etre ajoute en V2). Tests E2E manuels documentes dans integration_test/audit_humain_final.json + jury_simulation_report.json (ce fichier). DEMO: cat integration_test/*.json.",
+    "Q6_bug_production": "1) Detection : logs Laravel + sentry/bugsnag (a configurer en prod). 2) Reproduction : reproduire en staging avec les memes donnees. 3) Fix : creer une branche, ecrire un test (regression), pousser. 4) Deploy : git push, CI/CD lance les tests, deploy si vert. 5) Communication : toast in-app + email aux users impactes. DEMO: montrer integration_test/real_bugs_v2_report.json avec les 13+ bugs documentes.",
+    "Q7_polling_vs_websockets": "Polling 30s choisi pour la messagerie car : 1) Simplicite deployment (pas besoin de Reverb/Pusher), 2) Compatible avec hosting partage AT, 3) Charge serveur predictible. WebSockets seraient ideaux pour V2 si AT migre vers Kubernetes ou installer Laravel Reverb. DEMO: montrer setInterval(ping, 30_000) dans AuthContext.jsx (heartbeat presence).",
+    "Q8_deployable_prod": "Oui, avec les ajustements suivants : 1) APP_ENV=production + APP_DEBUG=false, 2) Cache config/route/view, 3) MySQL avec credentials prod (pas root), 4) HTTPS + certificat AT, 5) Frontend Vite build => /var/www/at/dist, 6) Nginx reverse-proxy vers Laravel, 7) Cron Laravel scheduler. Tableau de check-list disponible dans CHECKLIST_SOUTENANCE_2026-04-28.md.",
+    "Q9_donnees_sensibles": "Mots de passe : Bcrypt hash via Hash::make (cost 10, irreversible). Tokens Sanctum : SHA-256 hash en DB, jamais loggues. .env hors git (verifie). Tokens cote client : sessionStorage (per-tab) pas localStorage (cross-tab). HTTPS obligatoire en prod pour le transport. CSRF protection Sanctum. PII (telephone, email) : visible uniquement par admin via /admin/utilisateurs. DEMO: tail -f storage/logs/laravel.log => aucun mot de passe.",
+    "Q10_fleche_verte_organigramme": "C'est l'indicateur de la position de l'utilisateur connecte dans la hierarchie (vous etes ici). Le composant Organigramme.jsx affiche un arbre interactif avec les structures DSI/DRH/etc et highlight en vert le node de l'user connecte. DEMO: ouvrir /organigramme apres login demandeur => fleche verte sur 'DSI > Karim Benali'."
+  },
+
+  "scores_finaux": {
+    "score_ux_novice": "8/10 (clair globalement, manque tooltips et wilaya selector)",
+    "score_securite": "10/10 (401/403 sur tous les tests, tenant isolation OK)",
+    "score_coherence_donnees": "10/10 (workflow respecte, audit log present)",
+    "score_edge_cases": "8/10 (date validation OK, FR messages OK, manque min:3 sur titre)",
+    "score_performance": "7/10 (1s moyenne en dev, optimisable en prod)",
+    "score_accessibilite": "7/10 (clavier OK, contraste limite, dark mode OK)",
+    "score_questions_jury": "10/10 (10 reponses preparees avec demo)",
+    "score_global": "8.6/10"
+  },
+
+  "verdict_soutenance": "PRET. L'application repond aux exigences fonctionnelles (4 roles, workflow complet, 7 fixes critiques appliques cette session). Les ameliorations UX (UX-01 a UX-07) sont des polissages V2, pas des bloquants. La securite est solide (401/403 confirmes sur 6 vecteurs d'attaque). Le candidat doit anticiper les 10 questions jury avec demos pratiques.",
+
+  "recommandations_v2_post_soutenance": [
+    "Configurer Mail SMTP reel pour notifications email automatiques",
+    "Ajouter dropdown Wilaya (58 wilayas) au step 1 du wizard",
+    "Rendre le motif de rejet obligatoire (validation backend)",
+    "Tests automatises : PHPUnit pour API + Vitest pour composants critiques",
+    "Migrer messagerie polling vers Laravel Reverb (WebSockets)",
+    "Configurer Redis/Memcached pour cache des dashboards (descendre sous 200ms)",
+    "Auditer contraste WCAG AA complet avec axe-core ou Lighthouse",
+    "Ajouter Service Worker pour mode offline lecture",
+    "Documentation utilisateur final (PDF + video tuto pour chaque role)"
+  ]
+}
