@@ -150,6 +150,76 @@ body {
   background-color: transparent;
 }
 
+/* FIX-6 : forcer la lisibilite en dark mode pour les couleurs hardcodees
+   dans les composants. Les pages utilisent souvent style={{ color: '#333' }}
+   ou des classes Tailwind text-gray-X qui ne basculent pas en dark.
+   Ces overrides ciblent les valeurs les plus communes via attribute selector. */
+.dark p,
+.dark span,
+.dark div,
+.dark label,
+.dark td,
+.dark th,
+.dark li {
+  /* Quand aucune classe dark: n'est definie, hereditate de cette couleur claire */
+  color: inherit;
+}
+.dark main,
+.dark .at-card,
+.dark .at-card-surface {
+  color: #E5E7EB;
+}
+.dark main h1,
+.dark main h2,
+.dark main h3,
+.dark main h4,
+.dark main h5,
+.dark main h6 {
+  color: #F9FAFB;
+}
+/* Textes gris secondaires en dark = gris clair pour rester lisibles */
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900 {
+  color: #CBD5E1 !important;
+}
+.dark .text-black {
+  color: #F1F5F9 !important;
+}
+/* Fonds blancs / clairs */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #1A1D2E !important;
+}
+.dark .bg-blue-50,
+.dark .bg-amber-50,
+.dark .bg-green-50,
+.dark .bg-red-50,
+.dark .bg-purple-50 {
+  background-color: rgba(255,255,255,0.04) !important;
+}
+/* Inputs en dark */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: #1E2235 !important;
+  color: #E5E7EB !important;
+  border-color: #2A2D3E !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6B7280 !important;
+}
+
 /* Shimmer barre budget (Dashboard) */
 @keyframes at-shimmer-slide {
   0% {

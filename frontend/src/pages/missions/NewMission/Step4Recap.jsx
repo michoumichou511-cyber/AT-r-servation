@@ -217,11 +217,21 @@ export default function Step4Recap({ missionId, onPrev }) {
                             <Badge status="actif" label={r.type_label ?? r.type} />
                           </div>
                           <div className="text-sm text-gray-700 dark:text-gray-200">
-                            Montant: <span className="font-semibold">{r.montant_estime ?? '—'}</span>
+                            Montant: <span className="font-semibold">
+                              {r.montant_estime && r.montant_estime !== '0,00 DA'
+                                ? r.montant_estime
+                                : <span className="text-amber-600 dark:text-amber-400 italic">Non renseigne</span>}
+                            </span>
                           </div>
-                          <div className="text-sm text-gray-700 dark:text-gray-200">
-                            Prestataire: <span className="font-semibold">{r.prestataire?.nom ?? '—'}</span>
-                          </div>
+                          {r.prestataire?.nom ? (
+                            <div className="text-sm text-gray-700 dark:text-gray-200">
+                              Prestataire: <span className="font-semibold">{r.prestataire.nom}</span>
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                              Prestataire: aucun selectionne
+                            </div>
+                          )}
                           {r.notes && <div className="text-sm text-gray-700 dark:text-gray-200 mt-2">Notes: {r.notes}</div>}
                         </div>
                         <div className="flex flex-col items-end gap-2">
@@ -275,13 +285,21 @@ export default function Step4Recap({ missionId, onPrev }) {
               <Button variant="secondary" onClick={saveDraft} disabled={submitting}>
                 Enregistrer brouillon
               </Button>
+              {/* FIX-4 : guard double-soumission deja en place via submitting,
+                  on ameliore le label pour feedback utilisateur explicite */}
               <Button
                 onClick={submit}
                 disabled={!canSubmit || submitting}
                 className={`min-w-[200px] transition-opacity ${submitting ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
-                {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
-                Soumettre la mission
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span className="ml-2">Envoi en cours…</span>
+                  </>
+                ) : (
+                  'Soumettre la mission'
+                )}
               </Button>
             </div>
           </div>

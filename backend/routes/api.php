@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminAuditController;
 use App\Http\Controllers\Api\AdminBudgetController;
 use App\Http\Controllers\Api\AdminPrestataireController;
+use App\Http\Controllers\Api\AdminStatistiquesController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\BilletController;
 use App\Http\Controllers\Api\BonCommandeController;
@@ -186,6 +187,10 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function (
         Route::post('/budgets', [AdminBudgetController::class, 'creerBudget']);
         Route::put('/budgets/{id}', [AdminBudgetController::class, 'modifierBudget']);
         Route::get('/audit-logs', [AdminAuditController::class, 'auditLogs']);
+        // H-03 fix : statistiques admin globales
+        Route::get('/statistiques', [AdminStatistiquesController::class, 'index']);
+        Route::get('/statistiques/missions', [AdminStatistiquesController::class, 'missions']);
+        Route::get('/statistiques/prestataires', [AdminStatistiquesController::class, 'prestataires']);
         // H-02 : admin DML CRUD hotels/vehicules
         Route::get('/dml/hotels', [DmlController::class, 'adminHotelsList']);
         Route::post('/dml/hotels', [DmlController::class, 'adminHotelsCreate']);

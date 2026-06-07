@@ -7,26 +7,62 @@ import { setUnauthorizedHandler } from './services/api';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 import MainLayout       from './components/Layout/MainLayout';
 import PrivateRoute     from './components/Common/PrivateRoute';
-const Organigramme     = React.lazy(() => import('./pages/Organigramme'));
 
-const Login            = React.lazy(() => import('./pages/auth/Login'));
-const Register         = React.lazy(() => import('./pages/auth/Register'));
-const Dashboard        = React.lazy(() => import('./pages/dashboard/Dashboard'));
-const MissionsList     = React.lazy(() => import('./pages/missions/MissionsList'));
-const MissionDetail    = React.lazy(() => import('./pages/missions/MissionDetail'));
-const NewMissionWizard = React.lazy(() => import('./pages/missions/NewMission/NewMissionWizard'));
-const Validations      = React.lazy(() => import('./pages/validations/Validations'));
-const Messagerie       = React.lazy(() => import('./pages/messagerie/Messagerie'));
-const Notifications    = React.lazy(() => import('./pages/notifications/Notifications'));
-const Profil           = React.lazy(() => import('./pages/profil/Profil'));
-const Utilisateurs     = React.lazy(() => import('./pages/admin/Utilisateurs'));
-const Prestataires     = React.lazy(() => import('./pages/admin/Prestataires'));
-const Budgets          = React.lazy(() => import('./pages/admin/Budgets'));
-const AuditLogs        = React.lazy(() => import('./pages/admin/AuditLogs'));
-const Statistiques     = React.lazy(() => import('./pages/admin/Statistiques'));
-const Rapports         = React.lazy(() => import('./pages/rapports/Rapports'));
-const Page404          = React.lazy(() => import('./pages/errors/Page404'));
-const Page403          = React.lazy(() => import('./pages/errors/Page403'));
+/**
+ * RETEST-5 fix : helper qui transforme un lazy() en lazy-avec-retry
+ * Si le chunk JS echoue (reseau, HMR conflict, AnimatePresence race),
+ * on retente 2 fois apres 500ms. Si tout echoue on affiche une page
+ * d'erreur lisible au lieu d'un spinner infini.
+ */
+function lazyRetry(loader, label = 'la page') {
+  return React.lazy(() =>
+    loader()
+      .catch(() => new Promise((res) => setTimeout(res, 500)).then(loader))
+      .catch(() => new Promise((res) => setTimeout(res, 1500)).then(loader))
+      .catch(() => ({
+        default: () => (
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-4 p-8 text-center">
+            <div className="text-5xl">⚠️</div>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Impossible de charger {label}
+            </h2>
+            <p className="text-gray-500 text-sm max-w-md">
+              Le module n'a pas pu etre telecharge. Verifiez votre connexion
+              et rechargez la page.
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-at-green text-white rounded-lg hover:opacity-90"
+            >
+              Recharger
+            </button>
+          </div>
+        ),
+      }))
+  );
+}
+
+const Organigramme     = lazyRetry(() => import('./pages/Organigramme'), "l'organigramme");
+const Login            = lazyRetry(() => import('./pages/auth/Login'), 'la connexion');
+const Register         = lazyRetry(() => import('./pages/auth/Register'), "l'inscription");
+const Dashboard        = lazyRetry(() => import('./pages/dashboard/Dashboard'), 'le tableau de bord');
+const MissionsList     = lazyRetry(() => import('./pages/missions/MissionsList'), 'la liste des missions');
+const MissionDetail    = lazyRetry(() => import('./pages/missions/MissionDetail'), 'le detail de la mission');
+const NewMissionWizard = lazyRetry(() => import('./pages/missions/NewMission/NewMissionWizard'), 'le formulaire de mission');
+const Validations      = lazyRetry(() => import('./pages/validations/Validations'), 'les validations');
+const Messagerie       = lazyRetry(() => import('./pages/messagerie/Messagerie'), 'la messagerie');
+const Notifications    = lazyRetry(() => import('./pages/notifications/Notifications'), 'les notifications');
+const Profil           = lazyRetry(() => import('./pages/profil/Profil'), 'le profil');
+const Utilisateurs     = lazyRetry(() => import('./pages/admin/Utilisateurs'), 'la liste des utilisateurs');
+const Prestataires     = lazyRetry(() => import('./pages/admin/Prestataires'), 'les prestataires');
+const Budgets          = lazyRetry(() => import('./pages/admin/Budgets'), 'les budgets');
+const AuditLogs        = lazyRetry(() => import('./pages/admin/AuditLogs'), "le journal d'audit");
+const Statistiques     = lazyRetry(() => import('./pages/admin/Statistiques'), 'les statistiques');
+const Rapports         = lazyRetry(() => import('./pages/rapports/Rapports'), 'les rapports');
+const DmlDashboard     = lazyRetry(() => import('./pages/dml/DmlDashboard'), 'le module DML');
+const Page404          = lazyRetry(() => import('./pages/errors/Page404'), 'la page');
+const Page403          = lazyRetry(() => import('./pages/errors/Page403'), 'la page');
 
 /** 401 : déconnexion SPA sans rechargement complet (évite flash blanc). */
 function SessionExpiredNav() {
@@ -45,7 +81,7 @@ function SessionExpiredNav() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-[#F4F6FA]">
@@ -70,8 +106,8 @@ function AppRoutes() {
       </div>
     }>
       <Routes>
-        <Route path="/login"    element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
+        <Route path="/login"    element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Login />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Register />} />
         <Route path="/403"      element={<Page403 />} />
 
         <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
@@ -81,7 +117,7 @@ function AppRoutes() {
           <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
           <Route path="/missions/:id"        element={<MissionDetail />} />
           <Route path="/validations"         element={
-            <PrivateRoute roles={['validateur', 'admin']}>
+            <PrivateRoute roles={['validateur', 'directeur', 'admin']}>
               <Validations />
             </PrivateRoute>
           } />
@@ -89,8 +125,13 @@ function AppRoutes() {
           <Route path="/notifications"       element={<Notifications />} />
           <Route path="/profil"              element={<Profil />} />
           <Route path="/rapports"            element={
-            <PrivateRoute roles={['admin', 'validateur']}>
+            <PrivateRoute roles={['admin', 'directeur']}>
               <Rapports />
+            </PrivateRoute>
+          } />
+          <Route path="/dml"               element={
+            <PrivateRoute roles={['agent_dml']}>
+              <DmlDashboard />
             </PrivateRoute>
           } />
           <Route path="/admin/utilisateurs"  element={
