@@ -90,6 +90,13 @@ export default function MissionDetail() {
   const isBrouillon = statut === 'brouillon'
   const isSoumis = statut === 'soumis'
   const isApprouve = statut === 'approuve'
+  const isEnValidation = statut === 'en_validation'
+  const isRejete = statut === 'rejete'
+  const isTermine = statut === 'termine'
+
+  // UX-04 fix : detecter ?just_submitted=1 dans l'URL pour bannière de confirmation
+  const justSubmitted = typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('just_submitted') === '1'
 
   const chargerMission = useCallback(async () => {
     setLoadingMission(true)
@@ -191,10 +198,10 @@ export default function MissionDetail() {
     if (activeTab === 'reservations' && reservations.length === 0 && !loadingReservations) {
       chargerReservations()
     }
-    if (activeTab === 'documents' && documents.length === 0 && !loadingDocuments) {
+    if (activeTab === 'documents' && documents.length === 0 && !loadingDocuments && !errorDocuments) {
       chargerDocuments()
     }
-    if (activeTab === 'historique' && historique.length === 0 && !loadingHistorique) {
+    if (activeTab === 'historique' && historique.length === 0 && !loadingHistorique && !errorHistorique) {
       chargerHistorique()
     }
   }, [
@@ -204,7 +211,9 @@ export default function MissionDetail() {
     chargerHistorique,
     historique.length,
     loadingDocuments,
+    errorDocuments,
     loadingHistorique,
+    errorHistorique,
     loadingReservations,
     documents.length,
     reservations.length,
@@ -359,8 +368,64 @@ export default function MissionDetail() {
     )
   }
 
+  // UX-04 fix : bandeau informatif selon statut de la mission
+  const statusBanner = (() => {
+    if (justSubmitted || isSoumis) {
+      return {
+        bg: 'bg-amber-50 border-amber-300 text-amber-900',
+        icon: '📋',
+        title: 'En attente de validation',
+        msg: 'Votre demande a été soumise. Votre responsable hiérarchique la traitera prochainement. Vous serez notifié dès qu\'une décision sera prise.',
+      }
+    }
+    if (isEnValidation) {
+      return {
+        bg: 'bg-blue-50 border-blue-300 text-blue-900',
+        icon: '🔄',
+        title: 'Validation en cours',
+        msg: 'Votre demande est dans le circuit de validation hiérarchique.',
+      }
+    }
+    if (isRejete) {
+      return {
+        bg: 'bg-red-50 border-red-300 text-red-900',
+        icon: '❌',
+        title: 'Mission rejetée',
+        msg: mission?.motif_rejet
+          ? `Motif : ${mission.motif_rejet}`
+          : 'Vous pouvez modifier votre demande et la resoumettre.',
+      }
+    }
+    if (isApprouve) {
+      return {
+        bg: 'bg-green-50 border-green-300 text-green-900',
+        icon: '✅',
+        title: 'Mission approuvée',
+        msg: 'Votre demande a été approuvée. Le service DML va organiser la logistique.',
+      }
+    }
+    if (isTermine) {
+      return {
+        bg: 'bg-emerald-50 border-emerald-300 text-emerald-900',
+        icon: '🏁',
+        title: 'Mission terminée',
+        msg: 'Toutes les étapes sont complètes. Bonne mission !',
+      }
+    }
+    return null
+  })()
+
   return (
     <div>
+      {statusBanner && (
+        <div className={`mb-4 p-4 rounded-xl border ${statusBanner.bg} flex items-start gap-3`}>
+          <div className="text-2xl">{statusBanner.icon}</div>
+          <div className="flex-1">
+            <div className="font-semibold">{statusBanner.title}</div>
+            <div className="text-sm mt-0.5 opacity-90">{statusBanner.msg}</div>
+          </div>
+        </div>
+      )}
       <PageHeader
         title={
           mission.titre

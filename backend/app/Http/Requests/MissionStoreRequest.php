@@ -17,10 +17,12 @@ class MissionStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'titre' => ['required', 'string', 'max:255'],
-            'objet_mission' => ['required', 'string'],
+            // FIX-4 : titre min 3 caracteres (1 char etait accepte = absurde)
+            'titre' => ['required', 'string', 'min:3', 'max:255'],
+            'objet_mission' => ['required', 'string', 'min:5'],
             'destination_ville' => ['required', 'string', 'max:255'],
             'destination_pays' => ['required', 'string', 'max:255'],
+            'ville_depart' => ['nullable', 'string', 'max:100'],
             'date_depart' => ['required', 'date', 'after:today'],
             'date_retour' => ['required', 'date', 'after:date_depart'],
             'type_mission' => ['required', 'in:formation,conference,reunion,inspection,audit,autre'],

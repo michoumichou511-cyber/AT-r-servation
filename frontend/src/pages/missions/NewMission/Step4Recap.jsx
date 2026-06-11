@@ -110,8 +110,14 @@ export default function Step4Recap({ missionId, onPrev }) {
     setError('')
     try {
       await missionsAPI.soumettre(missionId)
-      toast.success('Mission soumise ✅')
-      navigate(`/missions/${missionId}`)
+      // UX-04 fix : feedback complet apres soumission (3 informations clefs)
+      toast.success(
+        '✅ Mission soumise avec succès !\n' +
+        'Elle est maintenant en attente de validation par votre responsable.\n' +
+        'Vous serez notifié dès qu\'elle sera traitée.',
+        { duration: 6000, style: { whiteSpace: 'pre-line', maxWidth: '420px' } }
+      )
+      navigate(`/missions/${missionId}?just_submitted=1`)
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
@@ -150,6 +156,19 @@ export default function Step4Recap({ missionId, onPrev }) {
         <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
           <div className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">Erreur</div>
           <div className="text-sm text-red-700 dark:text-red-200/90">{error}</div>
+        </div>
+      )}
+
+      {/* FIX-6 : avertissement budget = 0 (non bloquant, juste un nudge) */}
+      {!loading && mission && budgetEstimeReservations === 0 && (
+        <div className="bg-amber-50 border border-amber-300 dark:bg-amber-950/30 dark:border-amber-900/50 rounded-2xl p-4 mb-4 flex items-start gap-3">
+          <div className="text-2xl">⚠️</div>
+          <div>
+            <div className="text-sm font-semibold text-amber-900 dark:text-amber-100">Budget total à 0 DA</div>
+            <div className="text-sm text-amber-800 dark:text-amber-200/90 mt-0.5">
+              Aucune réservation chiffrée n'a été ajoutée. Vérifiez l'étape Réservations avant de soumettre — la mission peut être validée mais le DML n'aura pas d'estimation budgétaire.
+            </div>
+          </div>
         </div>
       )}
 
