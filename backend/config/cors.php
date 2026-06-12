@@ -31,10 +31,19 @@ if (is_string($fromEnv) && $fromEnv !== '') {
 return [
     'paths' => ['api/*'],
     'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    'allowed_origins' => array_values(array_unique(array_merge($localOrigins, $extraOrigins))),
-    /** Vite peut prendre n’importe quel port libre (5173+) */
+    'allowed_origins' => array_values(array_unique(array_merge(
+        $localOrigins,
+        $extraOrigins,
+        [
+            // Production : frontend deploye sur Vercel
+            'https://at-reservations.vercel.app',
+        ]
+    ))),
+    /** Vite peut prendre n’importe quel port libre (5173+) +
+     *  toutes les previews Vercel (*.vercel.app) pour permettre les hotfixes. */
     'allowed_origins_patterns' => [
         '#^https?://(localhost|127\.0\.0\.1)(:\d+)?$#',
+        '#^https://[a-z0-9-]+\.vercel\.app$#',
     ],
     'allowed_headers' => [
         'Content-Type',

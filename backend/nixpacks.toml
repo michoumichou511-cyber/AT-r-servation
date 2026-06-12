@@ -1,0 +1,19 @@
+# Build/runtime config Railway via Nixpacks
+# PHP 8.3 + extensions Laravel + composer + node (build assets si besoin)
+[phases.setup]
+nixPkgs = ["php83", "php83Packages.composer", "nodejs_20"]
+
+[phases.install]
+cmds = [
+  "composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist",
+]
+
+[phases.build]
+cmds = [
+  "php artisan config:cache",
+  "php artisan route:cache",
+]
+
+[start]
+# Railway expose le port via $PORT
+cmd = "php -S 0.0.0.0:${PORT:-8000} -t public"

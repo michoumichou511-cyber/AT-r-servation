@@ -45,3 +45,4 @@ backend/**/.git/
 # Git temporaire (interne au push, ne pas versionner)
 backend/.git_temp/
 backend/**/.git_temp/
+frontend/.env.production
