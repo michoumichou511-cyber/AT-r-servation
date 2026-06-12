@@ -339,6 +339,21 @@ export const healthAPI = {
   check: () => api.get('/health'),
 }
 
+// ── DML (Direction Moyens Logistiques) ─
+export const dmlAPI = {
+  getMissionsValidees:    (params)           => api.get('/dml/missions-validees', { params }),
+  getMissionsEnTraitement:(params)           => api.get('/dml/missions-en-traitement', { params }),
+  assignerHotel:          (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
+  assignerVehicule:       (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
+  marquerLogistiqueOk:    (missionId)        => api.post(`/dml/missions/${missionId}/logistique-ok`),
+  getHotelsConventions:   (params)           => api.get('/dml/hotels-conventions', { params }),
+  getVehiculesDisponibles:(params)           => api.get('/dml/vehicules-disponibles', { params }),
+  adminHotels:            (params)           => api.get('/admin/dml/hotels', { params }),
+  adminCreateHotel:       (data)             => api.post('/admin/dml/hotels', data),
+  adminVehicules:         (params)           => api.get('/admin/dml/vehicules', { params }),
+  adminCreateVehicule:    (data)             => api.post('/admin/dml/vehicules', data),
+}
+
 // ── Utilitaire téléchargement ─────────
 export const telechargerBlob = (blob, nom) => {
   const url = URL.createObjectURL(blob)
