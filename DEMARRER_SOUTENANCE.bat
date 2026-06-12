@@ -42,9 +42,9 @@ echo    React  : http://localhost:5173
 echo.
 
 REM ------------------------------------------------------------
-REM [4/4] Flutter Web (port 3000)
+REM [4/5] Flutter Web (port 3000)
 REM ------------------------------------------------------------
-echo [4/4] Demarrage Flutter Web (port 3000)...
+echo [4/5] Demarrage Flutter Web (port 3000)...
 if exist "C:\Users\loulou\ProjetFinFormation\mobile\at_reservations_mobile\build\web\index.html" (
   start "Flutter Web" cmd /k "cd /d C:\Users\loulou\ProjetFinFormation\mobile\at_reservations_mobile\build\web && python -m http.server 3000"
   timeout /t 3 /nobreak >NUL
@@ -52,6 +52,21 @@ if exist "C:\Users\loulou\ProjetFinFormation\mobile\at_reservations_mobile\build
 ) else (
   echo    [SKIP] build/web introuvable. Lancer : flutter build web --release
 )
+echo.
+
+REM ------------------------------------------------------------
+REM [5/5] Tunnel ngrok (expose Laravel sur Internet pour Vercel)
+REM ------------------------------------------------------------
+echo [5/5] Demarrage tunnel ngrok (Laravel public)...
+where ngrok >NUL 2>&1
+if errorlevel 1 (
+  set "NGROK=C:\Users\loulou\AppData\Local\Microsoft\WinGet\Packages\Ngrok.Ngrok_Microsoft.Winget.Source_8wekyb3d8bbwe\ngrok.exe"
+) else (
+  set "NGROK=ngrok"
+)
+start "ngrok tunnel" cmd /k "%NGROK% http 8000"
+timeout /t 6 /nobreak >NUL
+echo    Inspector ngrok : http://127.0.0.1:4040
 echo.
 
 REM ------------------------------------------------------------
@@ -76,9 +91,21 @@ echo.
 echo ==========================================
 echo  TOUT EST PRET POUR LA SOUTENANCE
 echo ==========================================
+echo.
+echo  --- DEMO EN LOCAL (sans Internet) ---
 echo  Web React  : http://localhost:5173
 echo  Backend    : http://127.0.0.1:8000
 echo  Mobile Web : http://localhost:3000
+echo.
+echo  --- DEMO EN LIGNE (avec Internet) ---
+echo  Frontend   : https://at-reservations.vercel.app
+echo  Backend    : URL ngrok visible dans la fenetre ngrok
+echo               OU sur http://127.0.0.1:4040 (Inspector)
+echo.
+echo  Si l'URL ngrok change (ex: redemarrage) :
+echo    1. Copier la nouvelle URL https://xxxx.ngrok-free.dev
+echo    2. Mettre a jour frontend\.env.production
+echo    3. cd frontend ^&^& npm run build ^&^& npx vercel --prod
 echo.
 echo  Comptes demo (Password@123) :
 echo    Admin      : admin@at.dz

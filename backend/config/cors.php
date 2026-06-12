@@ -40,10 +40,11 @@ return [
         ]
     ))),
     /** Vite peut prendre n’importe quel port libre (5173+) +
-     *  toutes les previews Vercel (*.vercel.app) pour permettre les hotfixes. */
+     *  toutes les previews Vercel (*.vercel.app) + tunnels ngrok */
     'allowed_origins_patterns' => [
         '#^https?://(localhost|127\.0\.0\.1)(:\d+)?$#',
         '#^https://[a-z0-9-]+\.vercel\.app$#',
+        '#^https://[a-z0-9-]+\.ngrok(-free)?\.(app|dev|io)$#',
     ],
     'allowed_headers' => [
         'Content-Type',
