@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { missionStep1Schema } from '../../../lib/validations'
 
 import { Button, Input } from '../../../components/UI'
 
@@ -21,33 +24,6 @@ const PRIORITE_OPTIONS = [
   { value: 'tres_urgente', label: 'Très urgente' },
 ]
 
-function validateForm(form) {
-  const requiredFields = [
-    ['titre', 'Titre requis'],
-    ['objet_mission', 'Objet de la mission requis'],
-    ['destination_ville', 'Ville de destination requise'],
-    ['destination_pays', 'Pays de destination requis'],
-    ['date_depart', 'Date de départ requise'],
-    ['date_retour', 'Date de retour requise'],
-    ['type_mission', 'Type de mission requis'],
-  ]
-
-  for (const [key, msg] of requiredFields) {
-    if (!String(form?.[key] ?? '').trim()) return msg
-  }
-
-  if (String(form.budget_previsionnel ?? '').trim()) {
-    const n = Number(form.budget_previsionnel)
-    if (Number.isNaN(n) || n < 0) return 'Budget prévisionnel invalide'
-  }
-
-  const depart = form.date_depart ? new Date(form.date_depart) : null
-  const retour = form.date_retour ? new Date(form.date_retour) : null
-  if (depart && retour && retour <= depart) return 'La date de retour doit être après la date de départ'
-
-  return ''
-}
-
 export default function Step1Informations({ onNext, data, missionId, loading, error }) {
   const initial = useMemo(
     () => ({
@@ -65,48 +41,39 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
     [data]
   )
 
-  const [form, setForm] = useState(initial)
-  const [localError, setLocalError] = useState('')
+  const { control, handleSubmit, reset, formState: { errors: formErrors } } = useForm({
+    resolver: zodResolver(missionStep1Schema),
+    defaultValues: initial,
+  })
 
-  // Synchronise le formulaire quand les données mission (props) changent
-  /* eslint-disable react-hooks/set-state-in-effect -- reset contrôlé par data/missionId */
   useEffect(() => {
-    setForm(initial)
-    setLocalError('')
-  }, [initial])
-  /* eslint-enable react-hooks/set-state-in-effect */
+    reset(initial)
+  }, [initial, reset])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const onSubmit = async (formData) => {
     if (loading) return
 
-    const msg = validateForm(form)
-    if (msg) {
-      setLocalError(msg)
-      return
-    }
-
-    setLocalError('')
-
     const payload = {
-      titre: form.titre.trim(),
-      objet_mission: form.objet_mission.trim(),
-      destination_ville: form.destination_ville.trim(),
-      destination_pays: form.destination_pays.trim(),
-      date_depart: form.date_depart,
-      date_retour: form.date_retour,
-      type_mission: form.type_mission,
-      ...(form.priorite ? { priorite: form.priorite } : {}),
-      ...(String(form.budget_previsionnel ?? '').trim()
-        ? { budget_previsionnel: Number(form.budget_previsionnel) }
+      titre: formData.titre.trim(),
+      objet_mission: formData.objet_mission.trim(),
+      destination_ville: formData.destination_ville.trim(),
+      destination_pays: formData.destination_pays.trim(),
+      date_depart: formData.date_depart,
+      date_retour: formData.date_retour,
+      type_mission: formData.type_mission,
+      ...(formData.priorite ? { priorite: formData.priorite } : {}),
+      ...(String(formData.budget_previsionnel ?? '').trim()
+        ? { budget_previsionnel: Number(formData.budget_previsionnel) }
         : {}),
-      ...(String(form.description ?? '').trim()
-        ? { description: form.description.trim() }
+      ...(String(formData.description ?? '').trim()
+        ? { description: formData.description.trim() }
         : {}),
     }
 
     await onNext(payload)
   }
+
+  const firstError = Object.values(formErrors)[0]?.message
 
   return (
     <motion.div
@@ -126,123 +93,149 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
         </div>
       </div>
 
-      {(error || localError) && (
+      {(error || firstError) && (
         <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
           <div className="text-sm text-red-800 dark:text-red-200 font-semibold mb-1">Erreur</div>
-          <div className="text-sm text-red-700 dark:text-red-200/90">{localError || error}</div>
+          <div className="text-sm text-red-700 dark:text-red-200/90">{error || firstError}</div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <Input
-              label="Titre"
-              value={form.titre}
-              onChange={(e) => setForm((f) => ({ ...f, titre: e.target.value }))}
-              placeholder="Ex: OM-2026 — Formation Laravel"
-            />
+            <Controller name="titre" control={control} render={({ field }) => (
+              <Input label="Titre" value={field.value} onChange={field.onChange}
+                     placeholder="Ex: OM-2026 — Formation Laravel"
+                     error={!!formErrors.titre} errorMessage={formErrors.titre?.message} />
+            )} />
           </div>
 
           <div className="md:col-span-2">
-            <Input
-              label="Objet de la mission"
-              value={form.objet_mission}
-              onChange={(e) => setForm((f) => ({ ...f, objet_mission: e.target.value }))}
-              placeholder="Objectif / contenu"
-            />
+            <Controller name="objet_mission" control={control} render={({ field }) => (
+              <Input label="Objet de la mission" value={field.value} onChange={field.onChange}
+                     placeholder="Objectif / contenu"
+                     error={!!formErrors.objet_mission} errorMessage={formErrors.objet_mission?.message} />
+            )} />
           </div>
 
           <div>
-            <Input
-              label="Ville de destination"
-              value={form.destination_ville}
-              onChange={(e) => setForm((f) => ({ ...f, destination_ville: e.target.value }))}
-              placeholder="Alger"
-            />
+            <Controller name="destination_ville" control={control} render={({ field }) => (
+              <Input label="Ville de destination" value={field.value} onChange={field.onChange}
+                     placeholder="Alger"
+                     error={!!formErrors.destination_ville} errorMessage={formErrors.destination_ville?.message} />
+            )} />
           </div>
           <div>
-            <Input
-              label="Pays de destination"
-              value={form.destination_pays}
-              onChange={(e) => setForm((f) => ({ ...f, destination_pays: e.target.value }))}
-              placeholder="Algérie"
-            />
+            <Controller name="destination_pays" control={control} render={({ field }) => (
+              <Input label="Pays de destination" value={field.value} onChange={field.onChange}
+                     placeholder="Algérie"
+                     error={!!formErrors.destination_pays} errorMessage={formErrors.destination_pays?.message} />
+            )} />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de départ</label>
-            <input
-              type="date"
-              value={form.date_depart}
-              onChange={(e) => setForm((f) => ({ ...f, date_depart: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
-            />
+            <Controller name="date_depart" control={control} render={({ field }) => (
+              <>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de départ</label>
+                <input
+                  type="date"
+                  value={field.value}
+                  onChange={field.onChange}
+                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                             focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green
+                             ${formErrors.date_depart ? 'border-red-400' : 'border-gray-200'}`}
+                />
+                {formErrors.date_depart && (
+                  <p className="mt-1 text-xs text-red-500">{formErrors.date_depart.message}</p>
+                )}
+              </>
+            )} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de retour</label>
-            <input
-              type="date"
-              value={form.date_retour}
-              onChange={(e) => setForm((f) => ({ ...f, date_retour: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type de mission</label>
-            <select
-              value={form.type_mission}
-              onChange={(e) => setForm((f) => ({ ...f, type_mission: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
-            >
-              {TYPE_MISSION_OPTIONS.map((o) => (
-                <option key={o.value || 'x'} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Priorité (optionnel)</label>
-            <select
-              value={form.priorite}
-              onChange={(e) => setForm((f) => ({ ...f, priorite: e.target.value }))}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
-            >
-              {PRIORITE_OPTIONS.map((o) => (
-                <option key={o.value || 'y'} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <Controller name="date_retour" control={control} render={({ field }) => (
+              <>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de retour</label>
+                <input
+                  type="date"
+                  value={field.value}
+                  onChange={field.onChange}
+                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                             focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green
+                             ${formErrors.date_retour ? 'border-red-400' : 'border-gray-200'}`}
+                />
+                {formErrors.date_retour && (
+                  <p className="mt-1 text-xs text-red-500">{formErrors.date_retour.message}</p>
+                )}
+              </>
+            )} />
           </div>
 
           <div>
-            <Input
-              label="Budget prévisionnel (DA)"
-              type="number"
-              value={form.budget_previsionnel}
-              onChange={(e) => setForm((f) => ({ ...f, budget_previsionnel: e.target.value }))}
-              placeholder="Ex: 250000"
-            />
+            <Controller name="type_mission" control={control} render={({ field }) => (
+              <>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type de mission</label>
+                <select
+                  value={field.value}
+                  onChange={field.onChange}
+                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                             focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green
+                             ${formErrors.type_mission ? 'border-red-400' : 'border-gray-200'}`}
+                >
+                  {TYPE_MISSION_OPTIONS.map((o) => (
+                    <option key={o.value || 'x'} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                {formErrors.type_mission && (
+                  <p className="mt-1 text-xs text-red-500">{formErrors.type_mission.message}</p>
+                )}
+              </>
+            )} />
+          </div>
+
+          <div>
+            <Controller name="priorite" control={control} render={({ field }) => (
+              <>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Priorité (optionnel)</label>
+                <select
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                             focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
+                >
+                  {PRIORITE_OPTIONS.map((o) => (
+                    <option key={o.value || 'y'} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )} />
+          </div>
+
+          <div>
+            <Controller name="budget_previsionnel" control={control} render={({ field }) => (
+              <Input label="Budget prévisionnel (DA)" type="number" value={field.value} onChange={field.onChange}
+                     placeholder="Ex: 250000"
+                     error={!!formErrors.budget_previsionnel} errorMessage={formErrors.budget_previsionnel?.message} />
+            )} />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Description (optionnel)</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="Détails complémentaires"
-              rows={4}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
-                         focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
-            />
+            <Controller name="description" control={control} render={({ field }) => (
+              <>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Description (optionnel)</label>
+                <textarea
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Détails complémentaires"
+                  rows={4}
+                  className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                             focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
+                />
+              </>
+            )} />
           </div>
         </div>
 

@@ -14,7 +14,10 @@ class MissionPolicy
 
     public function view(User $user, Mission $mission): bool
     {
-        return $user->id === $mission->user_id || $this->isAdmin($user) || $this->isValidateur($user);
+        return $user->id === $mission->user_id
+            || $user->id === $mission->created_by
+            || $this->isAdmin($user)
+            || $this->isValidateur($user);
     }
 
     public function create(User $user): bool
@@ -24,16 +27,12 @@ class MissionPolicy
 
     public function update(User $user, Mission $mission): bool
     {
-        if ($mission->statut !== 'brouillon') {
-            return false;
-        }
-
         return $user->id === $mission->user_id || $this->isAdmin($user);
     }
 
     public function delete(User $user, Mission $mission): bool
     {
-        return $this->update($user, $mission);
+        return $user->id === $mission->user_id || $this->isAdmin($user);
     }
 
     public function submit(User $user, Mission $mission): bool

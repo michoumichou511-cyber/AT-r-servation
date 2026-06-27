@@ -677,8 +677,7 @@ export default function Dashboard() {
   const isAdmin       = hasRole('admin')
   const isValidateur  = hasRole('validateur') || hasRole('directeur')   // validateur canonique + alias directeur
   const isDirecteur   = hasRole('directeur')
-  const isAssistante  = hasRole('assistante')
-  const isUtilisateur = hasRole('utilisateur') || hasRole('assistante') // utilisateur canonique + alias assistante
+  const isUtilisateur = hasRole('utilisateur')
   const isDemandeur   = hasRole('demandeur')
   const isAgentDml    = hasRole('agent_dml')
 

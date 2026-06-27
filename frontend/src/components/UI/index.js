@@ -12,3 +12,4 @@ export { default as EmptyState } from './EmptyState';
 export { default as Tooltip }    from './Tooltip';
 export { default as StarRating } from './StarRating';
 export { default as ChipFilter } from './ChipFilter';
+export { default as StatusGuard } from './StatusGuard';

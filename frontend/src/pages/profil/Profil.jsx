@@ -9,6 +9,9 @@ import {
   AlertTriangle,
   Info, Shield, LineChart as LineChartIcon, Save, Lock, RotateCcw,
 } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { profileSchema, changePasswordSchema } from '../../lib/validations'
 import toast from 'react-hot-toast'
 import {
   ResponsiveContainer,
@@ -37,34 +40,28 @@ export default function Profil() {
 
   const [activeTab, setActiveTab] = useState('informations')
 
-  // Informations
+  // Profile form (RHF + Zod)
   const [editing, setEditing] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileError, setProfileError] = useState('')
-  const [profileForm, setProfileForm] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    matricule: '',
-    direction: '',
-    service: '',
-    poste: '',
-    telephone: '',
+
+  const profileDefaults = useMemo(() => ({
+    nom: user?.nom ?? '',
+    prenom: user?.prenom ?? '',
+    telephone: user?.telephone ?? '',
+    direction: user?.direction ?? '',
+    service: user?.service ?? '',
+    poste: user?.poste ?? '',
+  }), [user])
+
+  const { control: profileControl, handleSubmit: handleProfileSubmit, reset: resetProfile, formState: { errors: profileErrors } } = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: profileDefaults,
   })
 
   useEffect(() => {
-    if (!user) return
-    setProfileForm({
-      nom: user.nom ?? '',
-      prenom: user.prenom ?? '',
-      email: user.email ?? '',
-      matricule: user.matricule ?? '',
-      direction: user.direction ?? '',
-      service: user.service ?? '',
-      poste: user.poste ?? '',
-      telephone: user.telephone ?? '',
-    })
-  }, [user])
+    resetProfile(profileDefaults)
+  }, [profileDefaults, resetProfile])
 
   const startEdit = () => {
     setProfileError('')
@@ -74,31 +71,21 @@ export default function Profil() {
   const cancelEdit = () => {
     setProfileError('')
     setEditing(false)
-    if (!user) return
-    setProfileForm({
-      nom: user.nom ?? '',
-      prenom: user.prenom ?? '',
-      email: user.email ?? '',
-      matricule: user.matricule ?? '',
-      direction: user.direction ?? '',
-      service: user.service ?? '',
-      poste: user.poste ?? '',
-      telephone: user.telephone ?? '',
-    })
+    resetProfile(profileDefaults)
   }
 
-  const saveProfile = useCallback(async () => {
+  const saveProfile = async (data) => {
     if (!user) return
     setSavingProfile(true)
     setProfileError('')
     try {
       const payload = {
-        nom: profileForm.nom || undefined,
-        prenom: profileForm.prenom || undefined,
-        telephone: profileForm.telephone || undefined,
-        service: profileForm.service || undefined,
-        direction: profileForm.direction || undefined,
-        poste: profileForm.poste || undefined,
+        nom: data.nom || undefined,
+        prenom: data.prenom || undefined,
+        telephone: data.telephone || undefined,
+        service: data.service || undefined,
+        direction: data.direction || undefined,
+        poste: data.poste || undefined,
       }
 
       const res = await authAPI.updateProfile(payload)
@@ -114,7 +101,7 @@ export default function Profil() {
     } finally {
       setSavingProfile(false)
     }
-  }, [profileForm, updateUser, user])
+  }
 
   // Statistiques
   const [statsLoading, setStatsLoading] = useState(false)
@@ -126,7 +113,6 @@ export default function Profil() {
     setStatsError('')
     try {
       const res = await authAPI.statistiques()
-      // ApiResponse::success([...]) => response.data.data
       const d = res.data?.data ?? {}
       setStats(d)
     } catch (err) {
@@ -152,27 +138,22 @@ export default function Profil() {
 
   const parMois = Array.isArray(stats?.par_mois) ? stats.par_mois : []
 
-  // Sécurité
+  // Security form (RHF + Zod)
   const [securityLoading, setSecurityLoading] = useState(false)
   const [securityError, setSecurityError] = useState('')
-  const [pwdForm, setPwdForm] = useState({
-    current_password: '',
-    new_password: '',
-    new_password_confirmation: '',
+
+  const { control: pwdControl, handleSubmit: handlePwdSubmit, reset: resetPwd, formState: { errors: pwdErrors } } = useForm({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: { current_password: '', new_password: '', new_password_confirmation: '' },
   })
 
-  const changePassword = useCallback(async () => {
+  const changePassword = async (data) => {
     setSecurityLoading(true)
     setSecurityError('')
     try {
-      const payload = {
-        current_password: pwdForm.current_password,
-        new_password: pwdForm.new_password,
-        new_password_confirmation: pwdForm.new_password_confirmation,
-      }
-      await authAPI.changePassword(payload)
+      await authAPI.changePassword(data)
       toast.success('Mot de passe modifié ✅. Reconnexion nécessaire.')
-      setPwdForm({ current_password: '', new_password: '', new_password_confirmation: '' })
+      resetPwd()
     } catch (err) {
       setSecurityError(
         err?.response?.data?.message ||
@@ -183,7 +164,7 @@ export default function Profil() {
     } finally {
       setSecurityLoading(false)
     }
-  }, [pwdForm])
+  }
 
   const tabButtons = useMemo(
     () => (
@@ -323,7 +304,7 @@ export default function Profil() {
               <div>
                 <div className="text-sm font-semibold text-gray-700">Identité</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Champs verrouillés sauf lorsque vous cliquez sur “Modifier”.
+                  Champs verrouillés sauf lorsque vous cliquez sur "Modifier".
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -336,7 +317,7 @@ export default function Profil() {
                     <Button variant="outline" onClick={cancelEdit} disabled={savingProfile}>
                       <RotateCcw size={16} /> Annuler
                     </Button>
-                    <Button onClick={saveProfile} loading={savingProfile} disabled={savingProfile}>
+                    <Button onClick={handleProfileSubmit(saveProfile)} loading={savingProfile} disabled={savingProfile}>
                       <Save size={16} /> Sauvegarder
                     </Button>
                   </>
@@ -354,44 +335,28 @@ export default function Profil() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Nom"
-                value={profileForm.nom}
-                onChange={(e) => setProfileForm(f => ({ ...f, nom: e.target.value }))}
-                disabled={!editing}
-              />
-              <Input
-                label="Prénom"
-                value={profileForm.prenom}
-                onChange={(e) => setProfileForm(f => ({ ...f, prenom: e.target.value }))}
-                disabled={!editing}
-              />
-              <Input label="Email" value={profileForm.email} disabled />
-              <Input label="Matricule" value={profileForm.matricule} disabled />
-              <Input
-                label="Direction"
-                value={profileForm.direction}
-                onChange={(e) => setProfileForm(f => ({ ...f, direction: e.target.value }))}
-                disabled={!editing}
-              />
-              <Input
-                label="Service"
-                value={profileForm.service}
-                onChange={(e) => setProfileForm(f => ({ ...f, service: e.target.value }))}
-                disabled={!editing}
-              />
-              <Input
-                label="Poste"
-                value={profileForm.poste}
-                onChange={(e) => setProfileForm(f => ({ ...f, poste: e.target.value }))}
-                disabled={!editing}
-              />
-              <Input
-                label="Téléphone"
-                value={profileForm.telephone}
-                onChange={(e) => setProfileForm(f => ({ ...f, telephone: e.target.value }))}
-                disabled={!editing}
-              />
+              <Controller name="nom" control={profileControl} render={({ field }) => (
+                <Input label="Nom" value={field.value} onChange={field.onChange}
+                       disabled={!editing} error={!!profileErrors.nom} errorMessage={profileErrors.nom?.message} />
+              )} />
+              <Controller name="prenom" control={profileControl} render={({ field }) => (
+                <Input label="Prénom" value={field.value} onChange={field.onChange}
+                       disabled={!editing} error={!!profileErrors.prenom} errorMessage={profileErrors.prenom?.message} />
+              )} />
+              <Input label="Email" value={user.email ?? ''} disabled />
+              <Input label="Matricule" value={user.matricule ?? ''} disabled />
+              <Controller name="direction" control={profileControl} render={({ field }) => (
+                <Input label="Direction" value={field.value} onChange={field.onChange} disabled={!editing} />
+              )} />
+              <Controller name="service" control={profileControl} render={({ field }) => (
+                <Input label="Service" value={field.value} onChange={field.onChange} disabled={!editing} />
+              )} />
+              <Controller name="poste" control={profileControl} render={({ field }) => (
+                <Input label="Poste" value={field.value} onChange={field.onChange} disabled={!editing} />
+              )} />
+              <Controller name="telephone" control={profileControl} render={({ field }) => (
+                <Input label="Téléphone" value={field.value} onChange={field.onChange} disabled={!editing} />
+              )} />
             </div>
           </div>
         </motion.div>
@@ -544,33 +509,21 @@ export default function Profil() {
             )}
 
             <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                changePassword()
-              }}
+              onSubmit={handlePwdSubmit(changePassword)}
               className="space-y-4"
             >
-              <Input
-                label="Ancien mot de passe"
-                type="password"
-                value={pwdForm.current_password}
-                onChange={(e) => setPwdForm(f => ({ ...f, current_password: e.target.value }))}
-                required
-              />
-              <Input
-                label="Nouveau mot de passe"
-                type="password"
-                value={pwdForm.new_password}
-                onChange={(e) => setPwdForm(f => ({ ...f, new_password: e.target.value }))}
-                required
-              />
-              <Input
-                label="Confirmer le nouveau mot de passe"
-                type="password"
-                value={pwdForm.new_password_confirmation}
-                onChange={(e) => setPwdForm(f => ({ ...f, new_password_confirmation: e.target.value }))}
-                required
-              />
+              <Controller name="current_password" control={pwdControl} render={({ field }) => (
+                <Input label="Ancien mot de passe" type="password" value={field.value} onChange={field.onChange}
+                       error={!!pwdErrors.current_password} errorMessage={pwdErrors.current_password?.message} required />
+              )} />
+              <Controller name="new_password" control={pwdControl} render={({ field }) => (
+                <Input label="Nouveau mot de passe" type="password" value={field.value} onChange={field.onChange}
+                       error={!!pwdErrors.new_password} errorMessage={pwdErrors.new_password?.message} required />
+              )} />
+              <Controller name="new_password_confirmation" control={pwdControl} render={({ field }) => (
+                <Input label="Confirmer le nouveau mot de passe" type="password" value={field.value} onChange={field.onChange}
+                       error={!!pwdErrors.new_password_confirmation} errorMessage={pwdErrors.new_password_confirmation?.message} required />
+              )} />
 
               <div className="flex items-center gap-2 flex-wrap">
                 <Button type="submit" loading={securityLoading}>

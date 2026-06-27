@@ -38,7 +38,7 @@ function formatRelative(isoString) {
 }
 
 export default function Messagerie() {
-  const [loadingConversations, setLoadingConversations] = useState(true)
+  const [initialLoadConversations, setInitialLoadConversations] = useState(true)
   const [errorConversations, setErrorConversations] = useState('')
   const [conversations, setConversations] = useState([])
 
@@ -74,7 +74,6 @@ export default function Messagerie() {
   }, [])
 
   const fetchConversations = useCallback(async () => {
-    setLoadingConversations(true)
     setErrorConversations('')
     try {
       const res = await messagesAPI.conversations()
@@ -87,7 +86,7 @@ export default function Messagerie() {
         err?.response?.data?.message || err?.message || 'Erreur chargement des conversations'
       )
     } finally {
-      setLoadingConversations(false)
+      setInitialLoadConversations(false)
     }
   }, [])
 
@@ -246,7 +245,7 @@ export default function Messagerie() {
               </button>
             </div>
 
-            {loadingConversations && (
+            {initialLoadConversations && (
               <div className="space-y-3 p-4">
                 {[0, 1, 2].map(i => (
                   <SkeletonCard key={i} />
@@ -254,7 +253,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!loadingConversations && errorConversations && (
+            {!initialLoadConversations && errorConversations && (
               <div className="p-4">
                 <EmptyState
                   icon={UserRound}
@@ -266,7 +265,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!loadingConversations && !errorConversations && conversations.length === 0 && (
+            {!initialLoadConversations && !errorConversations && conversations.length === 0 && (
               <div className="p-4">
                 <EmptyState
                   icon={MessageCircle}
@@ -276,7 +275,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!loadingConversations && !errorConversations && conversations.length > 0 && (
+            {!initialLoadConversations && !errorConversations && conversations.length > 0 && (
               <div className="p-3 space-y-2">
                 {conversations.map((c, index) => {
                   const active = c.id === activeConvId
