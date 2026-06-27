@@ -32,8 +32,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const verifier = async () => {
-      const token = localStorage.getItem('at_token');
-      if (!token) { setLoading(false); return; }
       try {
         const res = await authAPI.me();
         const payload = res.data?.data;
@@ -42,8 +40,6 @@ export function AuthProvider({ children }) {
           setUser(u);
           setIsAuth(true);
         } else {
-          localStorage.removeItem('at_token');
-          localStorage.removeItem('at_user');
           setUser(null);
           setIsAuth(false);
         }
@@ -56,8 +52,6 @@ export function AuthProvider({ children }) {
             err.response?.data?.message ?? 'Impossible de restaurer la session.',
           );
         }
-        localStorage.removeItem('at_token');
-        localStorage.removeItem('at_user');
         setUser(null);
         setIsAuth(false);
       } finally {
@@ -69,20 +63,13 @@ export function AuthProvider({ children }) {
 
   /** Nettoie session locale (401, token invalide) sans appel API */
   const clearSession = useCallback(() => {
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
     setUser(null);
     setIsAuth(false);
   }, []);
 
   const login = async (email, password) => {
-    // 1. Login pour obtenir le token
-    const res  = await authAPI.login({ email, password });
-    const body = res.data;
-    const t    = body?.data?.token ?? body?.token;
-    localStorage.setItem('at_token', t);
+    await authAPI.login({ email, password });
 
-    // 2. Récupère le profil complet avec le rôle via /auth/me
     const meRes   = await authAPI.me();
     const payload = meRes.data?.data;
     const u       = extraireUser(payload);
@@ -90,7 +77,6 @@ export function AuthProvider({ children }) {
       clearSession();
       throw new Error('Profil utilisateur invalide après connexion');
     }
-    localStorage.setItem('at_user', JSON.stringify(u));
     setUser(u);
     setIsAuth(true);
     return u?.role?.name ?? u?.role ?? '';
@@ -98,17 +84,13 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await authAPI.logout(); } catch { /* ignore */ }
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
     setUser(null);
     setIsAuth(false);
   };
 
   const updateUser = (data) => {
     if (!user || data == null) return;
-    const updated = { ...user, ...data };
-    setUser(updated);
-    localStorage.setItem('at_user', JSON.stringify(updated));
+    setUser({ ...user, ...data });
   };
 
   const hasRole = (...roles) => {

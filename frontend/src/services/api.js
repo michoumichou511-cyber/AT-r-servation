@@ -14,13 +14,7 @@ function requiredEnv(name) {
 const api = axios.create({
   baseURL: requiredEnv('VITE_API_URL'),
   headers: { 'Content-Type': 'application/json' },
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('at_token')
-  if (token)
-    config.headers.Authorization = `Bearer ${token}`
-  return config
+  withCredentials: true,
 })
 
 let unauthorizedHandler = () => {}
@@ -66,6 +60,7 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data),
   statistiques: () => api.get('/profil/statistiques'),
   changePassword: (data) => api.post('/auth/change-password', data),
+  refresh: ()     => api.post('/auth/refresh'),
 }
 
 // ── Missions ──────────────────────────
@@ -320,6 +315,17 @@ export const bonCommandeAPI = {
   get:     () => Promise.reject(new Error('Bons de commande: route /bons-commande/{id} indisponible.')),
   generer: () => Promise.reject(new Error('Bons de commande: route /missions/{id}/generer-bon indisponible.')),
   telecharger: () => Promise.reject(new Error('Bons de commande: téléchargement indisponible via cette API.')),
+}
+
+// ── DML (Direction des Moyens Logistiques) ──
+export const dmlAPI = {
+  getMissionsValidees:     () => api.get('/dml/missions-validees'),
+  getMissionsEnTraitement: () => api.get('/dml/missions-en-traitement'),
+  getHotelsConventions:    () => api.get('/dml/hotels-conventions'),
+  getVehiculesDisponibles: () => api.get('/dml/vehicules-disponibles'),
+  assignerHotel:     (missionId, data) => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
+  assignerVehicule:  (missionId, data) => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
+  marquerLogistiqueOk: (missionId) => api.post(`/dml/missions/${missionId}/logistique-ok`),
 }
 
 // ── Recherche ─────────────────────────

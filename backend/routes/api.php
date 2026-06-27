@@ -50,6 +50,7 @@ Route::middleware('throttle:5,1')->group(function () {
 Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function () {
     // AUTH
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/refresh', [AuthController::class, 'refreshToken']);
     Route::get('/users/by-structure', [UserController::class, 'byStructure']);
     Route::patch('/user/presence', [UserController::class, 'updatePresence']);
     Route::post('/user/presence', [UserController::class, 'updatePresence']);
