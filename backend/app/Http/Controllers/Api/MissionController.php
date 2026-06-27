@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MissionStoreRequest;
 use App\Http\Requests\MissionUpdateRequest;
 use App\Http\Resources\MissionResource;
-use App\Mail\MissionSoumiseMail;
+use App\Mail\MissionSoumise;
 use App\Models\Budget;
 use App\Models\Mission;
 use App\Models\NotificationCustom;
@@ -101,10 +101,11 @@ class MissionController extends Controller
 
         $user = $request->user();
 
-        // Generate numero_unique using max to avoid duplicates from deleted/failed missions
         $maxNum = Mission::whereYear('created_at', now()->year)
-            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(numero_unique, '-', -1) AS UNSIGNED)) as max_num")
-            ->value('max_num');
+            ->whereNotNull('numero_unique')
+            ->pluck('numero_unique')
+            ->map(fn ($n) => (int) last(explode('-', $n)))
+            ->max();
         $count = ($maxNum ?? 0) + 1;
         $numero = 'OM-'.now()->year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
 
@@ -178,8 +179,7 @@ class MissionController extends Controller
             'documents',
         ])->findOrFail($id);
 
-        // Check access (assistante remplace utilisateur)
-        $restricted = in_array($user->role->name, ['assistante', 'demandeur'], true);
+        $restricted = $user->role->name === 'demandeur';
         if ($restricted && $mission->user_id !== $user->id && $mission->created_by !== $user->id) {
             return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
         }
@@ -255,7 +255,7 @@ class MissionController extends Controller
             try {
                 $mission->loadMissing('user');
                 if ($mission->user?->email) {
-                    Mail::to($mission->user->email)->queue(new MissionSoumiseMail($mission));
+                    Mail::to($mission->user->email)->queue(new MissionSoumise($mission, $mission->user));
                 }
             } catch (\Exception $mailException) {
                 \Log::error('Email submission failed: '.$mailException->getMessage());
@@ -322,7 +322,7 @@ class MissionController extends Controller
         ])->findOrFail($id);
 
         $user = $request->user();
-        $restrictedPdf = in_array($user->role->name, ['assistante', 'demandeur'], true);
+        $restrictedPdf = $user->role->name === 'demandeur';
         if ($restrictedPdf && $mission->user_id !== $user->id && $mission->created_by !== $user->id) {
             return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
         }
@@ -394,76 +394,6 @@ class MissionController extends Controller
         $timeline = $this->missionService->getTimeline($mission);
 
         return response()->json($timeline);
-    }
-
-    /**
-     * POST /api/missions/pour-demandeur  (middleware: role:assistante)
-     * L'assistante crée une mission au nom d'un demandeur existant.
-     */
-    public function storeForDemandeur(Request $request)
-    {
-        $assistante = $request->user();
-
-        $validated = $request->validate([
-            'demandeur_id'        => 'required|integer|exists:users,id',
-            // FIX-4 : titre min 3 (idem MissionStoreRequest)
-            'titre'               => 'required|string|min:3|max:255',
-            'objet_mission'       => 'nullable|string|max:1000',
-            'destination_ville'   => 'required|string|max:255',
-            'destination_pays'    => 'required|string|max:255',
-            'date_depart'         => 'required|date',
-            'date_retour'         => 'required|date|after_or_equal:date_depart',
-            'type_mission'        => 'nullable|string|max:100',
-            'budget_previsionnel' => 'nullable|numeric|min:0',
-        ]);
-
-        $demandeur = User::findOrFail($validated['demandeur_id']);
-
-        $count  = Mission::whereYear('created_at', now()->year)->count() + 1;
-        $numero = 'OM-'.now()->year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
-
-        $mission = Mission::create([
-            'user_id'             => $demandeur->id,
-            'created_by'          => $assistante->id,
-            'pour_user_id'        => $demandeur->id,
-            'titre'               => $validated['titre'],
-            'objet_mission'       => $validated['objet_mission'] ?? null,
-            'destination'         => ($validated['destination_ville'] ?? '').', '.($validated['destination_pays'] ?? ''),
-            'destination_ville'   => $validated['destination_ville'],
-            'destination_pays'    => $validated['destination_pays'],
-            'date_depart'         => $validated['date_depart'],
-            'date_retour'         => $validated['date_retour'],
-            'type_mission'        => $validated['type_mission'] ?? null,
-            'budget_previsionnel' => $validated['budget_previsionnel'] ?? null,
-            'numero_unique'       => $numero,
-            'statut'              => 'brouillon',
-        ]);
-
-        // Notifier les admins
-        $adminIds = User::whereHas('role', fn ($q) => $q->where('name', 'admin'))->pluck('id');
-        if ($adminIds->isNotEmpty()) {
-            $now = now();
-            NotificationCustom::insert($adminIds->map(fn ($id) => [
-                'user_id'    => $id,
-                'titre'      => 'Nouvelle mission (assistante)',
-                'message'    => "Mission {$numero} créée par {$assistante->prenom} {$assistante->nom} pour {$demandeur->prenom} {$demandeur->nom}",
-                'type'       => 'info',
-                'lue'        => false,
-                'is_read'    => false,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ])->all());
-        }
-
-        return \App\Helpers\ApiResponse::success(
-            [
-                'id'        => $mission->id,
-                'reference' => $numero,
-                'mission'   => $mission->load(['user']),
-            ],
-            'Mission créée pour le demandeur',
-            201
-        );
     }
 
     public function calendrier(Request $request)

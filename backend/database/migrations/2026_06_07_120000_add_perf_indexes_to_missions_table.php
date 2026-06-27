@@ -14,6 +14,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Skip MySQL-specific indexes on SQLite (test environment)
+        if (config('database.default') === 'sqlite' || \DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('missions', function (Blueprint $table) {
             // Index pour le tri par date sur missions filtrees par user
             if (! self::indexExists('missions', 'missions_user_id_created_at_index')) {
@@ -35,6 +40,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (\DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('missions', function (Blueprint $table) {
             if (self::indexExists('missions', 'missions_user_id_created_at_index')) {
                 $table->dropIndex('missions_user_id_created_at_index');
@@ -55,14 +64,28 @@ return new class extends Migration
      */
     private static function indexExists(string $table, string $indexName): bool
     {
-        $rows = \DB::select(
-            "SELECT 1 FROM information_schema.statistics
-             WHERE table_schema = DATABASE()
-               AND table_name = ?
-               AND index_name = ?
-             LIMIT 1",
-            [$table, $indexName]
-        );
+        try {
+            $driver = \DB::connection()->getDriverName();
+        } catch (\Throwable) {
+            $driver = config('database.default');
+        }
+
+        if ($driver === 'sqlite') {
+            $rows = \DB::select(
+                "SELECT 1 FROM sqlite_master WHERE type='index' AND tbl_name=? AND name=? LIMIT 1",
+                [$table, $indexName]
+            );
+        } else {
+            $rows = \DB::select(
+                "SELECT 1 FROM information_schema.statistics
+                 WHERE table_schema = DATABASE()
+                   AND table_name = ?
+                   AND index_name = ?
+                 LIMIT 1",
+                [$table, $indexName]
+            );
+        }
+
         return ! empty($rows);
     }
 };
