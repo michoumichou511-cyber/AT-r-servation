@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->api(append: [
             \App\Http\Middleware\SanitizeInput::class,
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
     })
     ->withSchedule(function ($schedule) {
