@@ -17,8 +17,9 @@ class EnsureUserIsActive
         $user = $request->user();
 
         if ($user && ! $user->is_active) {
-            // Révoquer le token actuel
-            $user->currentAccessToken()->delete();
+            if ($user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
 
             return response()->json([
                 'success' => false,

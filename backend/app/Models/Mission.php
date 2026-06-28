@@ -81,4 +81,41 @@ class Mission extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function scopeForUser($query, User $user)
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhere('pour_user_id', $user->id)
+                ->orWhere('created_by', $user->id);
+        });
+    }
+
+    public function scopeStatut($query, string $statut)
+    {
+        return $query->where('statut', $statut);
+    }
+
+    public function scopeSearch($query, ?string $search)
+    {
+        if (! $search) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('titre', 'like', "%{$search}%")
+                ->orWhere('destination', 'like', "%{$search}%")
+                ->orWhere('numero_unique', 'like', "%{$search}%");
+        });
+    }
+
+    public function isPending(): bool
+    {
+        return in_array($this->statut, ['soumis', 'en_validation']);
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->statut === 'brouillon';
+    }
 }
