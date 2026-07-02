@@ -20,12 +20,25 @@ function parseFrDateTime(fr) {
   const yyyy = d[2]
   const t = timePart.split(':')
   if (t.length < 3) return null
-  const HH = String(t[0]).padStart(2, '0')
-  const min = String(t[1]).padStart(2, '0')
-  const SS = String(t[2]).padStart(2, '0')
-  const iso = `${yyyy}-${mm}-${dd}T${HH}:${min}:${SS}.000Z`
-  const dt = new Date(iso)
+  // Date LOCALE (pas UTC) : le backend envoie l'heure locale, un suffixe "Z"
+  // décalerait tous les "il y a X h" d'une heure (UTC+1 en Algérie).
+  const dt = new Date(
+    Number(yyyy), Number(mm) - 1, Number(dd),
+    Number(t[0]), Number(t[1]), Number(t[2])
+  )
   return Number.isNaN(dt.getTime()) ? null : dt
+}
+
+function groupeJour(fr) {
+  const dt = parseFrDateTime(fr)
+  if (!dt) return 'Plus ancien'
+  const now = new Date()
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  const diffJours = Math.round((startOfDay(now) - startOfDay(dt)) / 86400000)
+  if (diffJours <= 0) return "Aujourd'hui"
+  if (diffJours === 1) return 'Hier'
+  if (diffJours < 7) return 'Cette semaine'
+  return 'Plus ancien'
 }
 
 function formatRelative(fr) {
@@ -189,13 +202,24 @@ export default function Notifications() {
                 const isRead = !!(n.is_read ?? n.lue)
                 const iconBg = typeBadgeStyle(n.type, isRead)
                 const icon = getIconForType(n.type)
+                const groupe = groupeJour(n.created_at)
+                const groupePrecedent = index > 0 ? groupeJour(items[index - 1].created_at) : null
+                const nouveauGroupe = groupe !== groupePrecedent
                 return (
+                  <div key={n.id ?? index}>
+                  {nouveauGroupe && (
+                    <div className="flex items-center gap-3 pt-2 pb-1">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        {groupe}
+                      </span>
+                      <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
+                    </div>
+                  )}
                   <motion.div
-                    key={n.id ?? index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ delay: index * 0.08, duration: 0.3 }}
+                    transition={{ delay: Math.min(index * 0.05, 0.3), duration: 0.3 }}
                     whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,166,80,0.12)' }}
                     whileTap={{ scale: 0.98 }}
                     className={[
@@ -244,6 +268,7 @@ export default function Notifications() {
                       )}
                     </div>
                   </motion.div>
+                  </div>
                 )
               })}
             </AnimatePresence>
