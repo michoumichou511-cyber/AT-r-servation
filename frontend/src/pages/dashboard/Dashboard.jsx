@@ -697,21 +697,33 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
+
+      /* Perf : toutes les requêtes partent EN PARALLÈLE (au lieu de séquentielles)
+         et missionsDuMois n'est appelé qu'une seule fois → chargement ~5x plus rapide. */
+      const settle = (p) => (p ? p.then((r) => r).catch(() => null) : Promise.resolve(null))
+      const [rStats, rAlertes, rMois, rDir, rValidateur, rValList, rNotifs] = await Promise.all([
+        settle(dashboardAPI.stats()),
+        settle(dashboardAPI.alertes()),
+        settle(dashboardAPI.missionsDuMois()),
+        settle(isAdmin ? dashboardAPI.depensesParDirection() : null),
+        settle(isValidateur ? dashboardAPI.validateur() : null),
+        settle(isValidateur ? validationsAPI.list({ per_page: 10 }) : null),
+        settle((isUtilisateur || isDemandeur) && !isAdmin && !isValidateur ? notificationsAPI.list() : null),
+      ])
+
       let rawStats = {}
-      try {
-        const r = await dashboardAPI.stats()
-        rawStats = r.data?.data ?? r.data ?? {}
+      if (rStats) {
+        rawStats = rStats.data?.data ?? rStats.data ?? {}
         setStats(normalizeStats(rawStats))
-      } catch {
+      } else {
         setStats({})
       }
 
-      try {
-        const r = await dashboardAPI.alertes()
-        const d = r.data?.data ?? r.data
+      if (rAlertes) {
+        const d = rAlertes.data?.data ?? rAlertes.data
         const list = d?.alertes ?? (Array.isArray(d) ? d : [])
         setAlertes(Array.isArray(list) ? list : [])
-      } catch {
+      } else {
         setAlertes([])
       }
 
@@ -721,58 +733,48 @@ export default function Dashboard() {
         val.en_attente = Number(bud.en_attente) || 0
       }
       if (isValidateur) {
-        try {
-          const r = await dashboardAPI.validateur()
-          const d = r.data?.data ?? r.data ?? {}
+        if (rValidateur) {
+          const d = rValidateur.data?.data ?? rValidateur.data ?? {}
           val = {
             en_attente: Number(d.en_attente ?? val.en_attente) || 0,
             urgentes: Number(d.missions_urgentes ?? 0) || 0,
           }
           const list = d?.missions ?? d?.en_attente_liste ?? []
           setMissionsEnAttente(Array.isArray(list) ? list : [])
-        } catch {
-          /* garde val */
         }
-        try {
-          const r = await validationsAPI.list({ per_page: 10 })
-          const data = r.data?.data ?? r.data ?? []
+        if (rValList) {
+          const data = rValList.data?.data ?? rValList.data ?? []
           const enAtt = Array.isArray(data)
             ? data.filter((v) => (v.statut ?? '').toLowerCase() === 'en_attente')
             : []
           if (enAtt.length > 0) setMissionsEnAttente(enAtt)
-        } catch {
-          /* ignore */
         }
       }
 
       if ((isUtilisateur || isDemandeur) && !isAdmin && !isValidateur) {
-        try {
-          const r = await notificationsAPI.list()
-          const d = r.data?.data ?? r.data ?? r.data?.notifications ?? []
+        if (rNotifs) {
+          const d = rNotifs.data?.data ?? rNotifs.data ?? rNotifs.data?.notifications ?? []
           setNotifications(Array.isArray(d) ? d : [])
-        } catch {
+        } else {
           setNotifications([])
         }
       }
       setValidations(val)
 
+      const dMois = rMois ? (rMois.data?.data ?? rMois.data ?? {}) : {}
+
       if (isAdmin) {
         const parMois = rawStats?.missions_par_mois
         if (Array.isArray(parMois) && parMois.length > 0) {
           setGraphMois(mapEvolutionFromRows(parMois))
+        } else if (rMois) {
+          const fromList = missionsDuMoisToChartData({ data: dMois })
+          setGraphMois(mapEvolutionFromRows(fromList))
         } else {
-          try {
-            const r = await dashboardAPI.missionsDuMois()
-            const d = r.data?.data ?? r.data ?? {}
-            const fromList = missionsDuMoisToChartData({ data: d })
-            setGraphMois(mapEvolutionFromRows(fromList))
-          } catch {
-            setGraphMois([])
-          }
+          setGraphMois([])
         }
-        try {
-          const r = await dashboardAPI.depensesParDirection()
-          const d = r.data?.data ?? r.data
+        if (rDir) {
+          const d = rDir.data?.data ?? rDir.data
           const dep = d?.depenses ?? d?.data ?? []
           const rows = Array.isArray(dep) ? dep : []
           setGraphDir(rows.map((row) => ({
@@ -780,30 +782,18 @@ export default function Dashboard() {
             montant: Number(row?.total ?? row?.montant ?? 0) || 0,
             pourcentage: Number(row?.pourcentage ?? 0) || 0,
           })))
-        } catch {
+        } else {
           setGraphDir([])
         }
         const agg = aggregateBudgets(rawStats)
         if (agg) {
           setBudget({ consomme: agg.consomme, total: agg.alloue })
         }
-        try {
-          const r = await dashboardAPI.missionsDuMois()
-          const d = r.data?.data ?? r.data ?? {}
-          setMissions(Array.isArray(d.missions) ? d.missions : [])
-        } catch {
-          setMissions([])
-        }
+        setMissions(Array.isArray(dMois.missions) ? dMois.missions : [])
       } else {
         setGraphMois([])
         setGraphDir([])
-        try {
-          const r = await dashboardAPI.missionsDuMois()
-          const d = r.data?.data ?? r.data ?? {}
-          setMissions(Array.isArray(d.missions) ? d.missions : [])
-        } catch {
-          setMissions([])
-        }
+        setMissions(Array.isArray(dMois.missions) ? dMois.missions : [])
       }
 
       setLoading(false)
