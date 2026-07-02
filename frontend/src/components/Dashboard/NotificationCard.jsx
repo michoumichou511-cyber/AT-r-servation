@@ -169,7 +169,7 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
                     key={id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: Math.min(index * 0.06, 0.3) }}
                     onMouseEnter={() => setHoveredId(id)}
                     onMouseLeave={() => setHoveredId(null)}
                     className={`p-4 flex items-start gap-4 cursor-pointer transition-all ${

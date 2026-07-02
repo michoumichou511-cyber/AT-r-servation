@@ -212,7 +212,7 @@ export default function Validations() {
                   key={v.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.08, duration: 0.3 }}
+                  transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.3 }}
                   exit={{ opacity: 0, y: -6 }}
                   whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,166,80,0.12)' }}
                   whileTap={{ scale: 0.98 }}

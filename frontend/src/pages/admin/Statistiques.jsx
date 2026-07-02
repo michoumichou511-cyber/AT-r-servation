@@ -471,7 +471,7 @@ export default function Statistiques() {
                             key={`${p.nom}_${index}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2, delay: index * 0.03 }}
+                            transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.4) }}
                             className="at-table-row border-b border-[#EAECF0] dark:border-[#2A2D3E]"
                           >
                             <td className="px-4 py-3 text-sm font-semibold text-gray-800">

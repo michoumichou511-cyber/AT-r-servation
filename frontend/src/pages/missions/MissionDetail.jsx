@@ -844,7 +844,7 @@ export default function MissionDetail() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2, delay: index * 0.05 }}
+                        transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.4) }}
                         className="at-card-surface p-4"
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -925,7 +925,7 @@ export default function MissionDetail() {
                       key={`${t.date ?? index}_${index}`}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                      transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.4) }}
                       className="rounded-xl border border-[#EAECF0] bg-[#F8F9FC] p-3 dark:border-[#2A2D3E] dark:bg-[#252840]"
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -1046,7 +1046,7 @@ function ReservationSection({ title, items, renderItem }) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
+              transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.4) }}
               className="at-card-surface rounded-xl p-4"
             >
               {renderItem(r)}

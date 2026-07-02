@@ -401,7 +401,7 @@ export function DashboardValidateur({
                   key={v.id ?? i}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08, duration: 0.3 }}
+                  transition={{ delay: Math.min(i * 0.05, 0.4), duration: 0.3 }}
                   whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,166,80,0.12)' }}
                   whileTap={{ scale: 0.98 }}
                   className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[#F8F9FA] dark:hover:bg-white/[0.06]"
