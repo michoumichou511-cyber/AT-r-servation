@@ -40,12 +40,13 @@ export default function Navbar({ onMenuClick }) {
 
   const titre = titresRoutes[location.pathname] ?? 'AT Réservations'
 
-  // Notifications : un seul intervalle (60s) + nettoyage au démontage
+  // Notifications : polling 60s, en pause quand l'onglet est caché (perf)
   useEffect(() => {
     if (!user) {
       setNotifCount(0)
       return
     }
+    let id = null
     const tick = async () => {
       try {
         const res = await notificationsAPI.count()
@@ -54,10 +55,23 @@ export default function Navbar({ onMenuClick }) {
         /* ignore */
       }
     }
-    tick()
-    const id = setInterval(tick, 60000)
-    return () => clearInterval(id)
+    const start = () => { if (!id) { tick(); id = setInterval(tick, 60000) } }
+    const stop = () => { if (id) { clearInterval(id); id = null } }
+    const onVisibility = () => (document.hidden ? stop() : start())
+
+    if (!document.hidden) start()
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [user])
+
+  // Titre d'onglet dynamique : "(3) AT Réservations" si non-lues
+  useEffect(() => {
+    document.title = notifCount > 0 ? `(${notifCount}) AT Réservations` : 'AT Réservations'
+    return () => { document.title = 'AT Réservations' }
+  }, [notifCount])
 
   // Recherche avec debounce
   const handleSearch = useCallback((q) => {
