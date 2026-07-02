@@ -1,26 +1,30 @@
 import { useState, useId } from 'react';
+import { ChevronDown } from 'lucide-react';
 
-export default function Input({
+/**
+ * Select stylé — même design que Input (label flottant, focus ring vert AT).
+ * Utilise un <select> natif pour l'accessibilité et le clavier.
+ */
+export default function Select({
   label,
-  type = 'text',
   value,
   onChange,
+  options = [],
   error = false,
   errorMessage,
-  success = false,
   icon: Icon,
   className = '',
   required,
   disabled,
-  placeholder,
   id: idProp,
+  placeholder = 'Sélectionner…',
   onFocus: onFocusProp,
   onBlur: onBlurProp,
   ...props
 }) {
   const generatedId = useId();
-  const inputId = idProp ?? generatedId;
-  const errorId = `${inputId}-error`;
+  const selectId = idProp ?? generatedId;
+  const errorId = `${selectId}-error`;
   const [focused, setFocused] = useState(false);
   const hasValue = value !== '' && value !== undefined && value !== null;
   const floatLabel = focused || hasValue;
@@ -33,45 +37,44 @@ export default function Input({
             <Icon size={16} />
           </div>
         )}
-        <input
-          id={inputId}
-          type={type}
+        <select
+          id={selectId}
           value={value}
           onChange={onChange}
           disabled={disabled}
-          placeholder={floatLabel ? (placeholder || '') : ''}
           onFocus={(e) => { setFocused(true); onFocusProp?.(e); }}
           onBlur={(e) => { setFocused(false); onBlurProp?.(e); }}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={errorMessage ? errorId : undefined}
           className={[
-            'w-full px-3 pt-5 pb-2 rounded-lg border text-sm text-gray-800 bg-white',
-            'transition-all duration-200 outline-none peer',
+            'w-full px-3 pt-5 pb-2 rounded-lg border text-sm bg-white appearance-none cursor-pointer',
+            'transition-all duration-200 outline-none',
             'focus-visible:ring-2 focus-visible:ring-at-green/35 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
             'dark:bg-gray-800 dark:text-white',
+            hasValue ? 'text-gray-800 dark:text-white' : 'text-gray-400',
             Icon ? 'pl-9' : '',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
-              : success
-              ? 'border-at-green/60 focus:border-at-green focus:ring-1 focus:ring-at-green/30'
               : 'border-gray-200 focus:border-at-green focus:ring-1 focus:ring-at-green/30',
             disabled ? 'bg-gray-50 cursor-not-allowed opacity-70' : '',
           ].join(' ')}
           {...props}
-        />
-        {success && !error && (
-          <span
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-at-green text-xs font-bold pointer-events-none animate-[fadeIn_0.2s_ease]"
-            aria-hidden
-          >
-            ✓
-          </span>
-        )}
+        >
+          <option value="" disabled hidden>
+            {placeholder}
+          </option>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+
         {label && (
           <label
-            htmlFor={inputId}
+            htmlFor={selectId}
             className={[
-              'absolute left-3 transition-all duration-200 pointer-events-none',
+              'absolute transition-all duration-200 pointer-events-none',
               Icon ? 'left-9' : 'left-3',
               floatLabel
                 ? 'top-1.5 text-[10px] font-semibold'
@@ -84,7 +87,16 @@ export default function Input({
             {label}{required && ' *'}
           </label>
         )}
+
+        <ChevronDown
+          size={16}
+          className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 ${
+            focused ? 'rotate-180 text-at-green' : 'text-gray-400'
+          }`}
+          aria-hidden
+        />
       </div>
+
       {errorMessage && (
         <p id={errorId} role="status" aria-live="polite" className="mt-1 text-xs text-red-500">
           {errorMessage}
