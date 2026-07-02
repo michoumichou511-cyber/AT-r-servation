@@ -49,7 +49,11 @@ export function clearMissionDraft() {
 }
 
 export default function Step1Informations({ onNext, data, missionId, loading, error }) {
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  // Date locale (pas toISOString qui est UTC : à 00h30 locale, le min serait "hier")
+  const todayStr = useMemo(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }, [])
   const [savedAt, setSavedAt] = useState(null)
   const [draftRestored, setDraftRestored] = useState(false)
 
