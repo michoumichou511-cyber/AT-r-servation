@@ -219,6 +219,11 @@ body {
 .dark textarea::placeholder {
   color: #6B7280 !important;
 }
+/* Select à label flottant (composant UI/Select) : quand il est vide et non focus,
+   son texte doit rester invisible pour ne pas chevaucher le label. */
+.dark select[data-empty='true'] {
+  color: transparent !important;
+}
 
 /* Shimmer barre budget (Dashboard) */
 @keyframes at-shimmer-slide {

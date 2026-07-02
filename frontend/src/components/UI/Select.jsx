@@ -46,6 +46,9 @@ export default function Select({
           onBlur={(e) => { setFocused(false); onBlurProp?.(e); }}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={errorMessage ? errorId : undefined}
+          /* data-empty : neutralise le `.dark select { color: !important }` global
+             qui rendait le placeholder visible sous le label flottant en mode sombre */
+          data-empty={!hasValue && !focused ? 'true' : 'false'}
           className={[
             'w-full px-3 pt-5 pb-2 rounded-lg border text-sm bg-white appearance-none cursor-pointer',
             'transition-all duration-200 outline-none',
