@@ -31,9 +31,15 @@ export function AuthProvider({ children }) {
   }, [darkMode]);
 
   useEffect(() => {
-    const verifier = async () => {
+    let cancelled = false;
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    /* Ne déconnecte QUE sur 401/403. Un 429 (rate limit) ou une erreur serveur
+       temporaire ne doit jamais éjecter un utilisateur connecté → retry avec backoff. */
+    const verifier = async (tentative = 0) => {
       try {
         const res = await authAPI.me();
+        if (cancelled) return;
         const payload = res.data?.data;
         const u = extraireUser(payload);
         if (u) {
@@ -43,22 +49,40 @@ export function AuthProvider({ children }) {
           setUser(null);
           setIsAuth(false);
         }
+        setLoading(false);
       } catch (err) {
+        if (cancelled) return;
         const status = err.response?.status;
+
+        if (status === 401 || status === 403) {
+          // Session réellement invalide
+          setUser(null);
+          setIsAuth(false);
+          setLoading(false);
+          return;
+        }
+
+        // 429 / 5xx / réseau : on retente (2 fois max) avant d'abandonner
+        if (tentative < 2) {
+          await delay(1500 * (tentative + 1));
+          if (!cancelled) verifier(tentative + 1);
+          return;
+        }
+
         if (!status) {
           toast.error('Serveur injoignable. Vérifiez votre connexion ou réessayez plus tard.');
-        } else if (status !== 401) {
+        } else {
           toast.error(
             err.response?.data?.message ?? 'Impossible de restaurer la session.',
           );
         }
         setUser(null);
         setIsAuth(false);
-      } finally {
         setLoading(false);
       }
     };
     verifier();
+    return () => { cancelled = true; };
   }, []);
 
   /** Nettoie session locale (401, token invalide) sans appel API */

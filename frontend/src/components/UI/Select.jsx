@@ -50,8 +50,14 @@ export default function Select({
             'w-full px-3 pt-5 pb-2 rounded-lg border text-sm bg-white appearance-none cursor-pointer',
             'transition-all duration-200 outline-none',
             'focus-visible:ring-2 focus-visible:ring-at-green/35 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
-            'dark:bg-gray-800 dark:text-white',
-            hasValue ? 'text-gray-800 dark:text-white' : 'text-gray-400',
+            'dark:bg-gray-800',
+            /* Sans valeur : le placeholder reste invisible tant que le label est posé dessus
+               (sinon les deux textes se chevauchent) — il apparaît en gris au focus. */
+            hasValue
+              ? 'text-gray-800 dark:text-white'
+              : focused
+              ? 'text-gray-400'
+              : 'text-transparent',
             Icon ? 'pl-9' : '',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'

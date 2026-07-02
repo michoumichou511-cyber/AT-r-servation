@@ -46,8 +46,9 @@ Route::middleware('throttle:5,1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
 });
 
-// GROUPE PRINCIPAL auth:sanctum + active + throttle:60,1
-Route::middleware(['auth:sanctum', 'active', 'throttle:60,1'])->group(function () {
+// GROUPE PRINCIPAL auth:sanctum + active + throttle:120,1
+// (120/min : le dashboard riche + polling notifications dépassent facilement 60)
+Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function () {
     // AUTH
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refreshToken']);
