@@ -114,7 +114,7 @@ export default function NewMissionWizard() {
               <Step3Documents missionId={missionId} onNext={next} onPrev={prev} />
             )}
             {currentStep === 3 && (
-              <Step4Recap missionId={missionId} onPrev={prev} />
+              <Step4Recap missionId={missionId} onPrev={prev} onEditStep={goToStep} />
             )}
           </motion.div>
         </AnimatePresence>

@@ -10,6 +10,7 @@ export { default as StatCard }   from './StatCard';
 export { default as Toggle }     from './Toggle';
 export { default as Stepper }    from './Stepper';
 export { default as EmptyState } from './EmptyState';
+export { default as FileDropZone } from './FileDropZone';
 export { default as Tooltip }    from './Tooltip';
 export { default as StarRating } from './StarRating';
 export { default as ChipFilter } from './ChipFilter';

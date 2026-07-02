@@ -4,7 +4,7 @@ import { Download, FileText, Upload, RotateCcw, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import { documentsAPI } from '../../../services/api'
-import { Badge, Button, EmptyState, Modal } from '../../../components/UI'
+import { Badge, Button, EmptyState, FileDropZone, Modal } from '../../../components/UI'
 
 function dlFromBlob(data, nom) {
   const blob = data instanceof Blob ? data : new Blob([data])
@@ -207,27 +207,30 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
             ].map((row) => (
               <div key={row.key} className="space-y-2">
                 <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">{row.label}</div>
-                <input
-                  type="file"
+                <FileDropZone
+                  file={files[row.key]}
                   accept={ACCEPT}
-                  onChange={(e) => handleSelect(row.key, e.target.files?.[0] ?? null)}
+                  maxBytes={MAX_BYTES}
                   disabled={uploading[row.key]}
-                  className="w-full text-sm text-gray-700 dark:text-gray-200"
+                  label="Glissez-déposez ou cliquez (PDF, DOC, JPG — max 5 Mo)"
+                  onSelect={(f, err) => {
+                    if (err) { toast.error(err); return }
+                    handleSelect(row.key, f)
+                  }}
                 />
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0 text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {files[row.key]?.name ? `Fichier : ${files[row.key].name}` : 'Aucun fichier sélectionné'}
+                {files[row.key] && (
+                  <div className="flex justify-end">
+                    <Button
+                      size="sm"
+                      onClick={() => uploadOne(row.key)}
+                      loading={uploading[row.key]}
+                      disabled={uploading[row.key]}
+                      className="shrink-0"
+                    >
+                      <Upload size={16} /> Upload
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => uploadOne(row.key)}
-                    loading={uploading[row.key]}
-                    disabled={!files[row.key] || uploading[row.key]}
-                    className="shrink-0"
-                  >
-                    <Upload size={16} /> Upload
-                  </Button>
-                </div>
+                )}
               </div>
             ))}
           </div>
