@@ -556,6 +556,25 @@ function MissionsRecentes({
     annule: '#6B7280',
     termine: '#8B5CF6',
   }
+  const statusLabels = {
+    brouillon: 'Brouillon',
+    soumis: 'Soumis',
+    en_validation: 'En validation',
+    approuve: 'Approuvé',
+    rejete: 'Rejeté',
+    annule: 'Annulé',
+    termine: 'Terminé',
+    en_traitement_logistique: 'Logistique',
+  }
+  const formatDateCourte = (d) => {
+    if (!d) return '—'
+    // Le backend renvoie soit "d/m/Y", soit un ISO complet
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(String(d))) return String(d).slice(0, 10)
+    const dt = new Date(d)
+    return Number.isNaN(dt.getTime())
+      ? String(d).slice(0, 10)
+      : dt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
 
   if (!missions || missions.length === 0) {
     return null
@@ -637,11 +656,11 @@ function MissionsRecentes({
                 className="inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
                 style={{ background: statusColors[m.statut] ?? '#94A3B8' }}
               >
-                {m.statut}
+                {statusLabels[m.statut] ?? m.statut}
               </div>
               <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] text-[#9AA0AE] dark:text-[#8B92A8]">
                 <Calendar size={10} />
-                {m.date_depart ?? '—'}
+                {formatDateCourte(m.date_depart)}
               </div>
             </div>
           </motion.div>

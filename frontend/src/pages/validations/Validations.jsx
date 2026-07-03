@@ -36,10 +36,20 @@ function daysUntil(frDate) {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 }
 
+/** Parse "d/m/Y H:i:s" (heure locale) — new Date() natif lirait m/d/Y (bug "145 jours"). */
+function parseFrDateTime(fr) {
+  if (typeof fr !== 'string') return null
+  const m = fr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/)
+  if (!m) return null
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4] ?? 0), Number(m[5] ?? 0), Number(m[6] ?? 0))
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 /** Temps écoulé depuis la création de la demande (pas des jours décimaux). */
 function calcAttente(dateCreation) {
   if (!dateCreation) return ''
-  const diff = Date.now() - new Date(dateCreation).getTime()
+  const parsed = parseFrDateTime(dateCreation) ?? new Date(dateCreation)
+  const diff = Date.now() - parsed.getTime()
   if (Number.isNaN(diff)) return ''
   const minutes = Math.floor(diff / 60000)
   const heures = Math.floor(diff / 3600000)
@@ -51,10 +61,11 @@ function calcAttente(dateCreation) {
 }
 
 function formatBudgetLight(montant) {
+  // Le backend renvoie parfois une string déjà formatée "145 000,00 DA" :
+  // ce check DOIT précéder la conversion numérique (Number("… DA") = NaN → "0 DZD")
+  if (typeof montant === 'string' && montant.includes('DA')) return montant
   const n = typeof montant === 'number' ? montant : Number(montant ?? 0)
   if (Number.isNaN(n)) return '0 DZD'
-  // Le backend renvoie parfois une string déjà formatée "x DA"
-  if (typeof montant === 'string' && montant.includes('DA')) return montant
   return `${n.toLocaleString('fr-FR')} DZD`
 }
 

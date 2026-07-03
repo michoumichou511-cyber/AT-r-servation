@@ -65,7 +65,7 @@ class AuthController extends Controller
 
         // Send welcome email
         try {
-            Mail::to($user->email)->send(new WelcomeMail($user));
+            Mail::to($user->email)->queue((new WelcomeMail($user))->onConnection('database'));
         } catch (\Exception $e) {
             // Log error but don't fail registration
             \Log::error('Welcome email failed: '.$e->getMessage());

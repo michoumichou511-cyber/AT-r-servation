@@ -239,7 +239,7 @@ class MissionController extends Controller
             try {
                 $mission->loadMissing('user');
                 if ($mission->user?->email) {
-                    Mail::to($mission->user->email)->queue(new MissionSoumise($mission, $mission->user));
+                    Mail::to($mission->user->email)->queue((new MissionSoumise($mission, $mission->user))->onConnection('database'));
                 }
             } catch (\Exception $mailException) {
                 \Log::error('Email submission failed: '.$mailException->getMessage());

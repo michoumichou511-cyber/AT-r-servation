@@ -58,7 +58,8 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
   const navigate = useNavigate()
 
   const list = Array.isArray(notifications) ? notifications : []
-  const unreadCount = list.filter((n) => n && !n.read).length
+  // L'API expose is_read (ou lue) — "read" n'existe pas et comptait tout comme non lu
+  const unreadCount = list.filter((n) => n && !(n.is_read ?? n.lue ?? n.read)).length
 
   return (
     <motion.div

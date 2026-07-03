@@ -1,20 +1,19 @@
 import axios from 'axios'
 
-function requiredEnv(name) {
-  const v = import.meta.env?.[name]
-  if (!v) {
-    throw new Error(
-      `[config] Variable manquante: ${name}. ` +
-      `Créez un fichier .env à partir de .env.example et définissez ${name} (ex: http://127.0.0.1:8000/api).`
-    )
-  }
-  return v
-}
+/** Base API : Railway par défaut si VITE_API_URL n’est pas défini. */
+const defaultBaseURL = import.meta.env.VITE_API_URL
+  ?? 'https://backend-production-170c.up.railway.app/api'
 
 const api = axios.create({
-  baseURL: requiredEnv('VITE_API_URL'),
+  baseURL: defaultBaseURL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+})
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('at_token')
+  if (token)
+    config.headers.Authorization = `Bearer ${token}`
+  return config
 })
 
 let unauthorizedHandler = () => {}
@@ -60,7 +59,6 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data),
   statistiques: () => api.get('/profil/statistiques'),
   changePassword: (data) => api.post('/auth/change-password', data),
-  refresh: ()     => api.post('/auth/refresh'),
 }
 
 // ── Missions ──────────────────────────
@@ -76,6 +74,7 @@ export const missionsAPI = {
   cancel:  (id)     => api.post(`/missions/${id}/cancel`),
   soumettre: (id)   => api.post(`/missions/${id}/submit`),
   annuler: (id)     => api.post(`/missions/${id}/cancel`),
+  dupliquer: (id)   => api.post(`/missions/${id}/duplicate`),
   /** Alias backend : /historique (pas /timeline) */
   timeline:(id)     => api.get(`/missions/${id}/historique`),
   historique: (id)  => api.get(`/missions/${id}/historique`),
@@ -257,33 +256,41 @@ export const adminAPI = {
         { params }),
   },
 
-  // Aliases de compatibilité (évite la duplication réelle des endpoints)
-  utilisateurs:  (params) => adminAPI.users.list(params),
-  toggleActif:   (id) => adminAPI.users.toggleActive(id),
-  changerRole:   (id, data) => adminAPI.users.update(id, data),
-  creerUtilisateur: (data) => adminAPI.users.create(data),
-  modifierUtilisateur: (id, data) => adminAPI.users.update(id, data),
-  supprimerUtilisateur: (id) => adminAPI.users.delete(id),
+  utilisateurs: (params) => api.get('/admin/utilisateurs', { params }),
+  toggleActif: (id) => api.put(`/admin/utilisateurs/${id}/toggle-active`),
+  changerRole: (id, data) => api.put(`/admin/utilisateurs/${id}/role`, data),
+  // TODO: le backend n’expose pas POST /api/admin/utilisateurs — création utilisateur via authAPI.register
+  creerUtilisateur: (data) => api.post('/admin/utilisateurs', data),
+  modifierUtilisateur: (id, data) => api.put(`/admin/utilisateurs/${id}`, data),
+  supprimerUtilisateur: (id) => api.delete(`/admin/utilisateurs/${id}`),
 
-  prestataires: (params) => adminAPI.prestatairesCrud.list(params),
-  creerPrestataire: (data) => adminAPI.prestatairesCrud.create(data),
-  modifierPrestataire: (id, data) => adminAPI.prestatairesCrud.update(id, data),
-  supprimerPrestataire: (id) => adminAPI.prestatairesCrud.delete(id),
-  toggleFavori: (id) => adminAPI.prestatairesCrud.toggleFavori(id),
+  prestataires: (params) => api.get('/prestataires', { params }),
+  creerPrestataire: (data) => api.post('/admin/prestataires', data),
+  modifierPrestataire: (id, data) => api.put(`/admin/prestataires/${id}`, data),
+  supprimerPrestataire: (id) => api.delete(`/admin/prestataires/${id}`),
+  toggleFavori: (id) => api.post(`/prestataires/${id}/favori`, {}),
 
-  budgets: (params) => adminAPI.budgetsCrud.list(params),
-  modifierBudget: (id, data) => adminAPI.budgetsCrud.update(id, data),
+  budgets: (params) => api.get('/admin/budgets', { params }),
+  modifierBudget: (id, data) => api.put(`/admin/budgets/${id}`, data),
 
-  auditLogs: (params) => adminAPI.auditLogsList.list(params),
+  auditLogs: (params) => api.get('/admin/audit-logs', { params }),
 }
 
 // ── Rapports / Export (routes backend réelles sous /export/...) ─────────────────
 export const exportAPI = {
-  // Routes /rapports/* : non définies dans le backend actuel → erreur explicite au lieu d'un 404 silencieux
-  missions: () => Promise.reject(new Error('Export missions: route /rapports/missions indisponible. Utilisez missionsExcel ou missionsPdf.')),
-  budgets: () => Promise.reject(new Error('Export budgets: route /rapports/budgets indisponible.')),
-  prestataires: () => Promise.reject(new Error('Export prestataires: route /rapports/prestataires indisponible. Utilisez prestatairesExcel.')),
-  auditLogs: () => Promise.reject(new Error('Export audit logs: route /rapports/audit-logs indisponible.')),
+  // TODO: pas de routes GET /api/rapports/* dans le backend — préférer missionsExcel / missionsPdf / depensesExcel / prestatairesExcel
+  missions: (params) =>
+    api.get('/rapports/missions', {
+      params, responseType: 'blob' }),
+  budgets: (params) =>
+    api.get('/rapports/budgets', {
+      params, responseType: 'blob' }),
+  prestataires: (params) =>
+    api.get('/rapports/prestataires', {
+      params, responseType: 'blob' }),
+  auditLogs: (params) =>
+    api.get('/rapports/audit-logs', {
+      params, responseType: 'blob' }),
   missionsExcel: (params) =>
     api.get('/export/missions/excel', { params, responseType: 'blob' }),
   missionsPdf: (params) =>
@@ -311,21 +318,15 @@ export const rapportsAPI = {
 // ── Bons de commande ──────────────────
 // TODO: les routes /api/bons-commande et /api/missions/{id}/generer-bon ne sont pas définies dans api.php — utiliser missionsAPI.bonsCommande(missionId) si besoin
 export const bonCommandeAPI = {
-  list:    () => Promise.reject(new Error('Bons de commande: route /bons-commande indisponible. Utilisez missionsAPI.bonsCommande(missionId).')),
-  get:     () => Promise.reject(new Error('Bons de commande: route /bons-commande/{id} indisponible.')),
-  generer: () => Promise.reject(new Error('Bons de commande: route /missions/{id}/generer-bon indisponible.')),
-  telecharger: () => Promise.reject(new Error('Bons de commande: téléchargement indisponible via cette API.')),
-}
-
-// ── DML (Direction des Moyens Logistiques) ──
-export const dmlAPI = {
-  getMissionsValidees:     () => api.get('/dml/missions-validees'),
-  getMissionsEnTraitement: () => api.get('/dml/missions-en-traitement'),
-  getHotelsConventions:    () => api.get('/dml/hotels-conventions'),
-  getVehiculesDisponibles: () => api.get('/dml/vehicules-disponibles'),
-  assignerHotel:     (missionId, data) => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
-  assignerVehicule:  (missionId, data) => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
-  marquerLogistiqueOk: (missionId) => api.post(`/dml/missions/${missionId}/logistique-ok`),
+  list:    (params) =>
+    api.get('/bons-commande', { params }),
+  get:     (id) =>
+    api.get(`/bons-commande/${id}`),
+  generer: (missionId) =>
+    api.post(`/missions/${missionId}/generer-bon`),
+  telecharger: (id) =>
+    api.get(`/bons-commande/${id}/telecharger`, {
+      responseType: 'blob' }),
 }
 
 // ── Recherche ─────────────────────────
@@ -337,6 +338,21 @@ export const searchAPI = {
 // ── Health ────────────────────────────
 export const healthAPI = {
   check: () => api.get('/health'),
+}
+
+// ── DML (Direction Moyens Logistiques) ─
+export const dmlAPI = {
+  getMissionsValidees:    (params)           => api.get('/dml/missions-validees', { params }),
+  getMissionsEnTraitement:(params)           => api.get('/dml/missions-en-traitement', { params }),
+  assignerHotel:          (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
+  assignerVehicule:       (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
+  marquerLogistiqueOk:    (missionId)        => api.post(`/dml/missions/${missionId}/logistique-ok`),
+  getHotelsConventions:   (params)           => api.get('/dml/hotels-conventions', { params }),
+  getVehiculesDisponibles:(params)           => api.get('/dml/vehicules-disponibles', { params }),
+  adminHotels:            (params)           => api.get('/admin/dml/hotels', { params }),
+  adminCreateHotel:       (data)             => api.post('/admin/dml/hotels', data),
+  adminVehicules:         (params)           => api.get('/admin/dml/vehicules', { params }),
+  adminCreateVehicule:    (data)             => api.post('/admin/dml/vehicules', data),
 }
 
 // ── Utilitaire téléchargement ─────────

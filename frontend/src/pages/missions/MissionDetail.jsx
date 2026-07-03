@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FileText, History, FileArchive, CalendarDays, DollarSign, RotateCcw, Download, Pencil, X } from 'lucide-react'
@@ -192,33 +192,25 @@ export default function MissionDetail() {
     })
   }, [mission])
 
-  // Charge les données d'onglets au clic
+  // Charge les données d'onglets au clic — marqueur "déjà chargé" par onglet :
+  // se baser sur length===0 relançait le fetch en boucle quand la liste était vide
+  const loadedTabs = useRef({})
+  useEffect(() => { loadedTabs.current = {} }, [missionId])
   useEffect(() => {
     if (!missionId) return
-    if (activeTab === 'reservations' && reservations.length === 0 && !loadingReservations) {
+    if (activeTab === 'reservations' && !loadedTabs.current.reservations) {
+      loadedTabs.current.reservations = true
       chargerReservations()
     }
-    if (activeTab === 'documents' && documents.length === 0 && !loadingDocuments && !errorDocuments) {
+    if (activeTab === 'documents' && !loadedTabs.current.documents) {
+      loadedTabs.current.documents = true
       chargerDocuments()
     }
-    if (activeTab === 'historique' && historique.length === 0 && !loadingHistorique && !errorHistorique) {
+    if (activeTab === 'historique' && !loadedTabs.current.historique) {
+      loadedTabs.current.historique = true
       chargerHistorique()
     }
-  }, [
-    activeTab,
-    chargerReservations,
-    chargerDocuments,
-    chargerHistorique,
-    historique.length,
-    loadingDocuments,
-    errorDocuments,
-    loadingHistorique,
-    errorHistorique,
-    loadingReservations,
-    documents.length,
-    reservations.length,
-    missionId,
-  ])
+  }, [activeTab, chargerReservations, chargerDocuments, chargerHistorique, missionId])
 
   const soumettreMission = async () => {
     try {
@@ -232,6 +224,17 @@ export default function MissionDetail() {
       toast.error(
         err?.response?.data?.message || err?.message || 'Erreur lors de la soumission'
       )
+    }
+  }
+
+  const dupliquerMission = async () => {
+    try {
+      const res = await missionsAPI.dupliquer(missionId)
+      const copie = res.data?.data ?? res.data
+      toast.success(`Mission dupliquée : ${copie?.numero_unique ?? ''} ✅`)
+      if (copie?.id) navigate(`/missions/${copie.id}`)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Erreur lors de la duplication')
     }
   }
 
@@ -483,6 +486,9 @@ export default function MissionDetail() {
                 </Button>
               </>
             )}
+            <Button variant="outline" size="sm" onClick={dupliquerMission}>
+              <FileText size={16} /> Dupliquer
+            </Button>
           </div>
         </div>
       </div>
@@ -722,24 +728,39 @@ export default function MissionDetail() {
                 <ReservationSection
                   title="Billets"
                   items={reservationsParType.billets}
-                  renderItem={(r) => (
+                  renderItem={(r) => r?.billet ? (
                     <div className="space-y-2">
                       <div className="font-semibold text-gray-800">
-                        {r?.billet?.compagnie ? `${r.billet.compagnie}` : 'Billet'}
+                        {r.billet.compagnie || 'Billet'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Vol {r?.billet?.numero_vol ?? '—'} : {r?.billet?.aeroport_depart ?? '—'} →{' '}
-                        {r?.billet?.aeroport_arrivee ?? '—'}
+                        Vol {r.billet.numero_vol ?? '—'} : {r.billet.aeroport_depart ?? '—'} →{' '}
+                        {r.billet.aeroport_arrivee ?? '—'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {r?.billet?.date_vol ?? '—'} | {r?.billet?.heure_depart ?? '—'} → {r?.billet?.heure_arrivee ?? '—'}
+                        {r.billet.date_vol ?? '—'} | {r.billet.heure_depart ?? '—'} → {r.billet.heure_arrivee ?? '—'}
                       </div>
                       <div className="text-sm text-gray-700 font-semibold">
-                        {r?.billet?.prix ?? '0'} (prix)
+                        {r.billet.prix ?? '0'} (prix)
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">{r?.billet?.classe_label ?? ''}</span>
+                        <span className="text-xs text-gray-500">{r.billet.classe_label ?? ''}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Détails du vol pas encore saisis (demande en attente de traitement logistique) */
+                    <div className="space-y-2">
+                      <div className="font-semibold text-gray-800">
+                        {r?.prestataire?.nom ?? r?.type_label ?? "Billet d'avion"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
+                      </div>
+                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      <div className="flex items-center gap-2">
+                        <Badge status={r?.statut} />
+                        <span className="text-xs text-gray-500">Détails du vol à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}
@@ -748,23 +769,37 @@ export default function MissionDetail() {
                 <ReservationSection
                   title="Hébergements"
                   items={reservationsParType.heb}
-                  renderItem={(r) => (
+                  renderItem={(r) => r?.hebergement ? (
                     <div className="space-y-2">
                       <div className="font-semibold text-gray-800">
-                        {r?.hebergement?.hotel_nom ?? 'Hébergement'}
+                        {r.hebergement.hotel_nom ?? 'Hébergement'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {r?.hebergement?.localisation ?? '—'}
+                        {r.hebergement.localisation ?? '—'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Check-in {r?.hebergement?.date_checkin ?? '—'} → Check-out {r?.hebergement?.date_checkout ?? '—'}
+                        Check-in {r.hebergement.date_checkin ?? '—'} → Check-out {r.hebergement.date_checkout ?? '—'}
                       </div>
                       <div className="text-sm text-gray-700 font-semibold">
-                        {r?.hebergement?.prix_total ?? '0'} (total)
+                        {r.hebergement.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">{r?.hebergement?.type_chambre_label ?? ''}</span>
+                        <span className="text-xs text-gray-500">{r.hebergement.type_chambre_label ?? ''}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="font-semibold text-gray-800">
+                        {r?.prestataire?.nom ?? r?.type_label ?? 'Hébergement'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
+                      </div>
+                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      <div className="flex items-center gap-2">
+                        <Badge status={r?.statut} />
+                        <span className="text-xs text-gray-500">Détails de l'hébergement à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}
@@ -773,22 +808,36 @@ export default function MissionDetail() {
                 <ReservationSection
                   title="Restaurations"
                   items={reservationsParType.rest}
-                  renderItem={(r) => (
+                  renderItem={(r) => r?.restauration ? (
                     <div className="space-y-2">
                       <div className="font-semibold text-gray-800">
-                        {r?.restauration?.prestataire_nom ?? 'Restauration'}
+                        {r.restauration.prestataire_nom ?? 'Restauration'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Repas : {r?.restauration?.type_repas_label ?? '—'} | Lieu : {r?.restauration?.lieu ?? '—'}
+                        Repas : {r.restauration.type_repas_label ?? '—'} | Lieu : {r.restauration.lieu ?? '—'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Date : {r?.restauration?.date_repas ?? '—'} | Personnes : {r?.restauration?.nombre_personnes ?? '—'}
+                        Date : {r.restauration.date_repas ?? '—'} | Personnes : {r.restauration.nombre_personnes ?? '—'}
                       </div>
                       <div className="text-sm text-gray-700 font-semibold">
-                        {r?.restauration?.prix_total ?? '0'} (total)
+                        {r.restauration.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="font-semibold text-gray-800">
+                        {r?.prestataire?.nom ?? r?.type_label ?? 'Restauration'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
+                      </div>
+                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      <div className="flex items-center gap-2">
+                        <Badge status={r?.statut} />
+                        <span className="text-xs text-gray-500">Détails de la restauration à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}

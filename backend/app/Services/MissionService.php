@@ -8,6 +8,7 @@ use App\Models\CircuitValidation;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MissionService
@@ -63,7 +64,16 @@ class MissionService
                 $demandeur = $mission->user;
                 if ($demandeur) {
                     foreach ($validateurs as $v) {
-                        Mail::to($v->email)->queue(new MissionSoumise($mission, $demandeur));
+                        // Un échec d'e-mail ne doit jamais annuler la soumission.
+                        // File "database" forcée : jamais d'envoi SMTP bloquant dans la requête.
+                        try {
+                            Mail::to($v->email)->queue((new MissionSoumise($mission, $demandeur))->onConnection('database'));
+                        } catch (\Throwable $e) {
+                            Log::warning('Envoi e-mail validateur échoué (soumission maintenue)', [
+                                'mission_id' => $mission->id,
+                                'erreur' => $e->getMessage(),
+                            ]);
+                        }
                     }
                 }
             }

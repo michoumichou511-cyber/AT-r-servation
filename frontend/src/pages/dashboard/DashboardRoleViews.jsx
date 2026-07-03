@@ -552,9 +552,10 @@ export function DashboardUtilisateur({
               onClick: () => navigate('/missions/nouvelle'),
             },
             {
-              label: 'Voir calendrier',
+              // Pas de vue calendrier dans l'app : le libellé doit dire où on va
+              label: 'Mes missions',
               color: 'from-[#003DA5] to-[#0ea5e9]',
-              icon: '📅',
+              icon: '📋',
               onClick: () => navigate('/missions'),
             },
             {

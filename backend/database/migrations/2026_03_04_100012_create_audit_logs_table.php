@@ -17,22 +17,11 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-            $table->enum('action', [
-                'login',
-                'create',
-                'update',
-                'delete',
-                'approve',
-                'reject',
-                'export',
-            ]);
-            $table->enum('module', [
-                'mission',
-                'reservation',
-                'validation',
-                'user',
-                'budget',
-            ]);
+            // string plutôt qu'enum : le code audite aussi billet, hebergement,
+            // restauration, depense, prestataire, request_modification… et un
+            // ENUM trop étroit transformait chaque audit en erreur SQL 500.
+            $table->string('action', 50);
+            $table->string('module', 50);
             $table->text('description');
             $table->string('ip_address')->nullable();
             $table->string('user_agent')->nullable();

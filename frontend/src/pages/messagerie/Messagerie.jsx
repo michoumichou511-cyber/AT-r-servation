@@ -34,11 +34,15 @@ function formatRelative(isoString) {
   if (diffMin < 1) return 'à l’instant'
   if (diffMin < 60) return `il y a ${diffMin} min`
   const diffH = Math.floor(diffMin / 60)
-  return `il y a ${diffH} h`
+  if (diffH < 24) return `il y a ${diffH} h`
+  const diffJ = Math.floor(diffH / 24)
+  if (diffJ < 30) return `il y a ${diffJ} j`
+  // Au-delà d'un mois, la date parle mieux qu'un compteur ("il y a 945 h")
+  return t.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
 export default function Messagerie() {
-  const [initialLoadConversations, setInitialLoadConversations] = useState(true)
+  const [loadingConversations, setLoadingConversations] = useState(true)
   const [errorConversations, setErrorConversations] = useState('')
   const [conversations, setConversations] = useState([])
 
@@ -74,6 +78,7 @@ export default function Messagerie() {
   }, [])
 
   const fetchConversations = useCallback(async () => {
+    setLoadingConversations(true)
     setErrorConversations('')
     try {
       const res = await messagesAPI.conversations()
@@ -86,7 +91,7 @@ export default function Messagerie() {
         err?.response?.data?.message || err?.message || 'Erreur chargement des conversations'
       )
     } finally {
-      setInitialLoadConversations(false)
+      setLoadingConversations(false)
     }
   }, [])
 
@@ -245,7 +250,7 @@ export default function Messagerie() {
               </button>
             </div>
 
-            {initialLoadConversations && (
+            {loadingConversations && (
               <div className="space-y-3 p-4">
                 {[0, 1, 2].map(i => (
                   <SkeletonCard key={i} />
@@ -253,7 +258,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!initialLoadConversations && errorConversations && (
+            {!loadingConversations && errorConversations && (
               <div className="p-4">
                 <EmptyState
                   icon={UserRound}
@@ -265,7 +270,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!initialLoadConversations && !errorConversations && conversations.length === 0 && (
+            {!loadingConversations && !errorConversations && conversations.length === 0 && (
               <div className="p-4">
                 <EmptyState
                   icon={MessageCircle}
@@ -275,7 +280,7 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!initialLoadConversations && !errorConversations && conversations.length > 0 && (
+            {!loadingConversations && !errorConversations && conversations.length > 0 && (
               <div className="p-3 space-y-2">
                 {conversations.map((c, index) => {
                   const active = c.id === activeConvId

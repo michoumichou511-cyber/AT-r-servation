@@ -188,7 +188,7 @@ class DmlController extends Controller
         try {
             $mission->loadMissing('user');
             if ($mission->user?->email) {
-                Mail::to($mission->user->email)->queue(new MissionLogistiqueOkMail($mission, $traitement->load(['hotel', 'vehicule'])));
+                Mail::to($mission->user->email)->queue((new MissionLogistiqueOkMail($mission, $traitement->load(['hotel', 'vehicule'])))->onConnection('database'));
             }
         } catch (\Exception $e) {
             \Log::error('Email logistique OK failed: '.$e->getMessage());
