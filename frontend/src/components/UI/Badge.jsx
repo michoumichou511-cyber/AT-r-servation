@@ -10,6 +10,10 @@ const config = {
   pending:       { label: 'En attente',    cls: 'bg-[#FEF3C7] text-[#B45309] dark:bg-amber-900/40 dark:text-amber-200', dot: 'bg-[#F59E0B]', pulse: true },
   actif:         { label: 'Actif',         cls: 'bg-[#E6F7EE] text-[#00A650] dark:bg-[#00A650]/20 dark:text-[#4ade80]', dot: 'bg-[#00A650]', pulse: false },
   inactif:       { label: 'Inactif',       cls: 'bg-[#E8EAED] text-[#64748B] dark:bg-gray-700/50 dark:text-gray-400', dot: 'bg-[#94A3B8]', pulse: false },
+  en_traitement_logistique: { label: 'Logistique en cours', cls: 'bg-[#E0F2FE] text-[#0369A1] dark:bg-sky-900/40 dark:text-sky-200', dot: 'bg-[#0EA5E9]', pulse: true },
+  logistique_ok: { label: 'Logistique OK',  cls: 'bg-[#E6F7EE] text-[#00A650] dark:bg-[#00A650]/20 dark:text-[#4ade80]', dot: 'bg-[#00A650]', pulse: false },
+  en_traitement: { label: 'En traitement',  cls: 'bg-[#DBEAFE] text-[#1E40AF] dark:bg-blue-900/40 dark:text-blue-200', dot: 'bg-[#3B82F6]', pulse: true },
+  en_attente:    { label: 'En attente',     cls: 'bg-[#FEF3C7] text-[#B45309] dark:bg-amber-900/40 dark:text-amber-200', dot: 'bg-[#F59E0B]', pulse: true },
 };
 
 export default function Badge({ status, label, className = '' }) {

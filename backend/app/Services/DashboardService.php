@@ -29,13 +29,16 @@ class DashboardService
         $reservationsQuery = $this->getReservationsQueryForUser($user);
         $notificationsQuery = NotificationCustom::where('user_id', $user->id);
 
-        // 1 seule requête pour tous les compteurs missions (au lieu de 7 COUNT séparés)
+        // 1 seule requête pour tous les compteurs missions (au lieu de 7 COUNT séparés).
+        // "Approuvées" inclut les états POST-approbation (traitement logistique,
+        // terminé) : une mission approuvée puis traitée par la DML restait
+        // approuvée aux yeux du demandeur — le compteur retombait à 0 sinon.
         $mc = (clone $missionsQuery)->selectRaw("
             COUNT(*) as total,
             SUM(statut = 'brouillon') as brouillon,
             SUM(statut = 'soumis') as soumises,
             SUM(statut = 'en_validation') as en_validation,
-            SUM(statut = 'approuve') as approuvees,
+            SUM(statut IN ('approuve', 'en_traitement_logistique', 'termine')) as approuvees,
             SUM(statut = 'rejete') as rejetees,
             SUM(statut = 'termine') as terminees
         ")->first();

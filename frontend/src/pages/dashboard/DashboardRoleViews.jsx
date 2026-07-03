@@ -49,6 +49,20 @@ function depensesIsEmpty(rows) {
   return rows.every((r) => (Number(r?.montant ?? r?.total ?? 0) || 0) === 0)
 }
 
+/** Axe des montants : adaptatif (850k → "850k", 2,4M → "2.4M") — un ".toFixed(0)M" fixe affichait "0M" partout sous le million. */
+function formatMontantAxe(v) {
+  const n = Number(v) || 0
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k`
+  return String(n)
+}
+
+/** "dir-juridique" → "Juridique" : les clés techniques ne sont pas des libellés. */
+function formatDirectionLabel(d) {
+  const s = String(d ?? '').replace(/^dir[-_]/i, '').replace(/[-_]/g, ' ').trim()
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'
+}
+
 export function DashboardSkeleton() {
   return (
     <div className="p-6">
@@ -267,9 +281,9 @@ export function DashboardAdmin({
                   ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
-                <YAxis type="category" dataKey="direction" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickStrong }} width={55} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${Number(v).toLocaleString('fr-DZ')} DZD`, 'Montant']} />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} tickFormatter={formatMontantAxe} />
+                <YAxis type="category" dataKey="direction" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickStrong }} width={80} tickFormatter={formatDirectionLabel} />
+                <Tooltip contentStyle={tooltipStyle} labelFormatter={formatDirectionLabel} formatter={(v) => [`${Number(v).toLocaleString('fr-DZ')} DZD`, 'Montant']} />
                 <Bar dataKey="montant" radius={[0, 8, 8, 0]} isAnimationActive={chartAnimOn} animationDuration={chartAnimBar}>
                   {depData.map((_, i) => (
                     <Cell key={i} fill={`url(#bg${chartUid}-${i})`} />
