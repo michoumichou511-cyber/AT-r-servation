@@ -82,6 +82,12 @@ class Mission extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /** Traitement logistique DML (hôtel, transport) — un par mission. */
+    public function traitementDml()
+    {
+        return $this->hasOne(MissionTraitementDml::class);
+    }
+
     public function scopeForUser($query, User $user)
     {
         return $query->where(function ($q) use ($user) {

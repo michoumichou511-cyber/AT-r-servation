@@ -33,6 +33,15 @@ const STATUT_BADGE = {
   approuve:      { label: 'Approuvée',     cls: 'bg-green-50 text-[#00A650] ring-green-200', dot: 'bg-[#00A650]' },
 }
 
+/** "2026-07-20" ou ISO → "20/07/2026" ; laisse les dates déjà en d/m/Y intactes. */
+function formatDateFr(d) {
+  if (!d) return '—'
+  const s = String(d)
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) return s.slice(0, 10)
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : s
+}
+
 function StatutBadge({ statut }) {
   const c = STATUT_BADGE[statut] ?? { label: statut, cls: 'bg-gray-100 text-gray-600 ring-gray-200', dot: 'bg-gray-400' }
   return (
@@ -74,9 +83,9 @@ function MissionCard({ mission, traitement, onTraiter, onRefresh }) {
             </span>
             <span className="flex items-center gap-1">
               <Calendar size={12} />
-              {mission.dates?.depart ?? mission.date_depart ?? '—'}
+              {formatDateFr(mission.dates?.depart ?? mission.date_depart)}
               {' → '}
-              {mission.dates?.retour ?? mission.date_retour ?? '—'}
+              {formatDateFr(mission.dates?.retour ?? mission.date_retour)}
             </span>
           </div>
           {traitement?.hotel && (
@@ -181,7 +190,7 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
           <div className="text-gray-500 text-xs flex flex-wrap gap-x-4 gap-y-1">
             <span><MapPin size={11} className="inline mr-0.5" />{mission.destination_ville ?? mission.destination}</span>
             <span><Calendar size={11} className="inline mr-0.5" />
-              {mission.dates?.depart ?? mission.date_depart} → {mission.dates?.retour ?? mission.date_retour}
+              {formatDateFr(mission.dates?.depart ?? mission.date_depart)} → {formatDateFr(mission.dates?.retour ?? mission.date_retour)}
             </span>
           </div>
         </div>
