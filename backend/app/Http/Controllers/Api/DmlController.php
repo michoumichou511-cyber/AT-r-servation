@@ -48,6 +48,9 @@ class DmlController extends Controller
     {
         $perPage = (int) $request->get('per_page', 15);
 
+        // Tous les statuts : le frontend répartit lui-même entre
+        // "En traitement" et "Logistique OK" (l'onglet Terminées restait
+        // vide quand on excluait logistique_ok ici).
         $traitements = MissionTraitementDml::with([
             'mission.user',
             'mission.reservations',
@@ -55,7 +58,6 @@ class DmlController extends Controller
             'vehicule',
             'agentDml',
         ])
-            ->whereIn('statut', ['en_attente', 'en_traitement'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -185,12 +187,14 @@ class DmlController extends Controller
 
         $mission->update(['statut' => 'en_traitement_logistique']);
 
+        // \Throwable (pas \Exception) : une classe/vue manquante lève une Error
+        // fatale qui contournait le catch et faisait échouer toute la requête.
         try {
             $mission->loadMissing('user');
             if ($mission->user?->email) {
-                Mail::to($mission->user->email)->queue(new MissionLogistiqueOkMail($mission, $traitement->load(['hotel', 'vehicule'])));
+                Mail::to($mission->user->email)->queue((new MissionLogistiqueOkMail($mission, $traitement->load(['hotel', 'vehicule'])))->onConnection('database'));
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Email logistique OK failed: '.$e->getMessage());
         }
 

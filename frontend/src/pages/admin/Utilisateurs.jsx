@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, Plus, RotateCcw, KeyRound, ShieldCheck, XCircle } from 'lucide-react'
+import { Users, Plus, RotateCcw, KeyRound, ShieldCheck, XCircle, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import PageHeader from '../../components/Common/PageHeader'
@@ -40,6 +40,7 @@ export default function Utilisateurs() {
   const [modalOpen, setModalOpen] = useState(false)
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -115,6 +116,7 @@ export default function Utilisateurs() {
 
   const openCreate = () => {
     setCreateError('')
+    setShowPwd(false)
     setForm({
       nom: '',
       prenom: '',
@@ -281,7 +283,7 @@ export default function Utilisateurs() {
                       key={u.id ?? index}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08, duration: 0.3 }}
+                      transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.3 }}
                       whileHover={{ backgroundColor: 'rgba(0,166,80,0.04)' }}
                       className="at-table-row border-b border-[#EAECF0] bg-white odd:bg-[#F8F9FC] dark:border-[#2A2D3E] dark:bg-[#1A1D2E] dark:odd:bg-[#161a22]"
                     >
@@ -395,13 +397,28 @@ export default function Utilisateurs() {
               value={form.email}
               onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
             />
-            <Input
-              label="Mot de passe"
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-              required
-            />
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Mot de passe</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPwd ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                  required
+                  className="at-input pr-10"
+                  placeholder="Min. 8 caractères"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(p => !p)}
+                  style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
+                  tabIndex={-1}
+                >
+                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <small style={{ color: '#888', fontSize: 11 }}>Min. 8 caractères, 1 majuscule, 1 chiffre, 1 symbole</small>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

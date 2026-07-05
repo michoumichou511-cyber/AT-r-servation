@@ -7,12 +7,15 @@ export default function Input({
   onChange,
   error = false,
   errorMessage,
+  success = false,
   icon: Icon,
   className = '',
   required,
   disabled,
   placeholder,
   id: idProp,
+  onFocus: onFocusProp,
+  onBlur: onBlurProp,
   ...props
 }) {
   const generatedId = useId();
@@ -37,8 +40,8 @@ export default function Input({
           onChange={onChange}
           disabled={disabled}
           placeholder={floatLabel ? (placeholder || '') : ''}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={(e) => { setFocused(true); onFocusProp?.(e); }}
+          onBlur={(e) => { setFocused(false); onBlurProp?.(e); }}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={errorMessage ? errorId : undefined}
           className={[
@@ -49,11 +52,21 @@ export default function Input({
             Icon ? 'pl-9' : '',
             error
               ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
+              : success
+              ? 'border-at-green/60 focus:border-at-green focus:ring-1 focus:ring-at-green/30'
               : 'border-gray-200 focus:border-at-green focus:ring-1 focus:ring-at-green/30',
             disabled ? 'bg-gray-50 cursor-not-allowed opacity-70' : '',
           ].join(' ')}
           {...props}
         />
+        {success && !error && (
+          <span
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-at-green text-xs font-bold pointer-events-none animate-[fadeIn_0.2s_ease]"
+            aria-hidden
+          >
+            ✓
+          </span>
+        )}
         {label && (
           <label
             htmlFor={inputId}

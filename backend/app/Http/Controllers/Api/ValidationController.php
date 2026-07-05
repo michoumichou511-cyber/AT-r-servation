@@ -226,7 +226,7 @@ class ValidationController extends Controller
             try {
                 $mission->loadMissing('user');
                 if ($mission->user?->email) {
-                    Mail::to($mission->user->email)->queue(new MissionApprouvee($mission));
+                    Mail::to($mission->user->email)->queue((new MissionApprouvee($mission))->onConnection('database'));
                 }
             } catch (\Exception $e) {
                 \Log::error('Email approval failed: '.$e->getMessage());
@@ -293,7 +293,7 @@ class ValidationController extends Controller
             $mission->loadMissing('user');
             $motif = $request->commentaire;
             if ($mission->user?->email) {
-                Mail::to($mission->user->email)->queue(new MissionRejetee($mission, $motif));
+                Mail::to($mission->user->email)->queue((new MissionRejetee($mission, $motif))->onConnection('database'));
             }
         } catch (\Exception $e) {
             \Log::error('Email rejection failed: '.$e->getMessage());

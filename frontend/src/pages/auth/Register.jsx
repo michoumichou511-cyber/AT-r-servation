@@ -1,8 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { User, Mail, Lock, Hash, Sparkles } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { registerSchema } from '../../lib/validations'
 import { authAPI } from '../../services/api'
 import { Button, Input } from '../../components/UI'
 import LogoVideo from '../../components/Common/LogoVideo'
@@ -28,16 +31,17 @@ const itemVariants = {
 
 export default function Register() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({
-    prenom: '', nom: '', email: '', matricule: '', password: '', password_confirmation: '',
-  })
   const [loading, setLoading] = useState(false)
-  const [errors, setErrors]   = useState({})
+
+  const { control, handleSubmit, setError, formState: { errors } } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      prenom: '', nom: '', email: '', matricule: '', password: '', password_confirmation: '',
+    },
+  })
 
   const rootRef = useRef(null)
   const headerRef = useRef(null)
-
-  const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
   useEffect(() => {
     AOS.refresh()
@@ -58,17 +62,18 @@ export default function Register() {
     return () => ctx.revert()
   }, [])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setErrors({})
+  const onSubmit = async (data) => {
     setLoading(true)
     try {
-      await authAPI.register(form)
+      await authAPI.register(data)
       toast.success('Compte créé ! Vous pouvez vous connecter.')
       navigate('/login')
     } catch (err) {
       if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors)
+        const serverErrors = err.response.data.errors
+        Object.entries(serverErrors).forEach(([field, messages]) => {
+          setError(field, { type: 'server', message: messages[0] })
+        })
       } else {
         toast.error(err.response?.data?.message ?? 'Erreur lors de l\'inscription.')
       }
@@ -139,32 +144,44 @@ export default function Register() {
             variants={formVariants}
             initial="hidden"
             animate="show"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
             aria-label="Inscription AT Réservations"
           >
             <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-              <Input label="Prénom" name="given-name" autoComplete="given-name" value={form.prenom} onChange={set('prenom')} icon={User}
-                     error={!!errors.prenom} errorMessage={errors.prenom?.[0]} required />
-              <Input label="Nom" name="family-name" autoComplete="family-name" value={form.nom} onChange={set('nom')} icon={User}
-                     error={!!errors.nom} errorMessage={errors.nom?.[0]} required />
+              <Controller name="prenom" control={control} render={({ field }) => (
+                <Input label="Prénom" autoComplete="given-name" value={field.value} onChange={field.onChange}
+                       icon={User} error={!!errors.prenom} errorMessage={errors.prenom?.message} required />
+              )} />
+              <Controller name="nom" control={control} render={({ field }) => (
+                <Input label="Nom" autoComplete="family-name" value={field.value} onChange={field.onChange}
+                       icon={User} error={!!errors.nom} errorMessage={errors.nom?.message} required />
+              )} />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Email" name="email" type="email" autoComplete="email" value={form.email} onChange={set('email')}
-                     icon={Mail} error={!!errors.email} errorMessage={errors.email?.[0]} required />
+              <Controller name="email" control={control} render={({ field }) => (
+                <Input label="Email" type="email" autoComplete="email" value={field.value} onChange={field.onChange}
+                       icon={Mail} error={!!errors.email} errorMessage={errors.email?.message} required />
+              )} />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Matricule" name="matricule" autoComplete="username" value={form.matricule} onChange={set('matricule')}
-                     icon={Hash} error={!!errors.matricule} errorMessage={errors.matricule?.[0]} />
+              <Controller name="matricule" control={control} render={({ field }) => (
+                <Input label="Matricule" autoComplete="username" value={field.value} onChange={field.onChange}
+                       icon={Hash} error={!!errors.matricule} errorMessage={errors.matricule?.message} />
+              )} />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Mot de passe" name="new-password" type="password" autoComplete="new-password" value={form.password} onChange={set('password')}
-                     icon={Lock} error={!!errors.password} errorMessage={errors.password?.[0]} required />
+              <Controller name="password" control={control} render={({ field }) => (
+                <Input label="Mot de passe" type="password" autoComplete="new-password" value={field.value} onChange={field.onChange}
+                       icon={Lock} error={!!errors.password} errorMessage={errors.password?.message} required />
+              )} />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <Input label="Confirmer le mot de passe" name="new-password-confirm" type="password" autoComplete="new-password"
-                     value={form.password_confirmation} onChange={set('password_confirmation')}
-                     icon={Lock} required />
+              <Controller name="password_confirmation" control={control} render={({ field }) => (
+                <Input label="Confirmer le mot de passe" type="password" autoComplete="new-password"
+                       value={field.value} onChange={field.onChange}
+                       icon={Lock} error={!!errors.password_confirmation} errorMessage={errors.password_confirmation?.message} required />
+              )} />
             </motion.div>
 
             <motion.div variants={itemVariants} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>

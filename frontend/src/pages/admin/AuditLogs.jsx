@@ -261,7 +261,7 @@ export default function AuditLogs() {
                           key={log.id ?? index}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.08, duration: 0.3 }}
+                          transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.3 }}
                           whileHover={{ backgroundColor: 'rgba(0,166,80,0.04)' }}
                           className="border-b border-gray-50"
                         >

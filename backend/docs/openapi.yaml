@@ -1,0 +1,1096 @@
+openapi: 3.0.3
+info:
+  title: AT Réservations API
+  description: |
+    API REST pour la gestion des missions et réservations — Algérie Télécom.
+
+    ## Authentification
+    L'API utilise **Laravel Sanctum** avec tokens httpOnly cookie.
+    Appelez `POST /auth/login` pour obtenir un cookie de session,
+    puis incluez-le automatiquement dans les requêtes suivantes.
+
+    ## Rôles
+    | Rôle | Description |
+    |------|-------------|
+    | `admin` | Administrateur système — accès total |
+    | `validateur` | Valide/rejette les missions soumises |
+    | `utilisateur` | Crée et gère ses propres missions |
+    | `demandeur` | Soumet des demandes de mission |
+
+    ## Cycle de vie d'une mission
+    `brouillon` → `soumis` → `en_validation` → `approuve` / `rejete` / `annule`
+  version: 1.0.0
+  contact:
+    name: Support IT Algérie Télécom
+    email: it-support@at.dz
+
+servers:
+  - url: https://backend-production-170c.up.railway.app/api
+    description: Production (Railway)
+  - url: http://localhost:8000/api
+    description: Développement local
+
+tags:
+  - name: Auth
+    description: Authentification et profil utilisateur
+  - name: Missions
+    description: CRUD missions et actions de workflow
+  - name: Validations
+    description: Workflow de validation des missions
+  - name: Réservations
+    description: Réservations liées aux missions
+  - name: Notifications
+    description: Notifications utilisateur
+  - name: Messagerie
+    description: Messagerie interne
+  - name: Dashboard
+    description: Tableaux de bord et statistiques
+  - name: Admin
+    description: Administration (rôle admin uniquement)
+
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: at_reservations_token
+      description: Cookie httpOnly Sanctum
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        matricule:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [admin, validateur, utilisateur, demandeur]
+        direction:
+          type: string
+          nullable: true
+        service:
+          type: string
+          nullable: true
+        poste:
+          type: string
+          nullable: true
+        telephone:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        avatar_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Mission:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        numero_unique:
+          type: string
+          example: "OM-2026-0042"
+        titre:
+          type: string
+        objet_mission:
+          type: string
+        destination:
+          type: string
+          nullable: true
+        destination_ville:
+          type: string
+        date_depart:
+          type: string
+          format: date
+        date_retour:
+          type: string
+          format: date
+        type_mission:
+          type: string
+          enum: [nationale, internationale, formation, conference, reunion, inspection, audit, autre]
+        priorite:
+          type: string
+          enum: [normale, urgente, tres_urgente]
+        statut:
+          type: string
+          enum: [brouillon, soumis, en_validation, approuve, rejete, annule]
+        budget_previsionnel:
+          type: number
+          format: float
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        titre:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        lu:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        participant_1_id:
+          type: integer
+        participant_2_id:
+          type: integer
+        dernier_message:
+          type: string
+          nullable: true
+        dernier_message_at:
+          type: string
+          format: date-time
+          nullable: true
+        non_lus:
+          type: integer
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversation_id:
+          type: integer
+        sender_id:
+          type: integer
+        receiver_id:
+          type: integer
+        contenu:
+          type: string
+        lu:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  responses:
+    Unauthorized:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+    Forbidden:
+      description: Accès refusé (rôle insuffisant)
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    ValidationFailed:
+      description: Erreur de validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+security:
+  - sanctum: []
+
+paths:
+  # ──────────── AUTH ────────────
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@at.dz
+                password:
+                  type: string
+                  example: Password@123
+      responses:
+        '200':
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+        '401':
+          description: Identifiants invalides
+        '429':
+          description: Trop de tentatives (rate limit 5/min)
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Inscription nouvel utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nom, prenom, email, password, password_confirmation]
+              properties:
+                nom:
+                  type: string
+                  maxLength: 50
+                prenom:
+                  type: string
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                matricule:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+                  description: "Min 8 chars, 1 majuscule, 1 chiffre, 1 spécial"
+                password_confirmation:
+                  type: string
+      responses:
+        '201':
+          description: Compte créé
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Profil utilisateur connecté + statistiques
+      responses:
+        '200':
+          description: Profil et stats
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          stats:
+                            type: object
+                            properties:
+                              total_missions:
+                                type: integer
+                              missions_brouillon:
+                                type: integer
+                              missions_soumises:
+                                type: integer
+                              missions_approuvees:
+                                type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Déconnexion
+      responses:
+        '200':
+          description: Déconnecté
+
+  /auth/profile:
+    put:
+      tags: [Auth]
+      summary: Mise à jour du profil
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                prenom:
+                  type: string
+                telephone:
+                  type: string
+                direction:
+                  type: string
+                service:
+                  type: string
+                poste:
+                  type: string
+      responses:
+        '200':
+          description: Profil mis à jour
+
+  /auth/change-password:
+    post:
+      tags: [Auth]
+      summary: Changer le mot de passe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password, new_password_confirmation]
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+                new_password_confirmation:
+                  type: string
+      responses:
+        '200':
+          description: Mot de passe changé
+        '400':
+          description: Ancien mot de passe incorrect
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /auth/avatar:
+    post:
+      tags: [Auth]
+      summary: Upload avatar utilisateur
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Avatar mis à jour
+
+  # ──────────── MISSIONS ────────────
+  /missions:
+    get:
+      tags: [Missions]
+      summary: Lister les missions
+      description: |
+        Retourne les missions de l'utilisateur connecté.
+        Les admins et validateurs voient toutes les missions.
+      parameters:
+        - name: statut
+          in: query
+          schema:
+            type: string
+            enum: [brouillon, soumis, en_validation, approuve, rejete, annule]
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Recherche textuelle (titre, destination, numéro)
+        - name: type_mission
+          in: query
+          schema:
+            type: string
+        - name: priorite
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Liste paginée des missions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Mission'
+
+    post:
+      tags: [Missions]
+      summary: Créer une mission (brouillon)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [titre, objet_mission, destination_ville, date_depart, date_retour, type_mission]
+              properties:
+                titre:
+                  type: string
+                  maxLength: 200
+                objet_mission:
+                  type: string
+                destination_ville:
+                  type: string
+                destination_pays:
+                  type: string
+                date_depart:
+                  type: string
+                  format: date
+                date_retour:
+                  type: string
+                  format: date
+                type_mission:
+                  type: string
+                priorite:
+                  type: string
+                  enum: [normale, urgente, tres_urgente]
+                budget_previsionnel:
+                  type: number
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Mission créée en brouillon
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /missions/{id}:
+    get:
+      tags: [Missions]
+      summary: Détail d'une mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détail mission
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Mission'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Missions]
+      summary: Modifier une mission (brouillon uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                titre:
+                  type: string
+                objet_mission:
+                  type: string
+                destination_ville:
+                  type: string
+                date_depart:
+                  type: string
+                  format: date
+                date_retour:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Mission mise à jour
+        '403':
+          description: Modification interdite (statut non brouillon)
+
+    delete:
+      tags: [Missions]
+      summary: Supprimer une mission (brouillon uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Mission supprimée
+        '403':
+          description: Suppression interdite
+
+  /missions/{id}/submit:
+    post:
+      tags: [Missions]
+      summary: Soumettre une mission pour validation
+      description: Change le statut de `brouillon` à `soumis`
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Mission soumise
+
+  /missions/{id}/cancel:
+    post:
+      tags: [Missions]
+      summary: Annuler une mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Mission annulée
+
+  /missions/{id}/duplicate:
+    post:
+      tags: [Missions]
+      summary: Dupliquer une mission (crée un brouillon)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Mission dupliquée
+
+  /missions/{id}/historique:
+    get:
+      tags: [Missions]
+      summary: Historique des actions sur une mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des événements
+
+  /missions/{id}/export/pdf:
+    get:
+      tags: [Missions]
+      summary: Exporter une mission en PDF
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fichier PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # ──────────── VALIDATIONS ────────────
+  /validations:
+    get:
+      tags: [Validations]
+      summary: Missions en attente de validation
+      responses:
+        '200':
+          description: Liste des missions à valider
+
+  /validations/mes-validations:
+    get:
+      tags: [Validations]
+      summary: Mes validations effectuées
+      responses:
+        '200':
+          description: Historique de mes validations
+
+  /validations/{id}/approuver:
+    post:
+      tags: [Validations]
+      summary: Approuver une mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentaire:
+                  type: string
+      responses:
+        '200':
+          description: Mission approuvée
+
+  /validations/{id}/rejeter:
+    post:
+      tags: [Validations]
+      summary: Rejeter une mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [motif]
+              properties:
+                motif:
+                  type: string
+                  description: Motif de rejet obligatoire
+      responses:
+        '200':
+          description: Mission rejetée
+        '422':
+          description: Motif manquant
+
+  # ──────────── RÉSERVATIONS ────────────
+  /missions/{mission_id}/reservations:
+    get:
+      tags: [Réservations]
+      summary: Lister les réservations d'une mission
+      parameters:
+        - name: mission_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des réservations
+
+    post:
+      tags: [Réservations]
+      summary: Créer une réservation
+      parameters:
+        - name: mission_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [transport, hebergement, restauration]
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Réservation créée
+
+  # ──────────── NOTIFICATIONS ────────────
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Lister les notifications
+      responses:
+        '200':
+          description: Liste des notifications
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+
+  /notifications/non-lues/count:
+    get:
+      tags: [Notifications]
+      summary: Nombre de notifications non lues
+      responses:
+        '200':
+          description: Compteur
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          count:
+                            type: integer
+
+  /notifications/tout-lire:
+    put:
+      tags: [Notifications]
+      summary: Marquer toutes les notifications comme lues
+      responses:
+        '200':
+          description: Toutes marquées comme lues
+
+  /notifications/{id}/lire:
+    put:
+      tags: [Notifications]
+      summary: Marquer une notification comme lue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification marquée lue
+
+  /notifications/{id}:
+    delete:
+      tags: [Notifications]
+      summary: Supprimer une notification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification supprimée
+
+  # ──────────── MESSAGERIE ────────────
+  /conversations:
+    get:
+      tags: [Messagerie]
+      summary: Lister les conversations
+      responses:
+        '200':
+          description: Liste des conversations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          conversations:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Conversation'
+
+  /conversations/{id}/messages:
+    get:
+      tags: [Messagerie]
+      summary: Messages d'une conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des messages
+        '404':
+          description: Conversation inaccessible
+
+  /messages:
+    post:
+      tags: [Messagerie]
+      summary: Envoyer un message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [receiver_id, contenu]
+              properties:
+                receiver_id:
+                  type: integer
+                contenu:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: Message envoyé
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /messages/{id}/lire:
+    put:
+      tags: [Messagerie]
+      summary: Marquer un message comme lu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Message marqué lu
+
+  /messages/non-lus/count:
+    get:
+      tags: [Messagerie]
+      summary: Nombre de messages non lus
+      responses:
+        '200':
+          description: Compteur
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          count:
+                            type: integer
+
+  # ──────────── DASHBOARD ────────────
+  /dashboard/stats:
+    get:
+      tags: [Dashboard]
+      summary: Statistiques globales
+      responses:
+        '200':
+          description: KPIs du tableau de bord
+
+  /dashboard/missions-du-mois:
+    get:
+      tags: [Dashboard]
+      summary: Missions du mois en cours
+      responses:
+        '200':
+          description: Liste des missions du mois
+
+  /dashboard/depenses-par-direction:
+    get:
+      tags: [Dashboard]
+      summary: Dépenses ventilées par direction
+      responses:
+        '200':
+          description: Données de dépenses
+
+  /dashboard/alertes:
+    get:
+      tags: [Dashboard]
+      summary: Alertes système
+      responses:
+        '200':
+          description: Liste des alertes actives
+
+  /dashboard/validateur:
+    get:
+      tags: [Dashboard]
+      summary: Dashboard spécifique validateur
+      responses:
+        '200':
+          description: Statistiques de validation
+
+  # ──────────── ADMIN ────────────
+  /admin/utilisateurs:
+    get:
+      tags: [Admin]
+      summary: Lister tous les utilisateurs
+      description: Requiert le rôle `admin`
+      responses:
+        '200':
+          description: Liste des utilisateurs
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/utilisateurs/{id}/toggle-active:
+    put:
+      tags: [Admin]
+      summary: Activer/désactiver un utilisateur
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Statut modifié
+
+  /admin/utilisateurs/{id}/role:
+    put:
+      tags: [Admin]
+      summary: Changer le rôle d'un utilisateur
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [admin, validateur, utilisateur, demandeur]
+      responses:
+        '200':
+          description: Rôle modifié
+
+  /admin/audit-logs:
+    get:
+      tags: [Admin]
+      summary: Consulter les logs d'audit
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: action
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Logs d'audit paginés
+
+  /admin/statistiques:
+    get:
+      tags: [Admin]
+      summary: Statistiques globales admin
+      responses:
+        '200':
+          description: Vue d'ensemble statistique
+
+  # ──────────── HEALTH ────────────
+  /health:
+    get:
+      tags: [Dashboard]
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: API opérationnelle
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok

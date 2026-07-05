@@ -219,6 +219,11 @@ body {
 .dark textarea::placeholder {
   color: #6B7280 !important;
 }
+/* Select à label flottant (composant UI/Select) : quand il est vide et non focus,
+   son texte doit rester invisible pour ne pas chevaucher le label. */
+.dark select[data-empty='true'] {
+  color: transparent !important;
+}
 
 /* Shimmer barre budget (Dashboard) */
 @keyframes at-shimmer-slide {
@@ -302,16 +307,21 @@ body {
   @apply bg-[#E6F7EE] dark:bg-[#00A650]/15;
 }
 
-.at-input {
-  @apply w-full rounded-xl border-2 border-[#EAECF0] bg-white px-3 py-3 text-sm text-[#1A1D26] outline-none transition-colors;
-}
+/* @layer components : les utilitaires Tailwind (pl-10…) doivent pouvoir
+   surcharger le padding par défaut — hors layer, .at-input gagnait toujours
+   et l'icône de recherche chevauchait le placeholder. */
+@layer components {
+  .at-input {
+    @apply w-full rounded-xl border-2 border-[#EAECF0] bg-white px-3 py-3 text-sm text-[#1A1D26] outline-none transition-colors;
+  }
 
-.at-input:focus {
-  @apply border-[#00A650] ring-0;
-}
+  .at-input:focus {
+    @apply border-[#00A650] ring-0;
+  }
 
-.dark .at-input {
-  @apply border-[#2A2D3E] bg-[#1E2235] text-[#E8EAF0];
+  .dark .at-input {
+    @apply border-[#2A2D3E] bg-[#1E2235] text-[#E8EAF0];
+  }
 }
 
 .at-table-head {

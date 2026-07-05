@@ -74,6 +74,7 @@ export const missionsAPI = {
   cancel:  (id)     => api.post(`/missions/${id}/cancel`),
   soumettre: (id)   => api.post(`/missions/${id}/submit`),
   annuler: (id)     => api.post(`/missions/${id}/cancel`),
+  dupliquer: (id)   => api.post(`/missions/${id}/duplicate`),
   /** Alias backend : /historique (pas /timeline) */
   timeline:(id)     => api.get(`/missions/${id}/historique`),
   historique: (id)  => api.get(`/missions/${id}/historique`),

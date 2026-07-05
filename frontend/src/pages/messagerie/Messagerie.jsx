@@ -34,7 +34,11 @@ function formatRelative(isoString) {
   if (diffMin < 1) return 'à l’instant'
   if (diffMin < 60) return `il y a ${diffMin} min`
   const diffH = Math.floor(diffMin / 60)
-  return `il y a ${diffH} h`
+  if (diffH < 24) return `il y a ${diffH} h`
+  const diffJ = Math.floor(diffH / 24)
+  if (diffJ < 30) return `il y a ${diffJ} j`
+  // Au-delà d'un mois, la date parle mieux qu'un compteur ("il y a 945 h")
+  return t.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
 export default function Messagerie() {

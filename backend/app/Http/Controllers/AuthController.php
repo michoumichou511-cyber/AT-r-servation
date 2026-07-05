@@ -17,10 +17,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cookie;
 use Intervention\Image\ImageManager;
 
 class AuthController extends Controller
 {
+    private function authCookie(string $token): \Symfony\Component\HttpFoundation\Cookie
+    {
+        $minutes = (int) config('sanctum.expiration', 480);
+        $secure = app()->environment('production');
+
+        return cookie('at_auth_token', $token, $minutes, '/', null, $secure, true, false, 'Lax');
+    }
+
+    private function forgetAuthCookie(): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return cookie()->forget('at_auth_token');
+    }
+
     public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
@@ -51,7 +65,7 @@ class AuthController extends Controller
 
         // Send welcome email
         try {
-            Mail::to($user->email)->send(new WelcomeMail($user));
+            Mail::to($user->email)->queue((new WelcomeMail($user))->onConnection('database'));
         } catch (\Exception $e) {
             // Log error but don't fail registration
             \Log::error('Welcome email failed: '.$e->getMessage());
@@ -64,7 +78,7 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
                 'token' => $token,
             ],
-        ], 201);
+        ], 201)->withCookie($this->authCookie($token));
     }
 
     public function login(LoginRequest $request)
@@ -103,7 +117,7 @@ class AuthController extends Controller
                 'token' => $token,
                 'user' => new UserResource($user),
             ],
-        ]);
+        ])->withCookie($this->authCookie($token));
     }
 
     public function logout(Request $request)
@@ -117,7 +131,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Déconnexion réussie',
-        ], 200);
+        ], 200)->withCookie($this->forgetAuthCookie());
     }
 
     public function me(Request $request)
@@ -227,7 +241,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Mot de passe modifié. Veuillez vous reconnecter.',
-        ], 200);
+        ], 200)->withCookie($this->forgetAuthCookie());
     }
 
     public function uploadAvatar(Request $request)
@@ -344,5 +358,18 @@ class AuthController extends Controller
 
             return ApiResponse::error('Erreur statistiques: '.$e->getMessage(), 500);
         }
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $user = $request->user();
+        $request->user()->currentAccessToken()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token renouvelé',
+            'data' => ['user' => new UserResource($user->load('role'))],
+        ])->withCookie($this->authCookie($token));
     }
 }

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 
 import { documentsAPI, missionsAPI, reservationsAPI } from '../../../services/api'
 import { Badge, Button, EmptyState, SkeletonCard } from '../../../components/UI'
+import { Pencil } from 'lucide-react'
 
 function dlFromBlob(data, nom) {
   const blob = data instanceof Blob ? data : new Blob([data])
@@ -23,7 +24,20 @@ function safeParseDA(v) {
   return Number(s.replace(',', '.')) || 0
 }
 
-export default function Step4Recap({ missionId, onPrev }) {
+function EditLink({ onClick, children = 'Modifier' }) {
+  if (!onClick) return null
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1 text-xs font-semibold text-at-blue hover:underline transition-colors"
+    >
+      <Pencil size={11} /> {children}
+    </button>
+  )
+}
+
+export default function Step4Recap({ missionId, onPrev, onEditStep }) {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
@@ -185,8 +199,11 @@ export default function Step4Recap({ missionId, onPrev }) {
           <div className="at-card-surface p-4">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div className="min-w-0">
-                <div className="font-mono text-gray-500 dark:text-gray-400 text-xs mb-1">
-                  {mission.numero_unique ?? `OM-${missionId}`}
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="font-mono text-gray-500 dark:text-gray-400 text-xs">
+                    {mission.numero_unique ?? `OM-${missionId}`}
+                  </div>
+                  <EditLink onClick={onEditStep ? () => onEditStep(0) : undefined} />
                 </div>
                 <div className="text-gray-900 dark:text-gray-100 font-bold text-lg mb-2 truncate">{mission.titre ?? 'Sans titre'}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
@@ -207,6 +224,28 @@ export default function Step4Recap({ missionId, onPrev }) {
                     {budgetEstimeReservations.toLocaleString('fr-FR')} DA
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{reservations.length} élément(s)</div>
+
+                  {/* Jauge budget : estimé vs prévisionnel */}
+                  {Number(mission.budget_previsionnel) > 0 && (() => {
+                    const prev = Number(mission.budget_previsionnel) || 0
+                    const pct = Math.min(Math.round((budgetEstimeReservations / prev) * 100), 999)
+                    const barPct = Math.min(pct, 100)
+                    const color = pct <= 80 ? '#00A650' : pct <= 100 ? '#F59E0B' : '#EF4444'
+                    return (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400">vs budget prévisionnel</span>
+                          <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gray-200/70 dark:bg-gray-700 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-[width] duration-700 ease-out"
+                            style={{ width: `${barPct}%`, background: color }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             </div>
@@ -216,7 +255,10 @@ export default function Step4Recap({ missionId, onPrev }) {
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Réservations</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{reservations.length} au total</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{reservations.length} au total</div>
+                  <EditLink onClick={onEditStep ? () => onEditStep(1) : undefined} />
+                </div>
               </div>
               {reservations.length === 0 ? (
                 <EmptyState title="Aucune réservation" subtitle="Ajoutez des réservations à l’étape précédente." />
@@ -266,7 +308,10 @@ export default function Step4Recap({ missionId, onPrev }) {
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Documents</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{documents.length} au total</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{documents.length} au total</div>
+                  <EditLink onClick={onEditStep ? () => onEditStep(2) : undefined} />
+                </div>
               </div>
               {documents.length === 0 ? (
                 <EmptyState title="Aucun document" subtitle="Vous pourrez en ajouter à l’étape 3." icon={FileText} />

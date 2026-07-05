@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Stepper } from '../../../components/UI'
 import PageHeader from '../../../components/Common/PageHeader'
-import Step1Informations from './Step1Informations'
+import Step1Informations, { clearMissionDraft } from './Step1Informations'
 import Step2Reservations from './Step2Reservations'
 import Step3Documents from './Step3Documents'
 import Step4Recap from './Step4Recap'
@@ -10,6 +10,14 @@ import toast from 'react-hot-toast'
 import { missionsAPI } from '../../../services/api'
 
 const STEPS = ['Informations', 'Réservations', 'Documents', 'Récapitulatif'];
+
+/** Transition fluide GPU-only (opacity + transform) pour 60 FPS. */
+const stepTransition = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+  transition: { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] },
+}
 
 export default function NewMissionWizard() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -24,6 +32,11 @@ export default function NewMissionWizard() {
 
   const prev = useCallback(() => {
     setCurrentStep((s) => Math.max(s - 1, 0))
+  }, [])
+
+  // Retour direct à une étape déjà complétée via le Stepper
+  const goToStep = useCallback((index) => {
+    setCurrentStep((s) => (index < s ? index : s))
   }, [])
 
   const onSubmitStep1 = useCallback(
@@ -43,6 +56,7 @@ export default function NewMissionWizard() {
 
           setMissionId(id)
           setMissionDraft((d) => ({ ...d, ...cleaned }))
+          clearMissionDraft()
           next()
           return
         }
@@ -78,19 +92,13 @@ export default function NewMissionWizard() {
       />
 
       <div className="at-card-surface mb-6 rounded-xl p-6">
-        <Stepper steps={STEPS} currentStep={currentStep} />
+        <Stepper steps={STEPS} currentStep={currentStep} onStepClick={goToStep} />
       </div>
 
       <div className="at-card-surface rounded-xl p-6">
-        <AnimatePresence initial={false}>
-          {currentStep === 0 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div key={`step-${currentStep}`} {...stepTransition}>
+            {currentStep === 0 && (
               <Step1Informations
                 data={missionDraft}
                 missionId={missionId}
@@ -98,44 +106,17 @@ export default function NewMissionWizard() {
                 loading={step1Loading}
                 error={step1Error}
               />
-            </motion.div>
-          )}
-
-          {currentStep === 1 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
+            )}
+            {currentStep === 1 && (
               <Step2Reservations missionId={missionId} onNext={next} onPrev={prev} />
-            </motion.div>
-          )}
-
-          {currentStep === 2 && (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
+            )}
+            {currentStep === 2 && (
               <Step3Documents missionId={missionId} onNext={next} onPrev={prev} />
-            </motion.div>
-          )}
-
-          {currentStep === 3 && (
-            <motion.div
-              key="step4"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Step4Recap missionId={missionId} onPrev={prev} />
-            </motion.div>
-          )}
+            )}
+            {currentStep === 3 && (
+              <Step4Recap missionId={missionId} onPrev={prev} onEditStep={goToStep} />
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>

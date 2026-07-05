@@ -158,7 +158,7 @@ export default function Budgets() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2, delay: index * 0.05 }}
+                  transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.4) }}
                   className="at-card-surface at-hover-lift p-5"
                 >
                   <div className="flex items-start justify-between gap-4 flex-wrap">

@@ -108,17 +108,27 @@ class ExportController extends Controller
         // Sert uniquement au nom de fichier export (évite l'erreur "undefined variable")
         $date = now()->format('Y-m-d_H-i-s');
 
-        // Récupérer les prestataires avec stats
+        // Récupérer les prestataires avec stats.
+        // Colonnes explicites : MariaDB (XAMPP) rejette "prestataires.*" avec
+        // GROUP BY id seul (pas d'inférence de dépendance fonctionnelle).
+        // Filtre "confirme" dans le ON : en WHERE il annulerait le LEFT JOIN et
+        // exclurait les prestataires jamais utilisés (le CSV prévoit "Jamais").
         $prestataires = Prestataire::selectRaw('
-                prestataires.*,
+                prestataires.id,
+                prestataires.nom,
+                prestataires.type,
+                prestataires.ville,
+                prestataires.note_performance,
                 COUNT(reservations.id) as nb_reservations,
                 COALESCE(AVG(COALESCE(reservations.montant_reel, reservations.montant_estime)), 0) as montant_moyen,
                 MAX(reservations.created_at) as derniere_utilisation,
                 SUM(COALESCE(reservations.montant_reel, reservations.montant_estime, 0)) as montant_total
             ')
-            ->leftJoin('reservations', 'prestataires.id', '=', 'reservations.prestataire_id')
-            ->where('reservations.statut', 'confirme')
-            ->groupBy('prestataires.id')
+            ->leftJoin('reservations', function ($join) {
+                $join->on('prestataires.id', '=', 'reservations.prestataire_id')
+                    ->where('reservations.statut', 'confirme');
+            })
+            ->groupBy('prestataires.id', 'prestataires.nom', 'prestataires.type', 'prestataires.ville', 'prestataires.note_performance')
             ->orderBy('nb_reservations', 'desc')
             ->get()
             ->map(function ($prestataire) {
@@ -150,7 +160,7 @@ class ExportController extends Controller
             // Add UTF-8 BOM so Excel reads French accents correctly
             fwrite($file, "\xEF\xBB\xBF");
             // CSV Headers
-            fputcsv($file, ['Nom', 'Type', 'Ville', 'Note performance', 'Nombre de réservations', 'Montant total (MAD)', 'Dernière utilisation'], ';');
+            fputcsv($file, ['Nom', 'Type', 'Ville', 'Note performance', 'Nombre de réservations', 'Montant total (DA)', 'Dernière utilisation'], ';');
 
             foreach ($prestataires as $p) {
                 fputcsv($file, [

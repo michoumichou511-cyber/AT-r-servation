@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MissionStoreRequest;
 use App\Http\Requests\MissionUpdateRequest;
 use App\Http\Resources\MissionResource;
-use App\Mail\MissionSoumiseMail;
+use App\Mail\MissionSoumise;
 use App\Models\Budget;
 use App\Models\Mission;
 use App\Models\NotificationCustom;
@@ -101,10 +101,11 @@ class MissionController extends Controller
 
         $user = $request->user();
 
-        // Generate numero_unique using max to avoid duplicates from deleted/failed missions
         $maxNum = Mission::whereYear('created_at', now()->year)
-            ->selectRaw("MAX(CAST(SUBSTRING_INDEX(numero_unique, '-', -1) AS UNSIGNED)) as max_num")
-            ->value('max_num');
+            ->whereNotNull('numero_unique')
+            ->pluck('numero_unique')
+            ->map(fn ($n) => (int) last(explode('-', $n)))
+            ->max();
         $count = ($maxNum ?? 0) + 1;
         $numero = 'OM-'.now()->year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
 
@@ -170,7 +171,6 @@ class MissionController extends Controller
 
     public function show(Request $request, $id)
     {
-        $user = $request->user();
         $mission = Mission::with([
             'user',
             'reservations.prestataire',
@@ -178,10 +178,7 @@ class MissionController extends Controller
             'documents',
         ])->findOrFail($id);
 
-        $restricted = $user->role->name === 'demandeur';
-        if ($restricted && $mission->user_id !== $user->id && $mission->created_by !== $user->id) {
-            return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
-        }
+        $this->authorize('view', $mission);
 
         $budgetConsomme = $mission->reservations->sum('montant_reel');
 
@@ -195,19 +192,11 @@ class MissionController extends Controller
     public function update(MissionUpdateRequest $request, $id)
     {
         $mission = Mission::findOrFail($id);
-        $user = $request->user();
 
-        // Check status
+        $this->authorize('update', $mission);
+
         if ($mission->statut !== 'brouillon') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Seules les missions en brouillon peuvent être modifiées',
-            ], 403);
-        }
-
-        // Check creator or admin
-        if ($user->role->name !== 'admin' && $mission->user_id !== $user->id) {
-            return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
+            throw new \App\Exceptions\MissionNotEditableException;
         }
 
         $oldValues = $mission->only(['titre', 'objet_mission', 'destination_ville', 'destination_pays', 'date_depart', 'date_retour', 'type_mission', 'priorite', 'budget_previsionnel']);
@@ -226,13 +215,9 @@ class MissionController extends Controller
     public function destroy(Request $request, $id)
     {
         $mission = Mission::findOrFail($id);
-        $user = $request->user();
 
-        if ($user->role->name !== 'admin' && $mission->user_id !== $user->id) {
-            return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
-        }
+        $this->authorize('delete', $mission);
 
-        $numero = $mission->numero_unique;
         $mission->delete();
 
         return response()->json([
@@ -254,7 +239,7 @@ class MissionController extends Controller
             try {
                 $mission->loadMissing('user');
                 if ($mission->user?->email) {
-                    Mail::to($mission->user->email)->queue(new MissionSoumiseMail($mission));
+                    Mail::to($mission->user->email)->queue((new MissionSoumise($mission, $mission->user))->onConnection('database'));
                 }
             } catch (\Exception $mailException) {
                 \Log::error('Email submission failed: '.$mailException->getMessage());

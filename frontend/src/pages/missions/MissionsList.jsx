@@ -291,7 +291,7 @@ export default function MissionsList() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.06, 0.3), ease: [0.25, 0.1, 0.25, 1] }}
                     onClick={() => navigate(`/missions/${m.id}`)}
                     role="button"
                     tabIndex={0}

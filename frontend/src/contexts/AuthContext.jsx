@@ -31,58 +31,69 @@ export function AuthProvider({ children }) {
   }, [darkMode]);
 
   useEffect(() => {
-    const verifier = async () => {
-      const token = localStorage.getItem('at_token');
-      if (!token) { setLoading(false); return; }
+    let cancelled = false;
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    /* Ne déconnecte QUE sur 401/403. Un 429 (rate limit) ou une erreur serveur
+       temporaire ne doit jamais éjecter un utilisateur connecté → retry avec backoff. */
+    const verifier = async (tentative = 0) => {
       try {
         const res = await authAPI.me();
+        if (cancelled) return;
         const payload = res.data?.data;
         const u = extraireUser(payload);
         if (u) {
           setUser(u);
           setIsAuth(true);
         } else {
-          localStorage.removeItem('at_token');
-          localStorage.removeItem('at_user');
           setUser(null);
           setIsAuth(false);
         }
+        setLoading(false);
       } catch (err) {
+        if (cancelled) return;
         const status = err.response?.status;
+
+        if (status === 401 || status === 403) {
+          // Session réellement invalide
+          setUser(null);
+          setIsAuth(false);
+          setLoading(false);
+          return;
+        }
+
+        // 429 / 5xx / réseau : on retente (2 fois max) avant d'abandonner
+        if (tentative < 2) {
+          await delay(1500 * (tentative + 1));
+          if (!cancelled) verifier(tentative + 1);
+          return;
+        }
+
         if (!status) {
           toast.error('Serveur injoignable. Vérifiez votre connexion ou réessayez plus tard.');
-        } else if (status !== 401) {
+        } else {
           toast.error(
             err.response?.data?.message ?? 'Impossible de restaurer la session.',
           );
         }
-        localStorage.removeItem('at_token');
-        localStorage.removeItem('at_user');
         setUser(null);
         setIsAuth(false);
-      } finally {
         setLoading(false);
       }
     };
     verifier();
+    return () => { cancelled = true; };
   }, []);
 
   /** Nettoie session locale (401, token invalide) sans appel API */
   const clearSession = useCallback(() => {
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
     setUser(null);
     setIsAuth(false);
   }, []);
 
   const login = async (email, password) => {
-    // 1. Login pour obtenir le token
-    const res  = await authAPI.login({ email, password });
-    const body = res.data;
-    const t    = body?.data?.token ?? body?.token;
-    localStorage.setItem('at_token', t);
+    await authAPI.login({ email, password });
 
-    // 2. Récupère le profil complet avec le rôle via /auth/me
     const meRes   = await authAPI.me();
     const payload = meRes.data?.data;
     const u       = extraireUser(payload);
@@ -90,7 +101,6 @@ export function AuthProvider({ children }) {
       clearSession();
       throw new Error('Profil utilisateur invalide après connexion');
     }
-    localStorage.setItem('at_user', JSON.stringify(u));
     setUser(u);
     setIsAuth(true);
     return u?.role?.name ?? u?.role ?? '';
@@ -98,17 +108,13 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await authAPI.logout(); } catch { /* ignore */ }
-    localStorage.removeItem('at_token');
-    localStorage.removeItem('at_user');
     setUser(null);
     setIsAuth(false);
   };
 
   const updateUser = (data) => {
     if (!user || data == null) return;
-    const updated = { ...user, ...data };
-    setUser(updated);
-    localStorage.setItem('at_user', JSON.stringify(updated));
+    setUser({ ...user, ...data });
   };
 
   const hasRole = (...roles) => {

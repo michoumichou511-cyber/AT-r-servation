@@ -8,6 +8,7 @@ use App\Models\CircuitValidation;
 use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MissionService
@@ -26,29 +27,39 @@ class MissionService
             throw new \Exception('Ajoutez au moins une réservation avant de soumettre');
         }
 
-        // Vérifier s'il y a des validateurs
-        $validateurs = User::whereHas('role', function ($q) {
-            $q->where('name', 'validateur');
-        })->get();
+        // Circuit hiérarchique réaliste : le(s) validateur(s) de la direction
+        // du demandeur (2 niveaux max). Avant, TOUS les validateurs de
+        // l'entreprise (22) étaient mis dans le circuit séquentiel : une
+        // mission ne devenait jamais "approuve" et la file DML restait vide.
+        $mission->loadMissing('user');
+        $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
+            ->actif()
+            ->where('direction', $mission->user?->direction)
+            ->orderBy('id')
+            ->limit(2)
+            ->get();
+
+        if ($validateurs->isEmpty()) {
+            // Direction sans validateur : repli sur le premier validateur actif
+            $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
+                ->actif()
+                ->orderBy('id')
+                ->limit(1)
+                ->get();
+        }
 
         if ($validateurs->isEmpty()) {
             throw new \Exception('Aucun validateur configuré');
         }
 
-        return DB::transaction(function () use ($mission) {
+        return DB::transaction(function () use ($mission, $validateurs) {
             // 1. Mettre à jour le statut
             $mission->update([
                 'statut' => 'soumis',
                 'soumis_le' => now(),
             ]);
 
-            // 2. Créer le circuit de validation
-            // On récupère les validateurs (selon service/direction ou rôle spécifique)
-            // Pour cet exemple, on prend tous les utilisateurs avec le rôle 'validateur'
-            $validateurs = User::whereHas('role', function ($q) {
-                $q->where('name', 'validateur');
-            })->get();
-
+            // 2. Créer le circuit de validation (séquentiel, 2 niveaux max)
             foreach ($validateurs as $index => $validateur) {
                 CircuitValidation::create([
                     'mission_id' => $mission->id,
@@ -63,7 +74,16 @@ class MissionService
                 $demandeur = $mission->user;
                 if ($demandeur) {
                     foreach ($validateurs as $v) {
-                        Mail::to($v->email)->queue(new MissionSoumise($mission, $demandeur));
+                        // Un échec d'e-mail ne doit jamais annuler la soumission.
+                        // File "database" forcée : jamais d'envoi SMTP bloquant dans la requête.
+                        try {
+                            Mail::to($v->email)->queue((new MissionSoumise($mission, $demandeur))->onConnection('database'));
+                        } catch (\Throwable $e) {
+                            Log::warning('Envoi e-mail validateur échoué (soumission maintenue)', [
+                                'mission_id' => $mission->id,
+                                'erreur' => $e->getMessage(),
+                            ]);
+                        }
                     }
                 }
             }

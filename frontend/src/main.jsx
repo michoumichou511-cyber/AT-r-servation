@@ -21,11 +21,14 @@ AOS.init({
 })
 
 import App from './App.jsx'
+import ErrorBoundary from './components/Common/ErrorBoundary.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MotionConfig reducedMotion="user">
-      <App />
-    </MotionConfig>
+    <ErrorBoundary variant="fullscreen">
+      <MotionConfig reducedMotion="user">
+        <App />
+      </MotionConfig>
+    </ErrorBoundary>
   </StrictMode>,
 )

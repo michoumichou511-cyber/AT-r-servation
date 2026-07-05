@@ -556,6 +556,25 @@ function MissionsRecentes({
     annule: '#6B7280',
     termine: '#8B5CF6',
   }
+  const statusLabels = {
+    brouillon: 'Brouillon',
+    soumis: 'Soumis',
+    en_validation: 'En validation',
+    approuve: 'Approuvé',
+    rejete: 'Rejeté',
+    annule: 'Annulé',
+    termine: 'Terminé',
+    en_traitement_logistique: 'Logistique',
+  }
+  const formatDateCourte = (d) => {
+    if (!d) return '—'
+    // Le backend renvoie soit "d/m/Y", soit un ISO complet
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(String(d))) return String(d).slice(0, 10)
+    const dt = new Date(d)
+    return Number.isNaN(dt.getTime())
+      ? String(d).slice(0, 10)
+      : dt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
 
   if (!missions || missions.length === 0) {
     return null
@@ -637,11 +656,11 @@ function MissionsRecentes({
                 className="inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
                 style={{ background: statusColors[m.statut] ?? '#94A3B8' }}
               >
-                {m.statut}
+                {statusLabels[m.statut] ?? m.statut}
               </div>
               <div className="mt-0.5 flex items-center justify-end gap-1 text-[11px] text-[#9AA0AE] dark:text-[#8B92A8]">
                 <Calendar size={10} />
-                {m.date_depart ?? '—'}
+                {formatDateCourte(m.date_depart)}
               </div>
             </div>
           </motion.div>
@@ -697,21 +716,33 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
+
+      /* Perf : toutes les requêtes partent EN PARALLÈLE (au lieu de séquentielles)
+         et missionsDuMois n'est appelé qu'une seule fois → chargement ~5x plus rapide. */
+      const settle = (p) => (p ? p.then((r) => r).catch(() => null) : Promise.resolve(null))
+      const [rStats, rAlertes, rMois, rDir, rValidateur, rValList, rNotifs] = await Promise.all([
+        settle(dashboardAPI.stats()),
+        settle(dashboardAPI.alertes()),
+        settle(dashboardAPI.missionsDuMois()),
+        settle(isAdmin ? dashboardAPI.depensesParDirection() : null),
+        settle(isValidateur ? dashboardAPI.validateur() : null),
+        settle(isValidateur ? validationsAPI.list({ per_page: 10 }) : null),
+        settle((isUtilisateur || isDemandeur) && !isAdmin && !isValidateur ? notificationsAPI.list() : null),
+      ])
+
       let rawStats = {}
-      try {
-        const r = await dashboardAPI.stats()
-        rawStats = r.data?.data ?? r.data ?? {}
+      if (rStats) {
+        rawStats = rStats.data?.data ?? rStats.data ?? {}
         setStats(normalizeStats(rawStats))
-      } catch {
+      } else {
         setStats({})
       }
 
-      try {
-        const r = await dashboardAPI.alertes()
-        const d = r.data?.data ?? r.data
+      if (rAlertes) {
+        const d = rAlertes.data?.data ?? rAlertes.data
         const list = d?.alertes ?? (Array.isArray(d) ? d : [])
         setAlertes(Array.isArray(list) ? list : [])
-      } catch {
+      } else {
         setAlertes([])
       }
 
@@ -721,58 +752,48 @@ export default function Dashboard() {
         val.en_attente = Number(bud.en_attente) || 0
       }
       if (isValidateur) {
-        try {
-          const r = await dashboardAPI.validateur()
-          const d = r.data?.data ?? r.data ?? {}
+        if (rValidateur) {
+          const d = rValidateur.data?.data ?? rValidateur.data ?? {}
           val = {
             en_attente: Number(d.en_attente ?? val.en_attente) || 0,
             urgentes: Number(d.missions_urgentes ?? 0) || 0,
           }
           const list = d?.missions ?? d?.en_attente_liste ?? []
           setMissionsEnAttente(Array.isArray(list) ? list : [])
-        } catch {
-          /* garde val */
         }
-        try {
-          const r = await validationsAPI.list({ per_page: 10 })
-          const data = r.data?.data ?? r.data ?? []
+        if (rValList) {
+          const data = rValList.data?.data ?? rValList.data ?? []
           const enAtt = Array.isArray(data)
             ? data.filter((v) => (v.statut ?? '').toLowerCase() === 'en_attente')
             : []
           if (enAtt.length > 0) setMissionsEnAttente(enAtt)
-        } catch {
-          /* ignore */
         }
       }
 
       if ((isUtilisateur || isDemandeur) && !isAdmin && !isValidateur) {
-        try {
-          const r = await notificationsAPI.list()
-          const d = r.data?.data ?? r.data ?? r.data?.notifications ?? []
+        if (rNotifs) {
+          const d = rNotifs.data?.data ?? rNotifs.data ?? rNotifs.data?.notifications ?? []
           setNotifications(Array.isArray(d) ? d : [])
-        } catch {
+        } else {
           setNotifications([])
         }
       }
       setValidations(val)
 
+      const dMois = rMois ? (rMois.data?.data ?? rMois.data ?? {}) : {}
+
       if (isAdmin) {
         const parMois = rawStats?.missions_par_mois
         if (Array.isArray(parMois) && parMois.length > 0) {
           setGraphMois(mapEvolutionFromRows(parMois))
+        } else if (rMois) {
+          const fromList = missionsDuMoisToChartData({ data: dMois })
+          setGraphMois(mapEvolutionFromRows(fromList))
         } else {
-          try {
-            const r = await dashboardAPI.missionsDuMois()
-            const d = r.data?.data ?? r.data ?? {}
-            const fromList = missionsDuMoisToChartData({ data: d })
-            setGraphMois(mapEvolutionFromRows(fromList))
-          } catch {
-            setGraphMois([])
-          }
+          setGraphMois([])
         }
-        try {
-          const r = await dashboardAPI.depensesParDirection()
-          const d = r.data?.data ?? r.data
+        if (rDir) {
+          const d = rDir.data?.data ?? rDir.data
           const dep = d?.depenses ?? d?.data ?? []
           const rows = Array.isArray(dep) ? dep : []
           setGraphDir(rows.map((row) => ({
@@ -780,30 +801,18 @@ export default function Dashboard() {
             montant: Number(row?.total ?? row?.montant ?? 0) || 0,
             pourcentage: Number(row?.pourcentage ?? 0) || 0,
           })))
-        } catch {
+        } else {
           setGraphDir([])
         }
         const agg = aggregateBudgets(rawStats)
         if (agg) {
           setBudget({ consomme: agg.consomme, total: agg.alloue })
         }
-        try {
-          const r = await dashboardAPI.missionsDuMois()
-          const d = r.data?.data ?? r.data ?? {}
-          setMissions(Array.isArray(d.missions) ? d.missions : [])
-        } catch {
-          setMissions([])
-        }
+        setMissions(Array.isArray(dMois.missions) ? dMois.missions : [])
       } else {
         setGraphMois([])
         setGraphDir([])
-        try {
-          const r = await dashboardAPI.missionsDuMois()
-          const d = r.data?.data ?? r.data ?? {}
-          setMissions(Array.isArray(d.missions) ? d.missions : [])
-        } catch {
-          setMissions([])
-        }
+        setMissions(Array.isArray(dMois.missions) ? dMois.missions : [])
       }
 
       setLoading(false)

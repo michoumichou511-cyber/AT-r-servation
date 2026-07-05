@@ -65,7 +65,11 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Les dates partent formatées (d/m/Y H:i:s) sans fuseau vers le frontend,
+    // qui les interprète dans le fuseau du navigateur : ce réglage DOIT donc
+    // correspondre au fuseau de la machine qui exécute la démo (Windows est
+    // réglé sur Europe/Paris ici ; remettre Africa/Algiers si la machine l'est).
+    'timezone' => 'Europe/Paris',
 
     /*
     |--------------------------------------------------------------------------

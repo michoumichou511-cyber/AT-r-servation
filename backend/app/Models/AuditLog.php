@@ -46,7 +46,9 @@ class AuditLog extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        // User n'utilise pas SoftDeletes : withTrashed() jetait un
+        // BadMethodCallException sur tout endpoint chargeant cette relation.
+        return $this->belongsTo(User::class);
     }
 
     // ========== METHODS ==========
