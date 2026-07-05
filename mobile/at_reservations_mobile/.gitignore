@@ -1,0 +1,32 @@
+# Fichiers et dossiers générés par Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+coverage/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Artefacts de build
+*.apk
+*.aab
+*.ipa
+flutter_*.log
+
+# Android
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/key.properties
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+
+# Outils de session
+.claude/
+recover_from_transcript.py

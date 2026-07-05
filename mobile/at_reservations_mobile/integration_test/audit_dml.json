@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "date": "2026-05-27",
+    "fichier_analyse": "lib/screens/dml/dml_screen.dart",
+    "version": "post-correction-3"
+  },
+
+  "agent_dml_peut_modifier": [
+    {
+      "champ": "nom_hotel",
+      "label_ui": "Nom de l'hôtel (si modifié)",
+      "type": "TextField",
+      "endpoint": "PATCH /api/missions/{id}/logistique",
+      "body_key": "nom_hotel",
+      "obligatoire": false,
+      "note": "Laissé vide si inchangé — envoyé uniquement si rempli"
+    },
+    {
+      "champ": "numero_billet",
+      "label_ui": "Numéro de billet ✈",
+      "type": "TextField",
+      "endpoint": "PATCH /api/missions/{id}/logistique",
+      "body_key": "numero_billet",
+      "obligatoire": false,
+      "note": "Champ clé — fonctionnalité principale de l'agent DML"
+    },
+    {
+      "champ": "compagnie",
+      "label_ui": "Compagnie aérienne / Opérateur",
+      "type": "TextField",
+      "endpoint": "PATCH /api/missions/{id}/logistique",
+      "body_key": "compagnie",
+      "obligatoire": false,
+      "note": "Permet de corriger la compagnie choisie par le demandeur"
+    },
+    {
+      "champ": "prix_hebergement_reel",
+      "label_ui": "Prix hébergement réel (DZD)",
+      "type": "TextField numérique",
+      "endpoint": "PATCH /api/missions/{id}/logistique",
+      "body_key": "prix_hebergement_reel",
+      "obligatoire": false,
+      "note": "Montant réel facturé, peut différer de l'estimation du demandeur"
+    },
+    {
+      "champ": "observations",
+      "label_ui": "Observations (dans dialog Logistique OK)",
+      "type": "TextField multilignes (3 lignes, max 500 car.)",
+      "endpoint": "POST /api/dml/missions/{id}/logistique-ok",
+      "body_key": "observations",
+      "obligatoire": false,
+      "note": "Visible dans le dialog de confirmation Logistique OK"
+    }
+  ],
+
+  "agent_dml_ne_peut_pas_modifier": [
+    {
+      "champ": "objet_mission",
+      "raison": "Champ du demandeur — non exposé dans l'interface DML"
+    },
+    {
+      "champ": "date_depart / date_retour",
+      "raison": "Dates validées par la hiérarchie — non modifiables par le DML"
+    },
+    {
+      "champ": "type_mission",
+      "raison": "Informationnel — non modifiable après soumission"
+    },
+    {
+      "champ": "moyen_transport",
+      "raison": "Choix du demandeur validé — DML ne peut pas changer le mode de transport"
+    },
+    {
+      "champ": "wilaya_depart / wilaya_arrivee",
+      "raison": "Non exposé dans l'interface DML"
+    },
+    {
+      "champ": "budget_restauration",
+      "raison": "Budget estimé par le demandeur — non modifiable par le DML"
+    },
+    {
+      "champ": "statut",
+      "raison": "Le statut passe de 'approuve' à 'en_traitement_logistique' via le bouton Logistique OK (endpoint dédié), pas via le formulaire d'édition"
+    }
+  ],
+
+  "ameliorations_restantes": [
+    {
+      "id": "DML-R01",
+      "priorite": "HAUTE",
+      "titre": "Dropdown compagnie dans le formulaire DML",
+      "detail": "Le champ compagnie dans _modifierLogistique() est un TextField libre. Il devrait être un DropdownButtonFormField sur la même liste _kCompagnies que le wizard, pour garantir la cohérence des valeurs.",
+      "fichier": "lib/screens/dml/dml_screen.dart"
+    },
+    {
+      "id": "DML-R02",
+      "priorite": "HAUTE",
+      "titre": "Navigation vers le détail de mission",
+      "detail": "MissionCard est toujours appelé sans onTap. L'agent DML ne peut pas consulter le détail complet (réservations, documents, timeline) d'une mission.",
+      "fichier": "lib/screens/dml/dml_screen.dart",
+      "recommandation": "Passer onTap: () => context.push('/missions/${mission.id}') dans _DmlCard"
+    },
+    {
+      "id": "DML-R03",
+      "priorite": "HAUTE",
+      "titre": "Chips informatives billet/hébergement sur la carte",
+      "detail": "L'agent DML ne voit pas si la mission nécessite un billet ou un hébergement sans ouvrir le formulaire d'édition. Des chips visuelles manquent.",
+      "fichier": "lib/screens/dml/dml_screen.dart",
+      "recommandation": "Ajouter Row de Chip widgets sous MissionCard : ✈ Billet, 🏨 Hébergement, 🍽 Restauration (basé sur raw data)"
+    },
+    {
+      "id": "DML-R04",
+      "priorite": "MOYENNE",
+      "titre": "Backend : endpoint PATCH /missions/{id}/logistique manquant",
+      "detail": "Le formulaire DML appelle PATCH /api/missions/{id}/logistique mais cet endpoint n'est pas encore créé côté Laravel. La fonctionnalité échouera silencieusement.",
+      "fichier": "backend/routes/api.php + MissionController.php",
+      "recommandation": "Créer Route::patch('/missions/{id}/logistique', ...) et la méthode updateLogistique() dans MissionController"
+    },
+    {
+      "id": "DML-R05",
+      "priorite": "MOYENNE",
+      "titre": "Action Signaler un problème absente",
+      "detail": "L'agent DML ne peut que confirmer 'OK'. Pas d'action pour signaler un vol complet, un hôtel indisponible, etc.",
+      "fichier": "lib/screens/dml/dml_screen.dart",
+      "recommandation": "Ajouter bouton rouge 'Signaler un problème' → dialog motif → POST /dml/missions/{id}/probleme"
+    },
+    {
+      "id": "DML-R06",
+      "priorite": "MOYENNE",
+      "titre": "Recherche / filtrage dans les onglets",
+      "detail": "Pas de barre de recherche par nom de demandeur, wilaya, ou date.",
+      "fichier": "lib/screens/dml/dml_screen.dart"
+    },
+    {
+      "id": "DML-R07",
+      "priorite": "FAIBLE",
+      "titre": "Pagination",
+      "detail": "Toutes les missions sont chargées en une seule requête. Pas de scroll infini ni de page/per_page.",
+      "fichier": "lib/screens/dml/dml_screen.dart"
+    },
+    {
+      "id": "DML-R08",
+      "priorite": "FAIBLE",
+      "titre": "Tri des missions",
+      "detail": "Pas de tri (par date, urgence, wilaya). Les missions arrivent dans l'ordre de l'API.",
+      "fichier": "lib/screens/dml/dml_screen.dart"
+    }
+  ],
+
+  "resume_corrections_appliquees": {
+    "C1_hotels_par_wilaya": "step2_reservations.dart — remplacé TextField libre par DropdownButtonFormField filtré sur _kHotelsByWilaya (10 wilayas, badges ★ étoiles + ⭐ Convention AT, fallback saisie manuelle si 'Autre hôtel')",
+    "C2_badge_convention_compagnie": "step2_reservations.dart — _buildConventionBadgeCompagnie() affiche Row vert (Convention AT) ou orange (Hors convention + avertissement justificatifs)",
+    "C3_agent_dml_peut_modifier": "dml_screen.dart — BottomSheet _modifierLogistique() avec 4 champs : nom_hotel, numero_billet, compagnie, prix_hebergement_reel → PATCH /api/missions/{id}/logistique. Bouton 'Modifier' ajouté à côté de 'Logistique OK'.",
+    "C4_notes_explicatives": "step2_reservations.dart — Notes ajoutées : 💡 DML peut modifier (sous hôtel), ℹ️ billet acheté par AT (en-tête section billet), ⚠️ justificatifs (sous compagnie hors convention)",
+    "bonus_validation": "step2_reservations.dart — _handleNext() valide hébergement (nomHotel requis si hebergementRequis) et billet (compagnie requise si billetRequis), avec SnackBar d'erreur",
+    "bonus_erreur_dml": "dml_screen.dart — _error state affiché avec widget d'erreur + bouton Réessayer (catch vide → catch(e) stocké)",
+    "bonus_showUser": "dml_screen.dart — MissionCard appelé avec showUser: true pour afficher le demandeur",
+    "bonus_nombreRepas": "step2_reservations.dart — guard de décrémentation corrigé de > 1 à > 0",
+    "bonus_label_transport": "step2_reservations.dart — label/icône dropdown adapté dynamiquement (avion vs train)"
+  }
+}

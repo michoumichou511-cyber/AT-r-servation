@@ -1,0 +1,531 @@
+{
+  "meta": {
+    "date_audit": "2026-05-27",
+    "auditeur": "Claude — analyse statique lecture seule",
+    "fichiers_analyses": [
+      "lib/screens/missions/mission_wizard/step1_informations.dart",
+      "lib/screens/missions/mission_wizard/step2_reservations.dart",
+      "lib/screens/missions/mission_detail_screen.dart",
+      "lib/screens/dml/dml_screen.dart"
+    ],
+    "note": "Aucune modification effectuée. Rapport de lecture uniquement."
+  },
+
+  "step1_informations": {
+    "fichier": "lib/screens/missions/mission_wizard/step1_informations.dart",
+    "fonctionnalites_existantes": [
+      {
+        "id": "S1-E01",
+        "feature": "Objet de la mission",
+        "detail": "TextFormField multi-lignes (3 lignes), validation requise, enregistré dans draft.objetMission"
+      },
+      {
+        "id": "S1-E02",
+        "feature": "Type de mission — dropdown",
+        "detail": "DropdownButtonFormField avec 5 valeurs : 'autre', 'formation', 'inspection', 'audit', 'reunion'. Icônes distinctes par type."
+      },
+      {
+        "id": "S1-E03",
+        "feature": "Wilaya de départ — dropdown",
+        "detail": "Sélection depuis _kWilayas (10 wilayas codées en dur). Validation requise."
+      },
+      {
+        "id": "S1-E04",
+        "feature": "Ville de départ — texte libre",
+        "detail": "TextFormField optionnel, enregistré dans draft.villeDepart"
+      },
+      {
+        "id": "S1-E05",
+        "feature": "Wilaya d'arrivée — dropdown",
+        "detail": "Même liste _kWilayas (10 wilayas). Validation requise."
+      },
+      {
+        "id": "S1-E06",
+        "feature": "Ville d'arrivée — texte libre",
+        "detail": "TextFormField optionnel, enregistré dans draft.villeArrivee"
+      },
+      {
+        "id": "S1-E07",
+        "feature": "Date de départ — DatePicker",
+        "detail": "Minimum = demain (now + 1 jour). Reset automatique de dateRetour si dateDepart la dépasse."
+      },
+      {
+        "id": "S1-E08",
+        "feature": "Date de retour — DatePicker",
+        "detail": "Minimum = dateDepart + 1 jour. Requise. Message d'erreur rouge si l'une ou l'autre est absente."
+      },
+      {
+        "id": "S1-E09",
+        "feature": "Moyen de transport — radio tiles",
+        "detail": "4 options : 'vehicule_service', 'train', 'avion', 'autre'. Icônes et couleurs dynamiques selon sélection."
+      },
+      {
+        "id": "S1-E10",
+        "feature": "Validation formulaire",
+        "detail": "FormKey.validate() vérifie objet, wilaya départ, wilaya arrivée. Snackbar si dates manquantes."
+      },
+      {
+        "id": "S1-E11",
+        "feature": "Navigation suivant",
+        "detail": "ElevatedButton 'Suivant' bloqué si dates nulles, sinon appelle _submit() → widget.onNext()"
+      }
+    ],
+    "fonctionnalites_manquantes": [
+      {
+        "id": "S1-M01",
+        "priorite": "HAUTE",
+        "feature": "Liste wilayas incomplète",
+        "detail": "L'Algérie comporte 58 wilayas. _kWilayas n'en liste que 10. Les missions vers Tamanrasset, Adrar, Ghardaïa, etc. sont impossibles.",
+        "recommandation": "Compléter _kWilayas avec les 58 wilayas officielles (ou charger depuis l'API)."
+      },
+      {
+        "id": "S1-M02",
+        "priorite": "HAUTE",
+        "feature": "Type 'conference' absent du dropdown",
+        "detail": "Le backend accepte 'conference' comme type valide (validé dans les règles API). Le dropdown ne propose que 5 types et manque 'conference'.",
+        "recommandation": "Ajouter DropdownMenuItem(value: 'conference', child: Row([Icon(Icons.mic_outlined), Text('Conférence')]))"
+      },
+      {
+        "id": "S1-M03",
+        "priorite": "MOYENNE",
+        "feature": "Budget prévisionnel manquant",
+        "detail": "Le champ 'budget_previsionnel' est affiché dans mission_detail_screen.dart mais n'est jamais saisi dans le wizard. Le draft ne possède pas de champ budgetPrevisionnel.",
+        "recommandation": "Ajouter budgetPrevisionnel (double?) dans MissionDraft et un champ numérique optionnel dans step1 ou step2."
+      },
+      {
+        "id": "S1-M04",
+        "priorite": "MOYENNE",
+        "feature": "Durée calculée automatiquement non affichée",
+        "detail": "Aucun affichage de la durée (en jours) calculée entre dateDepart et dateRetour. L'utilisateur ne voit pas combien de jours dure sa mission.",
+        "recommandation": "Afficher sous les dates : 'Durée : X jour(s)' calculé dynamiquement."
+      },
+      {
+        "id": "S1-M05",
+        "priorite": "FAIBLE",
+        "feature": "Missions le jour même impossibles",
+        "detail": "firstDate pour dateDepart = now + 1 jour. Bloque les missions en urgence le jour même.",
+        "recommandation": "Utiliser DateTime.now() comme firstDate (ou permettre aujourd'hui)."
+      },
+      {
+        "id": "S1-M06",
+        "priorite": "FAIBLE",
+        "feature": "Compteur de caractères absent sur 'Objet'",
+        "detail": "Aucune limite ni compteur de caractères sur le TextFormField objet. L'API peut rejeter des valeurs trop longues.",
+        "recommandation": "Ajouter maxLength: 255 et counterText visible."
+      }
+    ]
+  },
+
+  "step2_reservations": {
+    "fichier": "lib/screens/missions/mission_wizard/step2_reservations.dart",
+    "fonctionnalites_existantes": [
+      {
+        "id": "S2-E01",
+        "feature": "Switch hébergement requis",
+        "detail": "SwitchListTile → draft.hebergementRequis. Affichage conditionnel via AnimatedCrossFade."
+      },
+      {
+        "id": "S2-E02",
+        "feature": "Nom de l'hôtel — texte libre",
+        "detail": "TextField optionnel → draft.nomHotel. Affiché uniquement si hebergementRequis = true."
+      },
+      {
+        "id": "S2-E03",
+        "feature": "Dates check-in / check-out",
+        "detail": "DatePicker pour checkIn (min = dateDepart) et checkOut (min = checkIn). Format dd/MM/yyyy."
+      },
+      {
+        "id": "S2-E04",
+        "feature": "Switch restauration requise",
+        "detail": "SwitchListTile → draft.restaurationRequise. Affichage conditionnel via AnimatedCrossFade."
+      },
+      {
+        "id": "S2-E05",
+        "feature": "Compteur nombre de repas",
+        "detail": "Stepper IconButton (−/+) avec plage 1–10 → draft.nombreRepas. Affiché uniquement si restaurationRequise = true."
+      },
+      {
+        "id": "S2-E06",
+        "feature": "Budget restauration — numérique",
+        "detail": "TextField avec FilteringTextInputFormatter (décimales 2 chiffres) → draft.budgetRestauration (double?). Suffixe DZD."
+      },
+      {
+        "id": "S2-E07",
+        "feature": "Section billet conditionnelle (BUG 3 corrigé)",
+        "detail": "Section BILLET DE TRANSPORT visible UNIQUEMENT si moyenTransport == 'avion' || 'train'."
+      },
+      {
+        "id": "S2-E08",
+        "feature": "Switch billet requis",
+        "detail": "SwitchListTile → draft.billetRequis. AnimatedCrossFade pour afficher les détails."
+      },
+      {
+        "id": "S2-E09",
+        "feature": "Dropdown compagnie avec badge Convention AT (BUG 4 corrigé)",
+        "detail": "DropdownButtonFormField sur _kCompagnies (6 compagnies). Badge vert '✓ Convention AT' pour Air Algérie et Tassili Airlines."
+      },
+      {
+        "id": "S2-E10",
+        "feature": "Numéro de billet optionnel (BUG 6 corrigé)",
+        "detail": "TextField optionnel avec hint 'Sera complété après approbation' et note DML sous le champ."
+      },
+      {
+        "id": "S2-E11",
+        "feature": "Navigation Précédent / Suivant",
+        "detail": "Row avec OutlinedButton 'Précédent' et ElevatedButton 'Suivant'. Pas de validation de step."
+      }
+    ],
+    "fonctionnalites_manquantes": [
+      {
+        "id": "S2-M01",
+        "priorite": "HAUTE",
+        "feature": "Validation absente à l'étape 2",
+        "detail": "Le bouton 'Suivant' appelle directement widget.onNext() sans vérifier : si hebergementRequis=true, nomHotel peut être vide ; si billetRequis=true, compagnie peut être null. Pas de snackbar d'erreur.",
+        "recommandation": "Ajouter validation dans onNext : if (hebergementRequis && nomHotel.isEmpty) → snackbar. if (billetRequis && compagnie == null) → snackbar."
+      },
+      {
+        "id": "S2-M02",
+        "priorite": "HAUTE",
+        "feature": "Compteur repas commence à 0 mais décrément bloque à 1",
+        "detail": "draft.nombreRepas est initialisé à 0, mais le bouton '−' ne décrémente que si > 1. Résultat : si l'utilisateur active restauration avec 0 repas et clique '−', rien ne se passe ; s'il monte à 2 puis redescend, il s'arrête à 1 (jamais à 0). Incohérence UX.",
+        "recommandation": "Soit init nombreRepas = 1 dans MissionDraft, soit changer le guard à > 0."
+      },
+      {
+        "id": "S2-M03",
+        "priorite": "HAUTE",
+        "feature": "Label dropdown compagnie fixé sur 'aérienne' même pour train",
+        "detail": "Le label du dropdown indique 'Compagnie aérienne' et l'icône est Icons.flight_outlined même quand moyenTransport = 'train'. Incohérence sémantique.",
+        "recommandation": "Adapter dynamiquement : si train → 'Opérateur ferroviaire' + Icons.train. Si avion → 'Compagnie aérienne' + Icons.flight_outlined."
+      },
+      {
+        "id": "S2-M04",
+        "priorite": "MOYENNE",
+        "feature": "Hôtel : liste conventionnée AT absente",
+        "detail": "Comme les compagnies aériennes ont un badge Convention AT, les hôtels AT conventionnés n'ont pas d'équivalent. L'utilisateur saisit n'importe quel nom en texte libre.",
+        "recommandation": "Créer une liste _kHotels (ou appel API) avec badge 'Convention AT', similaire à _kCompagnies pour les vols."
+      },
+      {
+        "id": "S2-M05",
+        "priorite": "MOYENNE",
+        "feature": "Restauration : calcul automatique jours × repas absent",
+        "detail": "L'application connaît dateDepart et dateRetour (dans draft), mais n'affiche pas le nombre total de repas calculé (X jours × Y repas/jour). L'utilisateur doit calculer manuellement.",
+        "recommandation": "Afficher en lecture seule : 'Total estimé : X repas (Y jours × Z/jour)' basé sur draft.dateDepart et draft.dateRetour."
+      },
+      {
+        "id": "S2-M06",
+        "priorite": "MOYENNE",
+        "feature": "Dates check-in/check-out non validées entre elles",
+        "detail": "Si checkOut est antérieur à checkIn (via bug ou navigation rapide), aucune erreur n'est levée. La contrainte firstDate dans _pickDate est correcte mais le champ n'est pas re-validé si l'utilisateur modifie checkIn après avoir saisi checkOut.",
+        "recommandation": "Ajouter reset de checkOut si checkIn > checkOut (comme dateRetour dans step1)."
+      },
+      {
+        "id": "S2-M07",
+        "priorite": "FAIBLE",
+        "feature": "Classe billet / préférence horaire absente",
+        "detail": "Aucun champ pour la classe (Économique / Affaires) ni l'heure de vol préférée, informations utiles pour le DML.",
+        "recommandation": "Ajouter champs optionnels 'Classe souhaitée' (dropdown) et 'Heure préférée' (TextField)."
+      },
+      {
+        "id": "S2-M08",
+        "priorite": "FAIBLE",
+        "feature": "Section restauration : pas de type de repas",
+        "detail": "Le compteur de repas ne distingue pas petit-déjeuner / déjeuner / dîner. Le budget global peut être imprécis.",
+        "recommandation": "Ajouter 3 checkboxes ou counters distincts par type de repas (optionnel)."
+      }
+    ]
+  },
+
+  "mission_detail_screen": {
+    "fichier": "lib/screens/missions/mission_detail_screen.dart",
+    "fonctionnalites_existantes": [
+      {
+        "id": "MD-E01",
+        "feature": "Chargement GET /missions/{id}",
+        "detail": "ApiService().get() → parse JSON avec MissionModel.fromJson() + conservation du raw map. Gestion d'erreur réseau avec _buildError() et bouton Réessayer."
+      },
+      {
+        "id": "MD-E02",
+        "feature": "AppBar gradient avec parallaxe",
+        "detail": "SliverAppBar expandedHeight:220, FlexibleSpaceBar avec dégradé bleu AT. Numéro unique, titre (2 lignes max), StatusBadge, badge type mission."
+      },
+      {
+        "id": "MD-E03",
+        "feature": "Export PDF Ordre de Mission",
+        "detail": "Génère un PDF complet (entête AT, statut, demandeur, déplacement, pièces justificatives, footer) via package pdf+printing. Partage natif Printing.sharePdf."
+      },
+      {
+        "id": "MD-E04",
+        "feature": "Section Informations générales (ExpansionCard)",
+        "detail": "Numéro unique, titre, objet, destination, type (traduit via _typeMissionLabel), statut coloré, budget prévisionnel (formatté NumberFormat fr_FR)."
+      },
+      {
+        "id": "MD-E05",
+        "feature": "Section Déplacement",
+        "detail": "Dates départ/retour, destination, moyen_transport, lieu_départ lus depuis raw map."
+      },
+      {
+        "id": "MD-E06",
+        "feature": "Section Réservations — lecture API",
+        "detail": "Lit raw['reservations']. Affiche type, notes, montant_estimé, statut avec icône et couleur par type (hebergement/billet/restauration). Badge statut coloré."
+      },
+      {
+        "id": "MD-E07",
+        "feature": "Timeline historique validation",
+        "detail": "Lit raw['historique_validation'] || raw['validations']. _nameFromValidateur() supporte String et Map<String,dynamic>. Affiche action, acteur, date formatée."
+      },
+      {
+        "id": "MD-E08",
+        "feature": "Section Documents",
+        "detail": "Lit raw['documentation'] || raw['documents']. Icône par type MIME (PDF rouge, image bleu, autre gris). Indicateur de téléchargement (icône)."
+      },
+      {
+        "id": "MD-E09",
+        "feature": "Actions conditionnelles selon statut",
+        "detail": "brouillon → Soumettre + Modifier + Supprimer. rejete/rejetee → Resoumettre. soumis/en_attente/en_cours → Annuler. Confirmation dialog avant annulation/suppression."
+      },
+      {
+        "id": "MD-E10",
+        "feature": "Modal Modifier brouillon (_editDraft)",
+        "detail": "BottomSheet avec champs : objet, destination (texte libre 'ville, pays'), date départ, date retour. PUT /missions/{id}. Parsing destination via split(',')."
+      },
+      {
+        "id": "MD-E11",
+        "feature": "Protection try-catch _buildBodySafe()",
+        "detail": "Encapsule _buildBody() dans try-catch → affiche widget d'erreur avec bouton Réessayer au lieu d'un écran gris."
+      },
+      {
+        "id": "MD-E12",
+        "feature": "Animations d'entrée (flutter_animate)",
+        "detail": "Chaque ExpansionCard apparaît avec fadeIn + slideY staggeré (80ms, 160ms, 240ms, 320ms, 400ms)."
+      }
+    ],
+    "fonctionnalites_manquantes": [
+      {
+        "id": "MD-M01",
+        "priorite": "HAUTE",
+        "feature": "Type mission affiché en raw dans AppBar",
+        "detail": "Dans l'AppBar (ligne 245), `m.typeMission!` est affiché directement sans passer par _typeMissionLabel(). L'utilisateur voit 'reunion' au lieu de 'Réunion'.",
+        "recommandation": "Remplacer Text(m.typeMission!) par Text(_typeMissionLabel(m.typeMission) ?? m.typeMission!)."
+      },
+      {
+        "id": "MD-M02",
+        "priorite": "HAUTE",
+        "feature": "Téléchargement documents non fonctionnel",
+        "detail": "L'icône Icons.download_outlined est affichée dans chaque ligne document mais aucun GestureDetector ou InkWell n'est attaché. Le téléchargement est décoratif uniquement.",
+        "recommandation": "Wrapper chaque document Row dans InkWell/GestureDetector → appel API pour récupérer l'URL de téléchargement ou ouvrir url_launcher."
+      },
+      {
+        "id": "MD-M03",
+        "priorite": "HAUTE",
+        "feature": "Modal Modifier : édition partielle uniquement",
+        "detail": "_editDraft() permet uniquement de modifier objet, destination (texte libre), dates. Impossible de changer : type_mission, moyen_transport, wilaya, hébergement, restauration, billet.",
+        "recommandation": "Soit rediriger vers le wizard complet en mode édition, soit enrichir la BottomSheet avec les champs manquants."
+      },
+      {
+        "id": "MD-M04",
+        "priorite": "HAUTE",
+        "feature": "Destination dans modal : parsing 'ville, pays' fragile",
+        "detail": "parts = destCtrl.text.split(',') → parts[0]=ville, parts[1]=pays. Si la destination contient plusieurs virgules (ex: 'Alger, Bir Mourad Raïs, Algérie') la décomposition est incorrecte.",
+        "recommandation": "Utiliser deux TextFields séparés (destination_ville et destination_pays) dans la BottomSheet."
+      },
+      {
+        "id": "MD-M05",
+        "priorite": "MOYENNE",
+        "feature": "Informations demandeur absentes de l'écran",
+        "detail": "Le PDF exporte le demandeur (nom, poste, direction) depuis raw['demandeur'], mais aucune section 'Demandeur' n'est affichée dans l'écran mobile.",
+        "recommandation": "Ajouter une _ExpansionCard 'Demandeur' entre Informations générales et Déplacement."
+      },
+      {
+        "id": "MD-M06",
+        "priorite": "MOYENNE",
+        "feature": "Commentaire demandeur non affiché",
+        "detail": "MissionDraft possède un champ commentaire mais le détail de la mission n'affiche pas raw['commentaire'] ou raw['notes_demandeur'].",
+        "recommandation": "Ajouter _DetailRow(label: 'Commentaire', value: raw['commentaire']) dans la section Informations générales."
+      },
+      {
+        "id": "MD-M07",
+        "priorite": "MOYENNE",
+        "feature": "Statut réservation affiché en raw",
+        "detail": "Dans _buildReservations(), rm['statut'] est affiché tel quel (ex: 'en_attente', 'confirme') sans traduction française.",
+        "recommandation": "Mapper les statuts réservation : 'confirme'→'Confirmé', 'en_attente'→'En attente', 'annule'→'Annulé'."
+      },
+      {
+        "id": "MD-M08",
+        "priorite": "MOYENNE",
+        "feature": "Détails réservation incomplets",
+        "detail": "La section Réservations n'affiche pas : nom de l'hôtel (pour hébergement), dates check-in/check-out, numéro de billet, compagnie aérienne. Seuls notes et montant_estimé sont montrés.",
+        "recommandation": "Enrichir _buildReservations() pour lire rm['nom_hotel'], rm['check_in'], rm['check_out'], rm['numero_billet'], rm['compagnie'] selon le type."
+      },
+      {
+        "id": "MD-M09",
+        "priorite": "FAIBLE",
+        "feature": "Pas de section 'Nombre de jours' ni durée calculée",
+        "detail": "La durée de la mission (dateRetour - dateDepart) n'est nulle part affichée à l'écran.",
+        "recommandation": "Calculer et afficher 'Durée : X jour(s)' dans la section Déplacement."
+      },
+      {
+        "id": "MD-M10",
+        "priorite": "FAIBLE",
+        "feature": "Budget non éditable depuis le détail",
+        "detail": "budget_previsionnel est affiché en lecture seule mais ne peut pas être modifié même en statut brouillon.",
+        "recommandation": "Ajouter un champ budget dans la BottomSheet _editDraft()."
+      }
+    ]
+  },
+
+  "dml_screen": {
+    "fichier": "lib/screens/dml/dml_screen.dart",
+    "fonctionnalites_existantes": [
+      {
+        "id": "DML-E01",
+        "feature": "3 onglets : À traiter / En cours / Terminées",
+        "detail": "TabController(length:3). Filtrage par statut : 'approuve', 'en_traitement_logistique', 'termine'. Tab Terminées en readonly."
+      },
+      {
+        "id": "DML-E02",
+        "feature": "Barre de stats animée (Tilt3D)",
+        "detail": "3 mini cards avec compteurs par statut, couleurs distinctes (error/warning/success), animation Tilt3D 3D avec intensité 0.22."
+      },
+      {
+        "id": "DML-E03",
+        "feature": "Chargement GET /dml/missions-validees",
+        "detail": "ApiService().get() avec parsing flexible (list direct ou data.data). Shimmer skeleton pendant le chargement."
+      },
+      {
+        "id": "DML-E04",
+        "feature": "Pull-to-refresh",
+        "detail": "RefreshIndicator sur chaque _DmlList → rappelle _load()."
+      },
+      {
+        "id": "DML-E05",
+        "feature": "Carte DML avec animation staggerée",
+        "detail": "_DmlCard utilise MissionCard + bouton 'Logistique OK'. Animation fadeIn+slideY staggerée via flutter_animate (70ms × index)."
+      },
+      {
+        "id": "DML-E06",
+        "feature": "Action Logistique OK",
+        "detail": "AlertDialog de confirmation avec TextField observations (optionnel) → POST /dml/missions/{id}/logistique-ok. SnackBar succès/erreur. Spinner pendant l'action."
+      },
+      {
+        "id": "DML-E07",
+        "feature": "État vide illustré",
+        "detail": "Emoji 🚛 + texte 'Aucune mission ici' centré si liste vide."
+      },
+      {
+        "id": "DML-E08",
+        "feature": "Shimmer skeleton DML personnalisé",
+        "detail": "_ShimmerDmlList avec 5 placeholders incluant avatar, lignes de texte et bouton skeleton."
+      }
+    ],
+    "fonctionnalites_manquantes": [
+      {
+        "id": "DML-M01",
+        "priorite": "CRITIQUE",
+        "feature": "Saisie numéro de billet par l'agent DML absente",
+        "detail": "La fonctionnalité centrale du DML est d'attribuer le numéro de billet après approbation. Actuellement, le seul champ disponible dans le dialog 'Logistique OK' est 'Observations'. Aucun champ 'Numéro de billet' ou 'Compagnie' n'est présent.",
+        "recommandation": "Enrichir le dialog _logistiqueOk() avec : TextField numeroBilletCtrl (si billet requis) + TextField compagnieCtrl. Envoyer ces données au endpoint."
+      },
+      {
+        "id": "DML-M02",
+        "priorite": "HAUTE",
+        "feature": "Navigation vers le détail de mission absente",
+        "detail": "MissionCard est utilisé sans onTap (paramètre non passé). L'agent DML ne peut pas consulter le détail d'une mission (réservations, documents, objet).",
+        "recommandation": "Passer onTap: () => context.push('/missions/${mission.id}') à chaque MissionCard dans _DmlCard."
+      },
+      {
+        "id": "DML-M03",
+        "priorite": "HAUTE",
+        "feature": "Erreur de chargement silencieuse",
+        "detail": "_load() attrape toutes les erreurs avec catch (_) {} sans aucun retour visuel. Si l'API est down, l'agent DML voit une liste vide et ne comprend pas pourquoi.",
+        "recommandation": "Stocker l'erreur dans String? _error et afficher un widget d'erreur avec bouton Réessayer (comme dans mission_detail_screen)."
+      },
+      {
+        "id": "DML-M04",
+        "priorite": "HAUTE",
+        "feature": "Informations billet/hébergement non visibles dans la carte",
+        "detail": "MissionCard n'affiche que titre, statut, destination, dates. L'agent DML ne voit pas si la mission nécessite un billet avion ou un hébergement sans ouvrir le détail.",
+        "recommandation": "Créer un widget _DmlInfoChips() sous MissionCard affichant des chips conditionnels : ✈ Billet avion, 🏨 Hébergement, 🍽 Restauration."
+      },
+      {
+        "id": "DML-M05",
+        "priorite": "HAUTE",
+        "feature": "showUser = false : demandeur non visible",
+        "detail": "MissionCard est appelé avec showUser: false (valeur par défaut). L'agent DML ne voit pas qui a demandé la mission.",
+        "recommandation": "Passer showUser: true à MissionCard dans _DmlCard."
+      },
+      {
+        "id": "DML-M06",
+        "priorite": "MOYENNE",
+        "feature": "Recherche / filtrage absent",
+        "detail": "Aucune barre de recherche, aucun filtre par wilaya, type, ou nom de demandeur. En cas de volume important, impossible de trouver rapidement une mission.",
+        "recommandation": "Ajouter TextField de recherche dans chaque onglet filtrant par m.displayTitre ou m.displayDest."
+      },
+      {
+        "id": "DML-M07",
+        "priorite": "MOYENNE",
+        "feature": "Action de rejet / refus DML absente",
+        "detail": "L'agent DML ne peut que confirmer 'Logistique OK'. Il n'y a pas d'action pour signaler un problème ou refuser une demande (ex: hôtel non disponible, vol complet).",
+        "recommandation": "Ajouter un bouton 'Signaler un problème' avec un motif → appel API dédié."
+      },
+      {
+        "id": "DML-M08",
+        "priorite": "MOYENNE",
+        "feature": "Observations sans limite de caractères",
+        "detail": "Le TextField 'Observations' dans le dialog n'a pas de maxLength, pas de maxLines. Peut envoyer un texte vide ou excessivement long.",
+        "recommandation": "Ajouter maxLines: 3, maxLength: 500, et le rendre required si aucun billet n'est fourni."
+      },
+      {
+        "id": "DML-M09",
+        "priorite": "FAIBLE",
+        "feature": "Pas de pagination",
+        "detail": "Toutes les missions sont chargées en une seule requête. En production, une liste de 200+ missions va ralentir l'écran.",
+        "recommandation": "Implémenter pagination (page/per_page) ou scroll infini avec ListView.builder + listener en bas."
+      },
+      {
+        "id": "DML-M10",
+        "priorite": "FAIBLE",
+        "feature": "Pas de tri",
+        "detail": "Aucun tri disponible (par date, par urgence, par wilaya). Les missions arrivent dans l'ordre de l'API.",
+        "recommandation": "Ajouter un PopupMenuButton 'Trier par : Date ↑↓ / Alphabétique' appliqué localement sur la liste."
+      }
+    ]
+  },
+
+  "resume_global": {
+    "total_fonctionnalites_existantes": 36,
+    "total_fonctionnalites_manquantes": 30,
+    "par_priorite": {
+      "CRITIQUE": 1,
+      "HAUTE": 15,
+      "MOYENNE": 10,
+      "FAIBLE": 8
+    },
+    "top_5_prioritaires": [
+      {
+        "id": "DML-M01",
+        "titre": "Saisie numéro de billet par l'agent DML",
+        "impact": "Fonctionnalité métier centrale complètement absente — le DML ne peut pas remplir sa mission principale"
+      },
+      {
+        "id": "S1-M01",
+        "titre": "Liste wilayas incomplète (10/58)",
+        "impact": "Bloque toute mission vers 48 wilayas algériennes"
+      },
+      {
+        "id": "S2-M01",
+        "titre": "Pas de validation à l'étape 2",
+        "impact": "Permet de soumettre une mission avec hébergement sans nom d'hôtel, ou billet sans compagnie"
+      },
+      {
+        "id": "MD-M02",
+        "titre": "Téléchargement documents non fonctionnel",
+        "impact": "Icône présente mais action absente — confusion utilisateur"
+      },
+      {
+        "id": "DML-M02",
+        "titre": "Navigation vers détail mission absente (DML)",
+        "impact": "Agent DML ne peut pas consulter le détail des missions qu'il doit traiter"
+      }
+    ]
+  }
+}

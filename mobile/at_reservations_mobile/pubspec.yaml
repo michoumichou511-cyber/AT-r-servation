@@ -1,0 +1,60 @@
+name: at_reservations_mobile
+description: "AT Réservations - Application Mobile Algérie Télécom"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+  provider: ^6.1.1
+  go_router: ^13.0.0
+  shimmer: ^3.0.0
+  fluttertoast: ^8.2.4
+  intl: ^0.20.0
+  flutter_animate: ^4.5.0
+  google_fonts: ^6.1.0
+  iconly: ^1.0.1
+  fl_chart: ^0.68.0
+  timeago: ^3.6.0
+  badges: ^3.1.2
+  url_launcher: ^6.2.5
+  file_picker: ^8.0.3
+  open_filex: ^4.3.4
+  pdf: ^3.10.0
+  printing: ^5.11.0
+  percent_indicator: ^4.2.3
+  flutter_staggered_animations: ^1.1.1
+  animations: ^2.0.11
+  animate_do: ^3.3.4
+  flutter_spinkit: ^5.2.1
+  lottie: ^3.1.3
+  simple_animations: ^5.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/fonts/test/
+  # Fonts bundlées UNIQUEMENT pour permettre les golden tests offline.
+  # Inter-* pointent vers Arial pour eviter le fetch Google Fonts en CI.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/test/Inter-Regular.ttf
+        - asset: assets/fonts/test/Inter-Bold.ttf
+          weight: 700
