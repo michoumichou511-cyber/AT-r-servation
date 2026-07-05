@@ -1,5 +1,12 @@
 {
   "mcpServers": {
+    "word-document-server": {
+      "command": "C:\\Users\\loulou\\AppData\\Roaming\\Python\\Python314\\Scripts\\uvx.exe",
+      "args": ["--from", "office-word-mcp-server", "word_mcp_server"]
+    },
+    "document-generator": {
+      "command": "C:\\Users\\loulou\\AppData\\Roaming\\npm\\document-generator-mcp.cmd"
+    },
     "drawio": {
       "type": "http",
       "url": "https://mcp.draw.io/mcp"
