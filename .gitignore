@@ -46,3 +46,12 @@ backend/**/.git/
 backend/.git_temp/
 backend/**/.git_temp/
 frontend/.env.production
+
+# ====== Outils et artefacts locaux (session juillet 2026) ======
+ngrok.exe
+*.apk
+unpacked/
+*_bon.php
+*_bon.js
+*_bon.jsx
+inject_images.py
