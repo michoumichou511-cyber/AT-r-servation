@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import CountUp from 'react-countup'
+import * as CountUpModule from 'react-countup'
 import {
   ResponsiveContainer,
   LineChart,
@@ -33,6 +33,9 @@ import { adminAPI, dashboardAPI, missionsAPI } from '../../services/api'
 import PageHeader from '../../components/Common/PageHeader'
 import { Badge, Button, EmptyState, SkeletonCard } from '../../components/UI'
 import { formatDZD } from '../../utils/format'
+
+// interop CJS/ESM : le build CJS de react-countup expose { default } sans marqueur __esModule
+const CountUp = CountUpModule.default?.default ?? CountUpModule.default
 
 const PIE_COLORS = ['#00A650', '#003DA5', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#0EA5E9']
 
