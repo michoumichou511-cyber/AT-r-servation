@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:simple_animations/simple_animations.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/constellation_background.dart';
 
@@ -17,9 +19,55 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passCtrl  = TextEditingController();
+  final _localAuth = LocalAuthentication();
+  final _storage   = const FlutterSecureStorage();
   bool _showPass = false;
   bool _loading  = false;
+  bool _biometricAvailable = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometric();
+  }
+
+  Future<void> _checkBiometric() async {
+    try {
+      final hasToken = await _storage.read(key: 'sanctum_token');
+      if (hasToken == null) return;
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final isSupported = await _localAuth.isDeviceSupported();
+      if (mounted && (canCheck || isSupported)) {
+        setState(() => _biometricAvailable = true);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loginBiometric() async {
+    try {
+      final authenticated = await _localAuth.authenticate(
+        localizedReason: 'Connectez-vous avec votre empreinte',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+      if (!authenticated || !mounted) return;
+      HapticFeedback.lightImpact();
+      setState(() { _loading = true; _error = null; });
+      await context.read<AuthProvider>().tryAutoLogin();
+      if (mounted && !context.read<AuthProvider>().isAuthenticated) {
+        setState(() => _error = 'Session expirée. Connectez-vous manuellement.');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Authentification biométrique échouée');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -329,6 +377,23 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+        if (_biometricAvailable) ...[
+          const SizedBox(height: 16),
+          Center(
+            child: FadeIn(
+              delay: const Duration(milliseconds: 200),
+              child: TextButton.icon(
+                onPressed: _loading ? null : _loginBiometric,
+                icon: const Icon(Icons.fingerprint, size: 28,
+                    color: Color(0xFF003DA5)),
+                label: Text('Connexion biométrique',
+                    style: GoogleFonts.inter(
+                        color: const Color(0xFF003DA5),
+                        fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 20),
         Center(
           child: Text('© 2026 Algérie Télécom',

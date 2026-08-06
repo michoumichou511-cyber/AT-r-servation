@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, FileText, CheckSquare, MessageCircle,
   Bell, User, Users, Building2, Wallet, ClipboardList,
   BarChart3, FileBarChart, LogOut, ChevronDown,
-  X,
+  X, Search, CalendarDays, Info,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { messagesAPI, notificationsAPI } from '../../services/api'
+import { messagesAPI, notificationsAPI, searchAPI } from '../../services/api'
 import { usePolling } from '../../hooks/usePolling'
 import './Sidebar.css'
 
@@ -69,7 +69,7 @@ function NavItem({
           <Icon className="sb-menu-icon" strokeWidth={2} aria-hidden />
           <span className="sb-menu-text">{label}</span>
           {badge > 0 ? (
-            <span className="sb-count-badge">
+            <span className="sb-count-badge" aria-live="polite" aria-label={`${badge} non lu${badge > 1 ? 's' : ''}`}>
               {badge > 99 ? '99+' : badge}
             </span>
           ) : isActive ? (
@@ -78,6 +78,117 @@ function NavItem({
         </>
       )}
     </NavLink>
+  )
+}
+
+const CATEGORY_META = {
+  mission:     { label: 'Missions',      icon: FileText, color: '#00A650', route: (r) => `/missions/${r.id}` },
+  prestataire: { label: 'Prestataires',  icon: Building2, color: '#003DA5', route: () => '/admin/prestataires' },
+  user:        { label: 'Utilisateurs',  icon: Users, color: '#8B5CF6', route: () => '/admin/utilisateurs' },
+}
+
+function SidebarSearch({ darkMode, onNavigate }) {
+  const navigate = useNavigate()
+  const wrapRef = useRef(null)
+  const debounceRef = useRef(null)
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [open, setOpen] = useState(false)
+
+  const doSearch = useCallback((q) => {
+    setQuery(q)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (q.trim().length < 2) { setResults([]); setOpen(false); return }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await searchAPI.global(q)
+        const data = res.data?.data ?? res.data ?? []
+        setResults(Array.isArray(data) ? data : [])
+        setOpen(true)
+      } catch { setResults([]) }
+    }, 300)
+  }, [])
+
+  useEffect(() => {
+    const onClickOut = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
+    const onEsc = (e) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onClickOut)
+    document.addEventListener('keydown', onEsc)
+    return () => { document.removeEventListener('mousedown', onClickOut); document.removeEventListener('keydown', onEsc) }
+  }, [])
+
+  const grouped = {}
+  for (const r of results) {
+    const cat = r.type ?? 'mission'
+    if (!grouped[cat]) grouped[cat] = []
+    if (grouped[cat].length < 5) grouped[cat].push(r)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative px-3 mb-2">
+      <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+        darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'
+      }`}>
+        <Search size={14} className="shrink-0 opacity-60" />
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          value={query}
+          onChange={(e) => doSearch(e.target.value)}
+          className="bg-transparent outline-none w-full placeholder-current/50"
+        />
+        {query && (
+          <button type="button" onClick={() => { setQuery(''); setResults([]); setOpen(false) }}>
+            <X size={14} className="opacity-60 hover:opacity-100" />
+          </button>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {open && Object.keys(grouped).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            className={`absolute left-3 right-3 top-full mt-1 rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto py-1 ${
+              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            }`}
+          >
+            {Object.entries(grouped).map(([cat, items]) => {
+              const meta = CATEGORY_META[cat] || CATEGORY_META.mission
+              const CatIcon = meta.icon
+              return (
+                <div key={cat}>
+                  <div className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider ${
+                    darkMode ? 'text-gray-500' : 'text-gray-400'
+                  }`}>
+                    {meta.label}
+                  </div>
+                  {items.map((r, i) => (
+                    <button
+                      key={`${cat}-${r.id ?? i}`}
+                      type="button"
+                      onClick={() => {
+                        navigate(meta.route(r))
+                        setOpen(false); setQuery(''); setResults([])
+                        onNavigate?.()
+                      }}
+                      className={`flex items-center gap-2.5 w-full px-3 py-2 text-left text-sm transition-colors ${
+                        darkMode ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <CatIcon size={14} style={{ color: meta.color }} />
+                      <span className="truncate">{r.titre ?? r.nom ?? r.name ?? '—'}</span>
+                    </button>
+                  ))}
+                </div>
+              )
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 
@@ -194,6 +305,8 @@ export default function Sidebar({ onClose }) {
           </div>
         )}
 
+        <SidebarSearch darkMode={darkMode} onNavigate={onClose} />
+
         <nav className="sb-nav">
           <NavItem
             to="/"
@@ -216,6 +329,13 @@ export default function Sidebar({ onClose }) {
             label="Mes missions"
             onClick={onClose}
             animDelay={0.14}
+          />
+          <NavItem
+            to="/missions/calendrier"
+            icon={CalendarDays}
+            label="Calendrier"
+            onClick={onClose}
+            animDelay={0.16}
           />
 
           {isValidateur && (
@@ -250,6 +370,13 @@ export default function Sidebar({ onClose }) {
             label="Mon profil"
             onClick={onClose}
             animDelay={0.3}
+          />
+          <NavItem
+            to="/about"
+            icon={Info}
+            label="A propos"
+            onClick={onClose}
+            animDelay={0.32}
           />
 
           {(isValidateur || isAdmin) && (
@@ -319,6 +446,20 @@ export default function Sidebar({ onClose }) {
                       label="Statistiques"
                       onClick={onClose}
                       animDelay={0.54}
+                    />
+                    <NavItem
+                      to="/admin/dashboard-executif"
+                      icon={BarChart3}
+                      label="Dashboard DSI"
+                      onClick={onClose}
+                      animDelay={0.58}
+                    />
+                    <NavItem
+                      to="/admin/simulateur-budget"
+                      icon={Wallet}
+                      label="Simulateur Budget"
+                      onClick={onClose}
+                      animDelay={0.62}
                     />
                   </motion.div>
                 )}

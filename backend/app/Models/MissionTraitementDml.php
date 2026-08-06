@@ -23,10 +23,17 @@ class MissionTraitementDml extends Model
         'observations',
         'statut',
         'traite_le',
+        'ticket_number',
+        'ticket_scan_path',
+        'transport_company',
+        'transport_date',
+        'montant_transport',
     ];
 
     protected $casts = [
         'traite_le' => 'datetime',
+        'transport_date' => 'date',
+        'montant_transport' => 'decimal:2',
     ];
 
     // ── Relations ──────────────────────────────

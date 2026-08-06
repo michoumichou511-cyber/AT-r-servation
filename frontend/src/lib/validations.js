@@ -104,17 +104,11 @@ export const missionStep1Schema = z.object({
   type_mission: z
     .string()
     .min(1, 'Type de mission requis'),
+  transport_type: z.enum(['avion', 'terrestre'], { required_error: 'Choisissez le type de transport' }),
   priorite: z
     .string()
     .optional(),
-  budget_previsionnel: z
-    .union([z.string(), z.number()])
-    .optional()
-    .refine(v => {
-      if (v === '' || v === undefined || v === null) return true
-      const n = Number(v)
-      return !Number.isNaN(n) && n >= 0
-    }, 'Budget prévisionnel invalide'),
+  budget_mode: z.enum(['avance', 'remboursement'], { required_error: 'Choisissez le mode de budget' }),
   description: z
     .string()
     .optional(),

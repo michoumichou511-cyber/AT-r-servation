@@ -203,4 +203,12 @@ class DashboardController extends Controller
             ]),
         ]);
     }
+
+    public function empreinteCarbone(Request $request)
+    {
+        $periode = $request->input('periode', 'mois');
+        $service = new \App\Services\CarboneService();
+        $stats = $service->statsEmpreinte($periode);
+        return ApiResponse::success($stats);
+    }
 }

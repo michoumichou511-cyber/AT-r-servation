@@ -28,18 +28,7 @@ use Illuminate\Support\Facades\Route;
 // ROUTES PUBLIQUES (sans auth) + THROTTLE ANTI-BRUTE FORCE
 Route::get('/health', [HealthController::class, 'check']);
 
-/** Route de test SMTP (à retirer en production) */
-Route::get('/test-email', function () {
-    Mail::raw(
-        'Test email AT Réservations',
-        function ($message) {
-            $message->to(config('mail.from.address'))
-                ->subject('Test AT Réservations');
-        }
-    );
-
-    return response('Email envoyé !');
-});
+// Route test-email SUPPRIMÉE — faille de sécurité (envoi d'emails sans auth)
 
 Route::middleware('throttle:5,1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
@@ -63,7 +52,9 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/auth/avatar', [AuthController::class, 'uploadAvatar']);
     Route::get('/profil/statistiques', [AuthController::class, 'statistiques']);
 
-    // MISSIONS
+    // MISSIONS — templates AVANT {id} pour éviter collision
+    Route::get('/missions/templates', [MissionController::class, 'getTemplates']);
+    Route::post('/missions/templates/{templateId}/create', [MissionController::class, 'createFromTemplate']);
     Route::get('/missions', [MissionController::class, 'index']);
     Route::post('/missions', [MissionController::class, 'store']);
     Route::get('/missions/export', [MissionController::class, 'export']);
@@ -75,6 +66,9 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/missions/{id}/duplicate', [MissionController::class, 'duplicate']);
     Route::get('/missions/{id}/export/pdf', [MissionController::class, 'exportPdf']);
     Route::get('/missions/{id}/historique', [MissionController::class, 'historique']);
+    Route::post('/missions/{id}/save-template', [MissionController::class, 'saveAsTemplate']);
+    Route::get('/missions/{id}/commentaires', [MissionController::class, 'commentaires']);
+    Route::post('/missions/{id}/commentaires', [MissionController::class, 'ajouterCommentaire']);
     Route::get('/missions/{id}/bons-commande', [BonCommandeController::class, 'parMission']);
     Route::put('/bons-commande/{id}/envoyer', [BonCommandeController::class, 'marquerEnvoye']);
 
@@ -106,6 +100,8 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     // VALIDATIONS
     Route::get('/validations', [ValidationController::class, 'index']);
     Route::get('/validations/mes-validations', [ValidationController::class, 'mesValidations']);
+    Route::get('/validations/mes-delegations', [ValidationController::class, 'mesDelegations']);
+    Route::post('/validations/deleguer', [ValidationController::class, 'deleguer']);
     Route::get('/validations/{id}', [ValidationController::class, 'show']);
     Route::post('/validations/{id}/approuver', [ValidationController::class, 'approuver']);
     Route::post('/validations/{id}/rejeter', [ValidationController::class, 'rejeter']);
@@ -137,6 +133,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::get('/dashboard/depenses-par-direction', [DashboardController::class, 'depensesParDirection']);
     Route::get('/dashboard/alertes', [DashboardController::class, 'alertes']);
     Route::get('/dashboard/validateur', [DashboardController::class, 'dashboardValidateur']);
+    Route::get('/dashboard/empreinte-carbone', [DashboardController::class, 'empreinteCarbone']);
 
     // SEARCH
     Route::get('/search', [SearchController::class, 'search']);
@@ -181,7 +178,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
         Route::put('/utilisateurs/{id}/toggle-active', [AdminUserController::class, 'activerDesactiver']);
         Route::put('/utilisateurs/{id}/role', [AdminUserController::class, 'changerRole']);
         Route::post('/prestataires', [AdminPrestataireController::class, 'creerPrestataire']);
-        Route::get('/prestataires/{id}', [AdminPrestataireController::class, 'show']);
+        // GET /prestataires/{id} déjà défini dans le groupe principal (ligne 142) — doublon supprimé
         Route::put('/prestataires/{id}', [AdminPrestataireController::class, 'modifierPrestataire']);
         Route::delete('/prestataires/{id}', [AdminPrestataireController::class, 'supprimerPrestataire']);
         Route::get('/budgets/stats', [AdminBudgetController::class, 'stats']);

@@ -125,8 +125,16 @@ class ValidationController extends Controller
         $validation = CircuitValidation::with('mission')->findOrFail($id);
         $user = Auth::user();
 
-        // Vérifier que c'est ce validateur qui doit agir
-        if ($validation->validateur_id !== $user->id && $user->role->name !== 'admin') {
+        $isAssigned = $validation->validateur_id === $user->id;
+        $isAdmin = $user->role->name === 'admin';
+        $hasDelegation = !$isAssigned && \App\Models\DelegationValidation::where('delegue_id', $user->id)
+            ->where('delegant_id', $validation->validateur_id)
+            ->where('active', true)
+            ->where('date_debut', '<=', now())
+            ->where('date_fin', '>=', now())
+            ->exists();
+
+        if (!$isAssigned && !$isAdmin && !$hasDelegation) {
             return response()->json(['error' => 'Non autorisé'], 403);
         }
 
@@ -250,8 +258,16 @@ class ValidationController extends Controller
         $validation = CircuitValidation::with('mission')->findOrFail($id);
         $user = Auth::user();
 
-        // Vérifier que c'est ce validateur qui doit agir
-        if ($validation->validateur_id !== $user->id && $user->role->name !== 'admin') {
+        $isAssigned = $validation->validateur_id === $user->id;
+        $isAdmin = $user->role->name === 'admin';
+        $hasDelegation = !$isAssigned && \App\Models\DelegationValidation::where('delegue_id', $user->id)
+            ->where('delegant_id', $validation->validateur_id)
+            ->where('active', true)
+            ->where('date_debut', '<=', now())
+            ->where('date_fin', '>=', now())
+            ->exists();
+
+        if (!$isAssigned && !$isAdmin && !$hasDelegation) {
             return response()->json(['error' => 'Non autorisé'], 403);
         }
 
@@ -366,5 +382,60 @@ class ValidationController extends Controller
             ->paginate(20);
 
         return response()->json($validations);
+    }
+
+    public function deleguer(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role->name, ['validateur', 'admin'])) {
+            return response()->json(['error' => 'Seul un validateur ou admin peut déléguer'], 403);
+        }
+
+        $validated = $request->validate([
+            'delegue_id' => 'required|exists:users,id',
+            'date_debut' => 'required|date|after_or_equal:today',
+            'date_fin' => 'required|date|after:date_debut',
+            'motif' => 'nullable|string|max:500',
+        ]);
+
+        $delegue = \App\Models\User::with('role')->find($validated['delegue_id']);
+        $isAdmin = $delegue->role->name === 'admin';
+        $sameDirection = $delegue->direction === $user->direction;
+
+        if (!$isAdmin && !$sameDirection) {
+            return response()->json(['error' => 'Le délégataire doit être de la même direction ou admin'], 422);
+        }
+
+        $delegation = \App\Models\DelegationValidation::create([
+            'delegant_id' => $user->id,
+            'delegue_id' => $validated['delegue_id'],
+            'date_debut' => $validated['date_debut'],
+            'date_fin' => $validated['date_fin'],
+            'motif' => $validated['motif'] ?? null,
+            'active' => true,
+        ]);
+
+        NotificationCustom::create([
+            'user_id' => $validated['delegue_id'],
+            'titre' => 'Délégation de validation',
+            'message' => "{$user->prenom} {$user->nom} vous a délégué ses validations du {$validated['date_debut']} au {$validated['date_fin']}",
+            'type' => 'info',
+        ]);
+
+        return \App\Helpers\ApiResponse::success($delegation, 'Délégation créée', 201);
+    }
+
+    public function mesDelegations(Request $request)
+    {
+        $user = Auth::user();
+
+        $delegations = \App\Models\DelegationValidation::where('delegant_id', $user->id)
+            ->orWhere('delegue_id', $user->id)
+            ->with(['delegant', 'delegue'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return \App\Helpers\ApiResponse::paginated($delegations, 'Délégations récupérées');
     }
 }

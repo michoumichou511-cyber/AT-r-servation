@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, ChevronLeft, MessageCircle, UserRound, Plus } from 'lucide-react'
+import { Send, ChevronLeft, MessageCircle, UserRound, Plus, Search } from 'lucide-react'
 
 import PageHeader from '../../components/Common/PageHeader'
 import Modal from '../../components/UI/Modal'
@@ -29,16 +29,15 @@ function formatRelative(isoString) {
   if (!isoString) return '—'
   const t = new Date(isoString)
   if (Number.isNaN(t.getTime())) return '—'
-  const diffMs = Date.now() - t.getTime()
-  const diffMin = Math.floor(diffMs / (1000 * 60))
-  if (diffMin < 1) return 'à l’instant'
-  if (diffMin < 60) return `il y a ${diffMin} min`
-  const diffH = Math.floor(diffMin / 60)
-  if (diffH < 24) return `il y a ${diffH} h`
-  const diffJ = Math.floor(diffH / 24)
-  if (diffJ < 30) return `il y a ${diffJ} j`
-  // Au-delà d'un mois, la date parle mieux qu'un compteur ("il y a 945 h")
-  return t.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  const now = new Date()
+  const sameDay = t.toDateString() === now.toDateString()
+  const yesterday = new Date(now)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const isYesterday = t.toDateString() === yesterday.toDateString()
+  const hm = t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  if (sameDay) return `Aujourd'hui ${hm}`
+  if (isYesterday) return `Hier ${hm}`
+  return t.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export default function Messagerie() {
@@ -46,6 +45,7 @@ export default function Messagerie() {
   const [errorConversations, setErrorConversations] = useState('')
   const [conversations, setConversations] = useState([])
 
+  const [convSearch, setConvSearch] = useState('')
   const [activeConvId, setActiveConvId] = useState(null)
   const activeConversation = useMemo(
     () => conversations.find(c => c.id === activeConvId) ?? null,
@@ -66,6 +66,14 @@ export default function Messagerie() {
   const searchDebounceRef = useRef(null)
 
   const messageEndRef = useRef(null)
+  const [firstMessage, setFirstMessage] = useState('Bonjour')
+
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'))
+  useEffect(() => {
+    const obs = new MutationObserver(() => setDarkMode(document.documentElement.classList.contains('dark')))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
 
   const refreshConversationsAndSelect = useCallback(async (otherUserId) => {
     const convRes = await messagesAPI.conversations()
@@ -77,40 +85,50 @@ export default function Messagerie() {
     if (found) setActiveConvId(found.id)
   }, [])
 
-  const fetchConversations = useCallback(async () => {
-    setLoadingConversations(true)
-    setErrorConversations('')
+  const fetchConversations = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoadingConversations(true)
+      setErrorConversations('')
+    }
     try {
       const res = await messagesAPI.conversations()
       const data = res.data?.data ?? res.data
       const list = data?.conversations ?? []
       setConversations(Array.isArray(list) ? list : [])
+      if (!silent) setErrorConversations('')
     } catch (err) {
-      setConversations([])
-      setErrorConversations(
-        err?.response?.data?.message || err?.message || 'Erreur chargement des conversations'
-      )
+      if (!silent) {
+        setConversations([])
+        setErrorConversations(
+          err?.response?.data?.message || err?.message || 'Erreur chargement des conversations'
+        )
+      }
     } finally {
-      setLoadingConversations(false)
+      if (!silent) setLoadingConversations(false)
     }
   }, [])
 
-  const fetchMessages = useCallback(async (convId) => {
+  const fetchMessages = useCallback(async (convId, silent = false) => {
     if (!convId) return
-    setLoadingMessages(true)
-    setErrorMessages('')
+    if (!silent) {
+      setLoadingMessages(true)
+      setErrorMessages('')
+    }
     try {
       const res = await messagesAPI.messages(convId)
       const data = res.data?.data ?? res.data
       const list = data?.messages ?? []
       setMessages(Array.isArray(list) ? list : [])
+      if (!silent) setErrorMessages('')
     } catch (err) {
-      setMessages([])
-      setErrorMessages(
-        err?.response?.data?.message || err?.message || 'Erreur chargement des messages'
-      )
+      if (!silent) {
+        setMessages([])
+        setErrorMessages(
+          err?.response?.data?.message || err?.message || 'Erreur chargement des messages'
+        )
+      }
     } finally {
-      setLoadingMessages(false)
+      if (!silent) setLoadingMessages(false)
     }
   }, [])
 
@@ -144,6 +162,7 @@ export default function Messagerie() {
   const openNewConvModal = () => {
     setUserSearch('')
     setContactsResults([])
+    setFirstMessage('Bonjour')
     setNewConvOpen(true)
   }
 
@@ -153,7 +172,7 @@ export default function Messagerie() {
     try {
       await messagesAPI.envoyer({
         receiver_id: userId,
-        contenu: 'Bonjour',
+        contenu: firstMessage.trim() || 'Bonjour',
         mission_id: null,
       })
       toast.success('Conversation ouverte ✅')
@@ -180,11 +199,10 @@ export default function Messagerie() {
     if (activeConvId) fetchMessages(activeConvId)
   }, [activeConvId, fetchMessages])
 
-  // Sondage messages + rafraîchissement liste pour badges « non lus » (15 s)
   usePolling(async () => {
     if (!activeConvId) return
-    await fetchMessages(activeConvId)
-    await fetchConversations()
+    await fetchMessages(activeConvId, true)
+    await fetchConversations(true)
   }, 15000, !!activeConvId)
 
   const sendMessage = async () => {
@@ -193,7 +211,7 @@ export default function Messagerie() {
     const txt = contenu.trim()
     if (!txt) return
 
-    // Optimiste : on affiche l’état "envoi" via disable bouton implicitement.
+    // Optimiste : on affiche l'état "envoi" via disable bouton implicitement.
     try {
       await messagesAPI.envoyer({
         receiver_id: conv.interlocuteur?.id,
@@ -250,6 +268,20 @@ export default function Messagerie() {
               </button>
             </div>
 
+            {/* Recherche conversations */}
+            <div className="px-3 pt-3 pb-1">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <Search size={14} className="text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={convSearch}
+                  onChange={e => setConvSearch(e.target.value)}
+                  placeholder="Rechercher une conversation..."
+                  className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 w-full"
+                />
+              </div>
+            </div>
+
             {loadingConversations && (
               <div className="space-y-3 p-4">
                 {[0, 1, 2].map(i => (
@@ -280,9 +312,17 @@ export default function Messagerie() {
               </div>
             )}
 
-            {!loadingConversations && !errorConversations && conversations.length > 0 && (
+            {!loadingConversations && !errorConversations && conversations.length > 0 && (() => {
+              const filtered = convSearch.trim()
+                ? conversations.filter(c => {
+                    const q = convSearch.toLowerCase()
+                    const name = (c.autre_participant?.nom_complet ?? c.nom ?? '').toLowerCase()
+                    return name.includes(q)
+                  })
+                : conversations
+              return (
               <div className="p-3 space-y-2">
-                {conversations.map((c, index) => {
+                {filtered.map((c, index) => {
                   const active = c.id === activeConvId
                   const nonLus = c.non_lus ?? 0
                   return (
@@ -312,14 +352,14 @@ export default function Messagerie() {
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <div className="text-sm font-semibold text-gray-800 truncate">
+                            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                               {c.interlocuteur?.name || 'Interlocuteur'}
                             </div>
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
                             {truncate40(c.dernier_message || '')}
                           </div>
-                          <div className="text-[11px] text-gray-400 mt-1">
+                          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                             {formatRelative(c.dernier_message_at)}
                           </div>
                         </div>
@@ -336,7 +376,7 @@ export default function Messagerie() {
                   )
                 })}
               </div>
-            )}
+            )})()}
           </div>
 
           {/* Chat */}
@@ -362,7 +402,7 @@ export default function Messagerie() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+                      className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
                       onClick={() => setActiveConvId(null)}
                       aria-label="Retour liste"
                     >
@@ -441,9 +481,9 @@ export default function Messagerie() {
                                   lineHeight: 1.5,
                                 }
                                 : {
-                                  background: 'linear-gradient(135deg, rgba(0,61,165,0.08), rgba(0,166,80,0.08))',
-                                  color: '#1A1D26',
-                                  border: '1px solid #EAECF0',
+                                  background: darkMode ? 'rgba(0,166,80,0.12)' : 'linear-gradient(135deg, rgba(0,61,165,0.08), rgba(0,166,80,0.08))',
+                                  color: darkMode ? '#E8EAF0' : '#1A1D26',
+                                  border: `1px solid ${darkMode ? '#2A2D3E' : '#EAECF0'}`,
                                   borderRadius: '18px 18px 18px 4px',
                                   padding: '10px 14px',
                                   maxWidth: '70%',
@@ -455,7 +495,7 @@ export default function Messagerie() {
                             <div className="whitespace-pre-wrap break-words">{m.contenu}</div>
                             <div
                               className="text-[11px] mt-1"
-                              style={{ color: m.est_moi ? 'rgba(255,255,255,0.85)' : '#64748B' }}
+                              style={{ color: m.est_moi ? 'rgba(255,255,255,0.85)' : (darkMode ? '#9AA0AE' : '#64748B') }}
                             >
                               {m.created_at ? formatRelative(m.created_at) : ''}
                             </div>
@@ -506,6 +546,12 @@ export default function Messagerie() {
             value={userSearch}
             onChange={(e) => setUserSearch(e.target.value)}
             placeholder="Nom, prénom, e-mail…"
+          />
+          <Input
+            label="Premier message"
+            value={firstMessage}
+            onChange={(e) => setFirstMessage(e.target.value)}
+            placeholder="Bonjour, je vous contacte au sujet de…"
           />
           {loadingContacts && (
             <div className="text-xs text-[#9AA0AE]">Recherche…</div>

@@ -85,7 +85,7 @@ export default function Navbar({ onMenuClick }) {
     debounceRef.current = setTimeout(async () => {
       setSearching(true)
       try {
-        const res = await searchAPI.search(q)
+        const res = await searchAPI.global(q)
         const data = res.data?.data ?? []
         setSearchResults(Array.isArray(data) ? data : [])
         setSearchOpen(true)
@@ -156,7 +156,7 @@ export default function Navbar({ onMenuClick }) {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
+          className="md:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <Menu size={20} />
         </button>
@@ -171,7 +171,7 @@ export default function Navbar({ onMenuClick }) {
           <div
             aria-busy={_searching}
             className={`flex items-center gap-2 px-3 py-2 rounded-full border transition-all duration-200 ${
-            searchQuery ? 'border-[#00A650] bg-white w-64' : 'border-gray-200 bg-gray-50 w-48'
+            searchQuery ? 'border-[#00A650] bg-white dark:bg-gray-800 w-64' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 w-48'
           }`}>
             <Search size={15} className="text-gray-400 flex-shrink-0" />
             <input
@@ -179,7 +179,7 @@ export default function Navbar({ onMenuClick }) {
               placeholder="Rechercher..."
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
-              className="bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 w-full"
+              className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 w-full"
             />
             {searchQuery && (
               <button onClick={() => { setSearchQuery(''); setSearchResults([]); setSearchOpen(false) }}>
@@ -196,20 +196,20 @@ export default function Navbar({ onMenuClick }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full mt-2 left-0 w-72 bg-white rounded-xl shadow-xl
-                           border border-gray-100 py-2 z-50 max-h-64 overflow-y-auto"
+                className="absolute top-full mt-2 left-0 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl
+                           border border-gray-100 dark:border-gray-700 py-2 z-50 max-h-64 overflow-y-auto"
               >
                 {searchResults.map((result, i) => (
                   <Link
                     key={i}
                     to={getResultLink(result)}
                     onClick={() => { setSearchOpen(false); setSearchQuery('') }}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     {getResultIcon(result.type)}
                     <div className="min-w-0">
-                      <p className="text-sm text-gray-700 font-medium truncate">{result.titre ?? result.nom}</p>
-                      <p className="text-xs text-gray-400 capitalize">{result.type}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200 font-medium truncate">{result.titre ?? result.nom}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">{result.type}</p>
                     </div>
                   </Link>
                 ))}
@@ -223,7 +223,7 @@ export default function Navbar({ onMenuClick }) {
           onClick={toggleDarkMode}
           whileTap={{ rotate: 180 }}
           transition={{ duration: 0.3 }}
-          className="p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </motion.button>
@@ -231,7 +231,7 @@ export default function Navbar({ onMenuClick }) {
         {/* Notifications */}
         <button
           onClick={() => navigate('/notifications')}
-          className="relative p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
+          className="relative p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <Bell size={18} />
           {notifCount > 0 && (
@@ -247,7 +247,7 @@ export default function Navbar({ onMenuClick }) {
           <button
             onClick={() => setDropdownOpen(v => !v)}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl
-                       hover:bg-gray-100 transition-colors"
+                       hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             {user?.avatar_url
               ? <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
@@ -258,7 +258,7 @@ export default function Navbar({ onMenuClick }) {
                 </div>
               )
             }
-            <span className="text-sm font-medium text-gray-700 hidden sm:block max-w-[100px] truncate">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200 hidden sm:block max-w-[100px] truncate">
               {user?.prenom}
             </span>
           </button>
@@ -276,13 +276,13 @@ export default function Navbar({ onMenuClick }) {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -8 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl
-                             border border-gray-100 z-20 py-1.5 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl
+                             border border-gray-100 dark:border-gray-700 z-20 py-1.5 overflow-hidden"
                   style={{ position: 'absolute', zIndex: 10000, isolation: 'isolate' }}
                 >
                   {/* Infos utilisateur */}
-                  <div className="px-4 py-2.5 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
+                  <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                       {user?.prenom} {user?.nom}
                     </p>
                     <p className="text-xs text-gray-400 truncate">{user?.email}</p>
@@ -291,19 +291,19 @@ export default function Navbar({ onMenuClick }) {
                   <Link
                     to="/profil"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700
-                               hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200
+                               hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <User size={15} />
                     Mon profil
                   </Link>
 
-                  <hr className="my-1 border-gray-100" />
+                  <hr className="my-1 border-gray-100 dark:border-gray-700" />
 
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm
-                               text-red-500 hover:bg-red-50 transition-colors"
+                               text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <LogOut size={15} />
                     Déconnexion

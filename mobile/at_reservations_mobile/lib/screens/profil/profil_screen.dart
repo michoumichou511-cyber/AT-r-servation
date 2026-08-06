@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../design/design_system.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/app_preferences.dart';
 import '../../utils/web_navigation.dart'
     if (dart.library.html) '../../utils/web_navigation_web.dart';
@@ -708,12 +709,12 @@ class _NotificationsSheet extends StatelessWidget {
 }
 
 // ── Apparence ──────────────────────────────────────────────────────────────
-// Thème (clair/sombre) + langue (FR/AR) connectes aux preferences persistees.
 class _AppearanceSheet extends StatelessWidget {
   const _AppearanceSheet();
 
   @override
   Widget build(BuildContext context) {
+    final themeProv = context.watch<ThemeProvider>();
     final prefs = context.watch<AppPreferences>();
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -725,13 +726,21 @@ class _AppearanceSheet extends StatelessWidget {
           const SizedBox(height: 10),
           Row(children: [
             Expanded(child: GestureDetector(
-              onTap: () => prefs.setTheme(false),
-              child: _ThemeCard('Clair', Icons.wb_sunny_rounded, !prefs.isDark),
+              onTap: () => themeProv.setSetting(ThemeSetting.light),
+              child: _ThemeCard('Clair', Icons.wb_sunny_rounded,
+                  themeProv.setting == ThemeSetting.light),
             )),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Expanded(child: GestureDetector(
-              onTap: () => prefs.setTheme(true),
-              child: _ThemeCard('Sombre', Icons.nightlight_round, prefs.isDark),
+              onTap: () => themeProv.setSetting(ThemeSetting.dark),
+              child: _ThemeCard('Sombre', Icons.nightlight_round,
+                  themeProv.setting == ThemeSetting.dark),
+            )),
+            const SizedBox(width: 8),
+            Expanded(child: GestureDetector(
+              onTap: () => themeProv.setSetting(ThemeSetting.auto),
+              child: _ThemeCard('Auto', Icons.brightness_auto,
+                  themeProv.setting == ThemeSetting.auto),
             )),
           ]),
           const SizedBox(height: 20),
@@ -773,23 +782,22 @@ class _ThemeCard extends StatelessWidget {
   final bool active;
   const _ThemeCard(this.label, this.icon, this.active);
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        color: active ? DS.primary.withValues(alpha: 0.08) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: active ? DS.primary : Colors.transparent, width: 1.5),
-      ),
-      child: Column(children: [
-        Icon(icon, color: active ? DS.primary : DS.textMuted, size: 22),
-        const SizedBox(height: 6),
-        Text(label, style: GoogleFonts.inter(
-          fontSize: 12, fontWeight: FontWeight.w600,
-          color: active ? DS.primary : DS.textMuted)),
-      ]),
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    decoration: BoxDecoration(
+      color: active ? DS.primary.withValues(alpha: 0.08) : const Color(0xFFF3F4F6),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: active ? DS.primary : Colors.transparent, width: 1.5),
     ),
+    child: Column(children: [
+      Icon(icon, color: active ? DS.primary : DS.textMuted, size: 22),
+      const SizedBox(height: 6),
+      Text(label, style: GoogleFonts.inter(
+        fontSize: 12, fontWeight: FontWeight.w600,
+        color: active ? DS.primary : DS.textMuted)),
+    ]),
   );
 }
 

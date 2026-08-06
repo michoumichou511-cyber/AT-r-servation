@@ -19,7 +19,6 @@ export function usePolling(callback, interval = 30000, enabled = true) {
 
     const start = () => {
       if (id) return;
-      tick();
       id = setInterval(tick, interval);
     };
 

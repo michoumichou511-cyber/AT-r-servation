@@ -132,11 +132,11 @@ export default function Rapports() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="at-card-surface mb-6 p-4"
+        className="at-card-surface mb-6 p-4 dark:bg-gray-800 dark:border-gray-700"
       >
         <div className="flex items-center gap-2 mb-3">
           <Filter size={16} className="text-at-green" />
-          <div className="text-sm font-semibold text-gray-800">Filtres d’export</div>
+          <div className="text-sm font-semibold text-gray-800 dark:text-white">Filtres d'export</div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -149,11 +149,11 @@ export default function Rapports() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Mois</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Mois</label>
             <select
               value={mois}
               onChange={(e) => setMois(e.target.value)}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               <option value="">Tous</option>
@@ -165,11 +165,11 @@ export default function Rapports() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Année</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Année</label>
             <select
               value={annee}
               onChange={(e) => setAnnee(e.target.value)}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               {Array.from({ length: 7 }).map((_, idx) => {
@@ -183,11 +183,11 @@ export default function Rapports() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Type mission</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type mission</label>
             <select
               value={type_mission}
               onChange={(e) => setTypeMission(e.target.value)}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               <option value="">Tous</option>
@@ -199,11 +199,11 @@ export default function Rapports() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Statut</label>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Statut</label>
             <select
               value={statut}
               onChange={(e) => setStatut(e.target.value)}
-              className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               <option value="">Tous</option>
@@ -240,113 +240,93 @@ export default function Rapports() {
         </div>
       </motion.div>
 
+      {/* ── Section Missions ── */}
       <motion.div
-        className="at-card-surface p-4"
+        className="at-card-surface p-4 mb-4 dark:bg-gray-800 dark:border-gray-700"
         whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,166,80,0.08)' }}
         transition={{ duration: 0.2 }}
       >
-        <div className="text-sm font-semibold text-gray-800 mb-3">Exports</div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div className="flex items-center gap-2 mb-3">
+          <FileText size={16} className="text-[#003DA5]" />
+          <div className="text-sm font-semibold text-gray-800 dark:text-white">Missions</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Button
             variant="gradient"
             onClick={() =>
-              runExport(
-                'missions_excel',
-                exportAPI.missionsExcel,
-                'missions_excel',
-                '.xlsx',
-                paramsMissions
-              )
+              runExport('missions_excel', exportAPI.missionsExcel, 'missions_excel', '.xlsx', paramsMissions)
             }
             loading={exportLoadingKey === 'missions_excel'}
             disabled={exportLoadingKey !== null}
           >
             <FileSpreadsheet size={16} /> Missions Excel
           </Button>
-
           <Button
             onClick={() =>
-              runExport(
-                'missions_pdf',
-                exportAPI.missionsPdf,
-                'missions_pdf',
-                '.pdf',
-                paramsMissions
-              )
+              runExport('missions_pdf', exportAPI.missionsPdf, 'missions_pdf', '.pdf', paramsMissions)
             }
             loading={exportLoadingKey === 'missions_pdf'}
             disabled={exportLoadingKey !== null}
           >
             <FileText size={16} /> Missions PDF
           </Button>
+        </div>
+      </motion.div>
 
+      {/* ── Section Dépenses ── */}
+      <motion.div
+        className="at-card-surface p-4 mb-4 dark:bg-gray-800 dark:border-gray-700"
+        whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,166,80,0.08)' }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Download size={16} className="text-[#00A650]" />
+          <div className="text-sm font-semibold text-gray-800 dark:text-white">Dépenses</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Button
             variant="gradient"
             onClick={() =>
-              runExport(
-                'depenses_excel',
-                exportAPI.depensesExcel,
-                'depenses_excel',
-                '.csv',
-                { annee }
-              )
+              runExport('depenses_excel', exportAPI.depensesExcel, 'depenses_excel', '.xlsx', { annee })
             }
             loading={exportLoadingKey === 'depenses_excel'}
             disabled={exportLoadingKey !== null}
           >
-            <Download size={16} /> Dépenses Excel
+            <FileSpreadsheet size={16} /> Dépenses Excel
           </Button>
-
           <Button
             variant="gradient"
             onClick={() =>
-              runExport(
-                'rapport_direction',
-                exportAPI.depensesExcel,
-                'rapport_direction',
-                '.csv',
-                { annee, direction }
-              )
+              runExport('depenses_direction', exportAPI.depensesExcel, 'depenses_direction', '.xlsx', { annee, direction })
             }
-            loading={exportLoadingKey === 'rapport_direction'}
-            disabled={exportLoadingKey !== null}
+            loading={exportLoadingKey === 'depenses_direction'}
+            disabled={exportLoadingKey !== null || !direction}
           >
-            <Download size={16} /> Rapport Direction
+            <Download size={16} /> Dépenses par direction
           </Button>
+        </div>
+      </motion.div>
 
+      {/* ── Section Prestataires ── */}
+      <motion.div
+        className="at-card-surface p-4 dark:bg-gray-800 dark:border-gray-700"
+        whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,166,80,0.08)' }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <FileArchive size={16} className="text-[#003DA5]" />
+          <div className="text-sm font-semibold text-gray-800 dark:text-white">Prestataires</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Button
             variant="gradient"
             onClick={() =>
-              runExport(
-                'rapport_prestataires',
-                exportAPI.prestatairesExcel,
-                'rapport_prestataires',
-                '.csv',
-                {}
-              )
-            }
-            loading={exportLoadingKey === 'rapport_prestataires'}
-            disabled={exportLoadingKey !== null}
-          >
-            <Download size={16} /> Rapport Prestataires
-          </Button>
-
-          <Button
-            variant="gradient"
-            onClick={() =>
-              runExport(
-                'prestataires_excel',
-                exportAPI.prestatairesExcel,
-                'prestataires_excel',
-                '.csv',
-                {}
-              )
+              runExport('prestataires_excel', exportAPI.prestatairesExcel, 'prestataires_excel', '.xlsx', {})
             }
             loading={exportLoadingKey === 'prestataires_excel'}
             disabled={exportLoadingKey !== null}
           >
-            <FileArchive size={16} /> Prestataires Excel
+            <FileSpreadsheet size={16} /> Prestataires Excel
           </Button>
         </div>
       </motion.div>

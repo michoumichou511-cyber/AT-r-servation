@@ -13,9 +13,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../design/design_system.dart';
 import '../../models/mission.dart';
 import '../../services/api_service.dart';
+import '../../services/share_service.dart';
 import '../../utils/date_utils.dart';
 import '../../utils/status_utils.dart';
 import '../../widgets/mission_card.dart';
+import '../../widgets/sos_button.dart';
 
 class MissionDetailScreen extends StatefulWidget {
   final int id;
@@ -52,6 +54,9 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isActive = _mission != null &&
+        (_mission!.statut == 'en_cours' || _mission!.statut == 'approuvee');
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FF),
       body: _loading
@@ -59,6 +64,9 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
           : _error != null
               ? _buildError()
               : _buildBodySafe(),
+      floatingActionButton: isActive && !_loading
+          ? SOSButton(missionId: widget.id)
+          : null,
     );
   }
 
@@ -158,6 +166,22 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         title: Text(m.numeroUnique ?? 'Détail Mission',
           style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'Partager',
+            onPressed: () => ShareService.shareMissionText(
+              titre: m.displayTitre,
+              destination: m.destination ?? '-',
+              dateDepart: m.dates?.depart ?? '-',
+              dateRetour: m.dates?.retour ?? '-',
+              statut: DS.labelForStatut(m.statut),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.checklist),
+            tooltip: 'Check-list',
+            onPressed: () => context.push('/missions/${widget.id}/checklist'),
+          ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             tooltip: 'Exporter PDF',
@@ -755,7 +779,10 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         date:   e.date,
         isLast: i == events.length - 1,
         color:  e.color,
-      );
+      )
+          .animate(delay: (i * 150).ms)
+          .fadeIn(duration: 400.ms)
+          .slideX(begin: -0.1, end: 0, duration: 400.ms, curve: Curves.easeOut);
     });
   }
 
@@ -884,7 +911,6 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
       }
     } else if (s == 'soumis' || s == 'en_attente' || s == 'en_cours' ||
         s == 'en_validation') {
-      // Amélioration 4 : bouton Contacter le validateur
       actions.add(_ActionButton(
         label: 'Contacter le validateur',
         icon: Icons.message_outlined,
@@ -898,6 +924,24 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         color: DS.error,
         outlined: true,
         onTap: () => _cancel(m.id),
+      ));
+    }
+
+    if (s == 'en_cours' || s == 'approuvee') {
+      actions.add(const SizedBox(height: 10));
+      actions.add(_ActionButton(
+        label: 'Pointer mon arrivée / départ',
+        icon: Icons.gps_fixed,
+        color: DS.primary,
+        onTap: () => context.push('/missions/${m.id}/pointage'),
+      ));
+      actions.add(const SizedBox(height: 10));
+      actions.add(_ActionButton(
+        label: 'Ajouter un justificatif',
+        icon: Icons.camera_alt_outlined,
+        color: DS.info,
+        outlined: true,
+        onTap: () => context.push('/missions/${m.id}/justificatif'),
       ));
     }
 

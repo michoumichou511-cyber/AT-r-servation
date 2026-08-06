@@ -22,12 +22,14 @@ class Mission extends Model
         'date_depart',
         'date_retour',
         'type_mission',
+        'transport_type',
         'priorite',
         'statut',
         'approuve_par',
         'approuve_le',
         'numero_unique',
         'budget_previsionnel',
+        'budget_mode',
         'soumis_le',
     ];
 

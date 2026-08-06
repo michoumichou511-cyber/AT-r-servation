@@ -15,3 +15,4 @@ export { default as Tooltip }    from './Tooltip';
 export { default as StarRating } from './StarRating';
 export { default as ChipFilter } from './ChipFilter';
 export { default as StatusGuard } from './StatusGuard';
+export { default as Pagination } from './Pagination';

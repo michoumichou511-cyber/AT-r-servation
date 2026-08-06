@@ -70,6 +70,15 @@ function extractDashboardStats(res) {
 export default function Statistiques() {
   const navigate = useNavigate()
 
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'))
+
+  useEffect(() => {
+    const el = document.documentElement
+    const obs = new MutationObserver(() => setDarkMode(el.classList.contains('dark')))
+    obs.observe(el, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+
   const [loading, setLoading] = useState(true)
 
   const [stats, setStats] = useState(null)
@@ -294,14 +303,14 @@ export default function Statistiques() {
               className="at-card-surface p-5"
             >
               <div className="flex items-center justify-between gap-3">
-                <div className="p-2.5 bg-at-blue-light rounded-xl text-at-blue">
+                <div className="p-2.5 bg-at-blue-light dark:bg-blue-900/30 rounded-xl text-at-blue dark:text-blue-400">
                   <TrendingUp size={18} />
                 </div>
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={kpis.totalMissionsListed} duration={1.8} separator=" " />
               </div>
-              <div className="text-xs text-gray-500 mt-1">Total missions (GET /missions)</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total missions (GET /missions)</div>
             </motion.div>
 
             <motion.div
@@ -310,13 +319,13 @@ export default function Statistiques() {
               transition={{ duration: 0.3, delay: 0.05 }}
               className="at-card-surface p-5"
             >
-              <div className="p-2.5 bg-at-green-light rounded-xl text-at-green flex items-center justify-between">
+              <div className="p-2.5 bg-at-green-light dark:bg-green-900/30 rounded-xl text-at-green dark:text-green-400 flex items-center justify-between">
                 <Calendar size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={kpis.taux} duration={1.8} suffix="%" separator=" " />
               </div>
-              <div className="text-xs text-gray-500 mt-1">Taux d’approbation (dashboard)</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Taux d’approbation (dashboard)</div>
             </motion.div>
 
             <motion.div
@@ -325,15 +334,15 @@ export default function Statistiques() {
               transition={{ duration: 0.3, delay: 0.1 }}
               className="at-card-surface p-5"
             >
-              <div className="p-2.5 bg-orange-50 rounded-xl text-orange-500 flex items-center justify-between">
+              <div className="p-2.5 bg-orange-50 dark:bg-orange-900/30 rounded-xl text-orange-500 dark:text-orange-400 flex items-center justify-between">
                 <DollarSign size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white">
                 <span className="tabular-nums">
                   {formatDZD(kpis.budgetTotal).replace(/[\s\u202f]*DZD.*$/i, '').trim()}
                 </span>
               </div>
-              <div className="text-xs text-gray-500 mt-1">Budget total (année courante)</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Budget total (année courante)</div>
             </motion.div>
 
             <motion.div
@@ -342,13 +351,13 @@ export default function Statistiques() {
               transition={{ duration: 0.3, delay: 0.15 }}
               className="at-card-surface p-5"
             >
-              <div className="p-2.5 bg-sky-50 rounded-xl text-sky-600 flex items-center justify-between">
+              <div className="p-2.5 bg-sky-50 dark:bg-sky-900/30 rounded-xl text-sky-600 dark:text-sky-400 flex items-center justify-between">
                 <Building2 size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={prestatairesTotal} duration={1.8} separator=" " />
               </div>
-              <div className="text-xs text-gray-500 mt-1">Prestataires (GET /prestataires)</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Prestataires (GET /prestataires)</div>
             </motion.div>
 
             <motion.div
@@ -357,13 +366,13 @@ export default function Statistiques() {
               transition={{ duration: 0.3, delay: 0.2 }}
               className="at-card-surface p-5"
             >
-              <div className="p-2.5 bg-purple-50 rounded-xl text-purple-500 flex items-center justify-between">
+              <div className="p-2.5 bg-purple-50 dark:bg-purple-900/30 rounded-xl text-purple-500 dark:text-purple-400 flex items-center justify-between">
                 <FileText size={18} />
               </div>
-              <div className="mt-3 text-2xl font-extrabold text-gray-900 tabular-nums">
+              <div className="mt-3 text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                 <CountUp end={Math.round(delayMoyen.avgDays)} duration={1.8} suffix=" j" />
               </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Délai moyen création → départ • n={delayMoyen.sample}
               </div>
             </motion.div>
@@ -372,7 +381,7 @@ export default function Statistiques() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
             <div className="at-card-surface p-5">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="text-sm font-semibold text-gray-800">Missions (6 derniers mois)</div>
+                <div className="text-sm font-semibold text-gray-800 dark:text-white">Missions (6 derniers mois)</div>
                 <Badge status="actif" label={`${lineData.length} points`} />
               </div>
 
@@ -384,10 +393,10 @@ export default function Statistiques() {
                 <div style={{ height: 260 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={lineData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                      <XAxis dataKey="mois" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#F0F0F0'} />
+                      <XAxis dataKey="mois" tick={{ fontSize: 11, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                      <YAxis tick={{ fontSize: 11, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                      <Tooltip contentStyle={darkMode ? { backgroundColor: '#1F2937', border: '1px solid #374151', color: '#F9FAFB' } : undefined} />
                       <Line type="monotone" dataKey="total" name="Total" stroke="#003DA5" strokeWidth={2} dot={{ r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -396,7 +405,7 @@ export default function Statistiques() {
             </div>
 
             <div className="at-card-surface p-5">
-              <div className="text-sm font-semibold text-gray-800 mb-3">Dépenses par type (réservations confirmées)</div>
+              <div className="text-sm font-semibold text-gray-800 dark:text-white mb-3">Dépenses par type (réservations confirmées)</div>
               {fetchErrors.stats && depensesParTypeChart.length === 0 ? (
                 <EmptyState icon={DollarSign} title="Indisponible" subtitle={fetchErrors.stats} />
               ) : depensesParTypeChart.length === 0 ? (
@@ -405,10 +414,10 @@ export default function Statistiques() {
                 <div style={{ height: 260 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={depensesParTypeChart}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                      <XAxis dataKey="type" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#F0F0F0'} />
+                      <XAxis dataKey="type" tick={{ fontSize: 10, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                      <YAxis tick={{ fontSize: 11, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                      <Tooltip contentStyle={darkMode ? { backgroundColor: '#1F2937', border: '1px solid #374151', color: '#F9FAFB' } : undefined} />
                       <Bar dataKey="montant" name="Montant" fill="#00A650" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -419,7 +428,7 @@ export default function Statistiques() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-6">
             <div className="at-card-surface p-5 xl:col-span-1">
-              <div className="text-sm font-semibold text-gray-800 mb-3">Missions par type (échantillon {missionsSample.length})</div>
+              <div className="text-sm font-semibold text-gray-800 dark:text-white mb-3">Missions par type (échantillon {missionsSample.length})</div>
               {fetchErrors.missions && pieData.length === 0 ? (
                 <EmptyState icon={PieChartIcon} title="Indisponible" subtitle={fetchErrors.missions} />
               ) : pieData.length === 0 ? (
@@ -428,7 +437,7 @@ export default function Statistiques() {
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Tooltip />
+                      <Tooltip contentStyle={darkMode ? { backgroundColor: '#1F2937', border: '1px solid #374151', color: '#F9FAFB' } : undefined} />
                       <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={85} label={false}>
                         {pieData.map((_, idx) => (
                           <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
@@ -442,7 +451,7 @@ export default function Statistiques() {
 
             <div className="at-card-surface p-5 xl:col-span-2">
               <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                <div className="text-sm font-semibold text-gray-800">Top prestataires</div>
+                <div className="text-sm font-semibold text-gray-800 dark:text-white">Top prestataires</div>
                 <Button size="sm" variant="outline" onClick={() => navigate('/admin/prestataires')}>
                   Voir la liste
                 </Button>
@@ -461,8 +470,8 @@ export default function Statistiques() {
                   <table className="min-w-[520px] w-full">
                     <thead className="at-table-head border-b border-[#EAECF0] dark:border-[#2A2D3E]">
                       <tr>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Prestataire</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Prestataire</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
                           {stats?.top_prestataires?.length ? 'Réservations confirmées' : 'Indicateur'}
                         </th>
                       </tr>
@@ -477,10 +486,10 @@ export default function Statistiques() {
                             transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.4) }}
                             className="at-table-row border-b border-[#EAECF0] dark:border-[#2A2D3E]"
                           >
-                            <td className="px-4 py-3 text-sm font-semibold text-gray-800">
+                            <td className="px-4 py-3 text-sm font-semibold text-gray-800 dark:text-white">
                               {p.nom}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
+                            <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                               <CountUp end={p.nb_reservations} duration={1.4} separator=" " />
                             </td>
                           </motion.tr>

@@ -78,6 +78,13 @@ class _DmlScreenState extends State<DmlScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FF),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/scan-ticket'),
+        backgroundColor: ATColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.qr_code_scanner),
+        label: const Text('Scanner billet'),
+      ),
       body: CustomScrollView(
         slivers: [
           // ─── AppBar gradient + stats ────────────────────────────────────

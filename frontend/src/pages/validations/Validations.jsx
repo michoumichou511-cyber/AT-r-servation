@@ -232,7 +232,7 @@ export default function Validations() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <div className="font-mono text-gray-500 text-xs">
+                        <div className="font-mono text-gray-500 dark:text-gray-400 text-xs">
                           {mission.numero_unique ?? 'OM-—'}
                         </div>
                         <Badge status={badgeStatus} />
@@ -246,20 +246,20 @@ export default function Validations() {
                         )}
                       </div>
 
-                      <div className="mt-2 font-bold text-gray-900 text-base truncate">
+                      <div className="mt-2 font-bold text-gray-900 dark:text-white text-base truncate">
                         {mission.titre ?? 'Sans titre'}
                       </div>
 
-                      <div className="text-sm text-gray-700 mt-2">
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
                         Demandeur : <span className="font-semibold">{demandeur}</span>
                       </div>
 
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         {mission.destination ?? '—'} • {depart ?? '—'} →{' '}
                         {mission.dates?.retour ?? '—'}
                       </div>
 
-                      <div className="text-sm text-gray-800 font-semibold mt-2">
+                      <div className="text-sm text-gray-800 dark:text-gray-200 font-semibold mt-2">
                         Budget : {formatBudgetLight(budget)}
                       </div>
                     </div>
@@ -275,10 +275,6 @@ export default function Validations() {
                         <XCircle size={16} /> Rejeter
                       </Button>
 
-                      <div className="hidden">
-                        {/* Lien bouton si besoin */}
-                        <Button variant="ghost" size="sm" />
-                      </div>
                     </div>
                   </div>
 
@@ -292,7 +288,7 @@ export default function Validations() {
                       <FileText size={16} /> Ouvrir mission
                     </Button>
 
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-gray-400 dark:text-gray-500">
                       {libelleAttente ? `En attente : ${libelleAttente}` : 'En attente'}
                     </div>
                   </div>
@@ -316,7 +312,7 @@ export default function Validations() {
               >
                 ← Précédent
               </Button>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Page {pagination.current_page ?? page} / {pagination.last_page}
               </div>
               <Button
@@ -349,14 +345,14 @@ export default function Validations() {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             {modal.type === 'approuver' && 'Commentaire (optionnel).'}
             {modal.type === 'rejeter' && 'Commentaire (obligatoire, min 10 caractères).'}
             {modal.type === 'modifier' && 'Commentaire (obligatoire, min 10 caractères).'}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
               Commentaire
             </label>
             <textarea
@@ -364,7 +360,7 @@ export default function Validations() {
               onChange={(e) => setCommentaire(e.target.value)}
               rows={4}
               placeholder="Détaillez votre commentaire..."
-              className="at-input min-h-[100px] py-2"
+              className="at-input min-h-[100px] py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
             />
             {modalError && (
               <p className="mt-2 text-sm font-semibold text-red-600">{modalError}</p>

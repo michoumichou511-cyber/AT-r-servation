@@ -28,9 +28,11 @@ class ExportService
         $query = $this->getFilteredMissionsQuery($filters, $user);
         $missions = $query->get();
 
-        $totalBudgetPrevu = $missions->sum('budget_max');
+        $totalBudgetPrevu = $missions->sum('budget_previsionnel');
         $totalBudgetReel = $missions->sum(function ($mission) {
-            return $mission->reservations->where('statut', 'confirme')->sum('montant');
+            return $mission->reservations
+                ->whereNotIn('statut', ['annule'])
+                ->sum(fn ($r) => $r->montant_reel ?: $r->montant_estime ?: 0);
         });
 
         $this->logExport('mission', "Export PDF missions - {$missions->count()} enregistrements", $user);

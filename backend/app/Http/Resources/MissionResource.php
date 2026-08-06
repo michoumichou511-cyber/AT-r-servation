@@ -33,7 +33,9 @@ class MissionResource extends JsonResource
             'type_mission' => $this->type_mission,
             'priorite' => $this->priorite ?? 'normale',
             'statut' => $this->statut,
+            'transport_type' => $this->transport_type,
             'budget_previsionnel' => (float) ($this->budget_previsionnel ?? 0),
+            'budget_mode' => $this->budget_mode,
             'budget_reel' => (float) ($this->reservations->where('statut', 'confirme')->sum('montant_reel')),
             'user' => new UserResource($this->whenLoaded('user')),
             'reservations' => ReservationResource::collection($this->whenLoaded('reservations')),
@@ -41,7 +43,7 @@ class MissionResource extends JsonResource
             'documentation' => DocumentResource::collection($this->whenLoaded('documents')),
             'description' => $this->description,
             'soumis_le' => $this->soumis_le,
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }

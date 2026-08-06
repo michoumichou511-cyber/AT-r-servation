@@ -18,12 +18,6 @@ function dlFromBlob(data, nom) {
   URL.revokeObjectURL(url)
 }
 
-function safeParseDA(v) {
-  const s = String(v ?? '').replace(/[^0-9,.-]/g, '')
-  if (!s) return 0
-  return Number(s.replace(',', '.')) || 0
-}
-
 function EditLink({ onClick, children = 'Modifier' }) {
   if (!onClick) return null
   return (
@@ -53,10 +47,6 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
     const s = mission?.statut ?? ''
     return s === 'brouillon' || s === 'rejete'
   }, [mission?.statut])
-
-  const budgetEstimeReservations = useMemo(() => {
-    return reservations.reduce((acc, r) => acc + safeParseDA(r?.montant_estime), 0)
-  }, [reservations])
 
   const loadAll = useCallback(async () => {
     if (!missionId) return
@@ -173,19 +163,6 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
         </div>
       )}
 
-      {/* FIX-6 : avertissement budget = 0 (non bloquant, juste un nudge) */}
-      {!loading && mission && budgetEstimeReservations === 0 && (
-        <div className="bg-amber-50 border border-amber-300 dark:bg-amber-950/30 dark:border-amber-900/50 rounded-2xl p-4 mb-4 flex items-start gap-3">
-          <div className="text-2xl">⚠️</div>
-          <div>
-            <div className="text-sm font-semibold text-amber-900 dark:text-amber-100">Budget total à 0 DA</div>
-            <div className="text-sm text-amber-800 dark:text-amber-200/90 mt-0.5">
-              Aucune réservation chiffrée n'a été ajoutée. Vérifiez l'étape Réservations avant de soumettre — la mission peut être validée mais le DML n'aura pas d'estimation budgétaire.
-            </div>
-          </div>
-        </div>
-      )}
-
       {loading ? (
         <div className="space-y-3">
           <SkeletonCard />
@@ -212,40 +189,22 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
                 <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
                   Dates: <span className="font-semibold">{mission.dates?.depart ?? '—'} → {mission.dates?.retour ?? '—'}</span>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">
-                  Budget prévisionnel: <span className="font-semibold">{mission.budget_previsionnel?.toLocaleString?.('fr-FR') ?? mission.budget_previsionnel} DA</span>
-                </div>
+                {mission.transport_type && (
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Transport: <span className="font-semibold">{mission.transport_type === 'avion' ? 'Par avion' : 'Par voie terrestre'}</span>
+                  </div>
+                )}
+                {mission.budget_mode && (
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Mode budget: <span className="font-semibold">{mission.budget_mode === 'avance' ? 'Avance' : 'Remboursement'}</span>
+                  </div>
+                )}
               </div>
 
               <div className="min-w-[220px]">
                 <div className="bg-at-green/10 border border-at-green/20 rounded-xl p-3">
-                  <div className="text-xs font-semibold text-at-green mb-1">Réservations (estimé)</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                    {budgetEstimeReservations.toLocaleString('fr-FR')} DA
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{reservations.length} élément(s)</div>
-
-                  {/* Jauge budget : estimé vs prévisionnel */}
-                  {Number(mission.budget_previsionnel) > 0 && (() => {
-                    const prev = Number(mission.budget_previsionnel) || 0
-                    const pct = Math.min(Math.round((budgetEstimeReservations / prev) * 100), 999)
-                    const barPct = Math.min(pct, 100)
-                    const color = pct <= 80 ? '#00A650' : pct <= 100 ? '#F59E0B' : '#EF4444'
-                    return (
-                      <div className="mt-2">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400">vs budget prévisionnel</span>
-                          <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-gray-200/70 dark:bg-gray-700 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-[width] duration-700 ease-out"
-                            style={{ width: `${barPct}%`, background: color }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })()}
+                  <div className="text-xs font-semibold text-at-green mb-1">Réservations</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">{reservations.length} élément(s)</div>
                 </div>
               </div>
             </div>
@@ -276,13 +235,6 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <Badge status="actif" label={r.type_label ?? r.type} />
-                          </div>
-                          <div className="text-sm text-gray-700 dark:text-gray-200">
-                            Montant: <span className="font-semibold">
-                              {r.montant_estime && r.montant_estime !== '0,00 DA'
-                                ? r.montant_estime
-                                : <span className="text-amber-600 dark:text-amber-400 italic">Non renseigne</span>}
-                            </span>
                           </div>
                           {r.prestataire?.nom ? (
                             <div className="text-sm text-gray-700 dark:text-gray-200">

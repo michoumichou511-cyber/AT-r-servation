@@ -423,12 +423,62 @@ class _ValidationItemState extends State<_ValidationItem> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      MissionCard(
-        mission: widget.mission,
-        showUser: true,
-        index: widget.index,
+      Dismissible(
+        key: ValueKey('swipe_${widget.validationId}'),
+        confirmDismiss: (direction) async {
+          if (_acting) return false;
+          if (direction == DismissDirection.startToEnd) {
+            await _approuver();
+            return false;
+          } else {
+            await _actionWithComment(
+              'Motif du refus',
+              'Expliquez le motif du refus…',
+              DS.error, 'rejeter',
+            );
+            return false;
+          }
+        },
+        background: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: DS.gradientGreen,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.only(left: 24),
+          child: Row(children: [
+            const Icon(Icons.check_circle, color: Colors.white, size: 28),
+            const SizedBox(width: 8),
+            Text('Approuver',
+              style: GoogleFonts.inter(
+                color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+          ]),
+        ),
+        secondaryBackground: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [const Color(0xFFDC2626), DS.error],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('Refuser',
+              style: GoogleFonts.inter(
+                color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+            const SizedBox(width: 8),
+            const Icon(Icons.cancel, color: Colors.white, size: 28),
+          ]),
+        ),
+        child: MissionCard(
+          mission: widget.mission,
+          showUser: true,
+          index: widget.index,
+        ),
       ).animate(delay: (widget.index * 80).ms).fadeIn().slideY(begin: 0.1),
-      // Action buttons row
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         child: _acting
@@ -439,21 +489,19 @@ class _ValidationItemState extends State<_ValidationItem> {
                 ),
               )
             : Row(children: [
-                // Valider
                 Expanded(
                   flex: 2,
                   child: _ActionBtn(
-                    label: '✓ Valider',
+                    label: 'Valider',
                     gradient: DS.gradientGreen,
                     shadowColor: DS.primary,
                     onTap: _acting ? null : _approuver,
                   ),
                 ),
                 const SizedBox(width: 6),
-                // Modifier
                 Expanded(
                   child: _ActionBtn(
-                    label: '↺',
+                    label: 'Modifier',
                     gradient: LinearGradient(
                       colors: [DS.warning,
                         DS.warning.withValues(alpha: 0.8)],
@@ -466,10 +514,9 @@ class _ValidationItemState extends State<_ValidationItem> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                // Refuser
                 Expanded(
                   child: _ActionBtn(
-                    label: '✗',
+                    label: 'Refuser',
                     gradient: LinearGradient(
                       colors: [DS.error, const Color(0xFFDC2626)],
                     ),

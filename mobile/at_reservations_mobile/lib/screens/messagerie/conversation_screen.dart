@@ -13,6 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/presence_service.dart';
 import '../../utils/date_utils.dart';
+import '../../widgets/voice_input.dart';
 
 // ─── Model ─────────────────────────────────────────────────────────────────
 class MessageModel {
@@ -437,22 +438,38 @@ class _ConversationScreenState extends State<ConversationScreen>
                           width: 1.5,
                         ),
                       ),
-                      child: TextField(
-                        controller: _ctrl,
-                        focusNode: _inputFocus,
-                        maxLines: 5,
-                        minLines: 1,
-                        textCapitalization: TextCapitalization.sentences,
-                        style: GoogleFonts.inter(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'Écrivez un message…',
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          hintStyle: GoogleFonts.inter(
-                              color: DS.textPlaceholder, fontSize: 14),
-                        ),
-                        onSubmitted: (_) => _send(),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _ctrl,
+                              focusNode: _inputFocus,
+                              maxLines: 5,
+                              minLines: 1,
+                              textCapitalization: TextCapitalization.sentences,
+                              style: GoogleFonts.inter(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Écrivez un message…',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
+                                hintStyle: GoogleFonts.inter(
+                                    color: DS.textPlaceholder, fontSize: 14),
+                              ),
+                              onSubmitted: (_) => _send(),
+                            ),
+                          ),
+                          VoiceInputButton(
+                            onResult: (text) {
+                              _ctrl.text = _ctrl.text.isEmpty
+                                  ? text
+                                  : '${_ctrl.text} $text';
+                              _ctrl.selection = TextSelection.collapsed(
+                                  offset: _ctrl.text.length);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),

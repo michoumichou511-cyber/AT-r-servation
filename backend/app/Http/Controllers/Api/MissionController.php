@@ -231,7 +231,17 @@ class MissionController extends Controller
         set_time_limit(30);
 
         $mission = Mission::findOrFail($id);
-        $user = $request->user();
+        $user = $request->user()->load('role');
+
+        // IDOR Protection : seul le propriétaire ou l'admin peut soumettre
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        if (!$isOwner && !$isAdmin) {
+            return \App\Helpers\ApiResponse::error('Non autorisé à soumettre cette mission', 403);
+        }
+
+        $conformite = new \App\Services\ConformiteService();
+        $alertes = $conformite->verifierMission($mission);
 
         try {
             $mission = $this->missionService->submit($mission);
@@ -249,6 +259,7 @@ class MissionController extends Controller
                 'success' => true,
                 'message' => 'Mission soumise pour validation',
                 'data' => new MissionResource($mission->load('user', 'circuitsValidation')),
+                'alertes_conformite' => $alertes,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -261,6 +272,14 @@ class MissionController extends Controller
     public function cancel(Request $request, $id)
     {
         $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        // IDOR Protection : seul le propriétaire ou l'admin peut annuler
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        if (!$isOwner && !$isAdmin) {
+            return \App\Helpers\ApiResponse::error('Non autorisé à annuler cette mission', 403);
+        }
 
         try {
             $this->missionService->cancel($mission);
@@ -280,6 +299,14 @@ class MissionController extends Controller
     public function duplicate(Request $request, $id)
     {
         $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        // IDOR Protection : seul le propriétaire ou l'admin peut dupliquer
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        if (!$isOwner && !$isAdmin) {
+            return \App\Helpers\ApiResponse::error('Non autorisé à dupliquer cette mission', 403);
+        }
 
         try {
             $copy = $this->missionService->duplicate($mission);
@@ -372,9 +399,19 @@ class MissionController extends Controller
         ])->download("missions_export_{$date}.pdf");
     }
 
-    public function historique($id)
+    public function historique(Request $request, $id)
     {
         $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        // IDOR Protection : propriétaire, validateur assigné, ou admin
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        $isValidateur = $mission->circuitsValidation()->where('validateur_id', $user->id)->exists();
+        if (!$isOwner && !$isAdmin && !$isValidateur) {
+            return \App\Helpers\ApiResponse::error('Non autorisé à consulter cet historique', 403);
+        }
+
         $timeline = $this->missionService->getTimeline($mission);
 
         return response()->json($timeline);
@@ -407,6 +444,167 @@ class MissionController extends Controller
         }
 
         return response()->json(['events' => $events]);
+    }
+
+    // ── Templates de missions récurrentes ──────────────────────────────────────
+
+    public function getTemplates(Request $request)
+    {
+        $user = $request->user();
+        $templates = \App\Models\MissionTemplate::where('user_id', $user->id)
+            ->orWhere('is_public', true)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return \App\Helpers\ApiResponse::paginated($templates, 'Templates récupérés');
+    }
+
+    public function createFromTemplate(Request $request, $templateId)
+    {
+        $user = $request->user();
+        $template = \App\Models\MissionTemplate::where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('is_public', true);
+        })->findOrFail($templateId);
+
+        $data = $template->mission_data;
+
+        $maxNum = Mission::whereYear('created_at', now()->year)
+            ->whereNotNull('numero_unique')
+            ->pluck('numero_unique')
+            ->map(fn ($n) => (int) last(explode('-', $n)))
+            ->max();
+        $count = ($maxNum ?? 0) + 1;
+        $numero = 'OM-'.now()->year.'-'.str_pad($count, 5, '0', STR_PAD_LEFT);
+
+        $mission = Mission::create([
+            'user_id' => $user->id,
+            'created_by' => $user->id,
+            'numero_unique' => $numero,
+            'statut' => 'brouillon',
+            'titre' => $data['titre'] ?? null,
+            'objet_mission' => $data['objet_mission'] ?? null,
+            'destination' => $data['destination'] ?? null,
+            'destination_ville' => $data['destination_ville'] ?? null,
+            'destination_pays' => $data['destination_pays'] ?? null,
+            'type_mission' => $data['type_mission'] ?? null,
+            'transport_type' => $data['transport_type'] ?? null,
+            'budget_mode' => $data['budget_mode'] ?? null,
+            'priorite' => $data['priorite'] ?? 'normale',
+        ]);
+
+        return \App\Helpers\ApiResponse::success(
+            new MissionResource($mission->load('user')),
+            'Mission créée depuis le template',
+            201
+        );
+    }
+
+    public function saveAsTemplate(Request $request, $id)
+    {
+        $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        if (!$isOwner && !$isAdmin) {
+            return \App\Helpers\ApiResponse::error('Non autorisé', 403);
+        }
+
+        $request->validate([
+            'nom_template' => 'required|string|max:255',
+            'is_public' => 'sometimes|boolean',
+        ]);
+
+        $template = \App\Models\MissionTemplate::create([
+            'user_id' => $user->id,
+            'nom_template' => $request->nom_template,
+            'is_public' => $isAdmin ? ($request->is_public ?? false) : false,
+            'mission_data' => [
+                'titre' => $mission->titre,
+                'objet_mission' => $mission->objet_mission,
+                'destination' => $mission->destination,
+                'destination_ville' => $mission->destination_ville,
+                'destination_pays' => $mission->destination_pays,
+                'type_mission' => $mission->type_mission,
+                'transport_type' => $mission->transport_type,
+                'budget_mode' => $mission->budget_mode,
+                'priorite' => $mission->priorite,
+            ],
+        ]);
+
+        return \App\Helpers\ApiResponse::success($template, 'Template sauvegardé', 201);
+    }
+
+    // ── Commentaires par mission ────────────────────────────────────────────────
+
+    public function commentaires(Request $request, $id)
+    {
+        $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        $isValidateur = $mission->circuitsValidation()->where('validateur_id', $user->id)->exists();
+        $isDml = strtolower($user->role->name ?? '') === 'agent_dml';
+
+        if (!$isOwner && !$isAdmin && !$isValidateur && !$isDml) {
+            return \App\Helpers\ApiResponse::error('Non autorisé', 403);
+        }
+
+        $commentaires = \App\Models\MissionCommentaire::where('mission_id', $id)
+            ->with(['user' => fn ($q) => $q->select('id', 'nom', 'prenom')->with('role:id,name')])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return \App\Helpers\ApiResponse::success($commentaires);
+    }
+
+    public function ajouterCommentaire(Request $request, $id)
+    {
+        $mission = Mission::findOrFail($id);
+        $user = $request->user()->load('role');
+
+        $isOwner = $mission->user_id === $user->id || $mission->created_by === $user->id;
+        $isAdmin = strtolower($user->role->name ?? '') === 'admin';
+        $isValidateur = $mission->circuitsValidation()->where('validateur_id', $user->id)->exists();
+        $isDml = strtolower($user->role->name ?? '') === 'agent_dml';
+
+        if (!$isOwner && !$isAdmin && !$isValidateur && !$isDml) {
+            return \App\Helpers\ApiResponse::error('Non autorisé', 403);
+        }
+
+        $request->validate(['contenu' => 'required|string|max:2000']);
+
+        $commentaire = \App\Models\MissionCommentaire::create([
+            'mission_id' => $id,
+            'user_id' => $user->id,
+            'contenu' => $request->contenu,
+        ]);
+
+        $commentaire->load(['user' => fn ($q) => $q->select('id', 'nom', 'prenom')->with('role:id,name')]);
+
+        $participants = collect([$mission->user_id, $mission->created_by])
+            ->merge($mission->circuitsValidation()->pluck('validateur_id'))
+            ->unique()
+            ->reject(fn ($uid) => $uid === $user->id);
+
+        $now = now();
+        $notifications = $participants->map(fn ($uid) => [
+            'user_id' => $uid,
+            'titre' => 'Nouveau commentaire',
+            'message' => "{$user->prenom} {$user->nom} a commenté la mission {$mission->numero_unique}",
+            'type' => 'info',
+            'lue' => false,
+            'is_read' => false,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ])->all();
+
+        if (!empty($notifications)) {
+            NotificationCustom::insert($notifications);
+        }
+
+        return \App\Helpers\ApiResponse::success($commentaire, 'Commentaire ajouté', 201);
     }
 
     // ── Agent DML : mise à jour des informations logistiques ──────────────────

@@ -4,6 +4,7 @@ import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react'
+import { FormParticlesCanvas } from '../../components/ParticlesBackground'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
@@ -632,6 +633,64 @@ function LoginMobileAnimated({
   )
 }
 
+const SLIDES = [
+  'Gerez vos missions de deplacement en quelques clics',
+  'Suivez en temps reel l\'etat de vos reservations',
+  'Validez les demandes depuis votre bureau',
+]
+
+function LoginSlideshow() {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setIndex(i => (i + 1) % SLIDES.length), 5000)
+    return () => clearInterval(timer)
+  }, [])
+  return (
+    <div style={{ position: 'relative', zIndex: 10, paddingBottom: 24 }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, marginBottom: 16 }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#52FF8A' }} />
+        <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          Direction des Systemes d'Information
+        </span>
+      </div>
+      <div style={{ minHeight: 100, position: 'relative' }}>
+        {SLIDES.map((text, i) => (
+          <m.div
+            key={i}
+            initial={false}
+            animate={{ opacity: i === index ? 1 : 0, y: i === index ? 0 : 12 }}
+            transition={{ duration: 0.5 }}
+            style={{ position: i === 0 ? 'relative' : 'absolute', top: 0, left: 0, right: 0 }}
+          >
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1.3 }}>
+              {text}
+            </h1>
+          </m.div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-label={`Slide ${i + 1}`}
+            style={{
+              width: i === index ? 24 : 8,
+              height: 8,
+              borderRadius: 4,
+              border: 'none',
+              cursor: 'pointer',
+              background: i === index ? '#52FF8A' : 'rgba(255,255,255,0.3)',
+              transition: 'all 0.3s',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -695,6 +754,7 @@ export default function Login() {
   }, [])
 
   const reducedMotion = usePrefersReducedMotion()
+  const rightPanelRef = useRef(null)
   const desktopEmailId = useId()
   const desktopPasswordId = useId()
   const desktopFormErrorId = useId()
@@ -868,75 +928,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Texte central */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            paddingBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 12px',
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 20,
-              marginBottom: 16,
-            }}
-          >
-            <div
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                background: '#52FF8A',
-              }}
-            />
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.85)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Espace employé
-            </span>
-          </div>
-
-          <h1
-            style={{
-              fontSize: 32,
-              fontWeight: 800,
-              color: 'white',
-              lineHeight: 1.25,
-              marginBottom: 12,
-            }}
-          >
-            Bienvenue sur
-            <br />
-            votre{' '}
-            <span style={{ color: '#52FF8A' }}>
-              espace de travail.
-            </span>
-          </h1>
-
-          <p
-            style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.6)',
-              lineHeight: 1.7,
-              maxWidth: 280,
-            }}
-          >
-            Plateforme sécurisée de gestion des missions réservée aux agents Algérie Télécom.
-          </p>
-        </div>
+        {/* Slideshow central */}
+        <LoginSlideshow />
 
         {/* Bloc accès sécurisé */}
         <div
@@ -988,24 +981,30 @@ export default function Login() {
 
       {/* ═══ DROITE ═══ */}
       <div
+        ref={rightPanelRef}
         className="flex flex-1 flex-col justify-center px-10 py-12 sm:px-12 max-w-[520px] transition-colors"
         style={{
           display: 'flex',
           flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden',
           background: darkMode ? '#0b1220' : '#ffffff',
         }}
       >
+        <FormParticlesCanvas containerRef={rightPanelRef} reducedMotion={reducedMotion} />
         <m.div
           className="flex flex-col flex-1 w-full min-h-0"
-          style={
-            darkMode
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            ...(darkMode
               ? {
                   background: 'rgba(15,25,45,0.95)',
                   borderRadius: 16,
                   padding: '28px 24px',
                 }
-              : undefined
-          }
+              : {}),
+          }}
           initial={reducedMotion ? false : { opacity: 0, y: 14 }}
           animate={reducedMotion ? false : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}

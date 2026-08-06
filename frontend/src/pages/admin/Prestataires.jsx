@@ -233,6 +233,45 @@ export default function Prestataires() {
     }
   }
 
+  // Évaluation
+  const [evalModalOpen, setEvalModalOpen] = useState(false)
+  const [evalTarget, setEvalTarget] = useState(null)
+  const [evalNote, setEvalNote] = useState(0)
+  const [evalComment, setEvalComment] = useState('')
+  const [evalSaving, setEvalSaving] = useState(false)
+  const [avis, setAvis] = useState([])
+  const [avisLoading, setAvisLoading] = useState(false)
+
+  const openEval = async (p) => {
+    setEvalTarget(p)
+    setEvalNote(0)
+    setEvalComment('')
+    setEvalModalOpen(true)
+    setAvisLoading(true)
+    try {
+      const res = await adminAPI.prestatairesCrud.evaluations(p.id)
+      const data = res.data?.data?.evaluations ?? res.data?.data ?? res.data ?? []
+      setAvis(Array.isArray(data) ? data : (data?.data ?? []))
+    } catch { setAvis([]) }
+    finally { setAvisLoading(false) }
+  }
+
+  const submitEval = async () => {
+    if (!evalTarget || evalNote < 1) { toast.error('Sélectionnez une note (1-5)'); return }
+    setEvalSaving(true)
+    try {
+      await adminAPI.prestatairesCrud.evaluer(evalTarget.id, {
+        note: evalNote,
+        commentaire: evalComment || undefined,
+      })
+      toast.success('Évaluation enregistrée')
+      setEvalModalOpen(false)
+      await fetchPrestataires(current)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Erreur lors de l\'évaluation')
+    } finally { setEvalSaving(false) }
+  }
+
   const cards = useMemo(() => items ?? [], [items])
 
   const headerParType = (type) => {
@@ -309,40 +348,34 @@ export default function Prestataires() {
                     className="at-card overflow-hidden p-0"
                   >
                     <div
-                      style={{
-                        padding: '12px 16px',
-                        background: headerParType(p.type),
-                        borderBottom: '1px solid #EAECF0',
-                        fontWeight: 700,
-                        fontSize: 13,
-                        color: '#1A1D26',
-                      }}
+                      className="px-4 py-3 font-bold text-[13px] text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700"
+                      style={{ background: headerParType(p.type) }}
                     >
                       {TYPE_OPTIONS.find(t => t.value === p.type)?.label ?? p.type ?? '—'}
                     </div>
                     <div className="p-5 flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="font-bold text-gray-900 text-base truncate">
+                          <div className="font-bold text-gray-900 dark:text-white text-base truncate">
                             {p.nom ?? 'Prestataire'}
                           </div>
                           <Badge status={isActive ? 'actif' : 'inactif'} />
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           {TYPE_OPTIONS.find(t => t.value === p.type)?.label ?? p.type ?? '—'}
                         </div>
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           {p.ville ?? '—'}
                         </div>
 
                         <div className="mt-3">
                           <div className="flex items-center gap-2">
                             <StarRating value={ratingValue} readonly size={16} />
-                            <span className="text-xs text-gray-500 font-semibold">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
                               {ratingValue.toFixed(1)}/5
                             </span>
                           </div>
-                          <div className="text-[11px] text-gray-400 mt-1">
+                          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                             {Number(p.nombre_evaluations ?? 0)} évaluation(s)
                           </div>
                         </div>
@@ -350,17 +383,17 @@ export default function Prestataires() {
                         {(p.email || p.telephone || p.site_web) && (
                           <div className="mt-4 space-y-1">
                             {p.email && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <Mail size={14} /> {p.email}
                               </div>
                             )}
                             {p.telephone && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <Phone size={14} /> {p.telephone}
                               </div>
                             )}
                             {p.site_web && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <Globe size={14} /> {p.site_web}
                               </div>
                             )}
@@ -381,6 +414,9 @@ export default function Prestataires() {
                     </div>
 
                     <div className="px-5 pb-5 pt-0 flex items-center justify-between gap-2 flex-wrap">
+                      <Button variant="outline" size="sm" onClick={() => openEval(p)}>
+                        <Star size={16} /> Évaluer
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => openEdit(p)}>
                         <Pencil size={16} /> Modifier
                       </Button>
@@ -412,7 +448,7 @@ export default function Prestataires() {
               >
                 <RotateCcw size={16} /> Précédent
               </Button>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Page {current} / {last}
               </div>
               <Button
@@ -440,7 +476,7 @@ export default function Prestataires() {
       >
         <div className="space-y-4">
           {formError && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 p-4 text-sm text-red-700 dark:text-red-300">
               {formError}
             </div>
           )}
@@ -463,7 +499,7 @@ export default function Prestataires() {
               <select
                 value={form.type}
                 onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-                className="w-full mt-1 px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800
+                className="w-full mt-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               >
                 {TYPE_OPTIONS.map(o => (
@@ -538,6 +574,71 @@ export default function Prestataires() {
                 </>
               )}
             </Button>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={evalModalOpen}
+        onClose={() => setEvalModalOpen(false)}
+        title={`Évaluer — ${evalTarget?.nom ?? ''}`}
+        size="lg"
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Note</label>
+            <StarRating value={evalNote} onChange={setEvalNote} size={28} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Commentaire <span className="text-gray-400 font-normal">(optionnel)</span>
+            </label>
+            <textarea
+              value={evalComment}
+              onChange={(e) => setEvalComment(e.target.value.slice(0, 500))}
+              rows={3}
+              maxLength={500}
+              placeholder="Votre avis sur ce prestataire..."
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#00A650]/30 focus:border-[#00A650] resize-none"
+            />
+            <div className="text-right text-xs text-gray-400 mt-0.5">{evalComment.length}/500</div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEvalModalOpen(false)} disabled={evalSaving}>Annuler</Button>
+            <Button onClick={submitEval} loading={evalSaving} disabled={evalSaving || evalNote < 1}>
+              <Star size={16} /> Envoyer
+            </Button>
+          </div>
+
+          <hr className="border-gray-200 dark:border-gray-700" />
+
+          <div>
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Avis récents</h4>
+            {avisLoading && <p className="text-sm text-gray-400">Chargement...</p>}
+            {!avisLoading && avis.length === 0 && (
+              <p className="text-sm text-gray-400 dark:text-gray-500">Aucun avis pour le moment.</p>
+            )}
+            {!avisLoading && avis.length > 0 && (
+              <div className="space-y-3 max-h-52 overflow-y-auto">
+                {avis.slice(0, 10).map((a, i) => (
+                  <div key={a.id ?? i} className="rounded-lg border border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800/50">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        {a.user?.prenom ?? ''} {a.user?.nom ?? 'Anonyme'}
+                      </span>
+                      <StarRating value={Number(a.note ?? 0)} readonly size={14} />
+                    </div>
+                    {a.commentaire && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{a.commentaire}</p>
+                    )}
+                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                      {a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Modal>

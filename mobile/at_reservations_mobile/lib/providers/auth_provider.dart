@@ -52,6 +52,8 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> tryAutoLogin() => _restoreSession();
+
   Future<void> login(String email, String password) async {
     final res  = await _api.post('/auth/login', {'email': email, 'password': password});
     final body = res as Map<String, dynamic>;

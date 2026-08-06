@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
   Briefcase, Plane, CheckCircle, Percent,
-  Wallet, Clock, AlertTriangle, TrendingUp,
+  Wallet, Clock, AlertTriangle, TrendingUp, BarChart2,
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis,
@@ -20,20 +20,18 @@ const CARD_DARK = {
   border: '1px solid #2A2D3E',
 }
 
-const DEFAULT_EVOLUTION = [
-  { mois: 'Jan', current: 5, previous: 3 },
-  { mois: 'Fév', current: 8, previous: 6 },
-  { mois: 'Mar', current: 12, previous: 9 },
-  { mois: 'Avr', current: 10, previous: 8 },
-  { mois: 'Mai', current: 15, previous: 11 },
-  { mois: 'Jun', current: 18, previous: 13 },
-]
-const DEFAULT_DEPENSES = [
-  { direction: 'DG', montant: 4500000, pourcentage: 85 },
-  { direction: 'DRH', montant: 2500000, pourcentage: 62 },
-  { direction: 'DFC', montant: 1800000, pourcentage: 45 },
-  { direction: 'DT', montant: 3200000, pourcentage: 78 },
-]
+// Données d'exemple commentées — NE PLUS UTILISER comme fallback (faux chiffres dangereux en soutenance)
+// const EXAMPLE_EVOLUTION = [ { mois: 'Jan', current: 5, previous: 3 }, ... ]
+// const EXAMPLE_DEPENSES = [ { direction: 'DG', montant: 4500000 }, ... ]
+
+function EmptyChart({ icon: Icon, message, darkMode }) {
+  return (
+    <div className="flex h-[220px] flex-col items-center justify-center gap-3">
+      {Icon && <Icon size={48} className="text-gray-300 dark:text-gray-600" />}
+      <p className="text-sm text-gray-400 dark:text-gray-500">{message}</p>
+    </div>
+  )
+}
 
 function evolutionIsEmpty(rows) {
   if (!Array.isArray(rows) || rows.length === 0) return true
@@ -98,15 +96,11 @@ export function DashboardAdmin({
 }) {
   const chartUid = useId().replace(/:/g, '')
 
-  const evoData = useMemo(() => {
-    if (evolutionIsEmpty(graphMois)) return DEFAULT_EVOLUTION
-    return graphMois
-  }, [graphMois])
+  const evoEmpty = useMemo(() => evolutionIsEmpty(graphMois), [graphMois])
+  const evoData = evoEmpty ? [] : graphMois
 
-  const depData = useMemo(() => {
-    if (depensesIsEmpty(graphDir)) return DEFAULT_DEPENSES
-    return graphDir
-  }, [graphDir])
+  const depEmpty = useMemo(() => depensesIsEmpty(graphDir), [graphDir])
+  const depData = depEmpty ? [] : graphDir
 
   const gridStroke = darkMode ? '#2A2D3E' : '#ECEFF4'
   const tickMuted = darkMode ? '#8B92A8' : '#9AA0AE'
@@ -234,26 +228,30 @@ export function DashboardAdmin({
             <div className="mb-5 text-xs text-[#9AA0AE] dark:text-[#8B92A8]">
               Missions par mois
             </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={evoData}>
-                <defs>
-                  <linearGradient id={`gCurrent-${chartUid}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00A650" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#00A650" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id={`gPrev-${chartUid}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#003DA5" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#003DA5" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-                <XAxis dataKey="mois" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="previous" stroke="#003DA5" strokeWidth={2} fill={`url(#gPrev-${chartUid})`} strokeDasharray="5 5" isAnimationActive={chartAnimOn} animationDuration={chartAnimArea} />
-                <Area type="monotone" dataKey="current" stroke="#00A650" strokeWidth={3} fill={`url(#gCurrent-${chartUid})`} isAnimationActive={chartAnimOn} animationDuration={chartAnimArea} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {evoEmpty ? (
+              <EmptyChart icon={BarChart2} message="Aucune donnée pour cette période" darkMode={darkMode} />
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={evoData}>
+                  <defs>
+                    <linearGradient id={`gCurrent-${chartUid}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00A650" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#00A650" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id={`gPrev-${chartUid}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#003DA5" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#003DA5" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="mois" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="previous" stroke="#003DA5" strokeWidth={2} fill={`url(#gPrev-${chartUid})`} strokeDasharray="5 5" isAnimationActive={chartAnimOn} animationDuration={chartAnimArea} />
+                  <Area type="monotone" dataKey="current" stroke="#00A650" strokeWidth={3} fill={`url(#gCurrent-${chartUid})`} isAnimationActive={chartAnimOn} animationDuration={chartAnimArea} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </GlassCard>
         </motion.div>
 
@@ -270,27 +268,31 @@ export function DashboardAdmin({
             <div className="mb-5 text-xs text-[#9AA0AE] dark:text-[#8B92A8]">
               Budget consommé (DZD)
             </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={depData} layout="vertical" margin={{ left: 60 }}>
-                <defs>
-                  {depData.map((_, i) => (
-                    <linearGradient key={i} id={`bg${chartUid}-${i}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#003DA5" />
-                      <stop offset="100%" stopColor="#00A650" />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} tickFormatter={formatMontantAxe} />
-                <YAxis type="category" dataKey="direction" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickStrong }} width={80} tickFormatter={formatDirectionLabel} />
-                <Tooltip contentStyle={tooltipStyle} labelFormatter={formatDirectionLabel} formatter={(v) => [`${Number(v).toLocaleString('fr-DZ')} DZD`, 'Montant']} />
-                <Bar dataKey="montant" radius={[0, 8, 8, 0]} isAnimationActive={chartAnimOn} animationDuration={chartAnimBar}>
-                  {depData.map((_, i) => (
-                    <Cell key={i} fill={`url(#bg${chartUid}-${i})`} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            {depEmpty ? (
+              <EmptyChart icon={Wallet} message="Aucune dépense enregistrée" darkMode={darkMode} />
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={depData} layout="vertical" margin={{ left: 60 }}>
+                  <defs>
+                    {depData.map((_, i) => (
+                      <linearGradient key={i} id={`bg${chartUid}-${i}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#003DA5" />
+                        <stop offset="100%" stopColor="#00A650" />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickMuted }} tickFormatter={formatMontantAxe} />
+                  <YAxis type="category" dataKey="direction" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: tickStrong }} width={80} tickFormatter={formatDirectionLabel} />
+                  <Tooltip contentStyle={tooltipStyle} labelFormatter={formatDirectionLabel} formatter={(v) => [`${Number(v).toLocaleString('fr-DZ')} DZD`, 'Montant']} />
+                  <Bar dataKey="montant" radius={[0, 8, 8, 0]} isAnimationActive={chartAnimOn} animationDuration={chartAnimBar}>
+                    {depData.map((_, i) => (
+                      <Cell key={i} fill={`url(#bg${chartUid}-${i})`} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </GlassCard>
         </motion.div>
       </div>

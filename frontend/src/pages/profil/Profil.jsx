@@ -40,6 +40,13 @@ export default function Profil() {
 
   const [activeTab, setActiveTab] = useState('informations')
 
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'))
+  useEffect(() => {
+    const obs = new MutationObserver(() => setDarkMode(document.documentElement.classList.contains('dark')))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+
   // Profile form (RHF + Zod)
   const [editing, setEditing] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
@@ -302,8 +309,8 @@ export default function Profil() {
           <div className="at-card-surface p-5">
             <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
               <div>
-                <div className="text-sm font-semibold text-gray-700">Identité</div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">Identité</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Champs verrouillés sauf lorsque vous cliquez sur "Modifier".
                 </div>
               </div>
@@ -327,7 +334,7 @@ export default function Profil() {
 
             {profileError && (
               <div
-                className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
                 role="alert"
               >
                 {profileError}
@@ -392,26 +399,26 @@ export default function Profil() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                   <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500">Total missions</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Total missions</div>
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {totalMissions}
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500">Taux d&apos;approbation</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Taux d&apos;approbation</div>
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {taux}%
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500">Budget total approuvé</div>
-                    <div className="text-2xl font-extrabold text-gray-900 mt-1 tabular-nums">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Budget total approuvé</div>
+                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
                       {formatDZD(budgetTotal)}
                     </div>
                   </div>
                   <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500">Destination favorite</div>
-                    <div className="text-sm font-semibold text-gray-900 mt-2">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Destination favorite</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
                       {destFav || 'Aucune'}
                     </div>
                   </div>
@@ -420,8 +427,8 @@ export default function Profil() {
                 <div className="at-card-surface p-5">
                   <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
                     <div>
-                      <div className="text-sm font-semibold text-gray-800">Missions par mois (6 mois)</div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-sm font-semibold text-gray-800 dark:text-white">Missions par mois (6 mois)</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Visualisation basée sur les données backend.
                       </div>
                     </div>
@@ -439,10 +446,10 @@ export default function Profil() {
                     <div style={{ height: 260, width: '100%' }}>
                       <ResponsiveContainer>
                         <LineChart data={parMois}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                          <XAxis dataKey="mois" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
+                          <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#F0F0F0'} />
+                          <XAxis dataKey="mois" tick={{ fontSize: 12, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                          <YAxis tick={{ fontSize: 12, fill: darkMode ? '#9CA3AF' : '#6B7280' }} />
+                          <Tooltip contentStyle={darkMode ? { backgroundColor: '#1F2937', border: '1px solid #374151', color: '#F9FAFB' } : undefined} />
                           <Line type="monotone" dataKey="count" name="Missions" stroke="#003DA5" strokeWidth={2} dot={{ r: 3 }} />
                         </LineChart>
                       </ResponsiveContainer>
@@ -453,20 +460,20 @@ export default function Profil() {
                 {/* Dernières missions (petit tableau rapide) */}
                 {Array.isArray(stats.dernieres_missions) && stats.dernieres_missions.length > 0 && (
                   <div className="at-card-surface mt-4 p-5">
-                    <div className="text-sm font-semibold text-gray-800 mb-3">
+                    <div className="text-sm font-semibold text-gray-800 dark:text-white mb-3">
                       Dernières missions
                     </div>
                     <div className="space-y-2">
                       {stats.dernieres_missions.slice(0, 5).map((m, idx) => (
                         <div
                           key={m.id ?? idx}
-                          className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 bg-[#F8FAFC]"
+                          className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 bg-[#F8FAFC] dark:border-gray-700 dark:bg-white/5"
                         >
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                               {m.titre ?? '—'}
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {m.destination_ville ?? m.destination ?? '—'} • {m.type_mission ?? '—'}
                             </div>
                           </div>
@@ -493,15 +500,15 @@ export default function Profil() {
         >
           <div className="at-card-surface p-5">
             <div className="mb-4">
-              <div className="text-sm font-semibold text-gray-800">Changer le mot de passe</div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-sm font-semibold text-gray-800 dark:text-white">Changer le mot de passe</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 La validation backend impose un mot de passe fort (majuscule, chiffre, caractère spécial).
               </div>
             </div>
 
             {securityError && (
               <div
-                className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
                 role="alert"
               >
                 {securityError}

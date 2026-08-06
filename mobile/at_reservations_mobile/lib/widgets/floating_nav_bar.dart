@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconly/iconly.dart';
@@ -75,8 +76,10 @@ class _NavItemWidget extends StatefulWidget {
   final FloatingNavItem item;
   final bool isActive;
   final VoidCallback onTap;
+  final int badge;
   const _NavItemWidget(
-      {required this.item, required this.isActive, required this.onTap});
+      {required this.item, required this.isActive, required this.onTap,
+       this.badge = 0});
   @override
   State<_NavItemWidget> createState() => _NavItemWidgetState();
 }
@@ -116,23 +119,50 @@ class _NavItemWidgetState extends State<_NavItemWidget>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: widget.isActive
-                      ? DS.primary.withValues(alpha: 0.12)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  widget.isActive
-                      ? widget.item.activeIcon
-                      : widget.item.inactiveIcon,
-                  color: widget.isActive ? DS.primary : DS.textPlaceholder,
-                  size: 22,
-                ),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 44,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: widget.isActive
+                          ? DS.primary.withValues(alpha: 0.12)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      widget.isActive
+                          ? widget.item.activeIcon
+                          : widget.item.inactiveIcon,
+                      color: widget.isActive ? DS.primary : DS.textPlaceholder,
+                      size: 22,
+                    ),
+                  ),
+                  if (widget.badge > 0)
+                    Positioned(
+                      right: -2, top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        constraints: const BoxConstraints(minWidth: 18),
+                        child: Text(
+                          widget.badge > 99 ? '99+' : '${widget.badge}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 3),
               AnimatedDefaultTextStyle(
@@ -160,41 +190,58 @@ class FloatingNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final List<FloatingNavItem> items;
+  final Map<int, int> badges;
 
   const FloatingNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
     required this.items,
+    this.badges = const {},
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SafeArea(
-      child: Container(
-        height: 70,
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(36),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1F000000),
-              blurRadius: 32,
-              offset: Offset(0, 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(36),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 70,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF1E293B).withValues(alpha: 0.85)
+                  : Colors.white.withValues(alpha: 0.88),
+              borderRadius: BorderRadius.circular(36),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.4)
+                      : const Color(0x1F000000),
+                  blurRadius: 32,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.white.withValues(alpha: 0.8),
+                width: 1,
+              ),
             ),
-          ],
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.8),
-            width: 1,
+            child: Row(
+              children: items.asMap().entries.map((e) => _NavItemWidget(
+                item: e.value,
+                isActive: currentIndex == e.key,
+                onTap: () => onTap(e.key),
+                badge: badges[e.key] ?? 0,
+              )).toList(),
+            ),
           ),
-        ),
-        child: Row(
-          children: items.asMap().entries.map((e) => _NavItemWidget(
-            item: e.value,
-            isActive: currentIndex == e.key,
-            onTap: () => onTap(e.key),
-          )).toList(),
         ),
       ),
     );

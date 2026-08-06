@@ -87,12 +87,15 @@ export function AuthProvider({ children }) {
 
   /** Nettoie session locale (401, token invalide) sans appel API */
   const clearSession = useCallback(() => {
+    localStorage.removeItem('at_token');
     setUser(null);
     setIsAuth(false);
   }, []);
 
   const login = async (email, password) => {
-    await authAPI.login({ email, password });
+    const loginRes = await authAPI.login({ email, password });
+    const token = loginRes.data?.data?.token ?? loginRes.data?.token;
+    if (token) localStorage.setItem('at_token', token);
 
     const meRes   = await authAPI.me();
     const payload = meRes.data?.data;
@@ -108,6 +111,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await authAPI.logout(); } catch { /* ignore */ }
+    localStorage.removeItem('at_token');
     setUser(null);
     setIsAuth(false);
   };

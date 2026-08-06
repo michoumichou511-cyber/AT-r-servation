@@ -26,8 +26,10 @@ class MissionStoreRequest extends FormRequest
             'date_depart' => ['required', 'date', 'after:today'],
             'date_retour' => ['required', 'date', 'after:date_depart'],
             'type_mission' => ['required', 'in:formation,conference,reunion,inspection,audit,autre'],
+            'transport_type' => ['required', 'in:avion,terrestre'],
             'priorite' => ['nullable', 'in:normale,urgente,tres_urgente'],
             'budget_previsionnel' => ['nullable', 'numeric', 'min:0'],
+            'budget_mode' => ['required', 'in:avance,remboursement'],
             'description' => ['nullable', 'string'],
         ];
     }

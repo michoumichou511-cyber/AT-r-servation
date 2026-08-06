@@ -27,10 +27,10 @@ const TRANSPORT_OPTIONS = [
 ]
 
 const STATUT_BADGE = {
-  en_attente:    { label: 'En attente',    cls: 'bg-amber-50 text-amber-700 ring-amber-200',  dot: 'bg-amber-400' },
-  en_traitement: { label: 'En traitement', cls: 'bg-blue-50 text-blue-700 ring-blue-200',     dot: 'bg-blue-400' },
-  logistique_ok: { label: 'Logistique OK', cls: 'bg-green-50 text-[#00A650] ring-green-200', dot: 'bg-[#00A650]' },
-  approuve:      { label: 'Approuvée',     cls: 'bg-green-50 text-[#00A650] ring-green-200', dot: 'bg-[#00A650]' },
+  en_attente:    { label: 'En attente',    cls: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-700',  dot: 'bg-amber-400' },
+  en_traitement: { label: 'En traitement', cls: 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-blue-700',     dot: 'bg-blue-400' },
+  logistique_ok: { label: 'Logistique OK', cls: 'bg-green-50 text-[#00A650] ring-green-200 dark:bg-green-900/30 dark:text-green-300 dark:ring-green-700', dot: 'bg-[#00A650]' },
+  approuve:      { label: 'Approuvée',     cls: 'bg-green-50 text-[#00A650] ring-green-200 dark:bg-green-900/30 dark:text-green-300 dark:ring-green-700', dot: 'bg-[#00A650]' },
 }
 
 /** "2026-07-20" ou ISO → "20/07/2026" ; laisse les dates déjà en d/m/Y intactes. */
@@ -43,7 +43,7 @@ function formatDateFr(d) {
 }
 
 function StatutBadge({ statut }) {
-  const c = STATUT_BADGE[statut] ?? { label: statut, cls: 'bg-gray-100 text-gray-600 ring-gray-200', dot: 'bg-gray-400' }
+  const c = STATUT_BADGE[statut] ?? { label: statut, cls: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600', dot: 'bg-gray-400' }
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ${c.cls}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
@@ -74,7 +74,7 @@ function MissionCard({ mission, traitement, onTraiter, onRefresh }) {
           <h3 className="text-sm font-semibold text-gray-800 dark:text-white truncate">
             {mission.titre}
           </h3>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1">
               <User size={12} /> {nomComplet}
             </span>
@@ -187,7 +187,7 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
         {/* Info mission */}
         <div className="rounded-xl bg-[#F4F6FA] dark:bg-white/5 p-4 text-sm">
           <div className="font-semibold text-gray-800 dark:text-white mb-1">{mission.titre}</div>
-          <div className="text-gray-500 text-xs flex flex-wrap gap-x-4 gap-y-1">
+          <div className="text-gray-500 dark:text-gray-400 text-xs flex flex-wrap gap-x-4 gap-y-1">
             <span><MapPin size={11} className="inline mr-0.5" />{mission.destination_ville ?? mission.destination}</span>
             <span><Calendar size={11} className="inline mr-0.5" />
               {formatDateFr(mission.dates?.depart ?? mission.date_depart)} → {formatDateFr(mission.dates?.retour ?? mission.date_retour)}
@@ -227,7 +227,7 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
               type="button"
               onClick={handleSaveHotel}
               disabled={saving}
-              className="text-xs text-[#003DA5] hover:underline"
+              className="text-xs text-[#003DA5] dark:text-blue-400 hover:underline"
             >
               {saving ? 'Enregistrement…' : '💾 Enregistrer hébergement'}
             </button>
@@ -275,7 +275,7 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
               type="button"
               onClick={handleSaveVehicule}
               disabled={saving}
-              className="text-xs text-[#003DA5] hover:underline"
+              className="text-xs text-[#003DA5] dark:text-blue-400 hover:underline"
             >
               {saving ? 'Enregistrement…' : '💾 Enregistrer transport'}
             </button>
@@ -284,7 +284,7 @@ function TraiterModal({ mission, traitement, hotels, vehicules, onClose, onSucce
 
         {/* ─ Observations ─ */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Observations</label>
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Observations</label>
           <textarea
             rows={3}
             placeholder="Notes logistiques..."
@@ -384,7 +384,7 @@ export default function DmlDashboard() {
             </div>
             <div>
               <div className="text-xl font-extrabold text-gray-900 dark:text-white">{value}</div>
-              <div className="text-xs text-gray-500">{label}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
             </div>
           </div>
         ))}
@@ -403,7 +403,7 @@ export default function DmlDashboard() {
                 'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-white dark:bg-[#1A1D2E] shadow-sm text-gray-900 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-700',
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
               ].join(' ')}
             >
               <Icon size={14} className={isActive ? tab.color : ''} />

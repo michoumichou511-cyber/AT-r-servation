@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search, Plus, FileText, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Plus, FileText, RotateCcw } from 'lucide-react'
 import {
   ATPageHeader,
   Badge,
   Button,
   EmptyState,
+  Pagination,
   SkeletonCard,
 } from '../../components/UI'
 import { missionsAPI } from '../../services/api'
@@ -52,6 +53,7 @@ export default function MissionsList() {
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 500)
@@ -64,7 +66,7 @@ export default function MissionsList() {
     try {
       const params = {
         page,
-        per_page: 10,
+        per_page: perPage,
         ...(statut ? { statut } : {}),
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
       }
@@ -85,7 +87,7 @@ export default function MissionsList() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, page, statut])
+  }, [debouncedSearch, page, perPage, statut])
 
   useEffect(() => {
     fetchMissions()
@@ -97,8 +99,8 @@ export default function MissionsList() {
 
   const canShowPagination = useMemo(() => {
     const total = pagination?.total ?? 0
-    return total > 10
-  }, [pagination])
+    return total > perPage
+  }, [pagination, perPage])
 
   const handleRetry = () => {
     setPage(1)
@@ -301,8 +303,13 @@ export default function MissionsList() {
                   >
                     <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <div className="mb-2 font-mono text-xs text-[#9AA0AE]">
-                          {m.numero_unique ?? 'OM-—'}
+                        <div className="mb-2 flex items-center gap-2 font-mono text-xs text-[#9AA0AE]">
+                          <span>{m.numero_unique ?? 'OM-—'}</span>
+                          {m.created_at && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              — Créée le {new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </span>
+                          )}
                         </div>
                         <div className="mb-2 truncate text-base font-bold text-[#1A1D26] dark:text-[#E8EAF0]">
                           {m.titre ?? 'Sans titre'}
@@ -349,34 +356,16 @@ export default function MissionsList() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="mt-6 flex items-center justify-between"
+              className="mt-6"
             >
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={(pagination.current_page ?? 1) <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                <ChevronLeft size={16} />
-                Précédent
-              </Button>
-              <div className="text-sm text-[#9AA0AE]">
-                Page
-                {' '}
-                {(pagination.current_page ?? page)}
-                {' '}
-                /
-                {pagination.last_page ?? 1}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={(pagination.current_page ?? 1) >= (pagination.last_page ?? 1)}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Suivant
-                <ChevronRight size={16} />
-              </Button>
+              <Pagination
+                currentPage={pagination.current_page ?? page}
+                totalPages={pagination.last_page ?? 1}
+                totalItems={pagination.total ?? 0}
+                perPage={perPage}
+                onPageChange={(p) => setPage(p)}
+                onPerPageChange={(pp) => { setPerPage(pp); setPage(1) }}
+              />
             </motion.div>
           )}
         </>

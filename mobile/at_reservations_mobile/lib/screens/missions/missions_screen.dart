@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import '../../design/design_system.dart';
 import '../../models/mission.dart';
@@ -107,27 +106,8 @@ class _MissionsScreenState extends State<MissionsScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FF),
       body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              height: 300,
-              color: Colors.yellow,
-              child: const Center(
-                child: Text('YELLOW SLIVER OK', style: TextStyle(fontSize: 30, color: Colors.black)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    // DIAGNOSTIC BELOW — restore after yellow test
-    // ignore: dead_code
-    return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
-      body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-            SliverToBoxAdapter(child: Container(height: 40, color: Colors.red)),
             // ── Hero AppBar ───────────────────────────────────────────────
             SliverAppBar(
               expandedHeight: 185,

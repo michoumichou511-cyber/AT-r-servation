@@ -146,7 +146,7 @@ class AdminUserController extends Controller
         }
 
         $request->validate([
-            'role' => 'required|in:admin,validateur,utilisateur,demandeur',
+            'role' => 'required|in:admin,validateur,utilisateur,demandeur,agent_dml',
         ]);
 
         $targetUser = User::findOrFail($id);

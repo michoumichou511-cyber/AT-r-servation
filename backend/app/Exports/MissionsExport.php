@@ -31,8 +31,8 @@ class MissionsExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             $montantReel = 0;
             if (! empty($mission->reservations)) {
                 $montantReel = $mission->reservations
-                    ->where('statut', 'confirme')
-                    ->sum('montant_reel');
+                    ->whereNotIn('statut', ['annule'])
+                    ->sum(fn ($r) => $r->montant_reel ?: $r->montant_estime ?: 0);
             }
 
             return [

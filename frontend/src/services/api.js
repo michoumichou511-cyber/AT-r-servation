@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-/** Base API : Railway par défaut si VITE_API_URL n’est pas défini. */
+/** Base API : en dev → proxy Vite (/api), en prod → Railway si VITE_API_URL absent. */
 const defaultBaseURL = import.meta.env.VITE_API_URL
-  ?? 'https://backend-production-170c.up.railway.app/api'
+  ?? (import.meta.env.DEV ? '/api' : 'https://backend-production-170c.up.railway.app/api')
 
 const api = axios.create({
   baseURL: defaultBaseURL,
@@ -80,6 +80,12 @@ export const missionsAPI = {
   historique: (id)  => api.get(`/missions/${id}/historique`),
   documents:(id)    => api.get(`/missions/${id}/documents`),
   bonsCommande:(id) => api.get(`/missions/${id}/bons-commande`),
+  templates: () => api.get('/missions/templates'),
+  createFromTemplate: (templateId) => api.post(`/missions/templates/${templateId}/create`),
+  saveAsTemplate: (id, data) => api.post(`/missions/${id}/save-template`, data),
+  commentaires: (id) => api.get(`/missions/${id}/commentaires`),
+  ajouterCommentaire: (id, data) => api.post(`/missions/${id}/commentaires`, data),
+  calendrier: (params) => api.get('/calendrier', { params }),
   export:  (format) =>
     api.get('/missions/export', {
       params: { format },
@@ -193,6 +199,8 @@ export const dashboardAPI = {
     api.get('/dashboard/depenses-par-direction', { params }),
   validateur: () =>
     api.get('/dashboard/validateur'),
+  empreinteCarbone: (params) =>
+    api.get('/dashboard/empreinte-carbone', { params }),
 }
 
 // ── Admin ─────────────────────────────
@@ -226,6 +234,8 @@ export const adminAPI = {
       api.post(`/prestataires/${id}/favori`, {}),
     evaluer: (id, data) =>
       api.post(`/prestataires/${id}/evaluer`, data),
+    evaluations: (id, params) =>
+      api.get(`/prestataires/${id}/evaluations`, { params }),
   },
   budgetsCrud: {
     list:   (params) =>
@@ -259,7 +269,7 @@ export const adminAPI = {
   utilisateurs: (params) => api.get('/admin/utilisateurs', { params }),
   toggleActif: (id) => api.put(`/admin/utilisateurs/${id}/toggle-active`),
   changerRole: (id, data) => api.put(`/admin/utilisateurs/${id}/role`, data),
-  // TODO: le backend n’expose pas POST /api/admin/utilisateurs — création utilisateur via authAPI.register
+  // TODO: le backend n'expose pas POST /api/admin/utilisateurs — création utilisateur via authAPI.register
   creerUtilisateur: (data) => api.post('/admin/utilisateurs', data),
   modifierUtilisateur: (id, data) => api.put(`/admin/utilisateurs/${id}`, data),
   supprimerUtilisateur: (id) => api.delete(`/admin/utilisateurs/${id}`),

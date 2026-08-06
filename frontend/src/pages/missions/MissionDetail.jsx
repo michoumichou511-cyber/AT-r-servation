@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FileText, History, FileArchive, CalendarDays, DollarSign, RotateCcw, Download, Pencil, X } from 'lucide-react'
+import { FileText, History, FileArchive, CalendarDays, DollarSign, RotateCcw, Download, Pencil, X, MessageSquare, Send } from 'lucide-react'
 
 import { missionsAPI, reservationsAPI, documentsAPI } from '../../services/api'
+import { MissionTimeline } from '../../components/Missions'
 import { Badge, Button, EmptyState, SkeletonCard, SkeletonLine } from '../../components/UI'
 import PageHeader from '../../components/Common/PageHeader'
 import Modal from '../../components/UI/Modal'
@@ -14,6 +15,7 @@ const TABS = [
   { key: 'reservations', label: 'Réservations' },
   { key: 'documents', label: 'Documents' },
   { key: 'historique', label: 'Historique' },
+  { key: 'commentaires', label: 'Commentaires' },
 ]
 
 function toISODate(frDate) {
@@ -66,6 +68,12 @@ export default function MissionDetail() {
   const [loadingHistorique, setLoadingHistorique] = useState(false)
   const [errorHistorique, setErrorHistorique] = useState('')
   const [historique, setHistorique] = useState([])
+
+  const [loadingCommentaires, setLoadingCommentaires] = useState(false)
+  const [commentaires, setCommentaires] = useState([])
+  const [newComment, setNewComment] = useState('')
+  const [sendingComment, setSendingComment] = useState(false)
+  const commentairesEndRef = useRef(null)
 
   const [showBonsModal, setShowBonsModal] = useState(false)
   const [loadingBons, setLoadingBons] = useState(false)
@@ -169,6 +177,35 @@ export default function MissionDetail() {
     }
   }, [missionId])
 
+  const chargerCommentaires = useCallback(async () => {
+    setLoadingCommentaires(true)
+    try {
+      const res = await missionsAPI.commentaires(missionId)
+      const raw = res?.data?.data ?? res?.data
+      setCommentaires(Array.isArray(raw) ? raw : [])
+    } catch {
+      setCommentaires([])
+    } finally {
+      setLoadingCommentaires(false)
+    }
+  }, [missionId])
+
+  const envoyerCommentaire = async () => {
+    if (!newComment.trim() || sendingComment) return
+    setSendingComment(true)
+    try {
+      const res = await missionsAPI.ajouterCommentaire(missionId, { contenu: newComment.trim() })
+      const added = res?.data?.data
+      if (added) setCommentaires(prev => [...prev, added])
+      setNewComment('')
+      setTimeout(() => commentairesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Erreur envoi commentaire')
+    } finally {
+      setSendingComment(false)
+    }
+  }
+
   useEffect(() => {
     chargerMission()
   }, [chargerMission])
@@ -210,7 +247,11 @@ export default function MissionDetail() {
       loadedTabs.current.historique = true
       chargerHistorique()
     }
-  }, [activeTab, chargerReservations, chargerDocuments, chargerHistorique, missionId])
+    if (activeTab === 'commentaires' && !loadedTabs.current.commentaires) {
+      loadedTabs.current.commentaires = true
+      chargerCommentaires()
+    }
+  }, [activeTab, chargerReservations, chargerDocuments, chargerHistorique, chargerCommentaires, missionId])
 
   const soumettreMission = async () => {
     try {
@@ -375,7 +416,7 @@ export default function MissionDetail() {
   const statusBanner = (() => {
     if (justSubmitted || isSoumis) {
       return {
-        bg: 'bg-amber-50 border-amber-300 text-amber-900',
+        bg: 'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-200',
         icon: '📋',
         title: 'En attente de validation',
         msg: 'Votre demande a été soumise. Votre responsable hiérarchique la traitera prochainement. Vous serez notifié dès qu\'une décision sera prise.',
@@ -383,7 +424,7 @@ export default function MissionDetail() {
     }
     if (isEnValidation) {
       return {
-        bg: 'bg-blue-50 border-blue-300 text-blue-900',
+        bg: 'bg-blue-50 border-blue-300 text-blue-900 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-200',
         icon: '🔄',
         title: 'Validation en cours',
         msg: 'Votre demande est dans le circuit de validation hiérarchique.',
@@ -391,7 +432,7 @@ export default function MissionDetail() {
     }
     if (isRejete) {
       return {
-        bg: 'bg-red-50 border-red-300 text-red-900',
+        bg: 'bg-red-50 border-red-300 text-red-900 dark:bg-red-900/20 dark:border-red-700 dark:text-red-200',
         icon: '❌',
         title: 'Mission rejetée',
         msg: mission?.motif_rejet
@@ -401,7 +442,7 @@ export default function MissionDetail() {
     }
     if (isApprouve) {
       return {
-        bg: 'bg-green-50 border-green-300 text-green-900',
+        bg: 'bg-green-50 border-green-300 text-green-900 dark:bg-green-900/20 dark:border-green-700 dark:text-green-200',
         icon: '✅',
         title: 'Mission approuvée',
         msg: 'Votre demande a été approuvée. Le service DML va organiser la logistique.',
@@ -409,7 +450,7 @@ export default function MissionDetail() {
     }
     if (isTermine) {
       return {
-        bg: 'bg-emerald-50 border-emerald-300 text-emerald-900',
+        bg: 'bg-emerald-50 border-emerald-300 text-emerald-900 dark:bg-emerald-900/20 dark:border-emerald-700 dark:text-emerald-200',
         icon: '🏁',
         title: 'Mission terminée',
         msg: 'Toutes les étapes sont complètes. Bonne mission !',
@@ -448,13 +489,13 @@ export default function MissionDetail() {
       <div className="at-card-surface mb-6 p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <CalendarDays size={16} className="text-gray-400" />
               <span>
                 {mission.dates?.depart ?? '—'} → {mission.dates?.retour ?? '—'}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <DollarSign size={16} className="text-gray-400" />
               <span>{formatDZD(mission.budget_previsionnel)}</span>
             </div>
@@ -519,15 +560,9 @@ export default function MissionDetail() {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
+      <div>
         {activeTab === 'informations' && (
-          <motion.div
-            key="infos"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-          >
+          <>
             {!editMode && (
               <div className="at-card-surface p-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -537,6 +572,8 @@ export default function MissionDetail() {
                     value={`${mission.dates?.depart ?? '—'} → ${mission.dates?.retour ?? '—'}`}
                   />
                   <InfoRow label="Type" value={mission.type_mission ?? '—'} />
+                  <InfoRow label="Transport" value={mission.transport_type === 'avion' ? 'Par avion' : mission.transport_type === 'terrestre' ? 'Par voie terrestre' : '—'} />
+                  <InfoRow label="Mode budget" value={mission.budget_mode === 'avance' ? 'Avance' : mission.budget_mode === 'remboursement' ? 'Remboursement' : '—'} />
                   <InfoRow label="Priorité" value={mission.priorite ?? '—'} />
                   <InfoRow
                     label="Budget"
@@ -546,6 +583,12 @@ export default function MissionDetail() {
                     label="Objectif"
                     value={mission.objet_mission ?? mission.description ?? '—'}
                   />
+                  <InfoRow
+                    label="Créée le"
+                    value={mission.created_at
+                      ? new Date(mission.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      : '—'}
+                  />
                 </div>
               </div>
             )}
@@ -554,10 +597,10 @@ export default function MissionDetail() {
               <div className="at-card-surface p-5">
                 <div className="flex items-start justify-between gap-3 mb-5">
                   <div>
-                    <h3 className="text-base font-semibold text-gray-800">
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">
                       Modification de la mission
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Champs requis / optionnels selon la configuration backend.
                     </p>
                   </div>
@@ -567,7 +610,7 @@ export default function MissionDetail() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Titre
                     <input
                       value={draft.titre}
@@ -576,7 +619,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Objectif
                     <input
                       value={draft.objectif}
@@ -585,7 +628,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Destination (Ville)
                     <input
                       value={draft.destination_ville}
@@ -594,7 +637,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Destination (Pays)
                     <input
                       value={draft.destination_pays}
@@ -603,7 +646,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Date départ
                     <input
                       type="date"
@@ -613,7 +656,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Date retour
                     <input
                       type="date"
@@ -623,7 +666,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Type mission
                     <select
                       value={draft.type_mission}
@@ -638,7 +681,7 @@ export default function MissionDetail() {
                     </select>
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Priorité
                     <select
                       value={draft.priorite}
@@ -653,7 +696,7 @@ export default function MissionDetail() {
                     </select>
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                     Budget prévisionnel (DZD)
                     <input
                       type="number"
@@ -663,7 +706,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 mb-2 md:col-span-2">
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 md:col-span-2">
                     Description (optionnel)
                     <input
                       value={draft.description}
@@ -683,18 +726,11 @@ export default function MissionDetail() {
                 </div>
               </div>
             )}
-          </motion.div>
+          </>
         )}
 
         {activeTab === 'reservations' && (
-          <motion.div
-            key="reservations"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             {loadingReservations && (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
@@ -730,17 +766,17 @@ export default function MissionDetail() {
                   items={reservationsParType.billets}
                   renderItem={(r) => r?.billet ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r.billet.compagnie || 'Billet'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         Vol {r.billet.numero_vol ?? '—'} : {r.billet.aeroport_depart ?? '—'} →{' '}
                         {r.billet.aeroport_arrivee ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         {r.billet.date_vol ?? '—'} | {r.billet.heure_depart ?? '—'} → {r.billet.heure_arrivee ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 font-semibold">
+                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
                         {r.billet.prix ?? '0'} (prix)
                       </div>
                       <div className="flex items-center gap-2">
@@ -751,11 +787,8 @@ export default function MissionDetail() {
                   ) : (
                     /* Détails du vol pas encore saisis (demande en attente de traitement logistique) */
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r?.prestataire?.nom ?? r?.type_label ?? "Billet d'avion"}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
                       </div>
                       {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
                       <div className="flex items-center gap-2">
@@ -771,16 +804,16 @@ export default function MissionDetail() {
                   items={reservationsParType.heb}
                   renderItem={(r) => r?.hebergement ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r.hebergement.hotel_nom ?? 'Hébergement'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         {r.hebergement.localisation ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         Check-in {r.hebergement.date_checkin ?? '—'} → Check-out {r.hebergement.date_checkout ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 font-semibold">
+                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
                         {r.hebergement.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
@@ -790,11 +823,8 @@ export default function MissionDetail() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r?.prestataire?.nom ?? r?.type_label ?? 'Hébergement'}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
                       </div>
                       {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
                       <div className="flex items-center gap-2">
@@ -810,16 +840,16 @@ export default function MissionDetail() {
                   items={reservationsParType.rest}
                   renderItem={(r) => r?.restauration ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r.restauration.prestataire_nom ?? 'Restauration'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         Repas : {r.restauration.type_repas_label ?? '—'} | Lieu : {r.restauration.lieu ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         Date : {r.restauration.date_repas ?? '—'} | Personnes : {r.restauration.nombre_personnes ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 font-semibold">
+                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
                         {r.restauration.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
@@ -828,11 +858,8 @@ export default function MissionDetail() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">
                         {r?.prestataire?.nom ?? r?.type_label ?? 'Restauration'}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Montant estimé : <span className="font-semibold text-gray-700">{r?.montant_estime ?? '—'}</span>
                       </div>
                       {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
                       <div className="flex items-center gap-2">
@@ -844,17 +871,11 @@ export default function MissionDetail() {
                 />
               </>
             )}
-          </motion.div>
+          </div>
         )}
 
         {activeTab === 'documents' && (
-          <motion.div
-            key="documents"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-          >
+          <>
             {loadingDocuments && (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
@@ -898,7 +919,7 @@ export default function MissionDetail() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-800 truncate">
+                            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                               {doc.nom_fichier ?? 'document'}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
@@ -927,17 +948,11 @@ export default function MissionDetail() {
                 </div>
               </div>
             )}
-          </motion.div>
+          </>
         )}
 
         {activeTab === 'historique' && (
-          <motion.div
-            key="historique"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-          >
+          <>
             {loadingHistorique && (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
@@ -968,46 +983,95 @@ export default function MissionDetail() {
 
             {!loadingHistorique && !errorHistorique && historique.length > 0 && (
               <div className="at-card-surface p-5">
-                <div className="space-y-3">
-                  {historique.map((t, index) => (
-                    <motion.div
-                      key={`${t.date ?? index}_${index}`}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.4) }}
-                      className="rounded-xl border border-[#EAECF0] bg-[#F8F9FC] p-3 dark:border-[#2A2D3E] dark:bg-[#252840]"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-gray-800 truncate">
-                            {t.action ?? 'Action'}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {t.date ?? '—'} • {t.par ?? 'Système'}
-                          </div>
-                          {t.description && (
-                            <div className="text-sm text-gray-600 mt-2">
-                              {t.description}
-                            </div>
-                          )}
-                          {t.commentaire && (
-                            <div className="text-sm text-gray-600 mt-2">
-                              <span className="font-semibold">Commentaire :</span> {t.commentaire}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-shrink-0">
-                          <Badge status={t.couleur === 'blue' ? 'approuve' : 'en_validation'} />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                <MissionTimeline events={historique} />
               </div>
             )}
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+
+        {activeTab === 'commentaires' && (
+          <div className="at-card-surface p-5">
+            {loadingCommentaires && (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => <SkeletonCard key={i} />)}
+              </div>
+            )}
+
+            {!loadingCommentaires && commentaires.length === 0 && (
+              <div className="text-center py-8 text-sm text-gray-400 dark:text-gray-500">
+                <MessageSquare size={32} className="mx-auto mb-2 opacity-40" />
+                Aucun commentaire pour le moment.
+              </div>
+            )}
+
+            {!loadingCommentaires && commentaires.length > 0 && (
+              <div className="space-y-4 max-h-[400px] overflow-y-auto mb-4">
+                {commentaires.map((c, i) => {
+                  const initials = [c.user?.prenom?.[0], c.user?.nom?.[0]].filter(Boolean).join('').toUpperCase()
+                  const roleName = c.user?.role?.name ?? ''
+                  const dateStr = c.created_at ? (() => {
+                    const diff = Math.floor((Date.now() - new Date(c.created_at).getTime()) / 1000)
+                    if (diff < 60) return "à l'instant"
+                    if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`
+                    if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`
+                    return new Date(c.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                  })() : ''
+                  return (
+                    <motion.div
+                      key={c.id ?? i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: Math.min(i * 0.04, 0.3) }}
+                      className="flex gap-3"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#00A650] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {initials || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                            {c.user?.prenom} {c.user?.nom}
+                          </span>
+                          {roleName && (
+                            <span className="inline-block px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+                              {roleName}
+                            </span>
+                          )}
+                          <span className="text-[11px] text-gray-400 dark:text-gray-500">{dateStr}</span>
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">{c.contenu}</p>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+                <div ref={commentairesEndRef} />
+              </div>
+            )}
+
+            <div className="flex items-end gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <textarea
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder="Ajouter un commentaire..."
+                rows={2}
+                maxLength={2000}
+                className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1E2235]
+                           text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
+                           focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
+                onKeyDown={e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') envoyerCommentaire() }}
+              />
+              <Button
+                size="sm"
+                onClick={envoyerCommentaire}
+                disabled={!newComment.trim() || sendingComment}
+                loading={sendingComment}
+              >
+                <Send size={16} />
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modal Bons de commande */}
       <Modal
@@ -1036,7 +1100,7 @@ export default function MissionDetail() {
               <div key={bon.id ?? index} className="at-card-surface rounded-xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-gray-800">
+                    <div className="font-semibold text-gray-800 dark:text-gray-100">
                       {bon.numero ?? 'BC'}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
@@ -1073,8 +1137,8 @@ export default function MissionDetail() {
 function InfoRow({ label, value }) {
   return (
     <div className="rounded-[20px] border border-[#EAECF0] bg-[#F8F9FC] p-4 dark:border-[#2A2D3E] dark:bg-[#252840]">
-      <div className="text-xs font-semibold text-gray-500">{label}</div>
-      <div className="text-sm font-semibold text-gray-800 mt-1 break-words">{value ?? '—'}</div>
+      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</div>
+      <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-1 break-words">{value ?? '—'}</div>
     </div>
   )
 }
@@ -1084,8 +1148,8 @@ function ReservationSection({ title, items, renderItem }) {
   return (
     <div className="at-card-surface p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
-        <div className="text-xs text-gray-500">{items.length} élément(s)</div>
+        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{items.length} élément(s)</div>
       </div>
       <div className="space-y-3">
         <AnimatePresence initial={false}>

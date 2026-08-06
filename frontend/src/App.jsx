@@ -61,6 +61,10 @@ const AuditLogs        = lazyRetry(() => import('./pages/admin/AuditLogs'), "le 
 const Statistiques     = lazyRetry(() => import('./pages/admin/Statistiques'), 'les statistiques');
 const Rapports         = lazyRetry(() => import('./pages/rapports/Rapports'), 'les rapports');
 const DmlDashboard     = lazyRetry(() => import('./pages/dml/DmlDashboard'), 'le module DML');
+const About              = lazyRetry(() => import('./pages/About'), 'la page A propos');
+const CalendrierMissions = lazyRetry(() => import('./pages/missions/CalendrierMissions'), 'le calendrier');
+const DashboardExecutif = lazyRetry(() => import('./pages/admin/DashboardExecutif'), 'le dashboard DSI');
+const SimulateurBudget  = lazyRetry(() => import('./pages/admin/SimulateurBudget'), 'le simulateur budget');
 const Page404          = lazyRetry(() => import('./pages/errors/Page404'), 'la page');
 const Page403          = lazyRetry(() => import('./pages/errors/Page403'), 'la page');
 
@@ -115,6 +119,7 @@ function AppRoutes() {
           <Route path="/organigramme"        element={<Organigramme />} />
           <Route path="/missions"            element={<MissionsList />} />
           <Route path="/missions/nouvelle"   element={<NewMissionWizard />} />
+          <Route path="/missions/calendrier"  element={<CalendrierMissions />} />
           <Route path="/missions/:id"        element={<MissionDetail />} />
           <Route path="/validations"         element={
             <PrivateRoute roles={['validateur', 'directeur', 'admin']}>
@@ -124,6 +129,7 @@ function AppRoutes() {
           <Route path="/messagerie"          element={<Messagerie />} />
           <Route path="/notifications"       element={<Notifications />} />
           <Route path="/profil"              element={<Profil />} />
+          <Route path="/about"               element={<About />} />
           <Route path="/rapports"            element={
             <PrivateRoute roles={['admin', 'directeur']}>
               <Rapports />
@@ -148,6 +154,12 @@ function AppRoutes() {
           } />
           <Route path="/admin/statistiques"  element={
             <PrivateRoute roles={['admin']}><Statistiques /></PrivateRoute>
+          } />
+          <Route path="/admin/dashboard-executif" element={
+            <PrivateRoute roles={['admin']}><DashboardExecutif /></PrivateRoute>
+          } />
+          <Route path="/admin/simulateur-budget" element={
+            <PrivateRoute roles={['admin']}><SimulateurBudget /></PrivateRoute>
           } />
         </Route>
 

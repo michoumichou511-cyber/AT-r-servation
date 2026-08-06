@@ -75,7 +75,6 @@ export default function NewMissionWizard() {
           "Impossible d'enregistrer les informations"
         setStep1Error(msg)
         toast.error(msg)
-        throw err
       } finally {
         setStep1Loading(false)
       }

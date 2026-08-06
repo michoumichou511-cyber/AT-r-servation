@@ -24,8 +24,10 @@ class MissionUpdateRequest extends FormRequest
             'date_depart' => ['nullable', 'date', 'after:today'],
             'date_retour' => ['nullable', 'date'],
             'type_mission' => ['nullable', 'in:formation,conference,reunion,inspection,audit,autre'],
+            'transport_type' => ['nullable', 'in:avion,terrestre'],
             'priorite' => ['nullable', 'in:normale,urgente,tres_urgente'],
             'budget_previsionnel' => ['nullable', 'numeric', 'min:0'],
+            'budget_mode' => ['nullable', 'in:avance,remboursement'],
             'description' => ['nullable', 'string'],
         ];
     }

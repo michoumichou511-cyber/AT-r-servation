@@ -22,7 +22,15 @@ import '../screens/admin/audit_logs_screen.dart';
 import '../screens/admin/statistiques_screen.dart';
 import '../screens/admin/budgets_screen.dart';
 import '../screens/admin/prestataires_screen.dart';
+import '../screens/splash/splash_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/dml/scan_ticket_screen.dart';
+import '../screens/missions/scan_justificatif_screen.dart';
+import '../screens/missions/geolocation_screen.dart';
+import '../screens/missions/checklist_screen.dart';
 import '../widgets/floating_nav_bar.dart';
+import '../widgets/offline_banner.dart';
+import '../services/notification_service.dart';
 
 // ─── Shell avec FloatingNavBar ─────────────────────────────────────────────
 class _ShellScaffold extends StatelessWidget {
@@ -37,13 +45,25 @@ class _ShellScaffold extends StatelessWidget {
     for (int i = 0; i < tabs.length; i++) {
       if (location.startsWith(tabs[i].path)) { currentIndex = i; break; }
     }
+    final unread = context.select<NotificationService, int>((s) => s.unreadCount);
+    final notifIdx = tabs.indexWhere((t) => t.path == '/notifications');
+    final badges = <int, int>{
+      if (notifIdx >= 0 && unread > 0) notifIdx: unread,
+    };
+
     return Scaffold(
-      body: child,
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: child),
+        ],
+      ),
       extendBody: false,
       bottomNavigationBar: FloatingNavBar(
         currentIndex: currentIndex,
         items: tabs,
         onTap: (i) => context.go(tabs[i].path),
+        badges: badges,
       ),
     );
   }
@@ -69,16 +89,36 @@ Page<void> _page(GoRouterState state, Widget child) {
 GoRouter buildRouter(AuthProvider auth) {
   return GoRouter(
     refreshListenable: auth,
-    initialLocation: '/dashboard',
+    initialLocation: '/splash',
     redirect: (context, state) {
+      final loc = state.matchedLocation;
+      if (loc == '/splash' || loc == '/onboarding') return null;
       if (auth.isLoading) return null;
       final loggedIn = auth.isAuthenticated;
-      final onLogin  = state.matchedLocation == '/login';
+      final onLogin  = loc == '/login';
       if (!loggedIn && !onLogin)  return '/login';
       if (loggedIn  && onLogin)   return '/dashboard';
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (ctx, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const SplashScreen(),
+          transitionsBuilder: (_, a, __, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        pageBuilder: (ctx, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const OnboardingScreen(),
+          transitionsBuilder: (_, a, __, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      ),
       GoRoute(
         path: '/login',
         pageBuilder: (ctx, state) => _page(state, const LoginScreen()),
@@ -88,6 +128,36 @@ GoRouter buildRouter(AuthProvider auth) {
       GoRoute(
         path: '/search',
         pageBuilder: (ctx, state) => _page(state, const SearchScreen()),
+      ),
+
+      // ── Scan QR (hors shell, plein écran) ──────────────────────────
+      GoRoute(
+        path: '/scan-ticket',
+        pageBuilder: (ctx, state) => _page(state, const ScanTicketScreen()),
+      ),
+
+      // ── Scan justificatif (hors shell) ─────────────────────────────
+      GoRoute(
+        path: '/missions/:id/justificatif',
+        pageBuilder: (ctx, state) => _page(state, ScanJustificatifScreen(
+          missionId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        )),
+      ),
+
+      // ── Geolocation pointage (hors shell) ──────────────────────────
+      GoRoute(
+        path: '/missions/:id/pointage',
+        pageBuilder: (ctx, state) => _page(state, GeolocationScreen(
+          missionId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        )),
+      ),
+
+      // ── Checklist voyage (hors shell) ──────────────────────────────
+      GoRoute(
+        path: '/missions/:id/checklist',
+        pageBuilder: (ctx, state) => _page(state, ChecklistScreen(
+          missionId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        )),
       ),
 
       // ── Shell principal ──────────────────────────────────────────────

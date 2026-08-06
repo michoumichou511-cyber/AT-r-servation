@@ -38,6 +38,21 @@ dependencies:
   flutter_spinkit: ^5.2.1
   lottie: ^3.1.3
   simple_animations: ^5.0.2
+  # Mega-Prompt O — Core
+  local_auth: ^2.3.0
+  connectivity_plus: ^6.1.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  # Mega-Prompt P — Scanner
+  mobile_scanner: ^7.4.0
+  flutter_image_compress: ^2.3.0
+  # Mega-Prompt Q — UX avancee
+  geolocator: ^14.0.0
+  geocoding: ^3.0.0
+  share_plus: ^10.1.4
+  path_provider: ^2.1.1
+  speech_to_text: ^7.0.0
+  home_widget: ^0.7.0
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +65,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fonts/test/
+    - assets/lottie/
   # Fonts bundlées UNIQUEMENT pour permettre les golden tests offline.
   # Inter-* pointent vers Arial pour eviter le fetch Google Fonts en CI.
   fonts:

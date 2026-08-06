@@ -28,7 +28,16 @@ class DmlController extends Controller
         $perPage = (int) $request->get('per_page', 15);
 
         // Missions approuvées sans traitement terminé
-        $missions = Mission::with(['user', 'reservations.prestataire', 'traitementDml'])
+        $missions = Mission::with([
+                'user:id,nom,prenom,email,direction,telephone',
+                'createurPar:id,nom,prenom,email',
+                'reservations.prestataire',
+                'documents',
+                'circuitsValidation.validateur:id,nom,prenom',
+                'traitementDml.agentDml:id,nom,prenom',
+                'traitementDml.hotel',
+                'traitementDml.vehicule',
+            ])
             ->where('statut', 'approuve')
             ->whereDoesntHave('traitementDml', fn ($q) => $q->where('statut', 'logistique_ok'))
             ->orderBy('date_depart', 'asc')
@@ -52,11 +61,14 @@ class DmlController extends Controller
         // "En traitement" et "Logistique OK" (l'onglet Terminées restait
         // vide quand on excluait logistique_ok ici).
         $traitements = MissionTraitementDml::with([
-            'mission.user',
-            'mission.reservations',
+            'mission.user:id,nom,prenom,email,direction,telephone',
+            'mission.createurPar:id,nom,prenom,email',
+            'mission.reservations.prestataire',
+            'mission.documents',
+            'mission.circuitsValidation.validateur:id,nom,prenom',
             'hotel',
             'vehicule',
-            'agentDml',
+            'agentDml:id,nom,prenom',
         ])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
@@ -137,20 +149,40 @@ class DmlController extends Controller
     public function assignerVehicule(Request $request, int $missionId)
     {
         $validated = $request->validate([
-            'vehicule_id'    => 'nullable|exists:vehicules,id',
-            'type_transport' => 'nullable|in:vehicule_service,avion,train,taxi,autre',
-            'numero_bon'     => 'nullable|string|max:100',
-            'observations'   => 'nullable|string|max:2000',
+            'vehicule_id'       => 'nullable|exists:vehicules,id',
+            'type_transport'    => 'nullable|in:vehicule_service,avion,train,taxi,autre',
+            'numero_bon'        => 'nullable|string|max:100',
+            'observations'      => 'nullable|string|max:2000',
+            'ticket_number'     => 'nullable|string|max:100',
+            'ticket_scan'       => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'transport_company' => 'nullable|string|max:255',
+            'transport_date'    => 'nullable|date',
+            'montant_transport' => 'nullable|numeric|min:0',
         ]);
 
         $mission = Mission::whereIn('statut', ['approuve', 'en_traitement_logistique'])
             ->findOrFail($missionId);
 
+        $scanPath = null;
+        if ($request->hasFile('ticket_scan')) {
+            $scanPath = $request->file('ticket_scan')->store(
+                'dml/ticket-scans/'.$mission->id,
+                'public'
+            );
+        }
+
+        $existing = MissionTraitementDml::where('mission_id', $mission->id)->first();
+
         $traitement = MissionTraitementDml::updateOrCreate(
             ['mission_id' => $mission->id],
             array_merge($validated, [
-                'agent_dml_id' => $request->user()->id,
-                'statut'       => 'en_traitement',
+                'agent_dml_id'      => $request->user()->id,
+                'statut'            => 'en_traitement',
+                'ticket_number'     => $validated['ticket_number'] ?? null,
+                'ticket_scan_path'  => $scanPath ?? ($existing->ticket_scan_path ?? null),
+                'transport_company' => $validated['transport_company'] ?? 'Air Algérie',
+                'transport_date'    => $validated['transport_date'] ?? null,
+                'montant_transport' => $validated['montant_transport'] ?? null,
             ])
         );
 

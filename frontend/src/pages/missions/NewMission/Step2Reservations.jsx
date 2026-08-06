@@ -32,7 +32,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
 
   const [formType, setFormType] = useState('billet')
   const [formPrestId, setFormPrestId] = useState('')
-  const [formMontant, setFormMontant] = useState('')
   const [formNotes, setFormNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -40,7 +39,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
   const [editId, setEditId] = useState(null)
   const [editType, setEditType] = useState('billet')
   const [editPrestId, setEditPrestId] = useState('')
-  const [editMontant, setEditMontant] = useState('')
   const [editNotes, setEditNotes] = useState('')
   const [editSaving, setEditSaving] = useState(false)
 
@@ -100,7 +98,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
   const resetForm = () => {
     setFormType('billet')
     setFormPrestId('')
-    setFormMontant('')
     setFormNotes('')
   }
 
@@ -112,9 +109,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
       const payload = {
         type: formType,
         ...(formPrestId ? { prestataire_id: Number(formPrestId) } : {}),
-        ...(String(formMontant ?? '').trim()
-          ? { montant_estime: Number(formMontant) }
-          : {}),
         ...(getPayloadValue(formNotes) ? { notes: formNotes.trim() } : {}),
       }
 
@@ -140,7 +134,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     setEditId(r?.id ?? null)
     setEditType(r?.type ?? 'billet')
     setEditPrestId(extractPrestataireIdFromReservation(r))
-    setEditMontant(r?.montant_estime ? String(r.montant_estime).replace(/[^0-9.,]/g, '') : '')
     setEditNotes(r?.notes ?? '')
     setEditOpen(true)
   }
@@ -152,9 +145,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
       const payload = {
         type: editType,
         ...(editPrestId ? { prestataire_id: Number(editPrestId) } : {}),
-        ...(String(editMontant ?? '').trim()
-          ? { montant_estime: Number(editMontant.toString().replace(',', '.')) }
-          : {}),
         ...(getPayloadValue(editNotes) ? { notes: editNotes.trim() } : {}),
       }
 
@@ -297,14 +287,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
 
               {prestError && <div className="text-xs text-gray-500 dark:text-gray-400">Prestataires: {prestError}</div>}
 
-              <Input
-                label="Montant estimé (DA)"
-                type="number"
-                value={formMontant}
-                onChange={(e) => setFormMontant(e.target.value)}
-                placeholder="Ex: 125000"
-              />
-
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Notes (optionnel)</label>
                 <textarea
@@ -360,9 +342,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                             <div className="font-semibold text-gray-800 truncate">
                               {r.type_label ?? r.type}
                             </div>
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Montant estimé: <span className="font-semibold">{r.montant_estime || '—'}</span>
                           </div>
                           <div className="text-sm text-gray-600">
                             Prestataire: <span className="font-semibold">{r.prestataire?.nom ?? 'Aucun'}</span>
@@ -449,14 +428,6 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
               </option>
             ))}
           </select>
-
-          <Input
-            label="Montant estimé (DA)"
-            type="number"
-            value={editMontant}
-            onChange={(e) => setEditMontant(e.target.value)}
-            placeholder="Ex: 125000"
-          />
 
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-2">Notes</label>
