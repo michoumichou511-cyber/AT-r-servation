@@ -1,83 +1,259 @@
-# AT-r-servation
+# AT Reservations — Gestion des Ordres de Mission
 
-Projet de formation : application web de réservation / gestion de missions (Laravel + React / Vite).
+Application web et mobile de gestion des ordres de mission pour Algerie Telecom.
 
-## Sécurité du dépôt
+**Stack** : Laravel 12 + React 18 + Vite + Tailwind CSS + Flutter  
+**Version** : 2.0 (aout 2026)
 
-- **Visibilité GitHub** : si le dépôt doit rester confidentiel, ouvre le dépôt sur GitHub → **Settings** → tout en bas → **Danger zone** → **Change repository visibility** → **Private**.
-- **Clé d’application Laravel** : après clonage ou déploiement, génère une clé unique et mets à jour le fichier `.env` réel (machine locale et serveur) :
+---
 
-  ```bash
-  cd backend
-  php artisan key:generate
-  ```
+## Pre-requis a installer
 
-  La commande écrit `APP_KEY` dans `backend/.env`. Ne commite jamais ce fichier.
+Avant de commencer, installer ces logiciels sur le PC :
 
-- **Secrets déjà exposés** : si des fichiers `.env` ou des clés ont été poussés sur un dépôt public ou forké, considère comme **compromis** : régénère `APP_KEY`, mots de passe base de données, clés API, secrets mail, etc.
+| Logiciel | Version minimum | Lien de telechargement |
+|----------|----------------|----------------------|
+| XAMPP | 8.2+ (PHP + MySQL) | https://www.apachefriends.org/download.html |
+| Node.js | 18+ (LTS) | https://nodejs.org/ |
+| Composer | 2.x | https://getcomposer.org/download/ |
+| Git | 2.x | https://git-scm.com/downloads |
+| Flutter | 3.10+ (pour le mobile) | https://docs.flutter.dev/get-started/install |
+| Chrome | derniere version | https://www.google.com/chrome/ |
 
-## Fichiers à ne jamais versionner (Laravel + React)
+---
 
-À garder **hors** du dépôt (et couverts par les `.gitignore` du projet) :
+## Installation etape par etape
+
+### Etape 1 — Cloner le projet
+
+```bash
+git clone https://github.com/michoumichou511-cyber/AT-r-servation.git
+cd AT-r-servation
+```
+
+### Etape 2 — Demarrer MySQL (XAMPP)
+
+1. Ouvrir **XAMPP Control Panel**
+2. Cliquer **Start** sur **MySQL**
+3. Verifier que le port **3306** est bien actif (vert)
+
+### Etape 3 — Creer la base de donnees
+
+Ouvrir un navigateur et aller sur `http://127.0.0.1/phpmyadmin` puis :
+1. Cliquer **Nouvelle base de donnees** (ou **New**)
+2. Nom : `at_reservations`
+3. Interclassement : `utf8mb4_unicode_ci`
+4. Cliquer **Creer**
+
+### Etape 4 — Installer le Backend (Laravel)
+
+```bash
+cd backend
+composer install
+```
+
+Copier le fichier d'environnement :
+```bash
+copy .env.example .env
+```
+*(Linux/macOS : `cp .env.example .env`)*
+
+Editer le fichier `backend/.env` et verifier ces lignes :
+```
+APP_URL=http://127.0.0.1:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=at_reservations
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> **IMPORTANT** : Toujours utiliser `DB_HOST=127.0.0.1` (jamais `localhost`)
+
+Generer la cle et lancer les migrations :
+```bash
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+```
+
+Demarrer le serveur backend :
+```bash
+php artisan serve --port=8000
+```
+
+> Le backend tourne maintenant sur `http://127.0.0.1:8000`
+
+### Etape 5 — Installer le Frontend (React)
+
+Ouvrir un **nouveau terminal** (garder le backend ouvert) :
+
+```bash
+cd frontend
+npm install
+```
+
+Demarrer le serveur frontend :
+```bash
+npm run dev
+```
+
+> Le frontend tourne maintenant sur `http://127.0.0.1:5173`
+
+### Etape 6 — Ouvrir l'application
+
+Ouvrir Chrome et aller sur : **http://127.0.0.1:5173**
+
+Identifiants de test :
+
+| Role | Email | Mot de passe |
+|------|-------|-------------|
+| Admin | admin@at.dz | Password@123 |
+| Validateur | nadia.khelifi@at.dz | Password@123 |
+| Demandeur | demandeur@at.dz | Password@123 |
+
+---
+
+## Installation de l'app mobile (optionnel)
+
+```bash
+cd mobile/at_reservations_mobile
+flutter pub get
+flutter run
+```
+
+> L'app mobile necessite un emulateur Android ou un telephone connecte en USB avec le mode developpeur active.
+
+---
+
+## Commandes utiles
+
+| Commande | Description |
+|----------|-------------|
+| `php artisan serve --port=8000` | Demarrer le backend |
+| `npm run dev` | Demarrer le frontend (dev) |
+| `npm run build` | Build production du frontend |
+| `php artisan migrate` | Lancer les migrations |
+| `php artisan migrate:fresh --seed` | Reset complet de la BDD + donnees de test |
+| `php artisan tinker` | Console interactive Laravel |
+| `flutter run` | Lancer l'app mobile |
+
+---
+
+## Lancer les tests E2E (Playwright)
+
+Les tests necessitent que le backend ET le frontend soient demarres.
+
+**Terminal 1 :**
+```bash
+cd backend
+php artisan serve --port=8000
+```
+
+**Terminal 2 :**
+```bash
+cd frontend
+npm run dev
+```
+
+**Terminal 3 :**
+```bash
+cd frontend
+npx playwright test
+```
+
+Resultats attendus : **43/43 tests PASS** (auth, navigation, CRUD, flux-mission, responsive, accessibilite, performance).
+
+---
+
+## Structure du projet
+
+```
+AT-r-servation/
+├── backend/                 # API Laravel 12
+│   ├── app/                 # Models, Controllers, Services
+│   ├── database/            # Migrations, Seeders
+│   ├── routes/api.php       # Routes API
+│   └── .env.example         # Modele de configuration
+│
+├── frontend/                # React 18 + Vite + Tailwind
+│   ├── src/
+│   │   ├── components/      # Composants reutilisables
+│   │   ├── pages/           # Pages de l'application
+│   │   ├── contexts/        # AuthContext, etc.
+│   │   └── services/        # Appels API
+│   ├── tests/               # Tests Playwright E2E
+│   └── package.json
+│
+├── mobile/                  # App Flutter
+│   └── at_reservations_mobile/
+│       ├── lib/             # Code Dart
+│       └── pubspec.yaml     # Dependances Flutter
+│
+└── docs_soutenance/         # Documents pour la soutenance
+```
+
+---
+
+## Fonctionnalites principales
+
+- **Gestion des missions** : creation, soumission, validation, rejet, cloture
+- **3 roles** : Admin, Validateur (DG/SG), Demandeur
+- **Workflow complet** : Demandeur cree → Validateur approuve/rejette → DML traite la logistique
+- **Dashboard** avec statistiques par role
+- **Notifications** en temps reel
+- **Messagerie** interne
+- **Organigramme** de l'entreprise
+- **Exports** Excel et PDF (ordre de mission)
+- **Gestion DML** : reservations transport, hotel, per diem
+- **Rapports** et audit logs
+- **Responsive** : fonctionne sur mobile, tablette, desktop
+- **Accessibilite** WCAG 2.1 AA
+
+---
+
+## Ports utilises
+
+| Service | Port | URL |
+|---------|------|-----|
+| Frontend (Vite) | 5173 | http://127.0.0.1:5173 |
+| Backend (Laravel) | 8000 | http://127.0.0.1:8000 |
+| MySQL (XAMPP) | 3306 | 127.0.0.1:3306 |
+
+---
+
+## Securite du depot
+
+- **Ne JAMAIS commiter** les fichiers `.env` (contiennent les secrets)
+- Les fichiers `.env.example` sont les modeles sans secrets
+- Apres clonage, toujours regenerer la cle : `php artisan key:generate`
+- Si le depot doit rester prive : GitHub → Settings → Danger zone → Change visibility → Private
+
+## Fichiers a ne jamais versionner
 
 | Type | Exemples |
 |------|----------|
-| Environnement | `.env`, `.env.local`, `.env.production`, `.env.backup`, `frontend/.env`, `backend/.env` |
-| Dépendances | `node_modules/`, `vendor/` |
+| Environnement | `.env`, `.env.local`, `.env.production` |
+| Dependances | `node_modules/`, `vendor/` |
 | Build | `frontend/dist/`, caches Laravel |
-| Logs / cache | `storage/logs/`, `storage/framework/`, `bootstrap/cache/` |
-| Certificats / clés | `*.pem`, `*.key`, `id_rsa*`, certificats SSL, keystores |
-| Bases locales | `*.sqlite`, dumps `.sql` avec données réelles |
-| Auth Composer privé | `auth.json` (JetBrains Packagist, etc.) |
-| Fichiers IDE sensibles | secrets dans `.vscode/` si tu y mets des tokens (le dépôt ignore `.vscode/` par défaut) |
+| Logs | `storage/logs/`, `storage/framework/` |
+| Certificats | `*.pem`, `*.key`, `id_rsa*` |
 
-Les seuls fichiers d’environnement **versionnés** doivent être des modèles : `.env.example` (racine, `backend/`, `frontend/`).
+---
 
-## Prérequis
+## En cas de probleme
 
-- Node.js (LTS recommandé) pour le frontend
-- PHP + Composer pour le backend
-- MySQL ou PostgreSQL (selon ta configuration Laravel)
+| Probleme | Solution |
+|----------|----------|
+| "SQLSTATE connection refused" | Verifier que MySQL tourne dans XAMPP |
+| "Email ou mot de passe incorrect" | Verifier que le backend tourne sur le port 8000 |
+| Page blanche sur le frontend | Verifier que `npm run dev` est lance |
+| "DB_HOST" erreur | Mettre `DB_HOST=127.0.0.1` (pas `localhost`) |
+| Erreur `composer install` | Verifier que PHP 8.2+ est installe |
+| Erreur `npm install` | Verifier que Node.js 18+ est installe |
 
-## Installation à partir des `.env.example`
+---
 
-### Backend (Laravel)
-
-1. `cd backend`
-2. `composer install`
-3. Copie le modèle d’environnement :
-
-   ```bash
-   copy .env.example .env
-   ```
-
-   (Sous Linux/macOS : `cp .env.example .env`)
-
-4. Édite `.env` : `APP_URL`, base de données (`DB_*`), mail, etc.
-5. `php artisan key:generate`
-6. `php artisan migrate` (et seeders si besoin)
-
-### Frontend (Vite + React)
-
-1. `cd frontend`
-2. `npm install`
-3. Copie le modèle :
-
-   ```bash
-   copy .env.example .env
-   ```
-
-   (Sous Linux/macOS : `cp .env.example .env`)
-
-4. Ajuste les variables (ex. `VITE_API_URL` vers l’URL de ton API Laravel).
-5. Développement : `npm run dev`  
-   Production : `npm run build` puis sers les fichiers générés avec ton hébergeur / reverse proxy.
-
-### Racine
-
-Un fichier `.env.example` peut exister à la racine pour des scripts ou la doc ; adapte-le à ton usage. L’essentiel pour l’app est **`backend/.env`** et **`frontend/.env`**.
-
-## Déploiement
-
-- Backend : configure le serveur web (nginx, Apache, etc.) vers `backend/public`, variables d’environnement ou `.env` sur le serveur uniquement.
-- Frontend : `npm run build` dans `frontend/`, puis hébergement des assets statiques ou intégration au pipeline CI/CD.
+**Projet realise par** : Michou — Formation Algerie Telecom 2026
