@@ -1,0 +1,144 @@
+- generic [active] [ref=f12e1]:
+  - generic [ref=f12e7]:
+    - link "Aller au contenu principal" [ref=f12e8] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f12e10]:
+      - generic [ref=f12e11]:
+        - generic [ref=f12e13]:
+          - img "Algérie Télécom" [ref=f12e15]
+          - generic [ref=f12e16]:
+            - generic [ref=f12e17]: Réservations AT
+            - generic [ref=f12e18]: Algérie Télécom
+        - generic [ref=f12e19]:
+          - generic [ref=f12e20]: AS
+          - generic [ref=f12e21]:
+            - generic [ref=f12e22]: Admin Système
+            - generic [ref=f12e23]: admin
+        - textbox "Rechercher..." [ref=f12e29]
+        - navigation [ref=f12e30]:
+          - link "Tableau de bord" [ref=f12e31] [cursor=pointer]:
+            - /url: /
+          - link "Organigramme" [ref=f12e38] [cursor=pointer]:
+            - /url: /organigramme
+          - link "Mes missions" [ref=f12e43] [cursor=pointer]:
+            - /url: /missions
+          - link "Calendrier" [ref=f12e48] [cursor=pointer]:
+            - /url: /missions/calendrier
+          - link "Validations" [ref=f12e52] [cursor=pointer]:
+            - /url: /validations
+          - link "Messagerie" [ref=f12e57] [cursor=pointer]:
+            - /url: /messagerie
+          - link "Notifications" [ref=f12e61] [cursor=pointer]:
+            - /url: /notifications
+          - link "Mon profil" [ref=f12e66] [cursor=pointer]:
+            - /url: /profil
+          - link "A propos" [ref=f12e71] [cursor=pointer]:
+            - /url: /about
+          - link "Rapports" [ref=f12e75] [cursor=pointer]:
+            - /url: /rapports
+          - generic [ref=f12e80]:
+            - button "Administration" [ref=f12e81] [cursor=pointer]
+            - generic [ref=f12e85]:
+              - link "Utilisateurs" [ref=f12e86] [cursor=pointer]:
+                - /url: /admin/utilisateurs
+              - link "Prestataires" [ref=f12e93] [cursor=pointer]:
+                - /url: /admin/prestataires
+              - link "Budgets" [ref=f12e99] [cursor=pointer]:
+                - /url: /admin/budgets
+              - link "Audit Logs" [ref=f12e104] [cursor=pointer]:
+                - /url: /admin/audit-logs
+              - link "Statistiques" [ref=f12e109] [cursor=pointer]:
+                - /url: /admin/statistiques
+              - link "Dashboard DSI" [ref=f12e114] [cursor=pointer]:
+                - /url: /admin/dashboard-executif
+              - link "Simulateur Budget" [ref=f12e118] [cursor=pointer]:
+                - /url: /admin/simulateur-budget
+        - button "Déconnexion" [ref=f12e124] [cursor=pointer]
+    - generic [ref=f12e129]:
+      - banner [ref=f12e130]:
+        - heading "Statistiques" [level=1] [ref=f12e132]
+        - generic [ref=f12e133]:
+          - textbox "Rechercher..." [ref=f12e139]
+          - button [ref=f12e140] [cursor=pointer]
+          - button [ref=f12e143] [cursor=pointer]
+          - button "AS Admin" [ref=f12e148] [cursor=pointer]:
+            - generic [ref=f12e149]: AS
+            - generic [ref=f12e150]: Admin
+      - main [ref=f12e151]:
+        - generic [ref=f12e153]:
+          - generic [ref=f12e154]:
+            - button "← Retour" [ref=f12e155] [cursor=pointer]
+            - generic [ref=f12e156]:
+              - generic [ref=f12e157]:
+                - heading "Statistiques" [level=1] [ref=f12e158]
+                - paragraph [ref=f12e159]: Statistiques globales de l'application (admin)
+              - button "Rafraîchir" [ref=f12e161] [cursor=pointer]
+          - generic [ref=f12e165]:
+            - generic [ref=f12e166]:
+              - generic [ref=f12e172]: "55"
+              - generic [ref=f12e173]: Total missions (GET /missions)
+            - generic [ref=f12e174]:
+              - generic [ref=f12e178]: 16%
+              - generic [ref=f12e179]: Taux d’approbation (dashboard)
+            - generic [ref=f12e180]:
+              - generic [ref=f12e184]: 44 000 000 DA
+              - generic [ref=f12e185]: Budget total (année courante)
+            - generic [ref=f12e186]:
+              - generic [ref=f12e192]: "10"
+              - generic [ref=f12e193]: Prestataires (GET /prestataires)
+            - generic [ref=f12e194]:
+              - generic [ref=f12e199]: 14 j
+              - generic [ref=f12e200]: Délai moyen création → départ • n=5
+          - generic [ref=f12e201]:
+            - generic [ref=f12e202]:
+              - generic [ref=f12e203]:
+                - generic [ref=f12e204]: Missions (6 derniers mois)
+                - generic [ref=f12e205]: 4 points
+              - application [ref=f12e210]:
+                - generic [ref=f12e232]:
+                  - generic [ref=f12e233]:
+                    - generic [ref=f12e234]: Apr 2026
+                    - generic [ref=f12e236]: May 2026
+                    - generic [ref=f12e238]: Jun 2026
+                    - generic [ref=f12e240]: Jul 2026
+                  - generic [ref=f12e242]:
+                    - generic [ref=f12e243]: "0"
+                    - generic [ref=f12e245]: "6"
+                    - generic [ref=f12e247]: "12"
+                    - generic [ref=f12e249]: "18"
+                    - generic [ref=f12e251]: "24"
+            - generic [ref=f12e253]:
+              - generic [ref=f12e254]: Dépenses par type (réservations confirmées)
+              - generic [ref=f12e255]:
+                - heading "Aucune donnée" [level=3] [ref=f12e259]
+                - paragraph [ref=f12e260]: Aucune dépense agrégée pour le moment.
+          - generic [ref=f12e261]:
+            - generic [ref=f12e262]:
+              - generic [ref=f12e263]: Missions par type (échantillon 5)
+              - application [ref=f12e267]
+            - generic [ref=f12e277]:
+              - generic [ref=f12e278]:
+                - generic [ref=f12e279]: Top prestataires
+                - button "Voir la liste" [ref=f12e280] [cursor=pointer]
+              - table [ref=f12e282]:
+                - rowgroup [ref=f12e283]:
+                  - row [ref=f12e284]:
+                    - columnheader "Prestataire" [ref=f12e285]
+                    - columnheader "Réservations confirmées" [ref=f12e286]
+                - rowgroup [ref=f12e287]:
+                  - row [ref=f12e288]:
+                    - cell "Hotel Test Alpha" [ref=f12e289]
+                    - cell "0" [ref=f12e290]
+                  - row [ref=f12e291]:
+                    - cell "Air Algerie" [ref=f12e292]
+                    - cell "0" [ref=f12e293]
+                  - row [ref=f12e294]:
+                    - cell "Tassili Airlines" [ref=f12e295]
+                    - cell "0" [ref=f12e296]
+                  - row [ref=f12e297]:
+                    - cell "Hotel El Aurassi Alger" [ref=f12e298]
+                    - cell "0" [ref=f12e299]
+                  - row [ref=f12e300]:
+                    - cell "Sofitel Alger" [ref=f12e301]
+                    - cell "0" [ref=f12e302]
+  - generic [ref=f12e303]: "0"

@@ -4,14 +4,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../design/design_system.dart';
+import 'package:provider/provider.dart';
+import '../../config/theme.dart';
 import '../../models/mission.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/share_service.dart';
 import '../../utils/date_utils.dart';
@@ -47,6 +48,12 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         _mission = MissionModel.fromJson(mMap);
         _loading = false;
       });
+    } on ApiException catch (e) {
+      if (e.statusCode == 404 && mounted) {
+        setState(() { _error = '404'; _loading = false; });
+      } else {
+        setState(() { _error = e.toString(); _loading = false; });
+      }
     } catch (e) {
       setState(() { _error = e.toString(); _loading = false; });
     }
@@ -58,7 +65,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         (_mission!.statut == 'en_cours' || _mission!.statut == 'approuvee');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       body: _loading
           ? const Center(child: SpinKitWave(color: DS.primary, size: 30))
           : _error != null
@@ -110,44 +117,56 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     }
   }
 
-  Widget _buildError() => Scaffold(
-    appBar: AppBar(
-      title: Text('Détail Mission',
-        style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
-      backgroundColor: DS.secondary,
-      foregroundColor: Colors.white,
-    ),
-    body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        width: 72, height: 72,
-        decoration: BoxDecoration(
-          color: DS.error.withValues(alpha: 0.10),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.wifi_off_outlined, color: DS.error, size: 32),
+  Widget _buildError() {
+    final is404 = _error == '404';
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Détail Mission',
+          style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+        backgroundColor: DS.secondary,
+        foregroundColor: Colors.white,
       ),
-      const SizedBox(height: 16),
-      Text('Erreur de chargement',
-        style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16)),
-      const SizedBox(height: 8),
-      Text(_error!,
-        style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 13)),
-      const SizedBox(height: 20),
-      GestureDetector(
-        onTap: _load,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(
+          width: 72, height: 72,
           decoration: BoxDecoration(
-            gradient: DS.gradientGreen,
-            borderRadius: BorderRadius.circular(12),
+            color: (is404 ? DS.warning : DS.error).withValues(alpha: 0.10),
+            shape: BoxShape.circle,
           ),
-          child: Text('Réessayer',
-            style: GoogleFonts.inter(
-              color: Colors.white, fontWeight: FontWeight.w700)),
+          child: Icon(
+            is404 ? Icons.search_off_rounded : Icons.wifi_off_outlined,
+            color: is404 ? DS.warning : DS.error,
+            size: 32,
+          ),
         ),
-      ),
-    ])),
-  );
+        const SizedBox(height: 16),
+        Text(is404 ? 'Mission introuvable' : 'Erreur de chargement',
+          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16)),
+        const SizedBox(height: 8),
+        Text(
+          is404
+              ? 'Cette mission a été supprimée ou n\'existe pas.'
+              : _error!,
+          style: GoogleFonts.inter(color: context.textSecondary, fontSize: 13),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        GestureDetector(
+          onTap: is404 ? () => context.pop() : _load,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: DS.gradientGreen,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(is404 ? 'Retour' : 'Réessayer',
+              style: GoogleFonts.inter(
+                color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ),
+      ])),
+    );
+  }
 
   Widget _buildBody() {
     if (_mission == null || _raw == null) return const SizedBox.shrink();
@@ -287,9 +306,35 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         sliver: SliverList(delegate: SliverChildListDelegate([
 
+          // ── Motif d'annulation ───────────────────────────────────────
+          if (m.statut == 'annule' && raw['motif_annulation'] != null && (raw['motif_annulation'] as String).isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: DS.error.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: DS.error.withValues(alpha: 0.3)),
+              ),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(Icons.cancel_outlined, color: DS.error, size: 20),
+                const SizedBox(width: 10),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Motif d'annulation",
+                        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: DS.error)),
+                    const SizedBox(height: 4),
+                    Text(raw['motif_annulation'] as String,
+                        style: GoogleFonts.inter(fontSize: 13, color: DS.error.withValues(alpha: 0.85))),
+                  ],
+                )),
+              ]),
+            ),
+
           // ── Infos générales ──────────────────────────────────────────
           _ExpansionCard(
-            leading: Icon(IconlyLight.document, color: DS.secondary),
+            leading: Icon(Icons.description_outlined, color: DS.secondary),
             title: 'Informations générales',
             initiallyExpanded: true,
             children: [
@@ -310,13 +355,43 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                   return 'Non renseigné';
                 }(),
               ),
+              _DetailRow(
+                label: 'Mode budget',
+                value: raw['budget_mode'] == 'avance' ? 'Avance' : raw['budget_mode'] == 'remboursement' ? 'Remboursement' : 'Non renseigné',
+              ),
+              if (raw['demande_avance'] == true)
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00A650).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF00A650).withValues(alpha: 0.25)),
+                  ),
+                  child: Row(children: [
+                    const Icon(Icons.payments_outlined, size: 18, color: Color(0xFF00A650)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        raw['montant_avance'] != null
+                            ? "Avance demandée : ${NumberFormat('#,##0', 'fr_FR').format(raw['montant_avance'])} DZD"
+                            : "Demande d'avance sur frais",
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF00A650),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
             ],
           ),
           const SizedBox(height: 10),
 
           // ── Déplacement ──────────────────────────────────────────────
           _ExpansionCard(
-            leading: const Icon(IconlyLight.location, color: DS.warning),
+            leading: const Icon(Icons.location_on_outlined, color: DS.warning),
             title: 'Déplacement',
             children: [
               _DetailRow(label: 'Date départ', value: m.dates?.depart),
@@ -349,7 +424,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
 
           // ── Documents ────────────────────────────────────────────────
           _ExpansionCard(
-            leading: const Icon(IconlyLight.document, color: DS.error),
+            leading: const Icon(Icons.description_outlined, color: DS.error),
             title: 'Documents',
             children: _buildDocuments(raw),
           ),
@@ -384,80 +459,6 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     return m[t.toLowerCase()] ?? t;
   }
 
-  // ── Bloc demandeur (Amélioration 1) ───────────────────────────────────
-  List<Widget> _buildDemandeurSection(Map<String, dynamic> raw) {
-    final dem = raw['demandeur'] as Map<String, dynamic>?
-        ?? raw['user'] as Map<String, dynamic>?;
-    if (dem == null) {
-      return [const _EmptySection('Demandeur non renseigné')];
-    }
-    final prenom = (dem['prenom'] as String?) ?? '';
-    final nom    = (dem['nom']    as String?) ?? '';
-    final full   = (dem['nom_complet'] as String?) ??
-        '$prenom $nom'.trim();
-    final poste     = (dem['poste']     as String?) ??
-                      (dem['titre']     as String?) ??
-                      (raw['poste']     as String?);
-    final direction = (dem['direction'] as String?) ??
-                      (raw['direction'] as String?);
-
-    final initials = (
-      (prenom.isNotEmpty ? prenom[0] : '') +
-      (nom.isNotEmpty    ? nom[0]    : '')
-    ).toUpperCase();
-
-    return [
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(children: [
-          Container(
-            width: 48, height: 48,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF003DA5), Color(0xFF0057CC)],
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              initials.isEmpty ? '?' : initials,
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  full.isEmpty ? 'Demandeur' : full,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: DS.textPrimary,
-                  ),
-                ),
-                if (poste != null && poste.isNotEmpty)
-                  Text(poste,
-                      style: const TextStyle(
-                          fontSize: 12, color: DS.textSecondary)),
-              ],
-            ),
-          ),
-        ]),
-      ),
-      _DetailRow(label: 'Nom complet', value: full.isNotEmpty ? full : null),
-      _DetailRow(label: 'Poste',       value: poste),
-      _DetailRow(label: 'Direction',   value: direction),
-      _DetailRow(label: 'Email',       value: dem['email'] as String?),
-      _DetailRow(label: 'Téléphone',   value: dem['telephone'] as String?),
-    ];
-  }
-
   // Helper : valeur ou "En attente DML" en gris italique
   Widget _attenteDmlRow(String label, String? value) {
     final empty = value == null || value.trim().isEmpty;
@@ -467,7 +468,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         SizedBox(
           width: 130,
           child: Text(label,
-              style: const TextStyle(color: DS.textSecondary, fontSize: 13)),
+              style: TextStyle(color: context.textSecondary, fontSize: 13)),
         ),
         Expanded(
           child: empty
@@ -477,10 +478,10 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                       fontStyle: FontStyle.italic,
                       fontSize: 13))
               : Text(value,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: DS.textPrimary)),
+                      color: context.textPrimary)),
         ),
       ]),
     );
@@ -646,8 +647,8 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                       montant.contains('DA')
                           ? 'Budget estimé : $montant'
                           : 'Budget estimé : $montant DA',
-                      style: const TextStyle(
-                          fontSize: 12, color: DS.textSecondary)),
+                      style: TextStyle(
+                          fontSize: 12, color: context.textSecondary)),
                 ),
               if (montantReel != null && montantReel.isNotEmpty)
                 Padding(
@@ -665,10 +666,10 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(notes,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
-                          color: DS.textSecondary)),
+                          color: context.textSecondary)),
                 ),
             ],
           ),
@@ -880,9 +881,119 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     }
   }
 
+  int? _findMyValidationId() {
+    final validations = _raw?['validations'] as List?;
+    if (validations == null) return null;
+    final userId = context.read<AuthProvider>().user?.id;
+    for (final v in validations) {
+      if (v is Map<String, dynamic> &&
+          v['validateur_id'] == userId &&
+          v['statut'] == 'en_attente') {
+        return v['id'] as int?;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _approuverValidation(int validationId) async {
+    try {
+      await ApiService().post('/validations/$validationId/approuver');
+      _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erreur : $e'),
+          backgroundColor: DS.error,
+        ));
+      }
+    }
+  }
+
+  Future<void> _actionValidationWithComment(int validationId, String titre,
+      String hint, Color color, String endpoint) async {
+    final ctrl = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(titre),
+        content: TextField(
+          controller: ctrl,
+          maxLines: 3,
+          decoration: InputDecoration(hintText: hint),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: color),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Confirmer',
+                style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || ctrl.text.trim().isEmpty) return;
+    try {
+      await ApiService().post(
+        '/validations/$validationId/$endpoint',
+        {'commentaire': ctrl.text.trim()},
+      );
+      _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erreur : $e'),
+          backgroundColor: DS.error,
+        ));
+      }
+    }
+  }
+
   List<Widget> _buildActions(MissionModel m) {
     final s = m.statut;
     final actions = <Widget>[];
+    final role = context.read<AuthProvider>().roleName;
+
+    final myValidationId = _findMyValidationId();
+    if (myValidationId != null && (role == 'directeur' || role == 'admin')) {
+      actions.add(_ActionButton(
+        label: 'Approuver',
+        icon: Icons.check_circle_outline,
+        color: DS.primary,
+        onTap: () => _approuverValidation(myValidationId),
+      ));
+      actions.add(const SizedBox(height: 10));
+      actions.add(_ActionButton(
+        label: 'Demander modification',
+        icon: Icons.edit_outlined,
+        color: DS.warning,
+        outlined: true,
+        onTap: () => _actionValidationWithComment(
+          myValidationId,
+          'Demander modifications',
+          'Modifications souhaitées…',
+          DS.warning,
+          'modifier',
+        ),
+      ));
+      actions.add(const SizedBox(height: 10));
+      actions.add(_ActionButton(
+        label: 'Refuser',
+        icon: Icons.cancel_outlined,
+        color: DS.error,
+        outlined: true,
+        onTap: () => _actionValidationWithComment(
+          myValidationId,
+          'Motif du refus',
+          'Expliquez le motif du refus… (min. 10 caractères)',
+          DS.error,
+          'rejeter',
+        ),
+      ));
+      return actions;
+    }
 
     if (s == 'brouillon' || s == 'rejete' || s == 'rejetee') {
       actions.add(_ActionButton(
@@ -1194,25 +1305,51 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
   }
 
   Future<void> _cancel(int id) async {
-    final ok = await showDialog<bool>(
+    final motifCtrl = TextEditingController();
+    final result = await showDialog<String?>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: const Text('Annuler la mission ?'),
-        content: const Text('Cette action ne peut pas être annulée.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Cette action ne peut pas être annulée.'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: motifCtrl,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: "Motif d'annulation *",
+                hintText: 'Indiquez la raison de l\'annulation...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogCtx, false),
-              child: const Text('Non')),
+          TextButton(onPressed: () => Navigator.pop(dialogCtx, null),
+              child: const Text('Retour')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(dialogCtx, true),
+            onPressed: () {
+              if (motifCtrl.text.trim().isEmpty) {
+                ScaffoldMessenger.of(dialogCtx).showSnackBar(
+                  const SnackBar(content: Text('Le motif est obligatoire')));
+                return;
+              }
+              Navigator.pop(dialogCtx, motifCtrl.text.trim());
+            },
             style: ElevatedButton.styleFrom(backgroundColor: DS.error),
-            child: const Text('Oui, annuler'),
+            child: const Text('Confirmer l\'annulation'),
           ),
         ],
       ),
     );
-    if (ok != true) return;
+    if (result == null || result.isEmpty) return;
     try {
-      await ApiService().post('/missions/$id/cancel');
+      await ApiService().post('/missions/$id/cancel', {'motif_annulation': result});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Mission annulée'),
@@ -1252,22 +1389,22 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
           padding: EdgeInsets.only(
               bottom: MediaQuery.of(ctx).viewInsets.bottom),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            decoration: BoxDecoration(
+              color: context.cardBg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               // Handle
               Container(width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: context.borderColor,
                   borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 20),
               Text('Modifier la mission',
                 style: GoogleFonts.inter(
                   fontSize: 18, fontWeight: FontWeight.w800,
-                  color: DS.textPrimary)),
+                  color: context.textPrimary)),
               const SizedBox(height: 20),
               // Objet
               TextField(
@@ -1439,9 +1576,9 @@ class _ExpansionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: context.cardBg,
       borderRadius: BorderRadius.circular(20),
-      boxShadow: DS.shadowSm,
+      boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 4, offset: const Offset(0, 2))],
     ),
     child: Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -1449,7 +1586,7 @@ class _ExpansionCard extends StatelessWidget {
         leading: leading,
         title: Text(title,
           style: GoogleFonts.inter(fontWeight: FontWeight.w700,
-              fontSize: 15, color: DS.textPrimary)),
+              fontSize: 15, color: context.textPrimary)),
         initiallyExpanded: initiallyExpanded,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1475,11 +1612,11 @@ class _DetailRow extends StatelessWidget {
         SizedBox(
           width: 130,
           child: Text(label,
-            style: const TextStyle(color: DS.textSecondary, fontSize: 13)),
+            style: TextStyle(color: context.textSecondary, fontSize: 13)),
         ),
         Expanded(child: Text(value!,
           style: TextStyle(
-            color: valueColor ?? DS.textPrimary,
+            color: valueColor ?? context.textPrimary,
             fontSize: 13, fontWeight: FontWeight.w600,
           ))),
       ]),
@@ -1497,7 +1634,7 @@ class _EmptySection extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: Text(text,
-      style: const TextStyle(color: DS.textSecondary,
+      style: TextStyle(color: context.textSecondary,
           fontStyle: FontStyle.italic)),
   );
 }
@@ -1535,10 +1672,10 @@ class _TimelineItem extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w700,
                 fontSize: 13, color: color)),
           if (acteur.isNotEmpty)
-            Text(acteur, style: const TextStyle(
-                fontSize: 12, color: DS.textSecondary)),
-          Text(date, style: const TextStyle(
-              fontSize: 11, color: DS.textSecondary)),
+            Text(acteur, style: TextStyle(
+                fontSize: 12, color: context.textSecondary)),
+          Text(date, style: TextStyle(
+              fontSize: 11, color: context.textSecondary)),
         ]),
       )),
     ],
@@ -1643,7 +1780,7 @@ class _DatePickerField extends StatelessWidget {
           date != null ? fmt.format(date!) : 'Choisir…',
           style: TextStyle(
             fontSize: 13,
-            color: date != null ? DS.textPrimary : DS.textSecondary,
+            color: date != null ? context.textPrimary : context.textSecondary,
           ),
         ),
       ),

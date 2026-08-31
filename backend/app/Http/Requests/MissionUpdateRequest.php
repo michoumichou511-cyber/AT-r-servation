@@ -22,12 +22,14 @@ class MissionUpdateRequest extends FormRequest
             'destination_ville' => ['nullable', 'string', 'max:255'],
             'destination_pays' => ['nullable', 'string', 'max:255'],
             'date_depart' => ['nullable', 'date', 'after:today'],
-            'date_retour' => ['nullable', 'date'],
+            'date_retour' => ['nullable', 'date', 'after:date_depart'],
             'type_mission' => ['nullable', 'in:formation,conference,reunion,inspection,audit,autre'],
-            'transport_type' => ['nullable', 'in:avion,terrestre'],
+            'transport_type' => ['nullable', 'in:avion,terrestre,train,autre'],
             'priorite' => ['nullable', 'in:normale,urgente,tres_urgente'],
             'budget_previsionnel' => ['nullable', 'numeric', 'min:0'],
             'budget_mode' => ['nullable', 'in:avance,remboursement'],
+            'demande_avance' => ['nullable', 'boolean'],
+            'montant_avance' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
         ];
     }

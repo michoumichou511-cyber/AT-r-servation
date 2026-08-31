@@ -1,0 +1,4 @@
+[   33018ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/new-mission:0
+[   33018ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[  332999ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/new-mission:0
+[  332999ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0

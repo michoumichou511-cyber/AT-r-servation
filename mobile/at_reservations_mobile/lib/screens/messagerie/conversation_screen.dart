@@ -5,10 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/presence_service.dart';
@@ -285,7 +284,7 @@ class _ConversationScreenState extends State<ConversationScreen>
     final init = _initiales(nom);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
         backgroundColor: DS.secondary,
         foregroundColor: Colors.white,
@@ -358,7 +357,7 @@ class _ConversationScreenState extends State<ConversationScreen>
         ]),
         actions: [
           IconButton(
-            icon: const Icon(IconlyLight.call, size: 20),
+            icon: const Icon(Icons.call_outlined, size: 20),
             tooltip: 'Appel vocal',
             onPressed: () => _showCallDialog(),
           ),
@@ -405,15 +404,17 @@ class _ConversationScreenState extends State<ConversationScreen>
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: context.isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.95)
+                    : Colors.white.withValues(alpha: 0.95),
                 border: Border(
                   top: BorderSide(
-                    color: DS.border.withValues(alpha: 0.5),
+                    color: context.borderColor,
                     width: 1,
                   ),
                 ),
                 boxShadow: [BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: context.shadowColor,
                   blurRadius: 10, offset: const Offset(0, -2),
                 )],
               ),
@@ -429,7 +430,7 @@ class _ConversationScreenState extends State<ConversationScreen>
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: context.inputFill,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
                           color: _inputFocus.hasFocus
@@ -570,7 +571,7 @@ class _DateDivider extends StatelessWidget {
           child: Text(_label(),
             style: GoogleFonts.inter(
               fontSize: 11, fontWeight: FontWeight.w600,
-              color: DS.textMuted,
+              color: context.textMuted,
             )),
         ),
       ),
@@ -601,10 +602,10 @@ class _EmptyConv extends StatelessWidget {
       const SizedBox(height: 20),
       Text('Commencez la conversation',
         style: GoogleFonts.inter(
-          fontSize: 17, fontWeight: FontWeight.w700, color: DS.textPrimary)),
+          fontSize: 17, fontWeight: FontWeight.w700, color: context.textPrimary)),
       const SizedBox(height: 6),
       Text('Écrivez le premier message ci-dessous',
-        style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 13)),
+        style: GoogleFonts.inter(color: context.textSecondary, fontSize: 13)),
     ]),
   );
 }
@@ -660,7 +661,7 @@ class _Bubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 gradient: isMine ? DS.gradientGreen : null,
-                color: isMine ? null : Colors.white,
+                color: isMine ? null : context.cardBg,
                 borderRadius: BorderRadius.only(
                   topLeft:     const Radius.circular(18),
                   topRight:    const Radius.circular(18),
@@ -681,7 +682,7 @@ class _Bubble extends StatelessWidget {
                 children: [
                   Text(msg.contenu,
                     style: GoogleFonts.inter(
-                      color: isMine ? Colors.white : DS.textPrimary,
+                      color: isMine ? Colors.white : context.textPrimary,
                       fontSize: 14, height: 1.4,
                     )),
                   const SizedBox(height: 4),

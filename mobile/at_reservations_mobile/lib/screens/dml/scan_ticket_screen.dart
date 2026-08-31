@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../services/api_service.dart';
 
 class ScanTicketScreen extends StatefulWidget {
@@ -290,9 +290,9 @@ class _ScanTicketScreenState extends State<ScanTicketScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: GoogleFonts.inter(
-                fontSize: 12, color: DS.textMuted)),
+                fontSize: 12, color: context.textMuted)),
               Text(value, style: GoogleFonts.inter(
-                fontSize: 16, fontWeight: FontWeight.w600, color: DS.textPrimary)),
+                fontSize: 16, fontWeight: FontWeight.w600, color: context.textPrimary)),
             ],
           ),
         ],

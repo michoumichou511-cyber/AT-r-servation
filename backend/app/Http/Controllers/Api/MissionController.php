@@ -33,10 +33,10 @@ class MissionController extends Controller
 
         $roleName = strtolower($user->role->name ?? '');
 
-        // Accès par rôle : admin = tout ; directeur = ses missions + à valider ; autres = leurs missions
+        // Accès par rôle : admin = tout ; validateur/directeur = ses missions + à valider ; autres = leurs missions
         if ($roleName === 'admin') {
             // pas de filtre utilisateur
-        } elseif (str_contains($roleName, 'directeur')) {
+        } elseif ($roleName === 'validateur' || str_contains($roleName, 'directeur')) {
             $query->where(function ($q) use ($user) {
                 $q->where('user_id', $user->id)
                     ->orWhere('pour_user_id', $user->id)
@@ -46,7 +46,6 @@ class MissionController extends Controller
                     });
             });
         } else {
-            // demandeur, utilisateur, etc. : uniquement missions liées à l'utilisateur
             $query->where(function ($q) use ($user) {
                 $q->where('user_id', $user->id)
                     ->orWhere('pour_user_id', $user->id)
@@ -282,7 +281,8 @@ class MissionController extends Controller
         }
 
         try {
-            $this->missionService->cancel($mission);
+            $motif = $request->input('motif_annulation');
+            $this->missionService->cancel($mission, $motif);
 
             return response()->json([
                 'success' => true,
@@ -414,7 +414,7 @@ class MissionController extends Controller
 
         $timeline = $this->missionService->getTimeline($mission);
 
-        return response()->json($timeline);
+        return \App\Helpers\ApiResponse::success($timeline);
     }
 
     public function calendrier(Request $request)
@@ -489,6 +489,8 @@ class MissionController extends Controller
             'type_mission' => $data['type_mission'] ?? null,
             'transport_type' => $data['transport_type'] ?? null,
             'budget_mode' => $data['budget_mode'] ?? null,
+            'demande_avance' => $data['demande_avance'] ?? false,
+            'montant_avance' => $data['montant_avance'] ?? null,
             'priorite' => $data['priorite'] ?? 'normale',
         ]);
 

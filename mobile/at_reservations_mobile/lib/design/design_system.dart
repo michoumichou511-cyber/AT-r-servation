@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import '../utils/status_utils.dart';
+import '../config/theme.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // DESIGN SYSTEM — AT Réservations
@@ -247,9 +248,9 @@ class ATCard extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: color ?? DS.surface,
+        color: color ?? context.cardBg,
         borderRadius: radius ?? DS.radiusMd,
-        boxShadow: shadow ?? DS.shadowSm,
+        boxShadow: shadow ?? [BoxShadow(color: context.shadowColor, blurRadius: 8, offset: const Offset(0, 2))],
         border: border,
       ),
       child: ClipRRect(
@@ -314,25 +315,25 @@ class ATTextField extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       maxLines: maxLines,
-      style: DS.body.copyWith(color: DS.textPrimary),
+      style: DS.body.copyWith(color: context.textPrimary),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: DS.caption.copyWith(color: DS.textMuted),
-        hintStyle: DS.caption.copyWith(color: DS.textPlaceholder),
+        labelStyle: DS.caption.copyWith(color: context.textMuted),
+        hintStyle: DS.caption.copyWith(color: context.textMuted),
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: DS.textMuted, size: 20)
+            ? Icon(prefixIcon, color: context.textMuted, size: 20)
             : null,
         suffixIcon: suffix,
         filled: true,
-        fillColor: DS.surfaceVariant,
+        fillColor: context.inputFill,
         border: OutlineInputBorder(
           borderRadius: DS.radiusMd,
-          borderSide: const BorderSide(color: DS.border, width: 1.5),
+          borderSide: BorderSide(color: context.borderColor, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: DS.radiusMd,
-          borderSide: const BorderSide(color: DS.border, width: 1.5),
+          borderSide: BorderSide(color: context.borderColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: DS.radiusMd,
@@ -476,7 +477,7 @@ class ATSectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
       child: Row(
         children: [
-          Text(title, style: DS.h4),
+          Text(title, style: DS.h4.copyWith(color: context.textPrimary)),
           const Spacer(),
           if (actionLabel != null)
             GestureDetector(
@@ -530,9 +531,9 @@ class ATEmptyState extends StatelessWidget {
               child: Icon(icon, color: DS.primary, size: 36),
             ),
             const SizedBox(height: 20),
-            Text(title, style: DS.h3, textAlign: TextAlign.center),
+            Text(title, style: DS.h3.copyWith(color: context.textPrimary), textAlign: TextAlign.center),
             const SizedBox(height: 8),
-            Text(description, style: DS.body, textAlign: TextAlign.center),
+            Text(description, style: DS.body.copyWith(color: context.textSecondary), textAlign: TextAlign.center),
             if (buttonLabel != null) ...[
               const SizedBox(height: 24),
               ATButton(
@@ -557,13 +558,13 @@ class ATShimmerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFE2E8F0),
-      highlightColor: const Color(0xFFF8FAFC),
+      baseColor: context.shimmerBase,
+      highlightColor: context.shimmerHighlight,
       child: Container(
         height: height,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBg,
           borderRadius: DS.radiusMd,
         ),
       ),
@@ -681,7 +682,7 @@ class ATDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(color: Color(0xFFF1F5F9), thickness: 1, height: 1);
+    return Divider(color: context.dividerColor, thickness: 1, height: 1);
   }
 }
 
@@ -706,12 +707,12 @@ class ATInfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: iconColor ?? DS.textMuted),
+          Icon(icon, size: 18, color: iconColor ?? context.textMuted),
           const SizedBox(width: 12),
-          Text(label, style: DS.body),
+          Text(label, style: DS.body.copyWith(color: context.textSecondary)),
           const Spacer(),
           Text(value,
-              style: DS.bodyMd.copyWith(color: DS.textPrimary),
+              style: DS.bodyMd.copyWith(color: context.textPrimary),
               textAlign: TextAlign.end),
         ],
       ),

@@ -1,0 +1,241 @@
+- generic [ref=f24e7]:
+  - link "Aller au contenu principal" [ref=f24e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f24e10]:
+    - generic [ref=f24e11]:
+      - generic [ref=f24e13]:
+        - img "Algérie Télécom" [ref=f24e15]
+        - generic [ref=f24e16]:
+          - generic [ref=f24e17]: Réservations AT
+          - generic [ref=f24e18]: Algérie Télécom
+      - generic [ref=f24e19]:
+        - generic [ref=f24e20]: AS
+        - generic [ref=f24e21]:
+          - generic [ref=f24e22]: Admin Système
+          - generic [ref=f24e23]: admin
+      - textbox "Rechercher..." [ref=f24e29]
+      - navigation [ref=f24e30]:
+        - link "Tableau de bord" [ref=f24e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f24e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f24e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f24e49] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f24e53] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f24e58] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f24e62] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f24e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f24e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f24e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f24e81]:
+          - button "Administration" [ref=f24e82] [cursor=pointer]
+          - generic [ref=f24e86]:
+            - link "Utilisateurs" [ref=f24e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f24e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f24e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f24e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f24e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f24e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f24e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f24e124] [cursor=pointer]
+  - generic [ref=f24e129]:
+    - banner [ref=f24e130]:
+      - heading "Mes missions" [level=1] [ref=f24e132]
+      - generic [ref=f24e133]:
+        - textbox "Rechercher..." [ref=f24e139]
+        - button [ref=f24e140] [cursor=pointer]
+        - button [ref=f24e143] [cursor=pointer]
+        - button "AS Admin" [ref=f24e148] [cursor=pointer]:
+          - generic [ref=f24e149]: AS
+          - generic [ref=f24e150]: Admin
+    - main [ref=f24e151]:
+      - generic [ref=f24e153]:
+        - generic [ref=f24e154]:
+          - generic [ref=f24e155]:
+            - heading "Mes missions" [level=1] [ref=f24e156]
+            - paragraph [ref=f24e157]: 55 mission(s) au total
+          - generic [ref=f24e159]:
+            - button "📥 Export Excel" [ref=f24e160] [cursor=pointer]
+            - button "📄 Export PDF" [ref=f24e161] [cursor=pointer]
+            - button "Nouvelle mission" [ref=f24e162] [cursor=pointer]
+        - generic [ref=f24e165]:
+          - generic [ref=f24e166]:
+            - generic [ref=f24e167]: Statut
+            - combobox [ref=f24e168] [cursor=pointer]:
+              - option "Tous" [selected]
+              - option "Brouillon"
+              - option "Soumis"
+              - option "En validation"
+              - option "Approuvé"
+              - option "Rejeté"
+              - option "Annulé"
+              - option "Terminé"
+          - generic [ref=f24e169]:
+            - generic [ref=f24e170]: Recherche
+            - textbox "Titre ou destination..." [ref=f24e176]
+        - generic [ref=f24e177]:
+          - button "OM-2026-00055 — Créée le 26 juil. 2026 FORMATION 1 Oran, Algérie 27/07/2026 →30/07/2026 25 000 DZD Soumis Voir" [ref=f24e178] [cursor=pointer]:
+            - generic [ref=f24e179]:
+              - generic [ref=f24e180]:
+                - generic [ref=f24e181]:
+                  - generic [ref=f24e182]: OM-2026-00055
+                  - generic [ref=f24e183]: — Créée le 26 juil. 2026
+                - generic [ref=f24e184]: FORMATION 1
+                - generic [ref=f24e185]: Oran, Algérie
+                - generic [ref=f24e186]: 27/07/2026 →30/07/2026
+                - generic [ref=f24e187]: 25 000 DZD
+              - generic [ref=f24e188]:
+                - generic [ref=f24e189]: Soumis
+                - button "Voir" [ref=f24e191]
+          - button "OM-2026-00054 — Créée le 24 juil. 2026 Test Audit Soutenance Alger, Algérie 01/08/2026 →05/08/2026 0 DZD Approuvé Voir" [ref=f24e192] [cursor=pointer]:
+            - generic [ref=f24e193]:
+              - generic [ref=f24e194]:
+                - generic [ref=f24e195]:
+                  - generic [ref=f24e196]: OM-2026-00054
+                  - generic [ref=f24e197]: — Créée le 24 juil. 2026
+                - generic [ref=f24e198]: Test Audit Soutenance
+                - generic [ref=f24e199]: Alger, Algérie
+                - generic [ref=f24e200]: 01/08/2026 →05/08/2026
+                - generic [ref=f24e201]: 0 DZD
+              - generic [ref=f24e202]:
+                - generic [ref=f24e203]: Approuvé
+                - button "Voir" [ref=f24e205]
+          - button "OM-2026-00053 — Créée le 02 juil. 2026 Mission Test E2E Soutenance Oran, Algérie 20/07/2026 →24/07/2026 80 000 DZD Logistique en cours Voir" [ref=f24e206] [cursor=pointer]:
+            - generic [ref=f24e207]:
+              - generic [ref=f24e208]:
+                - generic [ref=f24e209]:
+                  - generic [ref=f24e210]: OM-2026-00053
+                  - generic [ref=f24e211]: — Créée le 02 juil. 2026
+                - generic [ref=f24e212]: Mission Test E2E Soutenance
+                - generic [ref=f24e213]: Oran, Algérie
+                - generic [ref=f24e214]: 20/07/2026 →24/07/2026
+                - generic [ref=f24e215]: 80 000 DZD
+              - generic [ref=f24e216]:
+                - generic [ref=f24e217]: Logistique en cours
+                - button "Voir" [ref=f24e219]
+          - button "OM-2026-00052 — Créée le 05 juin 2026 Test Retest Blida Blida, Algerie 10/06/2026 →12/06/2026 15 000 DZD En validation Voir" [ref=f24e220] [cursor=pointer]:
+            - generic [ref=f24e221]:
+              - generic [ref=f24e222]:
+                - generic [ref=f24e223]:
+                  - generic [ref=f24e224]: OM-2026-00052
+                  - generic [ref=f24e225]: — Créée le 05 juin 2026
+                - generic [ref=f24e226]: Test Retest Blida
+                - generic [ref=f24e227]: Blida, Algerie
+                - generic [ref=f24e228]: 10/06/2026 →12/06/2026
+                - generic [ref=f24e229]: 15 000 DZD
+              - generic [ref=f24e230]:
+                - generic [ref=f24e231]: En validation
+                - button "Voir" [ref=f24e233]
+          - button "OM-2026-00051 — Créée le 05 juin 2026 Mission Test E2E ville_depart Constantine, Algerie 15/07/2026 →20/07/2026 50 000 DZD Soumis Voir" [ref=f24e234] [cursor=pointer]:
+            - generic [ref=f24e235]:
+              - generic [ref=f24e236]:
+                - generic [ref=f24e237]:
+                  - generic [ref=f24e238]: OM-2026-00051
+                  - generic [ref=f24e239]: — Créée le 05 juin 2026
+                - generic [ref=f24e240]: Mission Test E2E ville_depart
+                - generic [ref=f24e241]: Constantine, Algerie
+                - generic [ref=f24e242]: 15/07/2026 →20/07/2026
+                - generic [ref=f24e243]: 50 000 DZD
+              - generic [ref=f24e244]:
+                - generic [ref=f24e245]: Soumis
+                - button "Voir" [ref=f24e247]
+          - button "M-2026-6A22B9DB648E2 — Créée le 05 juin 2026 Formation Cybersecurite DSI Constantine 20/06/2026 →24/06/2026 85 000 DZD Approuvé Voir" [ref=f24e248] [cursor=pointer]:
+            - generic [ref=f24e249]:
+              - generic [ref=f24e250]:
+                - generic [ref=f24e251]:
+                  - generic [ref=f24e252]: M-2026-6A22B9DB648E2
+                  - generic [ref=f24e253]: — Créée le 05 juin 2026
+                - generic [ref=f24e254]: Formation Cybersecurite DSI
+                - generic [ref=f24e255]: Constantine
+                - generic [ref=f24e256]: 20/06/2026 →24/06/2026
+                - generic [ref=f24e257]: 85 000 DZD
+              - generic [ref=f24e258]:
+                - generic [ref=f24e259]: Approuvé
+                - button "Voir" [ref=f24e261]
+          - button "M-2026-6A22B9DB649DF — Créée le 05 juin 2026 Audit technique Oran Oran 12/06/2026 →15/06/2026 45 000 DZD Logistique en cours Voir" [ref=f24e262] [cursor=pointer]:
+            - generic [ref=f24e263]:
+              - generic [ref=f24e264]:
+                - generic [ref=f24e265]:
+                  - generic [ref=f24e266]: M-2026-6A22B9DB649DF
+                  - generic [ref=f24e267]: — Créée le 05 juin 2026
+                - generic [ref=f24e268]: Audit technique Oran
+                - generic [ref=f24e269]: Oran
+                - generic [ref=f24e270]: 12/06/2026 →15/06/2026
+                - generic [ref=f24e271]: 45 000 DZD
+              - generic [ref=f24e272]:
+                - generic [ref=f24e273]: Logistique en cours
+                - button "Voir" [ref=f24e275]
+          - button "M-2026-6A22B9DB64AD7 — Créée le 05 juin 2026 Reunion Direction Annaba Annaba 25/06/2026 →27/06/2026 30 000 DZD Approuvé Voir" [ref=f24e276] [cursor=pointer]:
+            - generic [ref=f24e277]:
+              - generic [ref=f24e278]:
+                - generic [ref=f24e279]:
+                  - generic [ref=f24e280]: M-2026-6A22B9DB64AD7
+                  - generic [ref=f24e281]: — Créée le 05 juin 2026
+                - generic [ref=f24e282]: Reunion Direction Annaba
+                - generic [ref=f24e283]: Annaba
+                - generic [ref=f24e284]: 25/06/2026 →27/06/2026
+                - generic [ref=f24e285]: 30 000 DZD
+              - generic [ref=f24e286]:
+                - generic [ref=f24e287]: Approuvé
+                - button "Voir" [ref=f24e289]
+          - button "OM-2026-00050 — Créée le 04 juin 2026 Formation Oran, Algérie 11/06/2026 →01/07/2026 300 000 DZD Soumis Voir" [ref=f24e290] [cursor=pointer]:
+            - generic [ref=f24e291]:
+              - generic [ref=f24e292]:
+                - generic [ref=f24e293]:
+                  - generic [ref=f24e294]: OM-2026-00050
+                  - generic [ref=f24e295]: — Créée le 04 juin 2026
+                - generic [ref=f24e296]: Formation
+                - generic [ref=f24e297]: Oran, Algérie
+                - generic [ref=f24e298]: 11/06/2026 →01/07/2026
+                - generic [ref=f24e299]: 300 000 DZD
+              - generic [ref=f24e300]:
+                - generic [ref=f24e301]: Soumis
+                - button "Voir" [ref=f24e303]
+          - button "OM-2026-00049 — Créée le 04 juin 2026 Fff Hgg, Hg 06/06/2026 →20/06/2026 600 000 DZD Brouillon Voir" [ref=f24e304] [cursor=pointer]:
+            - generic [ref=f24e305]:
+              - generic [ref=f24e306]:
+                - generic [ref=f24e307]:
+                  - generic [ref=f24e308]: OM-2026-00049
+                  - generic [ref=f24e309]: — Créée le 04 juin 2026
+                - generic [ref=f24e310]: Fff
+                - generic [ref=f24e311]: Hgg, Hg
+                - generic [ref=f24e312]: 06/06/2026 →20/06/2026
+                - generic [ref=f24e313]: 600 000 DZD
+              - generic [ref=f24e314]:
+                - generic [ref=f24e315]: Brouillon
+                - button "Voir" [ref=f24e317]
+        - generic [ref=f24e319]:
+          - generic [ref=f24e320]:
+            - generic [ref=f24e321]: 1-10 sur 55
+            - combobox [ref=f24e322]:
+              - option "10 / page" [selected]
+              - option "15 / page"
+              - option "25 / page"
+              - option "50 / page"
+          - generic [ref=f24e323]:
+            - button "Premiere page" [disabled] [ref=f24e324]
+            - button "Page precedente" [disabled] [ref=f24e328]
+            - generic [ref=f24e331]:
+              - button "1" [ref=f24e332] [cursor=pointer]
+              - button "2" [ref=f24e333] [cursor=pointer]
+              - button "3" [ref=f24e334] [cursor=pointer]
+              - button "4" [ref=f24e335] [cursor=pointer]
+              - button "5" [ref=f24e336] [cursor=pointer]
+              - button "6" [ref=f24e337] [cursor=pointer]
+            - button "Page suivante" [ref=f24e338] [cursor=pointer]
+            - button "Derniere page" [ref=f24e341] [cursor=pointer]

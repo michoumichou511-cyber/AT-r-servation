@@ -56,6 +56,7 @@ class Step1Informations extends StatefulWidget {
 class _Step1InformationsState extends State<Step1Informations> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _objetCtrl;
+  late TextEditingController _descriptionCtrl;
   late TextEditingController _villeDepartCtrl;
   late TextEditingController _villeArriveeCtrl;
 
@@ -63,6 +64,7 @@ class _Step1InformationsState extends State<Step1Informations> {
   void initState() {
     super.initState();
     _objetCtrl = TextEditingController(text: widget.draft.objetMission);
+    _descriptionCtrl = TextEditingController(text: widget.draft.description);
     _villeDepartCtrl = TextEditingController(text: widget.draft.villeDepart);
     _villeArriveeCtrl = TextEditingController(text: widget.draft.villeArrivee);
   }
@@ -70,6 +72,7 @@ class _Step1InformationsState extends State<Step1Informations> {
   @override
   void dispose() {
     _objetCtrl.dispose();
+    _descriptionCtrl.dispose();
     _villeDepartCtrl.dispose();
     _villeArriveeCtrl.dispose();
     super.dispose();
@@ -127,6 +130,7 @@ class _Step1InformationsState extends State<Step1Informations> {
 
   void _submit() {
     widget.draft.objetMission = _objetCtrl.text.trim();
+    widget.draft.description = _descriptionCtrl.text.trim();
     widget.draft.villeDepart = _villeDepartCtrl.text.trim();
     widget.draft.villeArrivee = _villeArriveeCtrl.text.trim();
 
@@ -139,11 +143,11 @@ class _Step1InformationsState extends State<Step1Informations> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: context.shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -184,13 +188,13 @@ class _Step1InformationsState extends State<Step1Informations> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           filled: true,
-          fillColor: ATColors.background,
+          fillColor: context.inputFill,
         ),
         child: Text(
           date != null ? fmt.format(date) : 'Sélectionner…',
           style: TextStyle(
             color:
-                date != null ? ATColors.textPrimary : ATColors.textSecondary,
+                date != null ? context.textPrimary : context.textSecondary,
           ),
         ),
       ),
@@ -247,7 +251,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Champ requis' : null,
@@ -264,7 +268,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
                 items: _kTypesMission.map((t) {
                   final value = t['value']!;
@@ -284,6 +288,36 @@ class _Step1InformationsState extends State<Step1Informations> {
                 onChanged: (v) =>
                     setState(() => widget.draft.typeMission = v ?? 'autre'),
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: widget.draft.priorite,
+                decoration: InputDecoration(
+                  labelText: 'Priorité',
+                  prefixIcon: const Icon(Icons.flag_outlined, size: 20),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: context.inputFill,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'normale', child: Text('Normale')),
+                  DropdownMenuItem(value: 'urgente', child: Text('Urgente')),
+                  DropdownMenuItem(value: 'tres_urgente', child: Text('Très urgente')),
+                ],
+                onChanged: (v) => setState(() => widget.draft.priorite = v ?? 'normale'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descriptionCtrl,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  labelText: 'Description (optionnel)',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: context.inputFill,
+                ),
+              ),
             ],
           ),
           _sectionCard(
@@ -301,7 +335,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
                 items: _kWilayas
                     .map((w) => DropdownMenuItem(value: w, child: Text(w)))
@@ -319,7 +353,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
               ),
             ],
@@ -339,7 +373,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
                 items: _kWilayas
                     .map((w) => DropdownMenuItem(value: w, child: Text(w)))
@@ -357,7 +391,7 @@ class _Step1InformationsState extends State<Step1Informations> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8)),
                   filled: true,
-                  fillColor: ATColors.background,
+                  fillColor: context.inputFill,
                 ),
               ),
             ],
@@ -390,7 +424,79 @@ class _Step1InformationsState extends State<Step1Informations> {
                   Icons.directions_car),
               _transportTile('train', 'Train', Icons.train),
               _transportTile('avion', 'Avion', Icons.flight),
-              _transportTile('autre', 'Autre', Icons.commute),
+              _transportTile('autre', 'Autre (taxi, bus…)', Icons.commute),
+            ],
+          ),
+          _sectionCard(
+            title: 'BUDGET & AVANCE',
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: widget.draft.budgetMode,
+                decoration: InputDecoration(
+                  labelText: 'Mode de budget *',
+                  prefixIcon: const Icon(Icons.account_balance_wallet_outlined, size: 20),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: context.inputFill,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'avance', child: Text('Avance')),
+                  DropdownMenuItem(value: 'remboursement', child: Text('Remboursement')),
+                ],
+                onChanged: (v) => setState(() {
+                  widget.draft.budgetMode = v ?? 'avance';
+                  if (v != 'avance') {
+                    widget.draft.demandeAvance = false;
+                    widget.draft.montantAvance = null;
+                  }
+                }),
+              ),
+              if (widget.draft.budgetMode == 'avance') ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ATColors.primary.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: ATColors.primary.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      CheckboxListTile(
+                        value: widget.draft.demandeAvance,
+                        onChanged: (v) => setState(() => widget.draft.demandeAvance = v ?? false),
+                        title: const Text(
+                          "Demande d'avance sur frais",
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: const Text(
+                          'Recevoir une avance avant le départ',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        activeColor: ATColors.primary,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      if (widget.draft.demandeAvance) ...[
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          initialValue: widget.draft.montantAvance?.toString() ?? '',
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Montant demandé (DZD)',
+                            prefixIcon: const Icon(Icons.payments_outlined, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            filled: true,
+                            fillColor: context.inputFill,
+                          ),
+                          onChanged: (v) => widget.draft.montantAvance = double.tryParse(v),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 8),
@@ -435,12 +541,12 @@ class _Step1InformationsState extends State<Step1Informations> {
         children: [
           Icon(icon,
               size: 20,
-              color: selected ? ATColors.secondary : ATColors.textSecondary),
+              color: selected ? ATColors.secondary : context.textSecondary),
           const SizedBox(width: 8),
           Text(label,
               style: TextStyle(
                   color:
-                      selected ? ATColors.textPrimary : ATColors.textSecondary,
+                      selected ? context.textPrimary : context.textSecondary,
                   fontWeight:
                       selected ? FontWeight.w600 : FontWeight.normal)),
         ],

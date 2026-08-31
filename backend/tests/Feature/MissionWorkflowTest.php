@@ -37,6 +37,8 @@ class MissionWorkflowTest extends TestCase
                 'date_depart' => now()->addDays(5)->toDateString(),
                 'date_retour' => now()->addDays(10)->toDateString(),
                 'type_mission' => 'formation',
+                'transport_type' => 'avion',
+                'budget_mode' => 'avance',
             ])
             ->assertStatus(201);
 

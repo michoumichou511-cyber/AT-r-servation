@@ -10,12 +10,34 @@ class MissionUser {
   final int id;
   final String nom;
   final String prenom;
-  MissionUser({required this.id, required this.nom, required this.prenom});
+  final String? matricule;
+  final String? direction;
+  final String? service;
+  final String? telephone;
+  final String? email;
+  final String? fonction;
+  MissionUser({
+    required this.id,
+    required this.nom,
+    required this.prenom,
+    this.matricule,
+    this.direction,
+    this.service,
+    this.telephone,
+    this.email,
+    this.fonction,
+  });
   String get nomComplet => '$prenom $nom';
   factory MissionUser.fromJson(Map<String, dynamic> j) => MissionUser(
     id: j['id'] as int? ?? 0,
     nom: j['nom'] as String? ?? '',
     prenom: j['prenom'] as String? ?? '',
+    matricule: j['matricule'] as String?,
+    direction: j['direction'] as String?,
+    service: j['service'] as String?,
+    telephone: j['telephone'] as String?,
+    email: j['email'] as String?,
+    fonction: j['fonction'] as String?,
   );
 }
 
@@ -25,6 +47,7 @@ class MissionModel {
   final String? titre;
   final String? objetMission;
   final String? destination;
+  final String? destinationVille;
   final MissionDates? dates;
   final String statut;
   final String? typeMission;
@@ -36,6 +59,7 @@ class MissionModel {
     this.titre,
     this.objetMission,
     this.destination,
+    this.destinationVille,
     this.dates,
     required this.statut,
     this.typeMission,
@@ -81,14 +105,15 @@ class MissionModel {
   }
 
   factory MissionModel.fromJson(Map<String, dynamic> j) => MissionModel(
-    id:           j['id'] as int? ?? 0,
-    numeroUnique: j['numero_unique'] as String?,
-    titre:        j['titre'] as String?,
-    objetMission: j['objet_mission'] as String?,
-    destination:  _dest(j),
-    dates:        _dates(j),
-    statut:       j['statut'] as String? ?? 'brouillon',
-    typeMission:  j['type_mission'] as String?,
-    user:         j['user'] != null ? MissionUser.fromJson(j['user'] as Map<String, dynamic>) : null,
+    id:               j['id'] as int? ?? 0,
+    numeroUnique:     j['numero_unique'] as String?,
+    titre:            j['titre'] as String?,
+    objetMission:     j['objet_mission'] as String?,
+    destination:      _dest(j),
+    destinationVille: j['destination_ville'] as String?,
+    dates:            _dates(j),
+    statut:           j['statut'] as String? ?? 'brouillon',
+    typeMission:      j['type_mission'] as String?,
+    user:             j['user'] != null ? MissionUser.fromJson(j['user'] as Map<String, dynamic>) : null,
   );
 }

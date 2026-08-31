@@ -1,0 +1,139 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e106]:
+    - link "Aller au contenu principal" [ref=f2e107] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f2e109]:
+      - generic [ref=f2e110]:
+        - generic [ref=f2e112]:
+          - img "Algérie Télécom" [ref=f2e114]
+          - generic [ref=f2e115]:
+            - generic [ref=f2e116]: Réservations AT
+            - generic [ref=f2e117]: Algérie Télécom
+        - generic [ref=f2e118]:
+          - generic [ref=f2e119]: AS
+          - generic [ref=f2e120]:
+            - generic [ref=f2e121]: Admin Système
+            - generic [ref=f2e122]: admin
+        - textbox "Rechercher..." [ref=f2e128]
+        - navigation [ref=f2e129]:
+          - link "Tableau de bord" [ref=f2e130] [cursor=pointer]:
+            - /url: /
+          - link "Organigramme" [ref=f2e138] [cursor=pointer]:
+            - /url: /organigramme
+          - link "Mes missions" [ref=f2e143] [cursor=pointer]:
+            - /url: /missions
+          - link "Calendrier" [ref=f2e148] [cursor=pointer]:
+            - /url: /missions/calendrier
+          - link "Validations" [ref=f2e152] [cursor=pointer]:
+            - /url: /validations
+          - link "Messagerie" [ref=f2e157] [cursor=pointer]:
+            - /url: /messagerie
+          - link "Notifications" [ref=f2e161] [cursor=pointer]:
+            - /url: /notifications
+          - link "Mon profil" [ref=f2e166] [cursor=pointer]:
+            - /url: /profil
+          - link "A propos" [ref=f2e171] [cursor=pointer]:
+            - /url: /about
+          - link "Rapports" [ref=f2e175] [cursor=pointer]:
+            - /url: /rapports
+          - generic [ref=f2e180]:
+            - button "Administration" [ref=f2e181] [cursor=pointer]
+            - generic [ref=f2e185]:
+              - link "Utilisateurs" [ref=f2e186] [cursor=pointer]:
+                - /url: /admin/utilisateurs
+              - link "Prestataires" [ref=f2e193] [cursor=pointer]:
+                - /url: /admin/prestataires
+              - link "Budgets" [ref=f2e199] [cursor=pointer]:
+                - /url: /admin/budgets
+              - link "Audit Logs" [ref=f2e204] [cursor=pointer]:
+                - /url: /admin/audit-logs
+              - link "Statistiques" [ref=f2e209] [cursor=pointer]:
+                - /url: /admin/statistiques
+              - link "Dashboard DSI" [ref=f2e213] [cursor=pointer]:
+                - /url: /admin/dashboard-executif
+              - link "Simulateur Budget" [ref=f2e217] [cursor=pointer]:
+                - /url: /admin/simulateur-budget
+        - button "Déconnexion" [ref=f2e223] [cursor=pointer]
+    - generic [ref=f2e228]:
+      - banner [ref=f2e229]:
+        - heading "Tableau de bord" [level=1] [ref=f2e231]
+        - generic [ref=f2e232]:
+          - textbox "Rechercher..." [ref=f2e238]
+          - button [ref=f2e239] [cursor=pointer]
+          - button [ref=f2e242] [cursor=pointer]
+          - button "AS Admin" [ref=f2e247] [cursor=pointer]:
+            - generic [ref=f2e248]: AS
+            - generic [ref=f2e249]: Admin
+      - main [ref=f2e250]:
+        - generic [ref=f2e253]:
+          - generic [ref=f2e259]:
+            - generic [ref=f2e260]:
+              - generic [ref=f2e261]: 👋
+              - heading "Bonjour Admin" [level=1] [ref=f2e262]
+            - paragraph [ref=f2e263]: lundi 10 août 2026
+            - generic [ref=f2e264]:
+              - generic [ref=f2e265]: En ligne
+              - generic [ref=f2e268]: 17:53:07
+          - generic [ref=f2e270]:
+            - generic [ref=f2e273] [cursor=pointer]:
+              - generic [ref=f2e280]: "54"
+              - generic [ref=f2e282]: Missions totales
+            - generic [ref=f2e286] [cursor=pointer]:
+              - generic [ref=f2e292]: "19"
+              - generic [ref=f2e294]: En cours
+            - generic [ref=f2e298] [cursor=pointer]:
+              - generic [ref=f2e305]: "8"
+              - generic [ref=f2e307]: Approuvées
+            - generic [ref=f2e311] [cursor=pointer]:
+              - generic [ref=f2e312]: +5%
+              - generic [ref=f2e323]:
+                - generic [ref=f2e324]: "15"
+                - generic [ref=f2e325]: "%"
+              - generic [ref=f2e326]: Taux d'approbation
+          - generic [ref=f2e328]:
+            - generic [ref=f2e329]:
+              - generic [ref=f2e330]:
+                - generic [ref=f2e335]:
+                  - generic [ref=f2e336]: Budget missions 2026
+                  - generic [ref=f2e337]: Direction Générale
+                - generic [ref=f2e338]: 4.0%
+              - generic [ref=f2e339]:
+                - generic [ref=f2e340]: 1 776 038 DZD
+                - generic [ref=f2e341]: / 44 000 000 DZD
+            - generic [ref=f2e345]:
+              - generic [ref=f2e346]: En attente validation
+              - generic [ref=f2e353]: 0missions
+              - button "Voir les validations →" [ref=f2e354] [cursor=pointer]
+          - generic [ref=f2e355]:
+            - generic [ref=f2e357]:
+              - generic [ref=f2e358]: Évolution des missions
+              - generic [ref=f2e359]: Missions par mois
+              - application [ref=f2e362]:
+                - generic [ref=f2e375]:
+                  - generic [ref=f2e376]:
+                    - generic [ref=f2e377]: Apr 2026
+                    - generic [ref=f2e379]: May 2026
+                    - generic [ref=f2e381]: Jun 2026
+                    - generic [ref=f2e383]: Jul 2026
+                  - generic [ref=f2e385]:
+                    - generic [ref=f2e386]: "0"
+                    - generic [ref=f2e388]: "6"
+                    - generic [ref=f2e390]: "12"
+                    - generic [ref=f2e392]: "18"
+                    - generic [ref=f2e394]: "24"
+            - generic [ref=f2e397]:
+              - generic [ref=f2e398]: Dépenses par direction
+              - generic [ref=f2e399]: Budget consommé (DZD)
+              - application [ref=f2e402]:
+                - generic [ref=f2e416]:
+                  - generic [ref=f2e417]:
+                    - generic [ref=f2e418]: "0"
+                    - generic [ref=f2e420]: 25k
+                    - generic [ref=f2e422]: 50k
+                    - generic [ref=f2e424]: 75k
+                    - generic [ref=f2e426]: 100k
+                  - generic [ref=f2e428]:
+                    - generic [ref=f2e429]: Juridique
+                    - generic [ref=f2e431]: Juridique
+                    - generic [ref=f2e433]: DG
+  - generic [ref=f2e435]: Juridique

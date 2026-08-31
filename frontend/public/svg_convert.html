@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><title>SVG to PNG Converter</title></head>
+<body style="margin:0;background:white">
+<canvas id="canvas"></canvas>
+<script>
+async function convertSVG(svgUrl, scale) {
+  const resp = await fetch(svgUrl);
+  const svgText = await resp.text();
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+  const svgEl = svgDoc.documentElement;
+
+  let w, h;
+  const vb = svgEl.getAttribute('viewBox');
+  if (vb) {
+    const parts = vb.split(/[\s,]+/);
+    w = parseFloat(parts[2]);
+    h = parseFloat(parts[3]);
+  } else {
+    w = parseFloat(svgEl.getAttribute('width')) || 800;
+    h = parseFloat(svgEl.getAttribute('height')) || 600;
+  }
+
+  const canvas = document.getElementById('canvas');
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+
+  const blob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      const dataUrl = canvas.toDataURL('image/png');
+      document.title = `Done ${canvas.width}x${canvas.height}`;
+      window._pngData = dataUrl;
+      resolve(dataUrl);
+    };
+    img.src = url;
+  });
+}
+window.convertSVG = convertSVG;
+</script>
+</body>
+</html>

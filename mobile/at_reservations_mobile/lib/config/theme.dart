@@ -78,6 +78,23 @@ ThemeData buildATTheme() {
   );
 }
 
+extension ATContext on BuildContext {
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+  Color get scaffoldBg => Theme.of(this).scaffoldBackgroundColor;
+  Color get cardBg => isDark ? const Color(0xFF1E293B) : Colors.white;
+  Color get surfaceVariant => isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+  Color get textPrimary => isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1F2937);
+  Color get textSecondary => isDark ? const Color(0xFFCBD5E1) : const Color(0xFF6B7280);
+  Color get textMuted => isDark ? const Color(0xFF94A3B8) : const Color(0xFF9CA3AF);
+  Color get borderColor => isDark ? const Color(0xFF334155) : const Color(0xFFE5E7EB);
+  Color get shimmerBase => isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+  Color get shimmerHighlight => isDark ? const Color(0xFF475569) : const Color(0xFFF8FAFC);
+  Color get subtleBg => isDark ? const Color(0xFF1E293B) : const Color(0xFFF0F4FF);
+  Color get inputFill => isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+  Color get dividerColor => isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+  Color get shadowColor => isDark ? Colors.black54 : Colors.black.withValues(alpha: 0.08);
+}
+
 /// Theme sombre — palette adaptee mais on garde le vert AT comme accent.
 ThemeData buildATThemeDark() {
   const darkBg   = Color(0xFF0F172A);  // bleu-noir

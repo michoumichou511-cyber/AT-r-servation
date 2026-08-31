@@ -99,6 +99,7 @@ class AuthController extends Controller
         }
         \Cache::forget($key);
         $user = Auth::user();
+        $user->load('role');
 
         if (! $user->is_active) {
             Auth::logout();
@@ -369,7 +370,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Token renouvelé',
-            'data' => ['user' => new UserResource($user->load('role'))],
+            'data' => ['user' => new UserResource($user->load('role')), 'token' => $token],
         ])->withCookie($this->authCookie($token));
     }
 }

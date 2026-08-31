@@ -1,0 +1,487 @@
+- generic [ref=f16e7]:
+  - link "Aller au contenu principal" [ref=f16e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f16e10]:
+    - generic [ref=f16e11]:
+      - generic [ref=f16e13]:
+        - img "Algérie Télécom" [ref=f16e15]
+        - generic [ref=f16e16]:
+          - generic [ref=f16e17]: Réservations AT
+          - generic [ref=f16e18]: Algérie Télécom
+      - generic [ref=f16e19]:
+        - generic [ref=f16e20]: AS
+        - generic [ref=f16e21]:
+          - generic [ref=f16e22]: Admin Système
+          - generic [ref=f16e23]: admin
+      - textbox "Rechercher..." [ref=f16e29]
+      - navigation [ref=f16e30]:
+        - link "Tableau de bord" [ref=f16e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f16e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f16e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f16e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f16e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f16e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f16e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f16e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f16e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f16e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f16e80]:
+          - button "Administration" [ref=f16e81] [cursor=pointer]
+          - generic [ref=f16e85]:
+            - link "Utilisateurs" [ref=f16e86] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f16e93] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f16e99] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f16e104] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f16e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f16e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f16e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f16e124] [cursor=pointer]
+  - generic [ref=f16e129]:
+    - banner [ref=f16e130]:
+      - heading "Audit Logs" [level=1] [ref=f16e132]
+      - generic [ref=f16e133]:
+        - textbox "Rechercher..." [ref=f16e139]
+        - button [ref=f16e140] [cursor=pointer]
+        - button [ref=f16e143] [cursor=pointer]
+        - button "AS Admin" [ref=f16e148] [cursor=pointer]:
+          - generic [ref=f16e149]: AS
+          - generic [ref=f16e150]: Admin
+    - main [ref=f16e151]:
+      - generic [ref=f16e153]:
+        - generic [ref=f16e154]:
+          - button "← Retour" [ref=f16e155] [cursor=pointer]
+          - generic [ref=f16e156]:
+            - generic [ref=f16e157]:
+              - heading "Audit Logs" [level=1] [ref=f16e158]
+              - paragraph [ref=f16e159]: Journal des actions
+            - generic [ref=f16e161]:
+              - button "CSV" [ref=f16e162] [cursor=pointer]
+              - button "Reset" [ref=f16e166] [cursor=pointer]
+        - generic [ref=f16e170]:
+          - generic [ref=f16e171]:
+            - generic [ref=f16e172]:
+              - generic [ref=f16e173]: Module
+              - combobox [ref=f16e174]:
+                - option "Tous" [selected]
+                - option "Mission"
+                - option "Réservation"
+                - option "Validation"
+                - option "Utilisateur"
+                - option "Budget"
+            - generic [ref=f16e175]:
+              - generic [ref=f16e176]: Action
+              - combobox [ref=f16e177]:
+                - option "Toutes" [selected]
+                - option "login"
+                - option "create"
+                - option "update"
+                - option "delete"
+                - option "approve"
+                - option "reject"
+                - option "export"
+            - generic [ref=f16e178]:
+              - generic [ref=f16e179]: Utilisateur
+              - combobox [ref=f16e180]:
+                - option "Tous" [selected]
+                - option "Admin Système"
+                - option "Agent DML"
+                - option "Demandeur Test"
+                - option "Validateur Test"
+            - generic [ref=f16e181]:
+              - generic [ref=f16e182]: Date debut
+              - textbox [ref=f16e183]
+            - generic [ref=f16e184]:
+              - generic [ref=f16e185]: Date fin
+              - textbox [ref=f16e186]
+          - generic [ref=f16e187]:
+            - generic [ref=f16e188]:
+              - generic [ref=f16e189]: "Par page :"
+              - combobox [ref=f16e190]:
+                - option "10"
+                - option "25" [selected]
+                - option "50"
+                - option "100"
+            - generic [ref=f16e191]:
+              - button "Recharger" [ref=f16e192] [cursor=pointer]
+              - button "Appliquer" [ref=f16e196] [cursor=pointer]
+        - table [ref=f16e202]:
+          - rowgroup [ref=f16e203]:
+            - row [ref=f16e204]:
+              - columnheader "Date/Heure" [ref=f16e205]
+              - columnheader "Utilisateur" [ref=f16e206]
+              - columnheader "Action" [ref=f16e207]
+              - columnheader "Module" [ref=f16e208]
+              - columnheader "Description" [ref=f16e209]
+              - columnheader "IP" [ref=f16e210]
+          - rowgroup [ref=f16e211]:
+            - row [ref=f16e212]:
+              - cell "10/08/2026 16:45" [ref=f16e213]
+              - cell "Admin Système" [ref=f16e214]
+              - cell "login" [ref=f16e220]
+              - cell "user" [ref=f16e222]
+              - cell "Déconnexion" [ref=f16e223]
+              - cell "127.0.0.1" [ref=f16e225]
+            - row [ref=f16e226]:
+              - cell "10/08/2026 15:51" [ref=f16e227]
+              - cell "Demandeur Test" [ref=f16e228]
+              - cell "login" [ref=f16e234]
+              - cell "user" [ref=f16e236]
+              - cell "Déconnexion" [ref=f16e237]
+              - cell "127.0.0.1" [ref=f16e239]
+            - row [ref=f16e240]:
+              - cell "10/08/2026 15:44" [ref=f16e241]
+              - cell "Validateur Test" [ref=f16e242]
+              - cell "login" [ref=f16e248]
+              - cell "user" [ref=f16e250]
+              - cell "Déconnexion" [ref=f16e251]
+              - cell "127.0.0.1" [ref=f16e253]
+            - row [ref=f16e254]:
+              - cell "10/08/2026 15:34" [ref=f16e255]
+              - cell "Admin Système" [ref=f16e256]
+              - cell "login" [ref=f16e262]
+              - cell "user" [ref=f16e264]
+              - cell "Déconnexion" [ref=f16e265]
+              - cell "127.0.0.1" [ref=f16e267]
+            - row [ref=f16e268]:
+              - cell "05/08/2026 12:07" [ref=f16e269]
+              - cell "Admin Système" [ref=f16e270]
+              - cell "create" [ref=f16e276]
+              - cell "budget" [ref=f16e278]
+              - cell "Budget créé pour Ressources Humaines - Formation (2026)" [ref=f16e279]
+              - cell "127.0.0.1" [ref=f16e281]
+            - row [ref=f16e282]:
+              - cell "05/08/2026 12:07" [ref=f16e283]
+              - cell "Admin Système" [ref=f16e284]
+              - cell "create" [ref=f16e290]
+              - cell "budget" [ref=f16e292]
+              - cell "Budget créé pour Technique - DSI (2026)" [ref=f16e293]
+              - cell "127.0.0.1" [ref=f16e295]
+            - row [ref=f16e296]:
+              - cell "05/08/2026 12:07" [ref=f16e297]
+              - cell "Admin Système" [ref=f16e298]
+              - cell "create" [ref=f16e304]
+              - cell "budget" [ref=f16e306]
+              - cell "Budget créé pour DG - Direction Générale (2026)" [ref=f16e307]
+              - cell "127.0.0.1" [ref=f16e309]
+            - row [ref=f16e310]:
+              - cell "05/08/2026 12:06" [ref=f16e311]
+              - cell "Admin Système" [ref=f16e312]
+              - cell "create" [ref=f16e318]
+              - cell "budget" [ref=f16e320]
+              - cell "Budget créé pour Ressources Humaines - Formation (2026)" [ref=f16e321]
+              - cell "127.0.0.1" [ref=f16e323]
+            - row [ref=f16e324]:
+              - cell "05/08/2026 12:06" [ref=f16e325]
+              - cell "Admin Système" [ref=f16e326]
+              - cell "create" [ref=f16e332]
+              - cell "budget" [ref=f16e334]
+              - cell "Budget créé pour Technique - DSI (2026)" [ref=f16e335]
+              - cell "127.0.0.1" [ref=f16e337]
+            - row [ref=f16e338]:
+              - cell "05/08/2026 12:06" [ref=f16e339]
+              - cell "Admin Système" [ref=f16e340]
+              - cell "create" [ref=f16e346]
+              - cell "budget" [ref=f16e348]
+              - cell "Budget créé pour DG - Direction Générale (2026)" [ref=f16e349]
+              - cell "127.0.0.1" [ref=f16e351]
+            - row [ref=f16e352]:
+              - cell "04/08/2026 11:37" [ref=f16e353]
+              - cell "Admin Système" [ref=f16e354]
+              - cell "login" [ref=f16e360]
+              - cell "user" [ref=f16e362]
+              - cell "Déconnexion" [ref=f16e363]
+              - cell "127.0.0.1" [ref=f16e365]
+            - row [ref=f16e366]:
+              - cell "04/08/2026 10:51" [ref=f16e367]
+              - cell "Validateur Test" [ref=f16e368]
+              - cell "login" [ref=f16e374]
+              - cell "user" [ref=f16e376]
+              - cell "Déconnexion" [ref=f16e377]
+              - cell "127.0.0.1" [ref=f16e379]
+            - row [ref=f16e380]:
+              - cell "04/08/2026 10:49" [ref=f16e381]
+              - cell "Demandeur Test" [ref=f16e382]
+              - cell "login" [ref=f16e388]
+              - cell "user" [ref=f16e390]
+              - cell "Déconnexion" [ref=f16e391]
+              - cell "127.0.0.1" [ref=f16e393]
+            - row [ref=f16e394]:
+              - cell "03/08/2026 10:09" [ref=f16e395]
+              - cell "Admin Système" [ref=f16e396]
+              - cell "login" [ref=f16e402]
+              - cell "user" [ref=f16e404]
+              - cell "Déconnexion" [ref=f16e405]
+              - cell "127.0.0.1" [ref=f16e407]
+            - row [ref=f16e408]:
+              - cell "03/08/2026 10:08" [ref=f16e409]
+              - cell "Admin Système" [ref=f16e410]
+              - cell "login" [ref=f16e416]
+              - cell "user" [ref=f16e418]
+              - cell "Déconnexion" [ref=f16e419]
+              - cell "127.0.0.1" [ref=f16e421]
+            - row [ref=f16e422]:
+              - cell "26/07/2026 12:55" [ref=f16e423]
+              - cell "Admin Système" [ref=f16e424]
+              - cell "update" [ref=f16e430]
+              - cell "user" [ref=f16e432]
+              - cell "Utilisateur Role Test activé" [ref=f16e433]
+              - cell "127.0.0.1" [ref=f16e435]
+            - row [ref=f16e436]:
+              - cell "26/07/2026 12:55" [ref=f16e437]
+              - cell "Admin Système" [ref=f16e438]
+              - cell "update" [ref=f16e444]
+              - cell "user" [ref=f16e446]
+              - 'cell "User #40 modifié" [ref=f16e447]'
+              - cell "127.0.0.1" [ref=f16e449]
+            - row [ref=f16e450]:
+              - cell "26/07/2026 12:55" [ref=f16e451]
+              - cell "Admin Système" [ref=f16e452]
+              - cell "update" [ref=f16e458]
+              - cell "user" [ref=f16e460]
+              - cell "Utilisateur Audit Test activé" [ref=f16e461]
+              - cell "127.0.0.1" [ref=f16e463]
+            - row [ref=f16e464]:
+              - cell "26/07/2026 12:55" [ref=f16e465]
+              - cell "Admin Système" [ref=f16e466]
+              - cell "update" [ref=f16e472]
+              - cell "user" [ref=f16e474]
+              - 'cell "User #41 modifié" [ref=f16e475]'
+              - cell "127.0.0.1" [ref=f16e477]
+            - row [ref=f16e478]:
+              - cell "26/07/2026 12:54" [ref=f16e479]
+              - cell "Admin Système" [ref=f16e480]
+              - cell "update" [ref=f16e486]
+              - cell "user" [ref=f16e488]
+              - cell "Rôle de Audit Test changé de demandeur vers admin" [ref=f16e489]
+              - cell "127.0.0.1" [ref=f16e491]
+            - row [ref=f16e492]:
+              - cell "26/07/2026 12:54" [ref=f16e493]
+              - cell "Admin Système" [ref=f16e494]
+              - cell "update" [ref=f16e500]
+              - cell "user" [ref=f16e502]
+              - 'cell "User #41 modifié" [ref=f16e503]'
+              - cell "127.0.0.1" [ref=f16e505]
+            - row [ref=f16e506]:
+              - cell "26/07/2026 12:54" [ref=f16e507]
+              - cell "Admin Système" [ref=f16e508]
+              - cell "update" [ref=f16e514]
+              - cell "user" [ref=f16e516]
+              - cell "Rôle de Audit Test changé de utilisateur vers demandeur" [ref=f16e517]
+              - cell "127.0.0.1" [ref=f16e519]
+            - row [ref=f16e520]:
+              - cell "26/07/2026 12:54" [ref=f16e521]
+              - cell "Admin Système" [ref=f16e522]
+              - cell "update" [ref=f16e528]
+              - cell "user" [ref=f16e530]
+              - 'cell "User #41 modifié" [ref=f16e531]'
+              - cell "127.0.0.1" [ref=f16e533]
+            - row [ref=f16e534]:
+              - cell "26/07/2026 12:54" [ref=f16e535]
+              - cell "Admin Système" [ref=f16e536]
+              - cell "update" [ref=f16e542]
+              - cell "user" [ref=f16e544]
+              - cell "Rôle de Audit Test changé de validateur vers utilisateur" [ref=f16e545]
+              - cell "127.0.0.1" [ref=f16e547]
+            - row [ref=f16e548]:
+              - cell "26/07/2026 12:54" [ref=f16e549]
+              - cell "Admin Système" [ref=f16e550]
+              - cell "update" [ref=f16e556]
+              - cell "user" [ref=f16e558]
+              - 'cell "User #41 modifié" [ref=f16e559]'
+              - cell "127.0.0.1" [ref=f16e561]
+            - row [ref=f16e562]:
+              - cell "26/07/2026 12:54" [ref=f16e563]
+              - cell "Admin Système" [ref=f16e564]
+              - cell "update" [ref=f16e570]
+              - cell "user" [ref=f16e572]
+              - cell "Rôle de Audit Test changé de agent_dml vers validateur" [ref=f16e573]
+              - cell "127.0.0.1" [ref=f16e575]
+            - row [ref=f16e576]:
+              - cell "26/07/2026 12:54" [ref=f16e577]
+              - cell "Admin Système" [ref=f16e578]
+              - cell "update" [ref=f16e584]
+              - cell "user" [ref=f16e586]
+              - 'cell "User #41 modifié" [ref=f16e587]'
+              - cell "127.0.0.1" [ref=f16e589]
+            - row [ref=f16e590]:
+              - cell "26/07/2026 12:54" [ref=f16e591]
+              - cell "Admin Système" [ref=f16e592]
+              - cell "update" [ref=f16e598]
+              - cell "user" [ref=f16e600]
+              - cell "Utilisateur Role Test désactivé" [ref=f16e601]
+              - cell "127.0.0.1" [ref=f16e603]
+            - row [ref=f16e604]:
+              - cell "26/07/2026 12:54" [ref=f16e605]
+              - cell "Admin Système" [ref=f16e606]
+              - cell "update" [ref=f16e612]
+              - cell "user" [ref=f16e614]
+              - 'cell "User #40 modifié" [ref=f16e615]'
+              - cell "127.0.0.1" [ref=f16e617]
+            - row [ref=f16e618]:
+              - cell "26/07/2026 12:54" [ref=f16e619]
+              - cell "Admin Système" [ref=f16e620]
+              - cell "update" [ref=f16e626]
+              - cell "user" [ref=f16e628]
+              - cell "Utilisateur Audit Test désactivé" [ref=f16e629]
+              - cell "127.0.0.1" [ref=f16e631]
+            - row [ref=f16e632]:
+              - cell "26/07/2026 12:54" [ref=f16e633]
+              - cell "Admin Système" [ref=f16e634]
+              - cell "update" [ref=f16e640]
+              - cell "user" [ref=f16e642]
+              - 'cell "User #41 modifié" [ref=f16e643]'
+              - cell "127.0.0.1" [ref=f16e645]
+            - row [ref=f16e646]:
+              - cell "26/07/2026 12:52" [ref=f16e647]
+              - cell "Admin Système" [ref=f16e648]
+              - cell "export" [ref=f16e654]
+              - cell "depense" [ref=f16e656]
+              - cell "Export Excel dépenses par direction" [ref=f16e657]
+              - cell "127.0.0.1" [ref=f16e659]
+            - row [ref=f16e660]:
+              - cell "26/07/2026 12:52" [ref=f16e661]
+              - cell "Admin Système" [ref=f16e662]
+              - cell "export" [ref=f16e668]
+              - cell "mission" [ref=f16e670]
+              - cell "Export PDF missions - 55 enregistrements" [ref=f16e671]
+              - cell "127.0.0.1" [ref=f16e673]
+            - row [ref=f16e674]:
+              - cell "26/07/2026 12:52" [ref=f16e675]
+              - cell "Admin Système" [ref=f16e676]
+              - cell "export" [ref=f16e682]
+              - cell "mission" [ref=f16e684]
+              - cell "Export Excel missions - 55 enregistrements" [ref=f16e685]
+              - cell "127.0.0.1" [ref=f16e687]
+            - row [ref=f16e688]:
+              - cell "26/07/2026 12:51" [ref=f16e689]
+              - cell "Agent DML" [ref=f16e690]
+              - cell "login" [ref=f16e696]
+              - cell "user" [ref=f16e698]
+              - cell "Déconnexion" [ref=f16e699]
+              - cell "127.0.0.1" [ref=f16e701]
+            - row [ref=f16e702]:
+              - cell "26/07/2026 12:36" [ref=f16e703]
+              - cell "Agent DML" [ref=f16e704]
+              - cell "update" [ref=f16e710]
+              - cell "mission" [ref=f16e712]
+              - 'cell "Statut de la mission #54 changé de approuve à en_traitement_logistique" [ref=f16e713]'
+              - cell "127.0.0.1" [ref=f16e715]
+            - row [ref=f16e716]:
+              - cell "26/07/2026 12:34" [ref=f16e717]
+              - cell "Agent DML" [ref=f16e718]
+              - cell "login" [ref=f16e724]
+              - cell "user" [ref=f16e726]
+              - cell "Déconnexion" [ref=f16e727]
+              - cell "127.0.0.1" [ref=f16e729]
+            - row [ref=f16e730]:
+              - cell "26/07/2026 12:29" [ref=f16e731]
+              - cell "Validateur Test" [ref=f16e732]
+              - cell "login" [ref=f16e738]
+              - cell "user" [ref=f16e740]
+              - cell "Déconnexion" [ref=f16e741]
+              - cell "127.0.0.1" [ref=f16e743]
+            - row [ref=f16e744]:
+              - cell "26/07/2026 12:29" [ref=f16e745]
+              - cell "Validateur Test" [ref=f16e746]
+              - cell "approve" [ref=f16e752]
+              - cell "validation" [ref=f16e754]
+              - cell "Validation approuvée pour mission OM-2026-00020" [ref=f16e755]
+              - cell "—" [ref=f16e757]
+            - row [ref=f16e758]:
+              - cell "26/07/2026 12:29" [ref=f16e759]
+              - cell "Validateur Test" [ref=f16e760]
+              - cell "approve" [ref=f16e766]
+              - cell "validation" [ref=f16e768]
+              - cell "Validation approuvée pour mission OM-2026-00009" [ref=f16e769]
+              - cell "—" [ref=f16e771]
+            - row [ref=f16e772]:
+              - cell "26/07/2026 12:29" [ref=f16e773]
+              - cell "Validateur Test" [ref=f16e774]
+              - cell "update" [ref=f16e780]
+              - cell "mission" [ref=f16e782]
+              - 'cell "Statut de la mission #9 changé de brouillon à en_validation" [ref=f16e783]'
+              - cell "127.0.0.1" [ref=f16e785]
+            - row [ref=f16e786]:
+              - cell "26/07/2026 12:27" [ref=f16e787]
+              - cell "Demandeur Test" [ref=f16e788]
+              - cell "login" [ref=f16e794]
+              - cell "user" [ref=f16e796]
+              - cell "Déconnexion" [ref=f16e797]
+              - cell "127.0.0.1" [ref=f16e799]
+            - row [ref=f16e800]:
+              - cell "26/07/2026 12:27" [ref=f16e801]
+              - cell "Demandeur Test" [ref=f16e802]
+              - cell "update" [ref=f16e808]
+              - cell "mission" [ref=f16e810]
+              - 'cell "Statut de la mission #64 changé de brouillon à soumis" [ref=f16e811]'
+              - cell "127.0.0.1" [ref=f16e813]
+            - row [ref=f16e814]:
+              - cell "26/07/2026 12:27" [ref=f16e815]
+              - cell "Demandeur Test" [ref=f16e816]
+              - cell "create" [ref=f16e822]
+              - cell "reservation" [ref=f16e824]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f16e825]
+              - cell "—" [ref=f16e827]
+            - row [ref=f16e828]:
+              - cell "26/07/2026 12:27" [ref=f16e829]
+              - cell "Demandeur Test" [ref=f16e830]
+              - cell "create" [ref=f16e836]
+              - cell "reservation" [ref=f16e838]
+              - 'cell "Nouvelle réservation #69 (restauration) pour la mission #64" [ref=f16e839]'
+              - cell "127.0.0.1" [ref=f16e841]
+            - row [ref=f16e842]:
+              - cell "26/07/2026 12:26" [ref=f16e843]
+              - cell "Demandeur Test" [ref=f16e844]
+              - cell "create" [ref=f16e850]
+              - cell "reservation" [ref=f16e852]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f16e853]
+              - cell "—" [ref=f16e855]
+            - row [ref=f16e856]:
+              - cell "26/07/2026 12:26" [ref=f16e857]
+              - cell "Demandeur Test" [ref=f16e858]
+              - cell "create" [ref=f16e864]
+              - cell "reservation" [ref=f16e866]
+              - 'cell "Nouvelle réservation #68 (hebergement) pour la mission #64" [ref=f16e867]'
+              - cell "127.0.0.1" [ref=f16e869]
+            - row [ref=f16e870]:
+              - cell "26/07/2026 12:26" [ref=f16e871]
+              - cell "Demandeur Test" [ref=f16e872]
+              - cell "create" [ref=f16e878]
+              - cell "reservation" [ref=f16e880]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f16e881]
+              - cell "—" [ref=f16e883]
+            - row [ref=f16e884]:
+              - cell "26/07/2026 12:26" [ref=f16e885]
+              - cell "Demandeur Test" [ref=f16e886]
+              - cell "create" [ref=f16e892]
+              - cell "reservation" [ref=f16e894]
+              - 'cell "Nouvelle réservation #67 (billet) pour la mission #64" [ref=f16e895]'
+              - cell "127.0.0.1" [ref=f16e897]
+            - row [ref=f16e898]:
+              - cell "26/07/2026 12:26" [ref=f16e899]
+              - cell "Demandeur Test" [ref=f16e900]
+              - cell "delete" [ref=f16e906]
+              - cell "reservation" [ref=f16e908]
+              - 'cell "Réservation #66 de type billet supprimée" [ref=f16e909]'
+              - cell "127.0.0.1" [ref=f16e911]
+        - generic [ref=f16e912]:
+          - button "Precedent" [disabled] [ref=f16e913]
+          - generic [ref=f16e914]: Page 1 / 100
+          - button "Suivant" [ref=f16e915] [cursor=pointer]

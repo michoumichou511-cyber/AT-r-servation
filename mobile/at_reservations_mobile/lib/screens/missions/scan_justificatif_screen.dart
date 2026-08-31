@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../services/api_service.dart';
 import '../../utils/image_compressor.dart';
 
@@ -161,7 +161,7 @@ class _ScanJustificatifScreenState extends State<ScanJustificatifScreen> {
                           Text(
                             'Prendre une photo ou choisir un fichier',
                             style: GoogleFonts.inter(
-                              color: DS.textMuted,
+                              color: context.textMuted,
                               fontSize: 14,
                             ),
                           ),
@@ -183,7 +183,7 @@ class _ScanJustificatifScreenState extends State<ScanJustificatifScreen> {
             Text('Informations (optionnel)',
                 style: GoogleFonts.inter(
                   fontSize: 16, fontWeight: FontWeight.w700,
-                  color: dark ? Colors.white : DS.textPrimary,
+                  color: context.textPrimary,
                 )),
             const SizedBox(height: 12),
 

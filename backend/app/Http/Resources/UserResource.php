@@ -39,7 +39,7 @@ class UserResource extends JsonResource
             'last_login_at' => $this->last_login_at
                 ? $this->last_login_at->format('d/m/Y H:i')
                 : null,
-            'created_at' => $this->created_at->format('d/m/Y'),
+            'created_at' => $this->created_at?->format('d/m/Y'),
         ];
     }
 }

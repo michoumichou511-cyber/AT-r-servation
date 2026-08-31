@@ -151,7 +151,7 @@ class MessageController extends Controller
         $userId = Auth::id();
         $count = Cache::remember(
             'msg_count_'.$userId,
-            30,
+            10,
             function () use ($userId) {
                 return Message::where('receiver_id', $userId)
                     ->where('lu', false)

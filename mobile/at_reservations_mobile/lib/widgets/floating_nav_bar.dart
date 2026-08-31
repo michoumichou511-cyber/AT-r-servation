@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:iconly/iconly.dart';
-import '../design/design_system.dart';
+
+import '../config/theme.dart';
 
 // ─── Définition d'un onglet ────────────────────────────────────
 class FloatingNavItem {
@@ -21,54 +21,54 @@ class FloatingNavItem {
 // ─── Tabs par rôle ─────────────────────────────────────────────
 const tabsDemandeur = [
   FloatingNavItem(path: '/dashboard',     label: 'Accueil',
-      activeIcon: IconlyBold.home,         inactiveIcon: IconlyLight.home),
+      activeIcon: Icons.home_rounded,       inactiveIcon: Icons.home_outlined),
   FloatingNavItem(path: '/missions',      label: 'Missions',
-      activeIcon: IconlyBold.document,     inactiveIcon: IconlyLight.document),
+      activeIcon: Icons.description_rounded, inactiveIcon: Icons.description_outlined),
   FloatingNavItem(path: '/messagerie',    label: 'Messages',
-      activeIcon: IconlyBold.chat,         inactiveIcon: IconlyLight.chat),
+      activeIcon: Icons.chat_bubble_rounded, inactiveIcon: Icons.chat_bubble_outline_rounded),
   FloatingNavItem(path: '/notifications', label: 'Notifs',
-      activeIcon: IconlyBold.notification, inactiveIcon: IconlyLight.notification),
+      activeIcon: Icons.notifications_rounded, inactiveIcon: Icons.notifications_outlined),
   FloatingNavItem(path: '/profil',        label: 'Profil',
-      activeIcon: IconlyBold.profile,      inactiveIcon: IconlyLight.profile),
+      activeIcon: Icons.person_rounded,     inactiveIcon: Icons.person_outline_rounded),
 ];
 
 const tabsDirecteur = [
   FloatingNavItem(path: '/dashboard',     label: 'Accueil',
-      activeIcon: IconlyBold.home,         inactiveIcon: IconlyLight.home),
+      activeIcon: Icons.home_rounded,       inactiveIcon: Icons.home_outlined),
   FloatingNavItem(path: '/validations',   label: 'Validations',
       activeIcon: Icons.task_alt,          inactiveIcon: Icons.task_alt_outlined),
   FloatingNavItem(path: '/messagerie',    label: 'Messages',
-      activeIcon: IconlyBold.chat,         inactiveIcon: IconlyLight.chat),
+      activeIcon: Icons.chat_bubble_rounded, inactiveIcon: Icons.chat_bubble_outline_rounded),
   FloatingNavItem(path: '/notifications', label: 'Notifs',
-      activeIcon: IconlyBold.notification, inactiveIcon: IconlyLight.notification),
+      activeIcon: Icons.notifications_rounded, inactiveIcon: Icons.notifications_outlined),
   FloatingNavItem(path: '/profil',        label: 'Profil',
-      activeIcon: IconlyBold.profile,      inactiveIcon: IconlyLight.profile),
+      activeIcon: Icons.person_rounded,     inactiveIcon: Icons.person_outline_rounded),
 ];
 
 const tabsDml = [
   FloatingNavItem(path: '/dashboard',     label: 'Accueil',
-      activeIcon: IconlyBold.home,         inactiveIcon: IconlyLight.home),
+      activeIcon: Icons.home_rounded,       inactiveIcon: Icons.home_outlined),
   FloatingNavItem(path: '/dml',           label: 'DML',
       activeIcon: Icons.local_shipping,    inactiveIcon: Icons.local_shipping_outlined),
   FloatingNavItem(path: '/messagerie',    label: 'Messages',
-      activeIcon: IconlyBold.chat,         inactiveIcon: IconlyLight.chat),
+      activeIcon: Icons.chat_bubble_rounded, inactiveIcon: Icons.chat_bubble_outline_rounded),
   FloatingNavItem(path: '/notifications', label: 'Notifs',
-      activeIcon: IconlyBold.notification, inactiveIcon: IconlyLight.notification),
+      activeIcon: Icons.notifications_rounded, inactiveIcon: Icons.notifications_outlined),
   FloatingNavItem(path: '/profil',        label: 'Profil',
-      activeIcon: IconlyBold.profile,      inactiveIcon: IconlyLight.profile),
+      activeIcon: Icons.person_rounded,     inactiveIcon: Icons.person_outline_rounded),
 ];
 
 const tabsAdmin = [
   FloatingNavItem(path: '/dashboard',          label: 'Accueil',
-      activeIcon: IconlyBold.home,              inactiveIcon: IconlyLight.home),
+      activeIcon: Icons.home_rounded,            inactiveIcon: Icons.home_outlined),
   FloatingNavItem(path: '/admin/utilisateurs', label: 'Utilisateurs',
-      activeIcon: IconlyBold.profile,           inactiveIcon: IconlyLight.profile),
+      activeIcon: Icons.person_rounded,          inactiveIcon: Icons.person_outline_rounded),
   FloatingNavItem(path: '/admin/statistiques', label: 'Stats',
       activeIcon: Icons.bar_chart,              inactiveIcon: Icons.bar_chart_outlined),
   FloatingNavItem(path: '/admin/budgets',      label: 'Budgets',
       activeIcon: Icons.account_balance_wallet, inactiveIcon: Icons.account_balance_wallet_outlined),
   FloatingNavItem(path: '/profil',             label: 'Profil',
-      activeIcon: IconlyBold.profile,           inactiveIcon: IconlyLight.profile),
+      activeIcon: Icons.person_rounded,          inactiveIcon: Icons.person_outline_rounded),
 ];
 
 // ─── Item animé ────────────────────────────────────────────────
@@ -148,7 +148,7 @@ class _NavItemWidgetState extends State<_NavItemWidget>
                         decoration: BoxDecoration(
                           color: const Color(0xFFEF4444),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(color: context.cardBg, width: 1.5),
                         ),
                         constraints: const BoxConstraints(minWidth: 18),
                         child: Text(

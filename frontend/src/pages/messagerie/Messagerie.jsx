@@ -196,8 +196,12 @@ export default function Messagerie() {
   }, [activeConvId, conversations])
 
   useEffect(() => {
-    if (activeConvId) fetchMessages(activeConvId)
-  }, [activeConvId, fetchMessages])
+    if (!activeConvId) return
+    setConversations(prev =>
+      prev.map(c => c.id === activeConvId ? { ...c, non_lus: 0 } : c)
+    )
+    fetchMessages(activeConvId).then(() => fetchConversations(true))
+  }, [activeConvId, fetchMessages, fetchConversations])
 
   usePolling(async () => {
     if (!activeConvId) return
@@ -268,16 +272,15 @@ export default function Messagerie() {
               </button>
             </div>
 
-            {/* Recherche conversations */}
             <div className="px-3 pt-3 pb-1">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                <Search size={14} className="text-gray-400 flex-shrink-0" />
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-[#EAECF0] dark:border-[#2A2D3E] bg-[#F8FAFB] dark:bg-[#1E2235] focus-within:border-[#00A650] focus-within:ring-1 focus-within:ring-[#00A650]/20 transition-colors">
+                <Search size={14} className="text-[#9AA0AE] flex-shrink-0" />
                 <input
                   type="text"
                   value={convSearch}
                   onChange={e => setConvSearch(e.target.value)}
                   placeholder="Rechercher une conversation..."
-                  className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 w-full"
+                  className="bg-transparent outline-none text-sm text-[#1A1D26] dark:text-[#E8EAF0] placeholder-[#9AA0AE] w-full"
                 />
               </div>
             </div>
@@ -352,14 +355,14 @@ export default function Messagerie() {
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                            <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] truncate">
                               {c.interlocuteur?.name || 'Interlocuteur'}
                             </div>
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                             {truncate40(c.dernier_message || '')}
                           </div>
-                          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                          <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] mt-1">
                             {formatRelative(c.dernier_message_at)}
                           </div>
                         </div>
@@ -402,7 +405,7 @@ export default function Messagerie() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+                      className="md:hidden p-2 rounded-lg hover:bg-[#F0FDF4] dark:hover:bg-[#252840] text-[#5A6070] dark:text-[#9AA0AE] transition-colors"
                       onClick={() => setActiveConvId(null)}
                       aria-label="Retour liste"
                     >

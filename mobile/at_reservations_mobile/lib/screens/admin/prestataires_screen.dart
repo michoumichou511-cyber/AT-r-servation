@@ -30,7 +30,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
     'hotel': ATColors.info,
     'transport': ATColors.secondary,
     'traiteur': ATColors.warning,
-    'autre': ATColors.textSecondary,
+    'autre': const Color(0xFF6B7280),
   };
 
   @override
@@ -57,8 +57,11 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
       });
       _applyFilters();
     } on ApiException catch (e) {
-      if (e.statusCode == 404) setState(() { _items = []; _loading = false; _applyFilters(); });
-      else setState(() => _loading = false);
+      if (e.statusCode == 404) {
+        setState(() { _items = []; _loading = false; _applyFilters(); });
+      } else {
+        setState(() => _loading = false);
+      }
     } catch (_) {
       setState(() => _loading = false);
     }
@@ -94,7 +97,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
             TextField(controller: nomCtrl, decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder())),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: type,
+              initialValue: type,
               decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
               items: const [
                 DropdownMenuItem(value: 'hotel', child: Text('Hôtel')),
@@ -143,7 +146,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.85),
         itemCount: 6,
-        itemBuilder: (_, __) => Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+        itemBuilder: (_, _) => Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
       ),
     );
   }
@@ -162,7 +165,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
 
   Widget _buildCard(Map<String, dynamic> p) {
     final type = (p['type'] as String? ?? 'autre').toLowerCase();
-    final color = _typeColors[type] ?? ATColors.textSecondary;
+    final color = _typeColors[type] ?? const Color(0xFF6B7280);
     final icon = _typeIcons[type] ?? Icons.business;
     final isActive = p['is_active'] == true || p['is_active'] == 1;
     return Card(
@@ -192,15 +195,15 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
           const SizedBox(height: 6),
           if (p['telephone'] != null)
             Row(children: [
-              const Icon(Icons.phone, size: 12, color: ATColors.textSecondary),
+              Icon(Icons.phone, size: 12, color: context.textSecondary),
               const SizedBox(width: 4),
-              Expanded(child: Text(p['telephone'] as String, style: const TextStyle(fontSize: 11, color: ATColors.textSecondary), overflow: TextOverflow.ellipsis)),
+              Expanded(child: Text(p['telephone'] as String, style: TextStyle(fontSize: 11, color: context.textSecondary), overflow: TextOverflow.ellipsis)),
             ]),
           if (p['email'] != null)
             Row(children: [
-              const Icon(Icons.email, size: 12, color: ATColors.textSecondary),
+              Icon(Icons.email, size: 12, color: context.textSecondary),
               const SizedBox(width: 4),
-              Expanded(child: Text(p['email'] as String, style: const TextStyle(fontSize: 11, color: ATColors.textSecondary), overflow: TextOverflow.ellipsis)),
+              Expanded(child: Text(p['email'] as String, style: TextStyle(fontSize: 11, color: context.textSecondary), overflow: TextOverflow.ellipsis)),
             ]),
           if (p['note'] != null || p['rating'] != null) ...[
             const SizedBox(height: 4),
@@ -235,7 +238,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
                 controller: _searchCtrl,
                 decoration: InputDecoration(
                   hintText: 'Rechercher un prestataire...',
-                  prefixIcon: const Icon(Icons.search, color: ATColors.textSecondary),
+                  prefixIcon: Icon(Icons.search, color: context.textSecondary),
                   filled: true, fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -250,7 +253,7 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _types.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final t = _types[i];
                   final selected = _typeFilter == t;
@@ -271,9 +274,9 @@ class _PrestatairesScreenState extends State<PrestatairesScreen> {
             SliverFillRemaining(
               child: Center(
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.store_outlined, size: 64, color: ATColors.textSecondary.withValues(alpha: 0.4)),
+                  Icon(Icons.store_outlined, size: 64, color: context.textSecondary.withValues(alpha: 0.4)),
                   const SizedBox(height: 12),
-                  const Text('Aucun prestataire trouvé', style: TextStyle(color: ATColors.textSecondary)),
+                  Text('Aucun prestataire trouvé', style: TextStyle(color: context.textSecondary)),
                 ]),
               ),
             )

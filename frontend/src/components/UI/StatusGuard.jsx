@@ -15,9 +15,11 @@ export default function StatusGuard({ loading, error, onRetry, skeletonCount = 3
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <AlertTriangle size={40} className="text-red-400" />
-        <p className="text-red-600 dark:text-red-400 text-sm text-center max-w-md">{error}</p>
+      <div className="flex flex-col items-center justify-center py-16 gap-5">
+        <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20">
+          <AlertTriangle size={32} className="text-red-400" />
+        </div>
+        <p className="text-red-600 dark:text-red-400 text-sm text-center max-w-md font-medium leading-relaxed">{error}</p>
         {onRetry && (
           <Button variant="outline" onClick={onRetry} className="gap-2">
             <RotateCcw size={14} /> Réessayer

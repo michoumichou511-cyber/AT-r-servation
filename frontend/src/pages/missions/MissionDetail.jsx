@@ -46,6 +46,13 @@ function formatDZD(v) {
   return `${n.toLocaleString('fr-FR')} DZD`
 }
 
+function formatTaille(bytes) {
+  const b = Number(bytes ?? 0)
+  if (b >= 1048576) return `${(b / 1048576).toFixed(2)} Mo`
+  if (b >= 1024) return `${(b / 1024).toFixed(1)} Ko`
+  return `${b} o`
+}
+
 export default function MissionDetail() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -74,6 +81,10 @@ export default function MissionDetail() {
   const [newComment, setNewComment] = useState('')
   const [sendingComment, setSendingComment] = useState(false)
   const commentairesEndRef = useRef(null)
+
+  const [showAnnulationModal, setShowAnnulationModal] = useState(false)
+  const [motifAnnulation, setMotifAnnulation] = useState('')
+  const [annulationEnCours, setAnnulationEnCours] = useState(false)
 
   const [showBonsModal, setShowBonsModal] = useState(false)
   const [loadingBons, setLoadingBons] = useState(false)
@@ -170,7 +181,7 @@ export default function MissionDetail() {
     } catch (err) {
       setHistorique([])
       setErrorHistorique(
-        err?.response?.data?.message || err?.message || 'Erreur chargement de l’historique'
+        err?.response?.data?.message || err?.message || "Erreur chargement de l'historique"
       )
     } finally {
       setLoadingHistorique(false)
@@ -280,14 +291,20 @@ export default function MissionDetail() {
   }
 
   const annulerMission = async () => {
+    if (!motifAnnulation.trim()) return
+    setAnnulationEnCours(true)
     try {
-      await missionsAPI.annuler(missionId)
+      await missionsAPI.annuler(missionId, { motif_annulation: motifAnnulation.trim() })
       await chargerMission()
+      setShowAnnulationModal(false)
+      setMotifAnnulation('')
       toast.success('Mission annulée ✅')
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || err?.message || 'Erreur lors de l’annulation'
+        err?.response?.data?.message || err?.message || "Erreur lors de l'annulation"
       )
+    } finally {
+      setAnnulationEnCours(false)
     }
   }
 
@@ -404,7 +421,7 @@ export default function MissionDetail() {
         <EmptyState
           icon={FileText}
           title="Mission indisponible"
-          subtitle={errorMission || 'La mission n’existe pas ou vous n’y avez pas accès.'}
+          subtitle={errorMission || "La mission n'existe pas ou vous n'y avez pas accès."}
           actionLabel="Retour"
           onAction={() => navigate('/missions')}
         />
@@ -489,14 +506,14 @@ export default function MissionDetail() {
       <div className="at-card-surface mb-6 p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <CalendarDays size={16} className="text-gray-400" />
+            <div className="inline-flex items-center gap-2 text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+              <CalendarDays size={16} className="text-[#9AA0AE]" />
               <span>
                 {mission.dates?.depart ?? '—'} → {mission.dates?.retour ?? '—'}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <DollarSign size={16} className="text-gray-400" />
+            <div className="inline-flex items-center gap-2 text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+              <DollarSign size={16} className="text-[#9AA0AE]" />
               <span>{formatDZD(mission.budget_previsionnel)}</span>
             </div>
           </div>
@@ -513,7 +530,7 @@ export default function MissionDetail() {
               </>
             )}
             {isSoumis && (
-              <Button variant="danger" size="sm" onClick={annulerMission}>
+              <Button variant="danger" size="sm" onClick={() => setShowAnnulationModal(true)}>
                 <RotateCcw size={16} /> Annuler
               </Button>
             )}
@@ -532,6 +549,12 @@ export default function MissionDetail() {
             </Button>
           </div>
         </div>
+        {mission.statut === 'annule' && mission.motif_annulation && (
+          <div className="mt-3 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40">
+            <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1">Motif d'annulation</p>
+            <p className="text-sm text-red-700 dark:text-red-300">{mission.motif_annulation}</p>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -572,9 +595,17 @@ export default function MissionDetail() {
                     value={`${mission.dates?.depart ?? '—'} → ${mission.dates?.retour ?? '—'}`}
                   />
                   <InfoRow label="Type" value={mission.type_mission ?? '—'} />
-                  <InfoRow label="Transport" value={mission.transport_type === 'avion' ? 'Par avion' : mission.transport_type === 'terrestre' ? 'Par voie terrestre' : '—'} />
+                  <InfoRow label="Transport" value={{ avion: 'Par avion', terrestre: 'Véhicule de service', train: 'Train (SNTF)', autre: 'Autre (taxi, bus...)' }[mission.transport_type] || '—'} />
                   <InfoRow label="Mode budget" value={mission.budget_mode === 'avance' ? 'Avance' : mission.budget_mode === 'remboursement' ? 'Remboursement' : '—'} />
-                  <InfoRow label="Priorité" value={mission.priorite ?? '—'} />
+                  {mission.demande_avance && (
+                    <div className="md:col-span-2 rounded-[20px] border border-[#00A650]/30 bg-[#00A650]/5 dark:bg-[#00A650]/10 p-4">
+                      <div className="text-xs font-semibold text-[#00A650] dark:text-[#00A650]">Demande d'avance sur frais</div>
+                      <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] mt-1">
+                        {mission.montant_avance ? `${Number(mission.montant_avance).toLocaleString('fr-FR')} DZD` : 'Montant non renseigne'}
+                      </div>
+                    </div>
+                  )}
+                  <InfoRow label="Priorité" value={{ normale: 'Normale', urgente: 'Urgente', tres_urgente: 'Très urgente' }[mission.priorite] || '—'} />
                   <InfoRow
                     label="Budget"
                     value={formatDZD(mission.budget_previsionnel)}
@@ -597,10 +628,10 @@ export default function MissionDetail() {
               <div className="at-card-surface p-5">
                 <div className="flex items-start justify-between gap-3 mb-5">
                   <div>
-                    <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">
+                    <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                       Modification de la mission
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1">
                       Champs requis / optionnels selon la configuration backend.
                     </p>
                   </div>
@@ -610,7 +641,7 @@ export default function MissionDetail() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Titre
                     <input
                       value={draft.titre}
@@ -619,7 +650,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Objectif
                     <input
                       value={draft.objectif}
@@ -628,7 +659,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Destination (Ville)
                     <input
                       value={draft.destination_ville}
@@ -637,7 +668,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Destination (Pays)
                     <input
                       value={draft.destination_pays}
@@ -646,7 +677,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Date départ
                     <input
                       type="date"
@@ -656,7 +687,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Date retour
                     <input
                       type="date"
@@ -666,7 +697,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Type mission
                     <select
                       value={draft.type_mission}
@@ -681,7 +712,7 @@ export default function MissionDetail() {
                     </select>
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Priorité
                     <select
                       value={draft.priorite}
@@ -696,7 +727,7 @@ export default function MissionDetail() {
                     </select>
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">
                     Budget prévisionnel (DZD)
                     <input
                       type="number"
@@ -706,7 +737,7 @@ export default function MissionDetail() {
                     />
                   </label>
 
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 md:col-span-2">
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2 md:col-span-2">
                     Description (optionnel)
                     <input
                       value={draft.description}
@@ -766,34 +797,34 @@ export default function MissionDetail() {
                   items={reservationsParType.billets}
                   renderItem={(r) => r?.billet ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r.billet.compagnie || 'Billet'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         Vol {r.billet.numero_vol ?? '—'} : {r.billet.aeroport_depart ?? '—'} →{' '}
                         {r.billet.aeroport_arrivee ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         {r.billet.date_vol ?? '—'} | {r.billet.heure_depart ?? '—'} → {r.billet.heure_arrivee ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
+                      <div className="text-sm text-[#1A1D26] dark:text-[#E8EAF0] font-semibold">
                         {r.billet.prix ?? '0'} (prix)
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">{r.billet.classe_label ?? ''}</span>
+                        <span className="text-xs text-[#5A6070]">{r.billet.classe_label ?? ''}</span>
                       </div>
                     </div>
                   ) : (
                     /* Détails du vol pas encore saisis (demande en attente de traitement logistique) */
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r?.prestataire?.nom ?? r?.type_label ?? "Billet d'avion"}
                       </div>
-                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      {r?.notes && <div className="text-sm text-[#5A6070]">{r.notes}</div>}
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">Détails du vol à confirmer par la logistique</span>
+                        <span className="text-xs text-[#5A6070]">Détails du vol à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}
@@ -804,32 +835,32 @@ export default function MissionDetail() {
                   items={reservationsParType.heb}
                   renderItem={(r) => r?.hebergement ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r.hebergement.hotel_nom ?? 'Hébergement'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         {r.hebergement.localisation ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         Check-in {r.hebergement.date_checkin ?? '—'} → Check-out {r.hebergement.date_checkout ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
+                      <div className="text-sm text-[#1A1D26] dark:text-[#E8EAF0] font-semibold">
                         {r.hebergement.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">{r.hebergement.type_chambre_label ?? ''}</span>
+                        <span className="text-xs text-[#5A6070]">{r.hebergement.type_chambre_label ?? ''}</span>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r?.prestataire?.nom ?? r?.type_label ?? 'Hébergement'}
                       </div>
-                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      {r?.notes && <div className="text-sm text-[#5A6070]">{r.notes}</div>}
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">Détails de l'hébergement à confirmer par la logistique</span>
+                        <span className="text-xs text-[#5A6070]">Détails de l'hébergement à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}
@@ -840,16 +871,16 @@ export default function MissionDetail() {
                   items={reservationsParType.rest}
                   renderItem={(r) => r?.restauration ? (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r.restauration.prestataire_nom ?? 'Restauration'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         Repas : {r.restauration.type_repas_label ?? '—'} | Lieu : {r.restauration.lieu ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         Date : {r.restauration.date_repas ?? '—'} | Personnes : {r.restauration.nombre_personnes ?? '—'}
                       </div>
-                      <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
+                      <div className="text-sm text-[#1A1D26] dark:text-[#E8EAF0] font-semibold">
                         {r.restauration.prix_total ?? '0'} (total)
                       </div>
                       <div className="flex items-center gap-2">
@@ -858,13 +889,13 @@ export default function MissionDetail() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                         {r?.prestataire?.nom ?? r?.type_label ?? 'Restauration'}
                       </div>
-                      {r?.notes && <div className="text-sm text-gray-500">{r.notes}</div>}
+                      {r?.notes && <div className="text-sm text-[#5A6070]">{r.notes}</div>}
                       <div className="flex items-center gap-2">
                         <Badge status={r?.statut} />
-                        <span className="text-xs text-gray-500">Détails de la restauration à confirmer par la logistique</span>
+                        <span className="text-xs text-[#5A6070]">Détails de la restauration à confirmer par la logistique</span>
                       </div>
                     </div>
                   )}
@@ -898,7 +929,7 @@ export default function MissionDetail() {
               <EmptyState
                 icon={FileArchive}
                 title="Aucun document"
-                subtitle="Aucun document n’a encore été uploadé pour cette mission."
+                subtitle="Aucun document n'a encore été uploadé pour cette mission."
                 actionLabel="Retour"
                 onAction={() => setActiveTab('informations')}
               />
@@ -919,13 +950,13 @@ export default function MissionDetail() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                            <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] truncate">
                               {doc.nom_fichier ?? 'document'}
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {doc.type_document ?? '—'} • {doc.taille ? `${doc.taille}` : ''}
+                            <div className="text-xs text-[#5A6070] mt-1">
+                              {doc.type_document ?? '—'} • {doc.taille ? formatTaille(doc.taille) : ''}
                             </div>
-                            <div className="text-xs text-gray-400 mt-2">
+                            <div className="text-xs text-[#9AA0AE] mt-2">
                               {doc.uploaded_by?.nom_complet
                                 ? `Ajouté par ${doc.uploaded_by.nom_complet}`
                                 : '—'}
@@ -998,7 +1029,7 @@ export default function MissionDetail() {
             )}
 
             {!loadingCommentaires && commentaires.length === 0 && (
-              <div className="text-center py-8 text-sm text-gray-400 dark:text-gray-500">
+              <div className="text-center py-8 text-sm text-[#9AA0AE] dark:text-[#5A6070]">
                 <MessageSquare size={32} className="mx-auto mb-2 opacity-40" />
                 Aucun commentaire pour le moment.
               </div>
@@ -1029,17 +1060,17 @@ export default function MissionDetail() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                          <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                             {c.user?.prenom} {c.user?.nom}
                           </span>
                           {roleName && (
-                            <span className="inline-block px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+                            <span className="inline-block px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-[10px] font-semibold text-[#5A6070] dark:text-[#9AA0AE]">
                               {roleName}
                             </span>
                           )}
-                          <span className="text-[11px] text-gray-400 dark:text-gray-500">{dateStr}</span>
+                          <span className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070]">{dateStr}</span>
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">{c.contenu}</p>
+                        <p className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1 whitespace-pre-wrap">{c.contenu}</p>
                       </div>
                     </motion.div>
                   )
@@ -1056,7 +1087,7 @@ export default function MissionDetail() {
                 rows={2}
                 maxLength={2000}
                 className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1E2235]
-                           text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500
+                           text-sm text-[#1A1D26] dark:text-[#E8EAF0] placeholder-[#9AA0AE]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
                 onKeyDown={e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') envoyerCommentaire() }}
               />
@@ -1090,7 +1121,7 @@ export default function MissionDetail() {
           <EmptyState
             icon={FileArchive}
             title="Aucun bon"
-            subtitle="Aucun bon de commande n’a été généré pour cette mission."
+            subtitle="Aucun bon de commande n'a été généré pour cette mission."
           />
         )}
 
@@ -1100,13 +1131,13 @@ export default function MissionDetail() {
               <div key={bon.id ?? index} className="at-card-surface rounded-xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-semibold text-gray-800 dark:text-gray-100">
+                    <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
                       {bon.numero ?? 'BC'}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-[#5A6070] mt-1">
                       {bon.type ?? '—'} • {formatDZD(bon.montant_total)}
                     </div>
-                    <div className="text-xs text-gray-400 mt-2">
+                    <div className="text-xs text-[#9AA0AE] mt-2">
                       Statut : {bon.statut ?? '—'}
                     </div>
                   </div>
@@ -1130,15 +1161,58 @@ export default function MissionDetail() {
           </div>
         )}
       </Modal>
+
+      {/* Modal Annulation */}
+      <Modal
+        isOpen={showAnnulationModal}
+        onClose={() => { if (!annulationEnCours) { setShowAnnulationModal(false); setMotifAnnulation('') } }}
+        title="Annuler la mission"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+            Veuillez indiquer le motif d'annulation de cette mission. Cette action est irréversible.
+          </p>
+          <textarea
+            value={motifAnnulation}
+            onChange={e => setMotifAnnulation(e.target.value)}
+            placeholder="Motif d'annulation (obligatoire)..."
+            rows={4}
+            maxLength={1000}
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1E2235]
+                       text-sm text-[#1A1D26] dark:text-[#E8EAF0] placeholder-[#9AA0AE]
+                       focus:outline-none focus:ring-1 focus:ring-red-400/30 focus:border-red-400 resize-none"
+          />
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setShowAnnulationModal(false); setMotifAnnulation('') }}
+              disabled={annulationEnCours}
+            >
+              Retour
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={annulerMission}
+              disabled={!motifAnnulation.trim() || annulationEnCours}
+              loading={annulationEnCours}
+            >
+              Confirmer l'annulation
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
 
 function InfoRow({ label, value }) {
   return (
-    <div className="rounded-[20px] border border-[#EAECF0] bg-[#F8F9FC] p-4 dark:border-[#2A2D3E] dark:bg-[#252840]">
-      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</div>
-      <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 mt-1 break-words">{value ?? '—'}</div>
+    <div className="rounded-[18px] border border-[#EAECF0] bg-[#F8FAFB] p-4 dark:border-[#2A2D3E] dark:bg-[#1E2235] hover:bg-white dark:hover:bg-[#252840] transition-colors duration-200">
+      <div className="text-[11px] font-semibold text-[#9AA0AE] uppercase tracking-wide">{label}</div>
+      <div className="text-sm font-semibold text-[#1A1D26] dark:text-white mt-1.5 break-words">{value ?? '—'}</div>
     </div>
   )
 }
@@ -1148,8 +1222,8 @@ function ReservationSection({ title, items, renderItem }) {
   return (
     <div className="at-card-surface p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
-        <div className="text-xs text-gray-500 dark:text-gray-400">{items.length} élément(s)</div>
+        <h3 className="text-sm font-bold text-[#1A1D26] dark:text-white">{title}</h3>
+        <div className="text-xs text-[#9AA0AE] at-number">{items.length} élément(s)</div>
       </div>
       <div className="space-y-3">
         <AnimatePresence initial={false}>

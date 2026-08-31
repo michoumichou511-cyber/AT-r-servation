@@ -41,17 +41,17 @@ class ValidationController extends Controller
             $query->where('statut', $request->statut);
         }
         if ($request->has('direction')) {
-            $query->whereHas('mission.user', function ($q) {
+            $query->whereHas('mission.user', function ($q) use ($request) {
                 $q->where('direction', $request->direction);
             });
         }
         if ($request->has('date_debut')) {
-            $query->whereHas('mission', function ($q) {
+            $query->whereHas('mission', function ($q) use ($request) {
                 $q->where('date_depart', '>=', $request->date_debut);
             });
         }
         if ($request->has('date_fin')) {
-            $query->whereHas('mission', function ($q) {
+            $query->whereHas('mission', function ($q) use ($request) {
                 $q->where('date_retour', '<=', $request->date_fin);
             });
         }

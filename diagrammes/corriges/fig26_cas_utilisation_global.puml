@@ -1,0 +1,65 @@
+@startuml
+left to right direction
+skinparam dpi 200
+skinparam usecaseFontSize 11
+skinparam actorFontSize 12
+skinparam packageFontSize 13
+skinparam packageFontStyle bold
+skinparam nodesep 8
+skinparam ranksep 10
+
+actor "Demandeur" as DEM
+actor "Directeur" as DIR
+actor "Agent DML" as DML
+actor "Administrateur" as ADM
+
+rectangle "Systeme AT Reservations" {
+  usecase "Creer une demande\nde mission" as UC1
+  usecase "Consulter son historique" as UC2
+  usecase "Suivre ses demandes" as UC3
+  usecase "Consulter son\ntableau de bord" as UC4
+  usecase "Traiter les demandes\nen attente" as UC5
+  usecase "Consulter les demandes\nde son service" as UC6
+  usecase "Consulter son tableau\nde bord (Directeur)" as UC7
+  usecase "Consulter les missions\nvalidees a traiter" as UC8
+  usecase "Gerer les hotels\net vehicules" as UC17
+  usecase "Generer un bon\nde commande" as UC18
+  usecase "Gerer les utilisateurs" as UC9
+  usecase "Gerer les roles\net permissions" as UC11
+  usecase "Gerer les hotels\nen convention" as UC12
+  usecase "Gerer le parc vehicules" as UC13
+  usecase "Gerer les budgets\npar direction" as UC14
+  usecase "Consulter statistiques\net rapports" as UC15
+  usecase "Envoyer des messages\ninternes" as UC16
+  usecase "Recevoir des notifications" as UC10
+  usecase "S'authentifier" as UC_AUTH
+}
+
+DEM --> UC1
+DEM --> UC2
+DEM --> UC3
+DEM --> UC4
+
+DIR --> UC5
+DIR --> UC6
+DIR --> UC7
+
+DML --> UC8
+DML --> UC17
+DML --> UC18
+
+ADM --> UC9
+ADM --> UC11
+ADM --> UC12
+ADM --> UC13
+ADM --> UC14
+ADM --> UC15
+ADM --> UC16
+ADM --> UC10
+
+UC1 ..> UC_AUTH : <<include>>
+UC5 ..> UC_AUTH : <<include>>
+UC8 ..> UC_AUTH : <<include>>
+UC9 ..> UC_AUTH : <<include>>
+
+@enduml

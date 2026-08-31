@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PieChart, Edit3, AlertTriangle, Activity, RotateCcw } from 'lucide-react'
+import { PieChart, Edit3, AlertTriangle, Activity, RotateCcw, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import PageHeader from '../../components/Common/PageHeader'
@@ -31,6 +31,11 @@ export default function Budgets() {
   const [newMontant, setNewMontant] = useState('')
   const [saving, setSaving] = useState(false)
   const [modalError, setModalError] = useState('')
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createForm, setCreateForm] = useState({ direction: '', service: '', annee: new Date().getFullYear(), montant_alloue: '' })
+  const [createSaving, setCreateSaving] = useState(false)
+  const [createError, setCreateError] = useState('')
 
   const fetchBudgets = useCallback(async () => {
     setLoading(true)
@@ -103,6 +108,43 @@ export default function Budgets() {
     }
   }
 
+  const openCreate = () => {
+    setCreateForm({ direction: '', service: '', annee: new Date().getFullYear(), montant_alloue: '' })
+    setCreateError('')
+    setCreateOpen(true)
+  }
+
+  const submitCreate = async () => {
+    if (!createForm.direction.trim() || !createForm.service.trim()) {
+      setCreateError('Direction et service sont requis')
+      return
+    }
+    const montant = Number(createForm.montant_alloue)
+    if (Number.isNaN(montant) || montant < 0) {
+      setCreateError('Montant invalide')
+      return
+    }
+    setCreateSaving(true)
+    setCreateError('')
+    try {
+      await adminAPI.creerBudget({
+        direction: createForm.direction.trim(),
+        service: createForm.service.trim(),
+        annee: Number(createForm.annee),
+        montant_alloue: montant,
+      })
+      toast.success('Budget créé avec succès')
+      setCreateOpen(false)
+      await fetchBudgets()
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Erreur lors de la création'
+      setCreateError(msg)
+      toast.error(msg)
+    } finally {
+      setCreateSaving(false)
+    }
+  }
+
   const cards = useMemo(() => (Array.isArray(budgets) ? budgets : []), [budgets])
 
   return (
@@ -112,9 +154,14 @@ export default function Budgets() {
         subtitle="Gestion des budgets par direction"
         backTo="/"
         actions={
-          <Button size="sm" variant="outline" onClick={handleRetry}>
-            <RotateCcw size={16} /> Rafraîchir
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleRetry}>
+              <RotateCcw size={16} /> Rafraîchir
+            </Button>
+            <Button size="sm" variant="gradient" onClick={openCreate}>
+              <Plus size={16} /> Nouveau budget
+            </Button>
+          </div>
         }
       />
 
@@ -164,17 +211,17 @@ export default function Budgets() {
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-gray-900 dark:text-white">
                           {b.direction ?? '—'} / {b.service ?? '—'}
                         </div>
-                        <div className="text-xs font-semibold text-gray-500 bg-[#F8FAFC] border border-gray-100 px-2 py-1 rounded-full">
+                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-[#F8FAFC] dark:bg-white/5 border border-gray-100 dark:border-gray-700 px-2 py-1 rounded-full">
                           {b.annee ?? ''}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Consommé : {formatDZD(b.montant_consomme)} / Alloué : {formatDZD(b.montant_alloue)}
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 mt-2">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
                         {pInfo.icon} {pInfo.label} • {safeP}% consommé
                       </div>
                     </div>
@@ -187,7 +234,7 @@ export default function Budgets() {
                   </div>
 
                   <div className="mt-4">
-                    <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -204,10 +251,8 @@ export default function Budgets() {
                         }}
                       />
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                      <span>0%</span>
+                    <div className="mt-2 flex items-center justify-center text-xs text-gray-500">
                       <span>{percent}%</span>
-                      <span>100%</span>
                     </div>
                   </div>
                 </motion.div>
@@ -247,6 +292,57 @@ export default function Budgets() {
             </Button>
             <Button onClick={submitEdit} loading={saving} disabled={saving}>
               <AlertTriangle size={16} /> Sauvegarder
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={createOpen} onClose={() => !createSaving && setCreateOpen(false)} title="Nouveau budget" size="lg">
+        {createError && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-4 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+            {createError}
+          </div>
+        )}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Input
+              label="Direction"
+              value={createForm.direction}
+              onChange={(e) => setCreateForm(f => ({ ...f, direction: e.target.value }))}
+              required
+              placeholder="Ex: DSI"
+            />
+            <Input
+              label="Service"
+              value={createForm.service}
+              onChange={(e) => setCreateForm(f => ({ ...f, service: e.target.value }))}
+              required
+              placeholder="Ex: Missions"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Input
+              label="Année"
+              type="number"
+              value={createForm.annee}
+              onChange={(e) => setCreateForm(f => ({ ...f, annee: e.target.value }))}
+              required
+            />
+            <Input
+              label="Montant alloué (DZD)"
+              type="number"
+              value={createForm.montant_alloue}
+              onChange={(e) => setCreateForm(f => ({ ...f, montant_alloue: e.target.value }))}
+              required
+              placeholder="Ex: 5000000"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={createSaving}>
+              Annuler
+            </Button>
+            <Button onClick={submitCreate} loading={createSaving} disabled={createSaving}>
+              <Plus size={16} /> Créer
             </Button>
           </div>
         </div>

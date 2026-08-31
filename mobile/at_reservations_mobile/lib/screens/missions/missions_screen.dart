@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../models/mission.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
@@ -104,7 +104,7 @@ class _MissionsScreenState extends State<MissionsScreen>
     final filtered = _filtered;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -306,7 +306,10 @@ class _MissionsScreenState extends State<MissionsScreen>
                   (ctx, i) => MissionCard(
                     mission: filtered[i],
                     index: i,
-                    onTap: () => ctx.go('/missions/${filtered[i].id}'),
+                    onTap: () async {
+                      await ctx.push('/missions/${filtered[i].id}');
+                      _load();
+                    },
                   )
                       .animate(delay: (i * 60).ms)
                       .fadeIn(duration: 300.ms, curve: Curves.easeOut)
@@ -364,16 +367,16 @@ class _MissionsScreenState extends State<MissionsScreen>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (sheetCtx) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: sheetCtx.cardBg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(
             width: 40, height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
+              color: sheetCtx.borderColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -392,12 +395,12 @@ class _MissionsScreenState extends State<MissionsScreen>
           Text('Nouvelle mission',
             style: GoogleFonts.inter(
               fontSize: 20, fontWeight: FontWeight.w800,
-              color: DS.textPrimary,
+              color: sheetCtx.textPrimary,
             )),
           const SizedBox(height: 8),
           Text('Créez votre demande de mission directement depuis l\'application',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14)),
+            style: GoogleFonts.inter(color: sheetCtx.textSecondary, fontSize: 14)),
           const SizedBox(height: 28),
           SizedBox(
             width: double.infinity, height: 54,
@@ -472,7 +475,7 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: const Color(0xFFF0F4FF),
+      color: context.scaffoldBg,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -489,17 +492,17 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
                     gradient: isSelected ? DS.gradientBlue : null,
-                    color: isSelected ? null : Colors.white,
+                    color: isSelected ? null : context.cardBg,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: isSelected
                           ? Colors.transparent
-                          : const Color(0xFFE2E8F0),
+                          : context.borderColor,
                     ),
                     boxShadow: isSelected ? DS.shadowBlue : [
-                      const BoxShadow(
-                        color: Color(0x08000000),
-                        blurRadius: 4, offset: Offset(0, 2)),
+                      BoxShadow(
+                        color: context.shadowColor,
+                        blurRadius: 4, offset: const Offset(0, 2)),
                     ],
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -507,11 +510,11 @@ class _FilterDelegate extends SliverPersistentHeaderDelegate {
                       size: 13,
                       color: isSelected
                           ? Colors.white
-                          : DS.textSecondary),
+                          : context.textSecondary),
                     const SizedBox(width: 5),
                     Text(f.label,
                       style: GoogleFonts.inter(
-                        color: isSelected ? Colors.white : DS.textSecondary,
+                        color: isSelected ? Colors.white : context.textSecondary,
                         fontSize: 13, fontWeight: FontWeight.w700,
                       )),
                     if (count > 0 && f != _Filter.toutes) ...[
@@ -594,7 +597,7 @@ class _EmptyView extends StatelessWidget {
               : 'Aucune mission « ${filter.label} »',
           style: GoogleFonts.inter(
             fontSize: 20, fontWeight: FontWeight.w800,
-            color: DS.textPrimary,
+            color: context.textPrimary,
           ),
           textAlign: TextAlign.center,
         )
@@ -604,7 +607,7 @@ class _EmptyView extends StatelessWidget {
           filter == _Filter.toutes
               ? 'Vos demandes de mission apparaîtront ici'
               : 'Essayez un autre filtre',
-          style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14),
+          style: GoogleFonts.inter(color: context.textSecondary, fontSize: 14),
           textAlign: TextAlign.center,
         )
             .animate().fadeIn(delay: 300.ms),
@@ -655,12 +658,12 @@ class _ErrorView extends StatelessWidget {
         const SizedBox(height: 20),
         Text('Connexion impossible',
           style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800,
-              color: DS.textPrimary)),
+              color: context.textPrimary)),
         const SizedBox(height: 8),
         Text(error,
           textAlign: TextAlign.center, maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 13)),
+          style: GoogleFonts.inter(color: context.textSecondary, fontSize: 13)),
         const SizedBox(height: 24),
         GestureDetector(
           onTap: onRetry,

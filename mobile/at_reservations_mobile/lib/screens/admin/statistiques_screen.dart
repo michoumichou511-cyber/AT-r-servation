@@ -105,7 +105,7 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> with SingleTick
             Icon(icon, color: color, size: 24),
             const SizedBox(height: 6),
             Text('$count', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-            Text(label, style: const TextStyle(fontSize: 11, color: ATColors.textSecondary), textAlign: TextAlign.center),
+            Text(label, style: TextStyle(fontSize: 11, color: context.textSecondary), textAlign: TextAlign.center),
           ]),
         ),
       ),
@@ -156,7 +156,7 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> with SingleTick
 
   Widget _buildPieChart() {
     final data = _statutData;
-    if (data.isEmpty) return const Center(child: Text('Aucune donnée', style: TextStyle(color: ATColors.textSecondary)));
+    if (data.isEmpty) return Center(child: Text('Aucune donnée', style: TextStyle(color: context.textSecondary)));
     final total = data.values.fold(0, (a, b) => a + b);
     final sections = data.entries.map((e) {
       final color = statusColor(e.key);
@@ -178,7 +178,7 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> with SingleTick
 
   Widget _buildBarChart() {
     final data = _directionData;
-    if (data.isEmpty) return const Center(child: Text('Aucune donnée', style: TextStyle(color: ATColors.textSecondary)));
+    if (data.isEmpty) return Center(child: Text('Aucune donnée', style: TextStyle(color: context.textSecondary)));
     final maxV = data.map((d) => (d['missions_total'] as num? ?? d['count'] as num? ?? 0).toDouble()).reduce((a, b) => a > b ? a : b) + 2;
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -259,7 +259,7 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> with SingleTick
               child: TabBar(
                 controller: _tabCtrl,
                 labelColor: ATColors.secondary,
-                unselectedLabelColor: ATColors.textSecondary,
+                unselectedLabelColor: context.textSecondary,
                 indicatorColor: ATColors.secondary,
                 tabs: const [Tab(text: 'Par mois'), Tab(text: 'Par statut'), Tab(text: 'Par direction')],
               ),

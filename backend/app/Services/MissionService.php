@@ -27,20 +27,33 @@ class MissionService
             throw new \Exception('Ajoutez au moins une réservation avant de soumettre');
         }
 
-        // Circuit hiérarchique réaliste : le(s) validateur(s) de la direction
-        // du demandeur (2 niveaux max). Avant, TOUS les validateurs de
-        // l'entreprise (22) étaient mis dans le circuit séquentiel : une
-        // mission ne devenait jamais "approuve" et la file DML restait vide.
         $mission->loadMissing('user');
-        $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
-            ->actif()
-            ->where('direction', $mission->user?->direction)
-            ->orderBy('id')
-            ->limit(2)
-            ->get();
+        $direction = $mission->user?->direction;
+
+        $validateurs = collect();
+
+        if ($direction) {
+            $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
+                ->actif()
+                ->where('direction', $direction)
+                ->orderBy('id')
+                ->limit(1)
+                ->get();
+        }
 
         if ($validateurs->isEmpty()) {
-            // Direction sans validateur : repli sur le premier validateur actif
+            $structureId = $mission->user?->structure_id;
+            if ($structureId) {
+                $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
+                    ->actif()
+                    ->where('structure_id', $structureId)
+                    ->orderBy('id')
+                    ->limit(1)
+                    ->get();
+            }
+        }
+
+        if ($validateurs->isEmpty()) {
             $validateurs = User::whereHas('role', fn ($q) => $q->where('name', 'validateur'))
                 ->actif()
                 ->orderBy('id')
@@ -53,29 +66,46 @@ class MissionService
         }
 
         return DB::transaction(function () use ($mission, $validateurs) {
-            // 1. Mettre à jour le statut
+            CircuitValidation::where('mission_id', $mission->id)->delete();
+
             $mission->update([
                 'statut' => 'soumis',
                 'soumis_le' => now(),
             ]);
 
-            // 2. Créer le circuit de validation (séquentiel, 2 niveaux max)
+            $creatorId = $mission->user_id ?? $mission->created_by;
+            $autoApproved = false;
+
             foreach ($validateurs as $index => $validateur) {
+                $isCreator = (int) $validateur->id === (int) $creatorId;
                 CircuitValidation::create([
                     'mission_id' => $mission->id,
                     'validateur_id' => $validateur->id,
                     'ordre_validation' => $index + 1,
-                    'statut' => 'en_attente',
+                    'statut' => $isCreator ? 'approuve' : 'en_attente',
+                    'commentaire' => $isCreator ? 'Auto-validé (directeur/créateur)' : null,
+                    'date_validation' => $isCreator ? now() : null,
                 ]);
+                if ($isCreator) {
+                    $autoApproved = true;
+                }
             }
 
-            if ($validateurs->isNotEmpty()) {
+            if ($autoApproved) {
+                $allApproved = CircuitValidation::where('mission_id', $mission->id)
+                    ->where('statut', '!=', 'approuve')
+                    ->doesntExist();
+
+                if ($allApproved) {
+                    $mission->update(['statut' => 'approuve']);
+                }
+            }
+
+            if ($validateurs->isNotEmpty() && ! $autoApproved) {
                 $mission->loadMissing('user');
                 $demandeur = $mission->user;
                 if ($demandeur) {
                     foreach ($validateurs as $v) {
-                        // Un échec d'e-mail ne doit jamais annuler la soumission.
-                        // File "database" forcée : jamais d'envoi SMTP bloquant dans la requête.
                         try {
                             Mail::to($v->email)->queue((new MissionSoumise($mission, $demandeur))->onConnection('database'));
                         } catch (\Throwable $e) {
@@ -95,14 +125,17 @@ class MissionService
     /**
      * Annuler une mission.
      */
-    public function cancel(Mission $mission)
+    public function cancel(Mission $mission, ?string $motif = null)
     {
         if ($mission->statut === 'termine' || $mission->statut === 'annule') {
             throw new \Exception('Cette mission ne peut plus être annulée.');
         }
 
-        return DB::transaction(function () use ($mission) {
-            $mission->update(['statut' => 'annule']);
+        return DB::transaction(function () use ($mission, $motif) {
+            $mission->update([
+                'statut' => 'annule',
+                'motif_annulation' => $motif,
+            ]);
 
             // Annuler le circuit de validation en cours
             CircuitValidation::where('mission_id', $mission->id)

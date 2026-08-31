@@ -21,8 +21,8 @@ export default function Badge({ status, label, className = '' }) {
   const displayLabel = label ?? c.label;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${c.cls} ${className}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${c.dot} ${c.pulse ? 'animate-pulse' : ''}`} />
+    <span className={`at-status-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${c.cls} ${className}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot} ${c.pulse ? 'at-dot-live' : ''}`} />
       {displayLabel}
     </span>
   );

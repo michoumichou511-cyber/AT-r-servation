@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../config/theme.dart';
 import '../../design/design_system.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
@@ -83,6 +86,13 @@ class _ProfilScreenState extends State<ProfilScreen> {
     builder: (_) => const _ChangePasswordSheet(),
   );
 
+  Future<void> _showEditProfile() => showModalBottomSheet<void>(
+    context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
+    builder: (_) => _EditProfileSheet(onSaved: () {
+      context.read<AuthProvider>().refreshUser();
+    }),
+  );
+
   Future<void> _confirmLogout() async {
     final ok = await showDialog<bool>(
       context: context,
@@ -123,7 +133,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final isLdap  = user.authMethod?.contains('ldap') == true;
 
     return Scaffold(
-      backgroundColor: DS.background,
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -158,6 +168,28 @@ class _ProfilScreenState extends State<ProfilScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: _InfoSection(user: user)
                 .animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.2),
+          )),
+
+          // ── Bouton Modifier profil ───────────────────────────────────
+          SliverToBoxAdapter(child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: GestureDetector(
+              onTap: _showEditProfile,
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [Color(0xFF003DA5), Color(0xFF0052CC)]),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [BoxShadow(color: Color(0x30003DA5), blurRadius: 12, offset: Offset(0, 4))],
+                ),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const Icon(Icons.edit_outlined, color: Colors.white, size: 18),
+                  const SizedBox(width: 8),
+                  Text('Modifier mon profil', style: GoogleFonts.inter(
+                      color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                ]),
+              ),
+            ).animate().fadeIn(delay: 150.ms, duration: 400.ms).slideY(begin: 0.2),
           )),
 
           // ── Paramètres ────────────────────────────────────────────────
@@ -225,7 +257,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 140),
             child: Center(child: Text(
               'AT Réservations · Algérie Télécom · v1.0.0',
-              style: GoogleFonts.inter(fontSize: 12, color: DS.textMuted, fontWeight: FontWeight.w500),
+              style: GoogleFonts.inter(fontSize: 12, color: context.textMuted, fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 500.ms)),
           )),
@@ -238,14 +270,67 @@ class _ProfilScreenState extends State<ProfilScreen> {
 // ══════════════════════════════════════════════════════════════════════════════
 // HEADER
 // ══════════════════════════════════════════════════════════════════════════════
-class _ProfilHeader extends StatelessWidget {
+class _ProfilHeader extends StatefulWidget {
   final dynamic user;
   final Color roleCol;
   final String roleLbl;
   const _ProfilHeader({required this.user, required this.roleCol, required this.roleLbl});
+  @override
+  State<_ProfilHeader> createState() => _ProfilHeaderState();
+}
+
+class _ProfilHeaderState extends State<_ProfilHeader> {
+  bool _uploading = false;
+  String? _avatarUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final u = widget.user;
+    if (u.avatarUrl != null && (u.avatarUrl as String).isNotEmpty) {
+      _avatarUrl = u.avatarUrl as String;
+    }
+  }
+
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, imageQuality: 80);
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploading = true);
+    try {
+      final bytes = await File(picked.path).readAsBytes();
+      final res = await ApiService().postMultipart(
+        '/auth/avatar',
+        fileBytes: bytes,
+        fileName: picked.name,
+        fileField: 'avatar',
+      );
+      if (!mounted) return;
+      final data = res is Map ? res : {};
+      final url = data['avatar_url'] as String? ?? data['data']?['avatar_url'] as String?;
+      if (url != null) {
+        setState(() => _avatarUrl = url);
+        context.read<AuthProvider>().refreshUser();
+      }
+      setState(() => _uploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Photo de profil mise à jour'), backgroundColor: Color(0xFF00A650)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _uploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString().replaceFirst(RegExp(r'^Exception: '), '')}'), backgroundColor: Colors.red),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = widget.user;
+    final roleCol = widget.roleCol;
+    final roleLbl = widget.roleLbl;
     final isLdap = user.authMethod?.contains('ldap') == true;
     return Container(
       decoration: const BoxDecoration(
@@ -255,79 +340,86 @@ class _ProfilHeader extends StatelessWidget {
         ),
       ),
       child: Stack(children: [
-        // Cercles décoratifs
         Positioned(top: -50, right: -50, child: _Circle(180, Colors.white.withValues(alpha: 0.05))),
         Positioned(bottom: 10, left: -70, child: _Circle(140, Colors.white.withValues(alpha: 0.04))),
-        // Contenu
-        SafeArea(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const SizedBox(height: 44),
-          // Avatar + bague rôle + badge doré
-          Stack(alignment: Alignment.center, children: [
-            // Bague rôle (anneau coloré extérieur)
-            Container(
-              width: 102, height: 102,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: roleCol, width: 3),
-                boxShadow: [BoxShadow(color: roleCol.withValues(alpha: 0.45), blurRadius: 16)],
-              ),
+        Positioned(top: 30, left: 30, child: _Circle(60, Colors.white.withValues(alpha: 0.03))),
+        SafeArea(child: Center(child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const SizedBox(height: 48),
+            GestureDetector(
+              onTap: _uploading ? null : _pickAndUploadPhoto,
+              child: Stack(alignment: Alignment.center, children: [
+                Container(
+                  width: 108, height: 108,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: roleCol, width: 3),
+                    boxShadow: [BoxShadow(color: roleCol.withValues(alpha: 0.45), blurRadius: 20)],
+                  ),
+                ),
+                Container(
+                  width: 94, height: 94,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                  ),
+                  child: ClipOval(
+                    child: _uploading
+                        ? const Center(child: SizedBox(width: 30, height: 30,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                        : _avatarUrl != null
+                            ? Image.network(_avatarUrl!, fit: BoxFit.cover, width: 94, height: 94,
+                                errorBuilder: (_, __, ___) => Center(child: Text(user.initiales,
+                                    style: GoogleFonts.inter(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800))))
+                            : Center(child: Text(user.initiales,
+                                style: GoogleFonts.inter(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800))),
+                  ),
+                ),
+                Positioned(bottom: 0, right: 0, child: Container(
+                  width: 30, height: 30,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00A650),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 4, offset: Offset(0, 2))],
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, size: 15, color: Colors.white),
+                )),
+              ]),
             ),
-            // Avatar
+            const SizedBox(height: 14),
+            Text(user.nomComplet, textAlign: TextAlign.center,
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
             Container(
-              width: 90, height: 90,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.15),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                color: roleCol.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: roleCol.withValues(alpha: 0.5)),
               ),
-              child: Center(child: Text(user.initiales,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800))),
+              child: Text(roleLbl, style: GoogleFonts.inter(
+                  color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
             ),
-            // Badge doré vérifié
-            Positioned(bottom: 2, right: 2, child: Container(
-              width: 26, height: 26,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFD700),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+            const SizedBox(height: 8),
+            Text(user.email, textAlign: TextAlign.center,
+                style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
+            if (isLdap) ...[
+              const SizedBox(height: 7),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text('🏢 Active Directory',
+                    style: GoogleFonts.inter(color: Colors.white70, fontSize: 11)),
               ),
-              child: const Icon(Icons.verified, size: 14, color: Colors.white),
-            )),
+            ],
           ]),
-          const SizedBox(height: 12),
-          // Nom complet
-          Text(user.nomComplet,
-              style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          // Badge rôle
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-            decoration: BoxDecoration(
-              color: roleCol.withValues(alpha: 0.22),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: roleCol.withValues(alpha: 0.5)),
-            ),
-            child: Text(roleLbl, style: GoogleFonts.inter(
-                color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(height: 7),
-          // Email
-          Text(user.email,
-              style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.65), fontSize: 13)),
-          // Badge méthode auth
-          if (isLdap) ...[
-            const SizedBox(height: 7),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text('🏢 Active Directory',
-                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 11)),
-            ),
-          ],
-        ])),
+        ))),
       ]),
     );
   }
@@ -416,7 +508,7 @@ class _InfoSection extends StatelessWidget {
   final dynamic user;
   const _InfoSection({required this.user});
 
-  Widget _row(Color col, IconData icon, String label, String? val) => Padding(
+  Widget _row(BuildContext context, Color col, IconData icon, String label, String? val) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
     child: Row(children: [
       Container(
@@ -425,7 +517,7 @@ class _InfoSection extends StatelessWidget {
         child: Icon(icon, size: 18, color: col),
       ),
       const SizedBox(width: 12),
-      Text('$label :', style: GoogleFonts.inter(fontSize: 13, color: DS.textMuted)),
+      Text('$label :', style: GoogleFonts.inter(fontSize: 13, color: context.textMuted)),
       const SizedBox(width: 8),
       Expanded(child: Text(
         val ?? 'Non renseigné',
@@ -433,7 +525,7 @@ class _InfoSection extends StatelessWidget {
         style: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: val != null ? FontWeight.w600 : FontWeight.w400,
-          color: val != null ? DS.textPrimary : DS.textPlaceholder,
+          color: val != null ? context.textPrimary : DS.textPlaceholder,
           fontStyle: val == null ? FontStyle.italic : FontStyle.normal,
         ),
       )),
@@ -446,12 +538,12 @@ class _InfoSection extends StatelessWidget {
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('Informations', style: DS.h3),
       const SizedBox(height: 16),
-      _row(DS.info,                      Icons.email_outlined,    'Email',     user.email),
-      _row(const Color(0xFF6366F1),      Icons.badge_outlined,    'Matricule', user.matricule),
-      _row(DS.secondary,                 Icons.business_outlined, 'Direction', user.direction),
-      _row(DS.success,                   Icons.group_outlined,    'Service',   user.service),
-      _row(DS.warning,                   Icons.work_outline,      'Poste',     user.poste),
-      _row(const Color(0xFF0EA5E9),      Icons.phone_outlined,    'Téléphone', user.telephone),
+      _row(context, DS.info,                      Icons.email_outlined,    'Email',     user.email),
+      _row(context, const Color(0xFF6366F1),      Icons.badge_outlined,    'Matricule', user.matricule),
+      _row(context, DS.secondary,                 Icons.business_outlined, 'Direction', user.direction),
+      _row(context, DS.success,                   Icons.group_outlined,    'Service',   user.service),
+      _row(context, DS.warning,                   Icons.work_outline,      'Poste',     user.poste),
+      _row(context, const Color(0xFF0EA5E9),      Icons.phone_outlined,    'Téléphone', user.telephone),
     ]),
   );
 }
@@ -497,10 +589,10 @@ class _CardSection extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(ttl, style: DS.body.copyWith(color: DS.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(ttl, style: DS.body.copyWith(color: context.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                 Text(sub, style: DS.caption),
               ])),
-              if (onTap != null) Icon(Icons.chevron_right_rounded, color: DS.textMuted, size: 20),
+              if (onTap != null) Icon(Icons.chevron_right_rounded, color: context.textMuted, size: 20),
             ]),
           ),
         );
@@ -631,9 +723,9 @@ class _Sheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    decoration: BoxDecoration(
+      color: context.cardBg,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
     ),
     padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -661,16 +753,16 @@ class _Sheet extends StatelessWidget {
 class _NotificationsSheet extends StatelessWidget {
   const _NotificationsSheet();
 
-  Widget _row(BuildContext ctx, String title, String sub, bool val, ValueChanged<bool> cb) =>
+  Widget _row(BuildContext context, String title, String sub, bool val, ValueChanged<bool> cb) =>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         child: Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: GoogleFonts.inter(
-                  fontSize: 14, fontWeight: FontWeight.w600, color: DS.textPrimary)),
+                  fontSize: 14, fontWeight: FontWeight.w600, color: context.textPrimary)),
               Text(sub, style: GoogleFonts.inter(
-                  fontSize: 12, color: DS.textMuted)),
+                  fontSize: 12, color: context.textMuted)),
             ])),
           Switch(
             value: val,
@@ -700,7 +792,7 @@ class _NotificationsSheet extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text('Préférences enregistrées automatiquement sur l\'appareil.',
-              style: GoogleFonts.inter(fontSize: 11, color: DS.textMuted),
+              style: GoogleFonts.inter(fontSize: 11, color: context.textMuted),
               textAlign: TextAlign.center),
         ),
       ]),
@@ -722,7 +814,7 @@ class _AppearanceSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Thème', style: GoogleFonts.inter(
-              fontSize: 13, fontWeight: FontWeight.w700, color: DS.textMuted)),
+              fontSize: 13, fontWeight: FontWeight.w700, color: context.textMuted)),
           const SizedBox(height: 10),
           Row(children: [
             Expanded(child: GestureDetector(
@@ -742,17 +834,6 @@ class _AppearanceSheet extends StatelessWidget {
               child: _ThemeCard('Auto', Icons.brightness_auto,
                   themeProv.setting == ThemeSetting.auto),
             )),
-          ]),
-          const SizedBox(height: 20),
-          Text('Langue', style: GoogleFonts.inter(
-              fontSize: 13, fontWeight: FontWeight.w700, color: DS.textMuted)),
-          const SizedBox(height: 10),
-          Row(children: [
-            _LangChip('Français', 'fr', prefs.locale.languageCode,
-                (v) => prefs.setLocale(v)),
-            const SizedBox(width: 8),
-            _LangChip('العربية',  'ar', prefs.locale.languageCode,
-                (v) => prefs.setLocale(v)),
           ]),
           const SizedBox(height: 16),
           Container(
@@ -792,11 +873,11 @@ class _ThemeCard extends StatelessWidget {
         color: active ? DS.primary : Colors.transparent, width: 1.5),
     ),
     child: Column(children: [
-      Icon(icon, color: active ? DS.primary : DS.textMuted, size: 22),
+      Icon(icon, color: active ? DS.primary : context.textMuted, size: 22),
       const SizedBox(height: 6),
       Text(label, style: GoogleFonts.inter(
         fontSize: 12, fontWeight: FontWeight.w600,
-        color: active ? DS.primary : DS.textMuted)),
+        color: active ? DS.primary : context.textMuted)),
     ]),
   );
 }
@@ -819,7 +900,7 @@ class _LangChip extends StatelessWidget {
         ),
         child: Text(label, style: GoogleFonts.inter(
           fontSize: 13, fontWeight: FontWeight.w600,
-          color: sel ? Colors.white : DS.textMuted)),
+          color: sel ? Colors.white : context.textMuted)),
       ),
     );
   }
@@ -829,7 +910,7 @@ class _LangChip extends StatelessWidget {
 class _HelpSheet extends StatelessWidget {
   const _HelpSheet();
 
-  Widget _item(IconData icon, Color col, String title, String sub) =>
+  Widget _item(BuildContext context, IconData icon, Color col, String title, String sub) =>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         child: Row(children: [
@@ -845,9 +926,9 @@ class _HelpSheet extends StatelessWidget {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: GoogleFonts.inter(
-                  fontSize: 14, fontWeight: FontWeight.w600, color: DS.textPrimary)),
+                  fontSize: 14, fontWeight: FontWeight.w600, color: context.textPrimary)),
               Text(sub, style: GoogleFonts.inter(
-                  fontSize: 12, color: DS.textMuted)),
+                  fontSize: 12, color: context.textMuted)),
             ])),
         ]),
       );
@@ -857,10 +938,10 @@ class _HelpSheet extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: 24),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       const SizedBox(height: 4),
-      _item(Icons.email_outlined,         DS.primary,  'Support technique',       'support@algerie-telecom.dz'),
-      _item(Icons.phone_outlined,         DS.success,  'Assistance téléphonique', '+213 (0) 21 — XXX XXX'),
-      _item(Icons.help_center_outlined,   DS.warning,  'FAQ',                     'Consultez les questions fréquentes'),
-      _item(Icons.bug_report_outlined,    DS.error,    'Signaler un problème',    'Envoyez un rapport de bug'),
+      _item(context, Icons.email_outlined,         DS.primary,  'Support technique',       'support@algerie-telecom.dz'),
+      _item(context, Icons.phone_outlined,         DS.success,  'Assistance téléphonique', '+213 (0) 21 — XXX XXX'),
+      _item(context, Icons.help_center_outlined,   DS.warning,  'FAQ',                     'Consultez les questions fréquentes'),
+      _item(context, Icons.bug_report_outlined,    DS.error,    'Signaler un problème',    'Envoyez un rapport de bug'),
       const SizedBox(height: 12),
       Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -873,9 +954,9 @@ class _HelpSheet extends StatelessWidget {
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('AT Réservations', style: GoogleFonts.inter(
-                fontSize: 12, fontWeight: FontWeight.w600, color: DS.textMuted)),
+                fontSize: 12, fontWeight: FontWeight.w600, color: context.textMuted)),
             Text('v1.0.0 — Algérie Télécom', style: GoogleFonts.inter(
-                fontSize: 12, color: DS.textMuted)),
+                fontSize: 12, color: context.textMuted)),
           ]),
       ),
     ]),
@@ -907,8 +988,8 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
     try {
       await ApiService().post('/auth/change-password', {
         'current_password': _curCtrl.text,
-        'password': _newCtrl.text,
-        'password_confirmation': _confCtrl.text,
+        'new_password': _newCtrl.text,
+        'new_password_confirmation': _confCtrl.text,
       });
       if (!mounted) return;
       setState(() { _loading = false; _success = true; });
@@ -931,7 +1012,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
           controller: _curCtrl, label: 'Mot de passe actuel',
           prefixIcon: Icons.lock_outlined, obscure: _hideCur,
           suffix: IconButton(
-            icon: Icon(_hideCur ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: DS.textMuted),
+            icon: Icon(_hideCur ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: context.textMuted),
             onPressed: () => setState(() => _hideCur = !_hideCur)),
         ),
         const SizedBox(height: 12),
@@ -939,7 +1020,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
           controller: _newCtrl, label: 'Nouveau mot de passe',
           prefixIcon: Icons.key_outlined, obscure: _hideNew,
           suffix: IconButton(
-            icon: Icon(_hideNew ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: DS.textMuted),
+            icon: Icon(_hideNew ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: context.textMuted),
             onPressed: () => setState(() => _hideNew = !_hideNew)),
         ),
         const SizedBox(height: 12),
@@ -947,7 +1028,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
           controller: _confCtrl, label: 'Confirmer le mot de passe',
           prefixIcon: Icons.check_circle_outline, obscure: _hideConf,
           suffix: IconButton(
-            icon: Icon(_hideConf ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: DS.textMuted),
+            icon: Icon(_hideConf ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20, color: context.textMuted),
             onPressed: () => setState(() => _hideConf = !_hideConf)),
         ),
         if (_error != null) ...[
@@ -975,6 +1056,196 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
           ),
         ],
         const SizedBox(height: 20),
+        ATButton(label: 'Enregistrer', onPressed: _submit, loading: _loading, icon: Icons.save_outlined),
+      ]),
+    ),
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EDIT PROFILE SHEET
+// ══════════════════════════════════════════════════════════════════════════════
+class _EditProfileSheet extends StatefulWidget {
+  final VoidCallback onSaved;
+  const _EditProfileSheet({required this.onSaved});
+  @override
+  State<_EditProfileSheet> createState() => _EditProfileSheetState();
+}
+
+class _EditProfileSheetState extends State<_EditProfileSheet> {
+  static const _directions = [
+    'Direction Générale',
+    'Ressources Humaines',
+    'Logistique',
+    'Technique',
+    'Commerciale',
+    'Financière',
+    'Système d\'Information',
+    'Juridique',
+    'Communication',
+    'Audit Interne',
+    'Achats',
+    'Exploitation',
+    'Maintenance',
+    'Réseaux',
+    'Développement',
+  ];
+  static const _services = [
+    'Administration',
+    'Recrutement',
+    'Formation',
+    'Paie',
+    'Achats',
+    'Stock',
+    'Transport',
+    'IT',
+    'Réseau',
+    'Sécurité',
+    'Support Technique',
+    'Comptabilité',
+    'Trésorerie',
+    'Marketing',
+    'Ventes',
+    'Service Client',
+    'Qualité',
+    'Planification',
+    'Projets',
+  ];
+
+  final _nomCtrl    = TextEditingController();
+  final _prenomCtrl = TextEditingController();
+  final _telCtrl    = TextEditingController();
+  final _posteCtrl  = TextEditingController();
+  String? _selectedDirection;
+  String? _selectedService;
+  bool _loading = false;
+  String? _error;
+  bool _success = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = context.read<AuthProvider>().user;
+    if (user != null) {
+      _nomCtrl.text    = user.nom;
+      _prenomCtrl.text = user.prenom;
+      _telCtrl.text    = user.telephone ?? '';
+      _posteCtrl.text  = user.poste ?? '';
+      _selectedDirection = _directions.contains(user.direction) ? user.direction : null;
+      _selectedService   = _services.contains(user.service) ? user.service : null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nomCtrl.dispose(); _prenomCtrl.dispose(); _telCtrl.dispose(); _posteCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_nomCtrl.text.trim().isEmpty || _prenomCtrl.text.trim().isEmpty) {
+      setState(() => _error = 'Nom et prénom sont obligatoires.');
+      return;
+    }
+    final tel = _telCtrl.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+    if (tel.isNotEmpty && tel.length != 10) {
+      setState(() => _error = 'Le numéro de téléphone doit contenir 10 chiffres.');
+      return;
+    }
+    setState(() { _loading = true; _error = null; });
+    try {
+      await ApiService().put('/auth/profile', {
+        'nom': _nomCtrl.text.trim(),
+        'prenom': _prenomCtrl.text.trim(),
+        'telephone': tel.isEmpty ? null : tel,
+        'direction': _selectedDirection,
+        'service': _selectedService,
+        'poste': _posteCtrl.text.trim().isEmpty ? null : _posteCtrl.text.trim(),
+      });
+      if (!mounted) return;
+      setState(() { _loading = false; _success = true; });
+      widget.onSaved();
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _loading = false; _error = e.toString().replaceFirst(RegExp(r'^Exception: '), ''); });
+    }
+  }
+
+  Widget _dropdown(String label, IconData icon, String? value, List<String> items, ValueChanged<String?> onChanged) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        isExpanded: true,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF64748B)),
+          prefixIcon: Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 4),
+        ),
+        style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF1F2937)),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        items: items.map((s) => DropdownMenuItem(value: s, child: Text(s, overflow: TextOverflow.ellipsis))).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => _Sheet(
+    title: 'Modifier mon profil',
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Row(children: [
+          Expanded(child: ATTextField(controller: _prenomCtrl, label: 'Prénom', prefixIcon: Icons.person_outline)),
+          const SizedBox(width: 10),
+          Expanded(child: ATTextField(controller: _nomCtrl, label: 'Nom', prefixIcon: Icons.person_outline)),
+        ]),
+        const SizedBox(height: 10),
+        ATTextField(controller: _telCtrl, label: 'Téléphone (10 chiffres)', prefixIcon: Icons.phone_outlined,
+            keyboardType: TextInputType.phone),
+        const SizedBox(height: 10),
+        _dropdown('Direction', Icons.business_outlined, _selectedDirection, _directions, (v) => setState(() => _selectedDirection = v)),
+        const SizedBox(height: 10),
+        _dropdown('Service', Icons.group_outlined, _selectedService, _services, (v) => setState(() => _selectedService = v)),
+        const SizedBox(height: 10),
+        ATTextField(controller: _posteCtrl, label: 'Poste', prefixIcon: Icons.work_outline),
+        if (_error != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: DS.error.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+            child: Row(children: [
+              Icon(Icons.error_outline_rounded, color: DS.error, size: 18),
+              const SizedBox(width: 8),
+              Expanded(child: Text(_error!, style: DS.caption.copyWith(color: DS.error))),
+            ]),
+          ),
+        ],
+        if (_success) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: DS.success.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+            child: Row(children: [
+              Icon(Icons.check_circle_outline, color: DS.success, size: 18),
+              const SizedBox(width: 8),
+              Text('Profil mis à jour !', style: DS.caption.copyWith(color: DS.success)),
+            ]),
+          ),
+        ],
+        const SizedBox(height: 16),
         ATButton(label: 'Enregistrer', onPressed: _submit, loading: _loading, icon: Icons.save_outlined),
       ]),
     ),

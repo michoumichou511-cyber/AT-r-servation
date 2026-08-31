@@ -1,0 +1,68 @@
+- generic [ref=e2]:
+  - status [ref=e116]: Connexion réussie !
+  - generic [ref=e117]:
+    - link "Aller au contenu principal" [ref=e118] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=e120]:
+      - generic [ref=e121]:
+        - generic [ref=e123]:
+          - img "Algérie Télécom" [ref=e125]
+          - generic [ref=e126]:
+            - generic [ref=e127]: Réservations AT
+            - generic [ref=e128]: Algérie Télécom
+        - generic [ref=e129]:
+          - generic [ref=e130]: AS
+          - generic [ref=e131]:
+            - generic [ref=e132]: Admin Système
+            - generic [ref=e133]: admin
+        - textbox "Rechercher..." [ref=e139]
+        - navigation [ref=e140]:
+          - link "Tableau de bord" [ref=e141] [cursor=pointer]:
+            - /url: /
+          - link "Organigramme" [ref=e149] [cursor=pointer]:
+            - /url: /organigramme
+          - link "Mes missions" [ref=e154] [cursor=pointer]:
+            - /url: /missions
+          - link "Calendrier" [ref=e159] [cursor=pointer]:
+            - /url: /missions/calendrier
+          - link "Validations" [ref=e163] [cursor=pointer]:
+            - /url: /validations
+          - link "Messagerie" [ref=e168] [cursor=pointer]:
+            - /url: /messagerie
+          - link "Notifications" [ref=e172] [cursor=pointer]:
+            - /url: /notifications
+          - link "Mon profil" [ref=e177] [cursor=pointer]:
+            - /url: /profil
+          - link "A propos" [ref=e182] [cursor=pointer]:
+            - /url: /about
+          - link "Rapports" [ref=e186] [cursor=pointer]:
+            - /url: /rapports
+          - generic [ref=e191]:
+            - button "Administration" [ref=e192] [cursor=pointer]
+            - generic [ref=e196]:
+              - link "Utilisateurs" [ref=e197] [cursor=pointer]:
+                - /url: /admin/utilisateurs
+              - link "Prestataires" [ref=e204] [cursor=pointer]:
+                - /url: /admin/prestataires
+              - link "Budgets" [ref=e210] [cursor=pointer]:
+                - /url: /admin/budgets
+              - link "Audit Logs" [ref=e215] [cursor=pointer]:
+                - /url: /admin/audit-logs
+              - link "Statistiques" [ref=e220] [cursor=pointer]:
+                - /url: /admin/statistiques
+              - link "Dashboard DSI" [ref=e224] [cursor=pointer]:
+                - /url: /admin/dashboard-executif
+              - link "Simulateur Budget" [ref=e228] [cursor=pointer]:
+                - /url: /admin/simulateur-budget
+        - button "Déconnexion" [ref=e234] [cursor=pointer]
+    - generic [ref=e239]:
+      - banner [ref=e240]:
+        - heading "Tableau de bord" [level=1] [ref=e242]
+        - generic [ref=e243]:
+          - textbox "Rechercher..." [ref=e249]
+          - button [ref=e250] [cursor=pointer]
+          - button [ref=e253] [cursor=pointer]
+          - button "AS Admin" [ref=e258] [cursor=pointer]:
+            - generic [ref=e259]: AS
+            - generic [ref=e260]: Admin
+      - main [ref=e261]

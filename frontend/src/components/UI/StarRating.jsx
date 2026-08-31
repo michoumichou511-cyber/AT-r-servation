@@ -6,7 +6,7 @@ export default function StarRating({ value = 0, onChange, readonly = false, size
   const display = hovered || value;
 
   return (
-    <div className="flex gap-0.5">
+    <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map(star => (
         <button
           key={star}
@@ -16,15 +16,17 @@ export default function StarRating({ value = 0, onChange, readonly = false, size
           onMouseEnter={() => !readonly && setHovered(star)}
           onMouseLeave={() => !readonly && setHovered(0)}
           className={[
-            'transition-transform duration-100',
-            !readonly ? 'hover:scale-110 active:scale-95 cursor-pointer' : 'cursor-default',
+            'transition-all duration-200',
+            !readonly ? 'hover:scale-125 active:scale-90 cursor-pointer' : 'cursor-default',
           ].join(' ')}
+          style={{ filter: star <= display ? 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4))' : 'none' }}
         >
           <Star
             size={size}
-            className="transition-colors duration-100"
+            className="transition-colors duration-200"
             fill={star <= display ? '#F59E0B' : 'transparent'}
-            stroke={star <= display ? '#F59E0B' : '#D1D5DB'}
+            stroke={star <= display ? '#F59E0B' : '#EAECF0'}
+            strokeWidth={star <= display ? 2 : 1.5}
           />
         </button>
       ))}

@@ -7,6 +7,9 @@ import 'package:animate_do/animate_do.dart';
 import 'package:simple_animations/simple_animations.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../config/theme.dart';
+import '../../config/constants.dart';
+import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/constellation_background.dart';
 
@@ -34,14 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _checkBiometric() async {
     try {
-      final hasToken = await _storage.read(key: 'sanctum_token');
-      if (hasToken == null) return;
+      final hasCreds = await _storage.read(key: 'bio_email');
+      if (hasCreds == null || hasCreds.isEmpty) return;
       final canCheck = await _localAuth.canCheckBiometrics;
       final isSupported = await _localAuth.isDeviceSupported();
       if (mounted && (canCheck || isSupported)) {
         setState(() => _biometricAvailable = true);
       }
     } catch (_) {}
+  }
+
+  Future<void> _saveBioCredentials(String email, String pass) async {
+    await _storage.write(key: 'bio_email', value: email);
+    await _storage.write(key: 'bio_pass', value: pass);
   }
 
   Future<void> _loginBiometric() async {
@@ -56,13 +64,20 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!authenticated || !mounted) return;
       HapticFeedback.lightImpact();
       setState(() { _loading = true; _error = null; });
-      await context.read<AuthProvider>().tryAutoLogin();
-      if (mounted && !context.read<AuthProvider>().isAuthenticated) {
-        setState(() => _error = 'Session expirée. Connectez-vous manuellement.');
+
+      final email = await _storage.read(key: 'bio_email');
+      final pass  = await _storage.read(key: 'bio_pass');
+      if (email == null || pass == null) {
+        if (mounted) setState(() => _error = 'Identifiants non sauvegardés. Connectez-vous manuellement.');
+        return;
       }
+      await context.read<AuthProvider>().login(email, pass);
     } catch (e) {
       if (mounted) {
-        setState(() => _error = 'Authentification biométrique échouée');
+        setState(() => _error = e.toString()
+            .replaceAll('Exception:', '')
+            .replaceAll('TimeoutException', 'Connexion impossible. Vérifiez votre réseau WiFi.')
+            .trim());
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -90,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await context.read<AuthProvider>().login(email, pass);
+      await _saveBioCredentials(email, pass);
     } catch (e) {
       if (mounted) {
         HapticFeedback.vibrate();
@@ -150,6 +166,89 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.dns_outlined, color: Colors.white70),
+              tooltip: 'Configuration Serveur API',
+              onPressed: _showServerConfigDialog,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showServerConfigDialog() async {
+    final apiService = ApiService();
+    final currentUrl = await apiService.getBaseUrl();
+    final ctrl = TextEditingController(text: currentUrl);
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.dns, color: Color(0xFF0056B3)),
+            SizedBox(width: 8),
+            Text('Serveur API Backend', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Adresse du serveur backend Laravel :', style: TextStyle(fontSize: 13)),
+            const SizedBox(height: 10),
+            TextField(
+              controller: ctrl,
+              decoration: const InputDecoration(
+                hintText: 'http://192.168.1.7:8000/api',
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                ActionChip(
+                  label: const Text('Wi-Fi PC (192.168.1.7)', style: TextStyle(fontSize: 11)),
+                  onPressed: () => ctrl.text = 'http://192.168.1.7:8000/api',
+                ),
+                ActionChip(
+                  label: const Text('USB (127.0.0.1)', style: TextStyle(fontSize: 11)),
+                  onPressed: () => ctrl.text = 'http://127.0.0.1:8000/api',
+                ),
+                ActionChip(
+                  label: const Text('Reset Défaut', style: TextStyle(fontSize: 11)),
+                  onPressed: () => ctrl.text = kApiBaseUrl,
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await apiService.setCustomUrl(ctrl.text);
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Serveur configuré : ${ctrl.text}')),
+                );
+              }
+            },
+            child: const Text('Enregistrer'),
+          ),
         ],
       ),
     );
@@ -188,23 +287,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: child,
               );
             },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('AT',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF003DA5),
-                      fontSize: 28, fontWeight: FontWeight.w900,
-                    )),
-                Container(
-                  width: 32, height: 2.5,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [Color(0xFF00A650), Color(0xFF003DA5)]),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(45),
+              child: Image.asset(
+                'assets/images/logo_at.jpg',
+                width: 90,
+                height: 90,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('AT',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF003DA5),
+                          fontSize: 28, fontWeight: FontWeight.w900,
+                        )),
+                    Container(
+                      width: 32, height: 2.5,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [Color(0xFF00A650), Color(0xFF003DA5)]),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -309,7 +417,7 @@ class _LoginScreenState extends State<LoginScreen> {
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
-          style: GoogleFonts.inter(fontSize: 15),
+          style: GoogleFonts.inter(fontSize: 15, color: const Color(0xFF1F2937)),
           decoration: _inputDeco('Adresse e-mail', Icons.alternate_email_rounded),
         ),
         const SizedBox(height: 14),
@@ -318,7 +426,7 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: !_showPass,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _login(),
-          style: GoogleFonts.inter(fontSize: 15),
+          style: GoogleFonts.inter(fontSize: 15, color: const Color(0xFF1F2937)),
           decoration: _inputDeco(
             'Mot de passe', Icons.lock_outline_rounded,
             suffix: IconButton(
@@ -378,18 +486,46 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         if (_biometricAvailable) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Center(
             child: FadeIn(
               delay: const Duration(milliseconds: 200),
-              child: TextButton.icon(
-                onPressed: _loading ? null : _loginBiometric,
-                icon: const Icon(Icons.fingerprint, size: 28,
-                    color: Color(0xFF003DA5)),
-                label: Text('Connexion biométrique',
-                    style: GoogleFonts.inter(
-                        color: const Color(0xFF003DA5),
-                        fontWeight: FontWeight.w600)),
+              child: GestureDetector(
+                onTap: _loading ? null : _loginBiometric,
+                child: Column(children: [
+                  LoopAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 2000),
+                    builder: (ctx, value, child) {
+                      final pulse = 0.6 + 0.4 * sin(value * 2 * pi);
+                      return Container(
+                        width: 64, height: 64,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF003DA5).withAlpha(12),
+                          border: Border.all(
+                            color: const Color(0xFF003DA5).withAlpha((pulse * 120).round()),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF003DA5).withAlpha((pulse * 50).round()),
+                              blurRadius: 16 + pulse * 8,
+                              spreadRadius: pulse * 2,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      );
+                    },
+                    child: const Icon(Icons.fingerprint, size: 32, color: Color(0xFF003DA5)),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Connexion biométrique',
+                      style: GoogleFonts.inter(
+                          color: const Color(0xFF003DA5), fontSize: 13,
+                          fontWeight: FontWeight.w600)),
+                ]),
               ),
             ),
           ),

@@ -1,0 +1,150 @@
+- generic [ref=f26e7]:
+  - link "Aller au contenu principal" [ref=f26e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f26e10]:
+    - generic [ref=f26e11]:
+      - generic [ref=f26e13]:
+        - img "Algérie Télécom" [ref=f26e15]
+        - generic [ref=f26e16]:
+          - generic [ref=f26e17]: Réservations AT
+          - generic [ref=f26e18]: Algérie Télécom
+      - generic [ref=f26e19]:
+        - generic [ref=f26e20]: AS
+        - generic [ref=f26e21]:
+          - generic [ref=f26e22]: Admin Système
+          - generic [ref=f26e23]: admin
+      - textbox "Rechercher..." [ref=f26e29]
+      - navigation [ref=f26e30]:
+        - link "Tableau de bord" [ref=f26e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f26e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f26e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f26e49] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f26e53] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f26e58] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f26e62] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f26e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f26e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f26e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f26e81]:
+          - button "Administration" [ref=f26e82] [cursor=pointer]
+          - generic [ref=f26e86]:
+            - link "Utilisateurs" [ref=f26e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f26e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f26e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f26e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f26e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f26e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f26e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f26e124] [cursor=pointer]
+  - generic [ref=f26e129]:
+    - banner [ref=f26e130]:
+      - heading "AT Réservations" [level=1] [ref=f26e345]
+      - generic [ref=f26e133]:
+        - textbox "Rechercher..." [ref=f26e139]
+        - button [ref=f26e140] [cursor=pointer]
+        - button [ref=f26e143] [cursor=pointer]
+        - button "AS Admin" [ref=f26e148] [cursor=pointer]:
+          - generic [ref=f26e149]: AS
+          - generic [ref=f26e150]: Admin
+    - main [ref=f26e151]:
+      - generic [ref=f26e347]:
+        - generic [ref=f26e348]:
+          - button "← Retour" [ref=f26e349] [cursor=pointer]
+          - generic [ref=f26e351]:
+            - heading "Nouvelle mission" [level=1] [ref=f26e352]
+            - paragraph [ref=f26e353]: Créez un ordre de mission en 4 étapes
+        - generic [ref=f26e355]:
+          - button "1 Informations" [disabled] [ref=f26e357]:
+            - generic [ref=f26e358]: "1"
+            - generic [ref=f26e360]: Informations
+          - button "2 Réservations" [disabled] [ref=f26e363]:
+            - generic [ref=f26e364]: "2"
+            - generic [ref=f26e366]: Réservations
+          - button "3 Documents" [disabled] [ref=f26e369]:
+            - generic [ref=f26e370]: "3"
+            - generic [ref=f26e372]: Documents
+          - button "4 Récapitulatif" [disabled] [ref=f26e375]:
+            - generic [ref=f26e376]: "4"
+            - generic [ref=f26e378]: Récapitulatif
+        - generic [ref=f26e381]:
+          - generic [ref=f26e382]:
+            - generic [ref=f26e383]:
+              - heading "Informations générales" [level=3] [ref=f26e384]
+              - paragraph [ref=f26e385]: Créez votre mission (brouillon).
+            - generic [ref=f26e386]: Étape 1/4
+          - button "Charger depuis un template" [ref=f26e390] [cursor=pointer]
+          - generic [ref=f26e395]:
+            - generic [ref=f26e396]: 0/9 champs requis remplis
+            - generic [ref=f26e397]: 0%
+          - generic [ref=f26e399]:
+            - generic [ref=f26e400]:
+              - generic [ref=f26e403]:
+                - textbox "Titre" [active] [ref=f26e404]:
+                  - /placeholder: "Ex: OM-2026 — Formation Laravel"
+                - generic: Titre
+              - generic [ref=f26e407]:
+                - textbox "Objet de la mission" [ref=f26e408]:
+                  - /placeholder: ""
+                - generic: Objet de la mission
+              - generic [ref=f26e411]:
+                - combobox "Ville de destination" [ref=f26e412]
+                - generic: Ville de destination
+              - generic [ref=f26e415]:
+                - combobox "Pays de destination" [ref=f26e416]
+                - generic: Pays de destination
+              - generic [ref=f26e417]:
+                - generic [ref=f26e418]: Date de départ
+                - textbox [ref=f26e419]
+              - generic [ref=f26e420]:
+                - generic [ref=f26e421]: Date de retour
+                - textbox [ref=f26e422]
+              - generic [ref=f26e425]:
+                - combobox "Type de mission *" [ref=f26e426] [cursor=pointer]:
+                  - option "Formation"
+                  - option "Conférence"
+                  - option "Réunion"
+                  - option "Inspection"
+                  - option "Audit"
+                  - option "Autre"
+                - generic: Type de mission *
+              - generic [ref=f26e429]:
+                - combobox "Priorité (optionnel)" [ref=f26e430] [cursor=pointer]:
+                  - option "Normale"
+                  - option "Urgente"
+                  - option "Très urgente"
+                - generic: Priorité (optionnel)
+              - generic [ref=f26e433]:
+                - combobox "Type de transport *" [ref=f26e434] [cursor=pointer]:
+                  - option "Par avion (convention AT / Air Algérie)"
+                  - option "Par voie terrestre"
+                - generic: Type de transport *
+              - generic [ref=f26e437]:
+                - combobox "Mode de budget *" [ref=f26e438] [cursor=pointer]:
+                  - option "Avance — montant versé avant la mission par l'entreprise"
+                  - option "Remboursement — l'employé paye et ramène les justificatifs"
+                - generic: Mode de budget *
+              - generic [ref=f26e439]:
+                - generic [ref=f26e440]:
+                  - generic [ref=f26e441]: Description (optionnel)
+                  - generic [ref=f26e442]: 0/1000
+                - textbox "Détails complémentaires" [ref=f26e443]
+            - generic [ref=f26e444]:
+              - generic [ref=f26e445]: "Astuce : Ctrl + Entrée pour valider"
+              - button "Suivant →" [ref=f26e446] [cursor=pointer]

@@ -61,6 +61,7 @@ const AuditLogs        = lazyRetry(() => import('./pages/admin/AuditLogs'), "le 
 const Statistiques     = lazyRetry(() => import('./pages/admin/Statistiques'), 'les statistiques');
 const Rapports         = lazyRetry(() => import('./pages/rapports/Rapports'), 'les rapports');
 const DmlDashboard     = lazyRetry(() => import('./pages/dml/DmlDashboard'), 'le module DML');
+const DmlMissions      = lazyRetry(() => import('./pages/dml/DmlMissions'), 'les missions DML');
 const About              = lazyRetry(() => import('./pages/About'), 'la page A propos');
 const CalendrierMissions = lazyRetry(() => import('./pages/missions/CalendrierMissions'), 'le calendrier');
 const DashboardExecutif = lazyRetry(() => import('./pages/admin/DashboardExecutif'), 'le dashboard DSI');
@@ -88,7 +89,7 @@ function AppRoutes() {
   const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#F4F6FA]">
+    <div className="flex items-center justify-center h-screen bg-[#F4F6FA] dark:bg-[#0A0F1E]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-at-green/20 border-t-at-green rounded-full animate-spin" />
         <span className="text-at-green font-semibold text-lg tracking-wide">
@@ -100,7 +101,7 @@ function AppRoutes() {
 
   return (
     <React.Suspense fallback={
-      <div className="flex items-center justify-center h-screen bg-[#F4F6FA]">
+      <div className="flex items-center justify-center h-screen bg-[#F4F6FA] dark:bg-[#0A0F1E]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-at-green/20 border-t-at-green rounded-full animate-spin" />
           <span className="text-at-green font-semibold text-lg tracking-wide">
@@ -131,13 +132,18 @@ function AppRoutes() {
           <Route path="/profil"              element={<Profil />} />
           <Route path="/about"               element={<About />} />
           <Route path="/rapports"            element={
-            <PrivateRoute roles={['admin', 'directeur']}>
+            <PrivateRoute roles={['admin', 'directeur', 'validateur']}>
               <Rapports />
             </PrivateRoute>
           } />
           <Route path="/dml"               element={
             <PrivateRoute roles={['agent_dml']}>
               <DmlDashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/dml/missions"    element={
+            <PrivateRoute roles={['agent_dml']}>
+              <DmlMissions />
             </PrivateRoute>
           } />
           <Route path="/admin/utilisateurs"  element={

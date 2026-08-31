@@ -130,10 +130,14 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ],
                     ),
-                    child: ClipOval(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(60),
                       child: Image.asset(
-                        'assets/fonts/test/Inter-Regular.ttf',
-                        errorBuilder: (_, __, ___) => const Icon(
+                        'assets/images/logo_at.jpg',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.flight_takeoff,
                           size: 56,
                           color: DS.secondary,

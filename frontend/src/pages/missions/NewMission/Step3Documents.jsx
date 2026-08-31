@@ -6,6 +6,13 @@ import toast from 'react-hot-toast'
 import { documentsAPI } from '../../../services/api'
 import { Badge, Button, EmptyState, FileDropZone, Modal } from '../../../components/UI'
 
+function formatBytes(bytes) {
+  if (!bytes && bytes !== 0) return '—'
+  if (bytes < 1024) return `${bytes} o`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} Mo`
+}
+
 function dlFromBlob(data, nom) {
   const blob = data instanceof Blob ? data : new Blob([data])
   const url = URL.createObjectURL(blob)
@@ -76,7 +83,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
 
   const validateClientFile = (f) => {
     if (!f) return 'Aucun fichier sélectionné'
-    if (f.size > MAX_BYTES) return 'Fichier trop volumineux (max 5MB)'
+    if (f.size > MAX_BYTES) return 'Fichier trop volumineux (max 5 Mo)'
     return null
   }
 
@@ -163,7 +170,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
     return (
       <div className="at-card-surface p-6">
         <div className="text-sm font-semibold text-red-700 mb-2">Mission introuvable</div>
-        <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">Revenez à l’étape 1 pour créer la mission.</div>
+        <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mb-4">Revenez à l’étape 1 pour créer la mission.</div>
         <Button variant="outline" onClick={onPrev}>
           ← Précédent
         </Button>
@@ -173,14 +180,19 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Documents</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">Téléversez vos pièces justificatives (PDF/DOC/DOCX/JPG, max 5MB).</p>
+          <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0] mb-2">Documents</h3>
+          <p className="text-sm text-[#9AA0AE]">Téléversez vos pièces justificatives (PDF/DOC/DOCX/JPG, max 5MB).</p>
         </div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-at-blue/10 border border-at-blue/20 text-at-blue text-xs font-semibold">
           <FileText size={14} /> Étape 3/4
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 text-amber-700 dark:text-amber-300 text-sm mb-5">
+        <span className="shrink-0 text-base">&#9432;</span>
+        <span>Les documents sont <strong>optionnels</strong> à cette étape. Vous pourrez les ajouter plus tard depuis le détail de la mission.</span>
       </div>
 
       {error && (
@@ -193,7 +205,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 at-card-surface p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Pièces justificatives</div>
+            <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Pièces justificatives</div>
             <Button variant="ghost" size="sm" onClick={resetForm} disabled={anyUploading} className="px-2">
               <RotateCcw size={16} />
             </Button>
@@ -206,7 +218,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
               { key: 'autorisation', label: 'Autorisation' },
             ].map((row) => (
               <div key={row.key} className="space-y-2">
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">{row.label}</div>
+                <div className="text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE]">{row.label}</div>
                 <FileDropZone
                   file={files[row.key]}
                   accept={ACCEPT}
@@ -250,8 +262,8 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
           ) : documents.length === 0 ? (
             <EmptyState
               icon={FileText}
-              title="Aucun document"
-              subtitle="Ajoutez une pièce pour enrichir votre ordre de mission."
+              title="Aucun document pour l'instant"
+              subtitle="Vous pouvez passer cette étape et ajouter des documents plus tard, ou en téléverser maintenant via le panneau de gauche."
             />
           ) : (
             <div className="space-y-3">
@@ -268,11 +280,11 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
                       <div className="flex items-center gap-2 mb-2">
                         <Badge status="actif" label={d.type_document ?? 'document'} />
                       </div>
-                      <div className="font-semibold text-gray-800 dark:text-gray-100 truncate">{d.nom_fichier ?? '—'}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300">
-                        Taille: <span className="font-semibold">{d.taille ?? '—'}</span>
+                      <div className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0] truncate">{d.nom_fichier ?? '—'}</div>
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+                        Taille: <span className="font-semibold">{formatBytes(d.taille)}</span>
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                         Ajouté: <span className="font-semibold">{d.created_at ?? '—'}</span>
                       </div>
                     </div>
@@ -314,7 +326,7 @@ export default function Step3Documents({ missionId, onNext, onPrev }) {
         }}
         title="Supprimer le document ?"
       >
-        <div className="text-sm text-gray-700 mb-4">
+        <div className="text-sm text-[#1A1D26] mb-4">
           Cette action supprime la pièce jointe de la mission.
         </div>
         <div className="flex items-center justify-end gap-3">

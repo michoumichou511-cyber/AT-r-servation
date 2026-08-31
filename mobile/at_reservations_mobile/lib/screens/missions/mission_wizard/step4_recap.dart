@@ -53,15 +53,15 @@ class Step4Recap extends StatelessWidget {
     }
   }
 
-  Widget _card({required String title, required IconData icon, required List<Widget> rows}) {
+  Widget _card(BuildContext context, {required String title, required IconData icon, required List<Widget> rows}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: context.shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -90,7 +90,7 @@ class Step4Recap extends StatelessWidget {
     );
   }
 
-  Widget _row(String label, String value, {Color? valueColor}) {
+  Widget _row(BuildContext context, String label, String value, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -99,8 +99,8 @@ class Step4Recap extends StatelessWidget {
           SizedBox(
             width: 130,
             child: Text(label,
-                style: const TextStyle(
-                    fontSize: 13, color: ATColors.textSecondary)),
+                style: TextStyle(
+                    fontSize: 13, color: context.textSecondary)),
           ),
           Expanded(
             child: Text(
@@ -108,7 +108,7 @@ class Step4Recap extends StatelessWidget {
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: valueColor ?? ATColors.textPrimary),
+                  color: valueColor ?? context.textPrimary),
             ),
           ),
         ],
@@ -165,122 +165,162 @@ class Step4Recap extends StatelessWidget {
         ),
 
         // INFORMATIONS
-        _card(
+        _card(context,
           title: 'INFORMATIONS',
           icon: Icons.info_outline,
           rows: [
-            _row('Objet', draft.objetMission),
+            _row(context,'Objet', draft.objetMission),
             const SizedBox(height: 2),
             Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 130,
                   child: Text('Type',
                       style: TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary)),
+                          fontSize: 13, color: context.textSecondary)),
                 ),
                 _badge(_labelType(draft.typeMission), ATColors.secondary),
               ],
             ),
             const SizedBox(height: 8),
-            _row('Départ',
+            _row(context,'Départ',
                 '${draft.wilayaDepart} — ${draft.villeDepart}'.trim()),
-            _row('Arrivée',
+            _row(context,'Arrivée',
                 '${draft.wilayaArrivee} — ${draft.villeArrivee}'.trim()),
-            _row('Date départ', _formatDate(draft.dateDepart)),
-            _row('Date retour', _formatDate(draft.dateRetour)),
+            _row(context,'Date départ', _formatDate(draft.dateDepart)),
+            _row(context,'Date retour', _formatDate(draft.dateRetour)),
             Row(children: [
-              const SizedBox(
+              SizedBox(
                 width: 130,
                 child: Text('Transport',
                     style: TextStyle(
-                        fontSize: 13, color: ATColors.textSecondary)),
+                        fontSize: 13, color: context.textSecondary)),
               ),
               _badge(_labelTransport(draft.moyenTransport), ATColors.primary),
             ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              SizedBox(
+                width: 130,
+                child: Text('Mode budget',
+                    style: TextStyle(
+                        fontSize: 13, color: context.textSecondary)),
+              ),
+              _badge(
+                draft.budgetMode == 'avance' ? 'Avance sur frais' : 'Remboursement',
+                draft.budgetMode == 'avance' ? ATColors.primary : ATColors.warning,
+              ),
+            ]),
+            if (draft.demandeAvance) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: ATColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: ATColors.primary.withValues(alpha: 0.25)),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.payments_outlined, size: 16, color: ATColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      draft.montantAvance != null
+                          ? "Avance demandée : ${draft.montantAvance!.toStringAsFixed(0)} DZD"
+                          : "Demande d'avance sur frais",
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: ATColors.primary,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ],
           ],
         ),
 
         // RÉSERVATIONS
-        _card(
+        _card(context,
           title: 'RÉSERVATIONS',
           icon: Icons.bookmark_outline,
           rows: [
             Row(children: [
-              const SizedBox(
+              SizedBox(
                   width: 130,
                   child: Text('Hébergement',
                       style: TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary))),
+                          fontSize: 13, color: context.textSecondary))),
               _badge(
                 draft.hebergementRequis ? 'Oui' : 'Non',
-                draft.hebergementRequis ? ATColors.success : ATColors.textSecondary,
+                draft.hebergementRequis ? ATColors.success : context.textSecondary,
               ),
             ]),
             if (draft.hebergementRequis) ...[
               const SizedBox(height: 6),
-              _row('Hôtel', draft.nomHotel ?? '—'),
-              _row('Check-in', _formatDate(draft.checkIn)),
-              _row('Check-out', _formatDate(draft.checkOut)),
+              _row(context,'Hôtel', draft.nomHotel ?? '—'),
+              _row(context,'Check-in', _formatDate(draft.checkIn)),
+              _row(context,'Check-out', _formatDate(draft.checkOut)),
             ],
             const SizedBox(height: 6),
             Row(children: [
-              const SizedBox(
+              SizedBox(
                   width: 130,
                   child: Text('Restauration',
                       style: TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary))),
+                          fontSize: 13, color: context.textSecondary))),
               _badge(
                 draft.restaurationRequise ? 'Oui' : 'Non',
-                draft.restaurationRequise ? ATColors.success : ATColors.textSecondary,
+                draft.restaurationRequise ? ATColors.success : context.textSecondary,
               ),
             ]),
             if (draft.restaurationRequise) ...[
               const SizedBox(height: 6),
-              _row('Repas / jour', '${draft.nombreRepas}'),
+              _row(context,'Repas / jour', '${draft.nombreRepas}'),
             ],
             const SizedBox(height: 6),
             Row(children: [
-              const SizedBox(
+              SizedBox(
                   width: 130,
                   child: Text('Billet',
                       style: TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary))),
+                          fontSize: 13, color: context.textSecondary))),
               _badge(
                 draft.billetRequis ? 'Oui' : 'Non',
-                draft.billetRequis ? ATColors.success : ATColors.textSecondary,
+                draft.billetRequis ? ATColors.success : context.textSecondary,
               ),
             ]),
             if (draft.billetRequis) ...[
               const SizedBox(height: 6),
-              _row('Compagnie', draft.compagnie ?? '—'),
-              _row('N° billet', draft.numeroBillet ?? '—'),
+              _row(context,'Compagnie', draft.compagnie ?? '—'),
+              _row(context,'N° billet', draft.numeroBillet ?? '—'),
             ],
           ],
         ),
 
         // DOCUMENTS
-        _card(
+        _card(context,
           title: 'DOCUMENTS',
           icon: Icons.attach_file_outlined,
           rows: [
             Row(children: [
-              const SizedBox(
+              SizedBox(
                   width: 130,
                   child: Text('Pièces jointes',
                       style: TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary))),
+                          fontSize: 13, color: context.textSecondary))),
               _badge(
                 '${draft.documents.length} fichier(s)',
                 draft.documents.isEmpty
-                    ? ATColors.textSecondary
+                    ? context.textSecondary
                     : ATColors.primary,
               ),
             ]),
             if (draft.commentaire != null &&
                 draft.commentaire!.isNotEmpty) ...[
               const SizedBox(height: 6),
-              _row('Note', draft.commentaire!),
+              _row(context,'Note', draft.commentaire!),
             ],
           ],
         ),
@@ -313,7 +353,7 @@ class Step4Recap extends StatelessWidget {
             label: const Text('Enregistrer en brouillon',
                 style: TextStyle(fontWeight: FontWeight.w500)),
             style: OutlinedButton.styleFrom(
-              foregroundColor: ATColors.textSecondary,
+              foregroundColor: context.textSecondary,
               side: const BorderSide(color: Colors.grey),
               minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(

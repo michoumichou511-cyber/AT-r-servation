@@ -1,0 +1,324 @@
+- generic [ref=f15e7]:
+  - link "Aller au contenu principal" [ref=f15e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f15e10]:
+    - generic [ref=f15e11]:
+      - generic [ref=f15e13]:
+        - img "Algérie Télécom" [ref=f15e15]
+        - generic [ref=f15e16]:
+          - generic [ref=f15e17]: Réservations AT
+          - generic [ref=f15e18]: Algérie Télécom
+      - generic [ref=f15e19]:
+        - generic [ref=f15e20]: AS
+        - generic [ref=f15e21]:
+          - generic [ref=f15e22]: Admin Système
+          - generic [ref=f15e23]: admin
+      - textbox "Rechercher..." [ref=f15e29]
+      - navigation [ref=f15e30]:
+        - link "Tableau de bord" [ref=f15e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f15e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f15e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f15e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f15e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f15e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f15e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f15e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f15e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f15e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f15e80]:
+          - button "Administration" [ref=f15e81] [cursor=pointer]
+          - generic [ref=f15e85]:
+            - link "Utilisateurs" [ref=f15e86] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f15e93] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f15e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f15e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f15e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f15e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f15e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f15e124] [cursor=pointer]
+  - generic [ref=f15e129]:
+    - banner [ref=f15e130]:
+      - heading "Prestataires" [level=1] [ref=f15e132]
+      - generic [ref=f15e133]:
+        - textbox "Rechercher..." [ref=f15e139]
+        - button [ref=f15e140] [cursor=pointer]
+        - button [ref=f15e143] [cursor=pointer]
+        - button "AS Admin" [ref=f15e148] [cursor=pointer]:
+          - generic [ref=f15e149]: AS
+          - generic [ref=f15e150]: Admin
+    - main [ref=f15e151]:
+      - generic [ref=f15e153]:
+        - generic [ref=f15e154]:
+          - button "← Retour" [ref=f15e155] [cursor=pointer]
+          - generic [ref=f15e156]:
+            - generic [ref=f15e157]:
+              - heading "Prestataires" [level=1] [ref=f15e158]
+              - paragraph [ref=f15e159]: Gestion des prestataires
+            - button "+ Nouveau" [ref=f15e161] [cursor=pointer]
+        - generic [ref=f15e163]:
+          - generic [ref=f15e164]:
+            - generic [ref=f15e165]: catering
+            - generic [ref=f15e166]:
+              - generic [ref=f15e167]:
+                - generic [ref=f15e168]:
+                  - generic [ref=f15e169]: Restaurant Le Sahel
+                  - generic [ref=f15e170]: Actif
+                - generic [ref=f15e172]: catering
+                - generic [ref=f15e173]: Alger
+                - generic [ref=f15e174]:
+                  - generic [ref=f15e175]:
+                    - generic [ref=f15e176]:
+                      - button [disabled] [ref=f15e177]
+                      - button [disabled] [ref=f15e180]
+                      - button [disabled] [ref=f15e183]
+                      - button [disabled] [ref=f15e186]
+                      - button [disabled] [ref=f15e189]
+                    - generic [ref=f15e192]: 0.0/5
+                  - generic [ref=f15e193]: 0 évaluation(s)
+                - generic [ref=f15e194]:
+                  - generic [ref=f15e195]: contact@sahel.dz
+                  - generic [ref=f15e199]: +213 21 50 60 70
+              - button "Favori" [ref=f15e203] [cursor=pointer]
+            - generic [ref=f15e209]:
+              - button "Évaluer" [ref=f15e210] [cursor=pointer]
+              - button "Modifier" [ref=f15e213] [cursor=pointer]
+              - button "Supprimer" [ref=f15e217] [cursor=pointer]
+          - generic [ref=f15e221]:
+            - generic [ref=f15e222]: catering
+            - generic [ref=f15e223]:
+              - generic [ref=f15e224]:
+                - generic [ref=f15e225]:
+                  - generic [ref=f15e226]: Restaurant La Mediterranee
+                  - generic [ref=f15e227]: Actif
+                - generic [ref=f15e229]: catering
+                - generic [ref=f15e230]: Oran
+                - generic [ref=f15e231]:
+                  - generic [ref=f15e232]:
+                    - generic [ref=f15e233]:
+                      - button [disabled] [ref=f15e234]
+                      - button [disabled] [ref=f15e237]
+                      - button [disabled] [ref=f15e240]
+                      - button [disabled] [ref=f15e243]
+                      - button [disabled] [ref=f15e246]
+                    - generic [ref=f15e249]: 0.0/5
+                  - generic [ref=f15e250]: 0 évaluation(s)
+                - generic [ref=f15e251]:
+                  - generic [ref=f15e252]: info@mediterranee.dz
+                  - generic [ref=f15e256]: +213 41 20 30 40
+              - button "Favori" [ref=f15e260] [cursor=pointer]
+            - generic [ref=f15e266]:
+              - button "Évaluer" [ref=f15e267] [cursor=pointer]
+              - button "Modifier" [ref=f15e270] [cursor=pointer]
+              - button "Supprimer" [ref=f15e274] [cursor=pointer]
+          - generic [ref=f15e278]:
+            - generic [ref=f15e279]: Compagnie aérienne
+            - generic [ref=f15e280]:
+              - generic [ref=f15e281]:
+                - generic [ref=f15e282]:
+                  - generic [ref=f15e283]: Air France
+                  - generic [ref=f15e284]: Actif
+                - generic [ref=f15e286]: Compagnie aérienne
+                - generic [ref=f15e287]: Alger
+                - generic [ref=f15e288]:
+                  - generic [ref=f15e289]:
+                    - generic [ref=f15e290]:
+                      - button [disabled] [ref=f15e291]
+                      - button [disabled] [ref=f15e294]
+                      - button [disabled] [ref=f15e297]
+                      - button [disabled] [ref=f15e300]
+                      - button [disabled] [ref=f15e303]
+                    - generic [ref=f15e306]: 0.0/5
+                  - generic [ref=f15e307]: 0 évaluation(s)
+                - generic [ref=f15e308]:
+                  - generic [ref=f15e309]: agence@airfrance.dz
+                  - generic [ref=f15e313]: +213 21 64 64 64
+              - button "Favori" [ref=f15e317] [cursor=pointer]
+            - generic [ref=f15e323]:
+              - button "Évaluer" [ref=f15e324] [cursor=pointer]
+              - button "Modifier" [ref=f15e327] [cursor=pointer]
+              - button "Supprimer" [ref=f15e331] [cursor=pointer]
+          - generic [ref=f15e335]:
+            - generic [ref=f15e336]: Compagnie aérienne
+            - generic [ref=f15e337]:
+              - generic [ref=f15e338]:
+                - generic [ref=f15e339]:
+                  - generic [ref=f15e340]: Air Algerie
+                  - generic [ref=f15e341]: Actif
+                - generic [ref=f15e343]: Compagnie aérienne
+                - generic [ref=f15e344]: Alger
+                - generic [ref=f15e345]:
+                  - generic [ref=f15e346]:
+                    - generic [ref=f15e347]:
+                      - button [disabled] [ref=f15e348]
+                      - button [disabled] [ref=f15e351]
+                      - button [disabled] [ref=f15e354]
+                      - button [disabled] [ref=f15e357]
+                      - button [disabled] [ref=f15e360]
+                    - generic [ref=f15e363]: 0.0/5
+                  - generic [ref=f15e364]: 0 évaluation(s)
+              - button "Favori" [ref=f15e366] [cursor=pointer]
+            - generic [ref=f15e372]:
+              - button "Évaluer" [ref=f15e373] [cursor=pointer]
+              - button "Modifier" [ref=f15e376] [cursor=pointer]
+              - button "Supprimer" [ref=f15e380] [cursor=pointer]
+          - generic [ref=f15e384]:
+            - generic [ref=f15e385]: Compagnie aérienne
+            - generic [ref=f15e386]:
+              - generic [ref=f15e387]:
+                - generic [ref=f15e388]:
+                  - generic [ref=f15e389]: Tassili Airlines
+                  - generic [ref=f15e390]: Actif
+                - generic [ref=f15e392]: Compagnie aérienne
+                - generic [ref=f15e393]: Alger
+                - generic [ref=f15e394]:
+                  - generic [ref=f15e395]:
+                    - generic [ref=f15e396]:
+                      - button [disabled] [ref=f15e397]
+                      - button [disabled] [ref=f15e400]
+                      - button [disabled] [ref=f15e403]
+                      - button [disabled] [ref=f15e406]
+                      - button [disabled] [ref=f15e409]
+                    - generic [ref=f15e412]: 0.0/5
+                  - generic [ref=f15e413]: 0 évaluation(s)
+              - button "Favori" [ref=f15e415] [cursor=pointer]
+            - generic [ref=f15e421]:
+              - button "Évaluer" [ref=f15e422] [cursor=pointer]
+              - button "Modifier" [ref=f15e425] [cursor=pointer]
+              - button "Supprimer" [ref=f15e429] [cursor=pointer]
+          - generic [ref=f15e433]:
+            - generic [ref=f15e434]: Hôtel
+            - generic [ref=f15e435]:
+              - generic [ref=f15e436]:
+                - generic [ref=f15e437]:
+                  - generic [ref=f15e438]: Hotel El Aurassi Alger
+                  - generic [ref=f15e439]: Actif
+                - generic [ref=f15e441]: Hôtel
+                - generic [ref=f15e442]: Alger
+                - generic [ref=f15e443]:
+                  - generic [ref=f15e444]:
+                    - generic [ref=f15e445]:
+                      - button [disabled] [ref=f15e446]
+                      - button [disabled] [ref=f15e449]
+                      - button [disabled] [ref=f15e452]
+                      - button [disabled] [ref=f15e455]
+                      - button [disabled] [ref=f15e458]
+                    - generic [ref=f15e461]: 0.0/5
+                  - generic [ref=f15e462]: 0 évaluation(s)
+              - button "Favori" [ref=f15e464] [cursor=pointer]
+            - generic [ref=f15e470]:
+              - button "Évaluer" [ref=f15e471] [cursor=pointer]
+              - button "Modifier" [ref=f15e474] [cursor=pointer]
+              - button "Supprimer" [ref=f15e478] [cursor=pointer]
+          - generic [ref=f15e482]:
+            - generic [ref=f15e483]: Hôtel
+            - generic [ref=f15e484]:
+              - generic [ref=f15e485]:
+                - generic [ref=f15e486]:
+                  - generic [ref=f15e487]: Sofitel Alger
+                  - generic [ref=f15e488]: Actif
+                - generic [ref=f15e490]: Hôtel
+                - generic [ref=f15e491]: Alger
+                - generic [ref=f15e492]:
+                  - generic [ref=f15e493]:
+                    - generic [ref=f15e494]:
+                      - button [disabled] [ref=f15e495]
+                      - button [disabled] [ref=f15e498]
+                      - button [disabled] [ref=f15e501]
+                      - button [disabled] [ref=f15e504]
+                      - button [disabled] [ref=f15e507]
+                    - generic [ref=f15e510]: 0.0/5
+                  - generic [ref=f15e511]: 0 évaluation(s)
+              - button "Favori" [ref=f15e513] [cursor=pointer]
+            - generic [ref=f15e519]:
+              - button "Évaluer" [ref=f15e520] [cursor=pointer]
+              - button "Modifier" [ref=f15e523] [cursor=pointer]
+              - button "Supprimer" [ref=f15e527] [cursor=pointer]
+          - generic [ref=f15e531]:
+            - generic [ref=f15e532]: Hôtel
+            - generic [ref=f15e533]:
+              - generic [ref=f15e534]:
+                - generic [ref=f15e535]:
+                  - generic [ref=f15e536]: Hotel Sheraton Oran
+                  - generic [ref=f15e537]: Actif
+                - generic [ref=f15e539]: Hôtel
+                - generic [ref=f15e540]: Oran
+                - generic [ref=f15e541]:
+                  - generic [ref=f15e542]:
+                    - generic [ref=f15e543]:
+                      - button [disabled] [ref=f15e544]
+                      - button [disabled] [ref=f15e547]
+                      - button [disabled] [ref=f15e550]
+                      - button [disabled] [ref=f15e553]
+                      - button [disabled] [ref=f15e556]
+                    - generic [ref=f15e559]: 0.0/5
+                  - generic [ref=f15e560]: 0 évaluation(s)
+              - button "Favori" [ref=f15e562] [cursor=pointer]
+            - generic [ref=f15e568]:
+              - button "Évaluer" [ref=f15e569] [cursor=pointer]
+              - button "Modifier" [ref=f15e572] [cursor=pointer]
+              - button "Supprimer" [ref=f15e576] [cursor=pointer]
+          - generic [ref=f15e580]:
+            - generic [ref=f15e581]: Hôtel
+            - generic [ref=f15e582]:
+              - generic [ref=f15e583]:
+                - generic [ref=f15e584]:
+                  - generic [ref=f15e585]: Hotel Cirta Constantine
+                  - generic [ref=f15e586]: Actif
+                - generic [ref=f15e588]: Hôtel
+                - generic [ref=f15e589]: Constantine
+                - generic [ref=f15e590]:
+                  - generic [ref=f15e591]:
+                    - generic [ref=f15e592]:
+                      - button [disabled] [ref=f15e593]
+                      - button [disabled] [ref=f15e596]
+                      - button [disabled] [ref=f15e599]
+                      - button [disabled] [ref=f15e602]
+                      - button [disabled] [ref=f15e605]
+                    - generic [ref=f15e608]: 0.0/5
+                  - generic [ref=f15e609]: 0 évaluation(s)
+              - button "Favori" [ref=f15e611] [cursor=pointer]
+            - generic [ref=f15e617]:
+              - button "Évaluer" [ref=f15e618] [cursor=pointer]
+              - button "Modifier" [ref=f15e621] [cursor=pointer]
+              - button "Supprimer" [ref=f15e625] [cursor=pointer]
+          - generic [ref=f15e629]:
+            - generic [ref=f15e630]: Hôtel
+            - generic [ref=f15e631]:
+              - generic [ref=f15e632]:
+                - generic [ref=f15e633]:
+                  - generic [ref=f15e634]: Hotel Test Alpha
+                  - generic [ref=f15e635]: Actif
+                - generic [ref=f15e637]: Hôtel
+                - generic [ref=f15e638]: Alger
+                - generic [ref=f15e639]:
+                  - generic [ref=f15e640]:
+                    - generic [ref=f15e641]:
+                      - button [disabled] [ref=f15e642]
+                      - button [disabled] [ref=f15e645]
+                      - button [disabled] [ref=f15e648]
+                      - button [disabled] [ref=f15e651]
+                      - button [disabled] [ref=f15e654]
+                    - generic [ref=f15e657]: 5.0/5
+                  - generic [ref=f15e658]: 0 évaluation(s)
+              - button "Favori" [ref=f15e660] [cursor=pointer]
+            - generic [ref=f15e666]:
+              - button "Évaluer" [ref=f15e667] [cursor=pointer]
+              - button "Modifier" [ref=f15e670] [cursor=pointer]
+              - button "Supprimer" [ref=f15e674] [cursor=pointer]

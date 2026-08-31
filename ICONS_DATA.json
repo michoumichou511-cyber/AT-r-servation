@@ -1,0 +1,514 @@
+{
+  "application": {
+    "name": "AT Réservations",
+    "version": "1.0",
+    "generatedDate": "2026-08-26",
+    "context": "Mémoire de fin de formation"
+  },
+  "iconsLibrary": {
+    "name": "Lucide React",
+    "version": "0.577.0",
+    "url": "https://lucide.dev",
+    "totalIcons": 93,
+    "categories": 7
+  },
+  "categories": [
+    {
+      "id": 1,
+      "name": "Navigation & Structure",
+      "description": "Icônes utilisées pour la navigation, les menus et la hiérarchie",
+      "count": 8,
+      "icons": [
+        {
+          "name": "ChevronLeft",
+          "usage": "Navigation précédente",
+          "size": "20-24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "ChevronRight",
+          "usage": "Navigation suivante",
+          "size": "20-24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "ChevronsLeft",
+          "usage": "Première page",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "ChevronsRight",
+          "usage": "Dernière page",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "ChevronDown",
+          "usage": "Menu déroulant",
+          "size": "16-20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "ChevronUp",
+          "usage": "Réduire menu",
+          "size": "16-20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Menu",
+          "usage": "Ouvrir menu latéral",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "X",
+          "usage": "Fermer/Annuler",
+          "size": "20-24px",
+          "color": "text-gray-600"
+        }
+      ],
+      "usedIn": ["Sidebar.jsx", "Navbar.jsx", "Pagination.jsx", "Select.jsx", "Modal.jsx"]
+    },
+    {
+      "id": 2,
+      "name": "Dashboard & Statistiques",
+      "description": "Visualisation des données, tendances et métriques",
+      "count": 10,
+      "icons": [
+        {
+          "name": "TrendingUp",
+          "usage": "Augmentation/Progression",
+          "size": "24px",
+          "color": "text-green-600"
+        },
+        {
+          "name": "TrendingDown",
+          "usage": "Diminution/Baisse",
+          "size": "24px",
+          "color": "text-red-600"
+        },
+        {
+          "name": "BarChart3",
+          "usage": "Graphique en barres",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "PieChart",
+          "usage": "Diagramme circulaire",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "LineChart",
+          "usage": "Graphique linéaire",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Activity",
+          "usage": "Activité/Mouvement",
+          "size": "24px",
+          "color": "text-amber-600"
+        },
+        {
+          "name": "Zap",
+          "usage": "Énergie/Impact",
+          "size": "20px",
+          "color": "text-yellow-600"
+        },
+        {
+          "name": "Target",
+          "usage": "Objectif/Cible",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Award",
+          "usage": "Récompense/Excellence",
+          "size": "24px",
+          "color": "text-yellow-600"
+        },
+        {
+          "name": "Sparkles",
+          "usage": "Spécial/Nouveauté",
+          "size": "24px",
+          "color": "text-purple-600"
+        }
+      ],
+      "usedIn": ["Dashboard.jsx", "DashboardExecutif.jsx", "Statistiques.jsx", "StatCard.jsx", "CarbonWidget.jsx"]
+    },
+    {
+      "id": 3,
+      "name": "Missions & Réservations",
+      "description": "Gestion des missions, déplacements et réservations",
+      "count": 10,
+      "icons": [
+        {
+          "name": "Briefcase",
+          "usage": "Missions/Projets",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Plane",
+          "usage": "Vol/Déplacement aérien",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Car",
+          "usage": "Véhicule personnel/Taxi",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Truck",
+          "usage": "Transport/Logistique",
+          "size": "24px",
+          "color": "text-green-600"
+        },
+        {
+          "name": "Building2",
+          "usage": "Bâtiment/Localisation",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "BookOpen",
+          "usage": "Documentation/Guide",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "FileText",
+          "usage": "Document/Rapport",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Calendar",
+          "usage": "Calendrier (sélecteur date)",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "CalendarDays",
+          "usage": "Dates/Planification",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "MapPin",
+          "usage": "Localisation GPS",
+          "size": "24px",
+          "color": "text-red-600"
+        }
+      ],
+      "usedIn": ["MissionsList.jsx", "MissionDetail.jsx", "NewMission", "DmlDashboard.jsx", "CalendrierMissions.jsx"]
+    },
+    {
+      "id": 4,
+      "name": "Communication",
+      "description": "Messages, notifications et contacts",
+      "count": 9,
+      "icons": [
+        {
+          "name": "Bell",
+          "usage": "Notifications",
+          "size": "24px",
+          "color": "text-amber-600"
+        },
+        {
+          "name": "MessageCircle",
+          "usage": "Chat/Message simple",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "MessageSquare",
+          "usage": "Message avec contexte",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Send",
+          "usage": "Envoyer message",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Mail",
+          "usage": "Email/Courrier",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Phone",
+          "usage": "Téléphone/Contact",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "UserRound",
+          "usage": "Profil utilisateur",
+          "size": "24px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Users",
+          "usage": "Groupe/Équipe",
+          "size": "24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "User",
+          "usage": "Utilisateur simple",
+          "size": "20px",
+          "color": "text-gray-600"
+        }
+      ],
+      "usedIn": ["Messagerie.jsx", "Notifications.jsx", "NotificationCard.jsx", "Organigramme.jsx"]
+    },
+    {
+      "id": 5,
+      "name": "Actions & Statuts",
+      "description": "Indicateurs de statut et boutons d'action",
+      "count": 15,
+      "icons": [
+        {
+          "name": "CheckCircle2",
+          "usage": "Validation/Succès",
+          "size": "24px",
+          "color": "text-green-600"
+        },
+        {
+          "name": "XCircle",
+          "usage": "Erreur/Rejet",
+          "size": "24px",
+          "color": "text-red-600"
+        },
+        {
+          "name": "AlertTriangle",
+          "usage": "Avertissement",
+          "size": "20-24px",
+          "color": "text-amber-600"
+        },
+        {
+          "name": "AlertCircle",
+          "usage": "Alerte d'information",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Info",
+          "usage": "Information supplémentaire",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Check",
+          "usage": "Sélection/Confirmation",
+          "size": "20px",
+          "color": "text-green-600"
+        },
+        {
+          "name": "Plus",
+          "usage": "Ajouter/Créer",
+          "size": "20-24px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Edit3",
+          "usage": "Édition (variante)",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Pencil",
+          "usage": "Édition (crayon)",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Download",
+          "usage": "Télécharger/Exporter",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "Upload",
+          "usage": "Charger/Importer",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "RotateCcw",
+          "usage": "Réinitialiser/Actualiser",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Trash2",
+          "usage": "Supprimer",
+          "size": "20px",
+          "color": "text-red-600"
+        },
+        {
+          "name": "Save",
+          "usage": "Enregistrer",
+          "size": "20px",
+          "color": "text-green-600"
+        }
+      ],
+      "usedIn": ["MissionDetail.jsx", "Validations.jsx", "Budgets.jsx", "Step*.jsx", "AuditLogs.jsx"]
+    },
+    {
+      "id": 6,
+      "name": "Authentification & Sécurité",
+      "description": "Connexion, mots de passe et permissions",
+      "count": 8,
+      "icons": [
+        {
+          "name": "Lock",
+          "usage": "Mot de passe/Confidentialité",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Eye",
+          "usage": "Afficher mot de passe",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "EyeOff",
+          "usage": "Masquer mot de passe",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "User",
+          "usage": "Profil/Compte",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Mail",
+          "usage": "Email de connexion",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "Hash",
+          "usage": "Numéro/ID",
+          "size": "20px",
+          "color": "text-gray-600"
+        },
+        {
+          "name": "KeyRound",
+          "usage": "Clé/Accès",
+          "size": "20px",
+          "color": "text-blue-600"
+        },
+        {
+          "name": "ShieldCheck",
+          "usage": "Sécurité/Validation",
+          "size": "20px",
+          "color": "text-green-600"
+        }
+      ],
+      "usedIn": ["Login.jsx", "Register.jsx", "Utilisateurs.jsx", "StatusGuard.jsx"]
+    },
+    {
+      "id": 7,
+      "name": "Utilitaires & Thème",
+      "description": "Recherche, chargement, thème et éléments divers",
+      "count": 33,
+      "icons": [
+        {"name": "Search", "usage": "Recherche", "size": "20px", "color": "text-gray-600"},
+        {"name": "Loader2", "usage": "Chargement en cours", "size": "20px", "color": "text-blue-600"},
+        {"name": "Sun", "usage": "Mode clair", "size": "20px", "color": "text-yellow-600"},
+        {"name": "Moon", "usage": "Mode sombre", "size": "20px", "color": "text-slate-600"},
+        {"name": "Clock", "usage": "Heure/Temps", "size": "20px", "color": "text-gray-600"},
+        {"name": "History", "usage": "Historique", "size": "20px", "color": "text-gray-600"},
+        {"name": "FileArchive", "usage": "Archives/Fichiers compressés", "size": "20px", "color": "text-gray-600"},
+        {"name": "UploadCloud", "usage": "Téléchargement vers cloud", "size": "20px", "color": "text-blue-600"},
+        {"name": "File", "usage": "Fichier générique", "size": "20px", "color": "text-gray-600"},
+        {"name": "Star", "usage": "Favoris/Évaluation", "size": "20px", "color": "text-yellow-600"},
+        {"name": "ZoomIn", "usage": "Zoom avant", "size": "20px", "color": "text-gray-600"},
+        {"name": "ZoomOut", "usage": "Zoom arrière", "size": "20px", "color": "text-gray-600"},
+        {"name": "Code2", "usage": "Code/Développement", "size": "20px", "color": "text-blue-600"},
+        {"name": "Database", "usage": "Base de données", "size": "20px", "color": "text-green-600"},
+        {"name": "Palette", "usage": "Couleur/Design", "size": "20px", "color": "text-purple-600"},
+        {"name": "Server", "usage": "Serveur", "size": "20px", "color": "text-gray-600"},
+        {"name": "Building2", "usage": "Organisation/Entreprise", "size": "20px", "color": "text-gray-600"},
+        {"name": "Info", "usage": "Information", "size": "20px", "color": "text-blue-600"},
+        {"name": "Filter", "usage": "Filtrer données", "size": "20px", "color": "text-gray-600"},
+        {"name": "Leaf", "usage": "Écologie/Carbon", "size": "20px", "color": "text-green-600"},
+        {"name": "TreePine", "usage": "Arbre/Nature", "size": "20px", "color": "text-green-600"},
+        {"name": "DollarSign", "usage": "Montant/Budget", "size": "20px", "color": "text-green-600"}
+      ],
+      "usedIn": ["Tous les fichiers", "Usage transversal"]
+    }
+  ],
+  "statistics": {
+    "totalIcons": 93,
+    "totalCategories": 7,
+    "filesUsingIcons": 41,
+    "averageIconsPerFile": 2.3,
+    "mainColors": [
+      {"name": "Blue", "usage": 28, "class": "text-blue-600"},
+      {"name": "Green", "usage": 16, "class": "text-green-600"},
+      {"name": "Gray", "usage": 26, "class": "text-gray-600"},
+      {"name": "Amber", "usage": 8, "class": "text-amber-600"},
+      {"name": "Red", "usage": 6, "class": "text-red-600"},
+      {"name": "Yellow", "usage": 4, "class": "text-yellow-600"},
+      {"name": "Purple", "usage": 2, "class": "text-purple-600"}
+    ],
+    "mainSizes": [
+      {"size": "16px", "usage": 8, "contexts": "Input small icons"},
+      {"size": "18px", "usage": 12, "contexts": "Button small"},
+      {"size": "20px", "usage": 35, "contexts": "Standard usage"},
+      {"size": "24px", "usage": 32, "contexts": "Large buttons"},
+      {"size": "32px", "usage": 6, "contexts": "Headers, featured"}
+    ]
+  },
+  "importExamples": [
+    {
+      "page": "Dashboard",
+      "imports": ["TrendingUp", "TrendingDown", "Activity", "BarChart3", "PieChart", "Briefcase", "Calendar", "MapPin"],
+      "example": "import { TrendingUp, BarChart3 } from 'lucide-react'"
+    },
+    {
+      "page": "Missions",
+      "imports": ["Search", "Plus", "FileText", "RotateCcw", "Plane", "Car", "Briefcase", "Download", "Pencil", "X", "MessageSquare", "Send"],
+      "example": "import { Search, Plus, Briefcase } from 'lucide-react'"
+    },
+    {
+      "page": "Validations",
+      "imports": ["FileText", "Clock", "AlertTriangle", "CheckCircle2", "XCircle", "Edit3", "Truck"],
+      "example": "import { CheckCircle2, AlertTriangle, Truck } from 'lucide-react'"
+    }
+  ],
+  "bestPractices": [
+    "Utiliser les mêmes icônes pour les mêmes actions",
+    "Adapter la taille au contexte (navigation = 20-24px, boutons = 16-18px)",
+    "Respecter la palette de couleurs du design system",
+    "Toujours associer une icône à un texte explicite",
+    "Les icônes Lucide sont ultra-légères (< 1KB chacune)",
+    "Supporter le mode sombre avec des couleurs adaptées",
+    "Utiliser strokeWidth pour adapter l'épaisseur si nécessaire",
+    "Tree-shaking automatique avec les importations nommées"
+  ],
+  "performance": {
+    "totalWeight": "< 100 KB",
+    "averageIconWeight": "< 1 KB",
+    "loading": "Instantané (SVG inline)",
+    "responsiveness": "Adaptation automatique",
+    "accessibility": "WCAG 2.1 AA compliant",
+    "darkModeSupport": true,
+    "animationSupport": true
+  }
+}

@@ -22,10 +22,9 @@ import Modal from '../../components/UI/Modal'
 
 const TYPE_OPTIONS = [
   { value: 'hotel', label: 'Hôtel' },
-  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'catering', label: 'Restauration / Catering' },
   { value: 'compagnie_aerienne', label: 'Compagnie aérienne' },
-  { value: 'transport', label: 'Transport' },
-  { value: 'autre', label: 'Autre' },
+  { value: 'agence_voyage', label: 'Agence de voyage' },
 ]
 
 function extractPrestataireFromResponse(res) {
@@ -87,6 +86,7 @@ export default function Prestataires() {
     nom: '',
     type: 'hotel',
     ville: '',
+    pays: '',
     adresse: '',
     telephone: '',
     email: '',
@@ -103,6 +103,7 @@ export default function Prestataires() {
       nom: '',
       type: 'hotel',
       ville: '',
+      pays: '',
       adresse: '',
       telephone: '',
       email: '',
@@ -121,6 +122,7 @@ export default function Prestataires() {
       nom: p.nom ?? '',
       type: p.type ?? 'hotel',
       ville: p.ville ?? '',
+      pays: p.pays ?? '',
       adresse: p.adresse ?? '',
       telephone: p.telephone ?? '',
       email: p.email ?? '',
@@ -142,6 +144,7 @@ export default function Prestataires() {
         nom: form.nom,
         type: form.type,
         ville: form.ville,
+        pays: form.pays || undefined,
         adresse: form.adresse || undefined,
         telephone: form.telephone || undefined,
         email: form.email || undefined,
@@ -274,13 +277,26 @@ export default function Prestataires() {
 
   const cards = useMemo(() => items ?? [], [items])
 
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'))
+  useEffect(() => {
+    const obs = new MutationObserver(() => setIsDark(document.documentElement.classList.contains('dark')))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+
   const headerParType = (type) => {
     const t = (type ?? '').toLowerCase()
+    if (isDark) {
+      if (t === 'compagnie_aerienne') return 'linear-gradient(135deg, #1E3A5F 0%, #1A2744 100%)'
+      if (t === 'hotel') return 'linear-gradient(135deg, #14532D 0%, #1A2E1A 100%)'
+      if (t === 'catering') return 'linear-gradient(135deg, #78350F 0%, #44280B 100%)'
+      if (t === 'agence_voyage') return 'linear-gradient(135deg, #3B0764 0%, #2E1065 100%)'
+      return 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'
+    }
     if (t === 'compagnie_aerienne') return 'linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%)'
     if (t === 'hotel') return 'linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%)'
-    if (t === 'restaurant' || t === 'catering') return 'linear-gradient(135deg, #FFEDD5 0%, #FFF7ED 100%)'
+    if (t === 'catering') return 'linear-gradient(135deg, #FFEDD5 0%, #FFF7ED 100%)'
     if (t === 'agence_voyage') return 'linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%)'
-    if (t === 'transport') return 'linear-gradient(135deg, #F1F5F9 0%, #F8FAFC 100%)'
     return 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)'
   }
 
@@ -296,7 +312,7 @@ export default function Prestataires() {
         backTo="/"
         actions={
           <Button variant="gradient" size="sm" onClick={openCreate}>
-            <Plus size={16} /> + Nouveau
+            <Plus size={16} /> Nouveau
           </Button>
         }
       />
@@ -348,7 +364,7 @@ export default function Prestataires() {
                     className="at-card overflow-hidden p-0"
                   >
                     <div
-                      className="px-4 py-3 font-bold text-[13px] text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700"
+                      className="px-4 py-3 font-bold text-[13px] text-[#1A1D26] dark:text-white border-b border-[#EAECF0] dark:border-[#2A2D3E]"
                       style={{ background: headerParType(p.type) }}
                     >
                       {TYPE_OPTIONS.find(t => t.value === p.type)?.label ?? p.type ?? '—'}
@@ -356,26 +372,26 @@ export default function Prestataires() {
                     <div className="p-5 flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="font-bold text-gray-900 dark:text-white text-base truncate">
+                          <div className="font-bold text-[#1A1D26] dark:text-white text-base truncate">
                             {p.nom ?? 'Prestataire'}
                           </div>
                           <Badge status={isActive ? 'actif' : 'inactif'} />
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1">
                           {TYPE_OPTIONS.find(t => t.value === p.type)?.label ?? p.type ?? '—'}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {p.ville ?? '—'}
+                        <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1">
+                          {[p.ville, p.pays].filter(Boolean).join(', ') || '—'}
                         </div>
 
                         <div className="mt-3">
                           <div className="flex items-center gap-2">
                             <StarRating value={ratingValue} readonly size={16} />
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                            <span className="text-xs text-[#5A6070] dark:text-[#9AA0AE] font-semibold">
                               {ratingValue.toFixed(1)}/5
                             </span>
                           </div>
-                          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                          <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] mt-1">
                             {Number(p.nombre_evaluations ?? 0)} évaluation(s)
                           </div>
                         </div>
@@ -383,17 +399,17 @@ export default function Prestataires() {
                         {(p.email || p.telephone || p.site_web) && (
                           <div className="mt-4 space-y-1">
                             {p.email && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-2 text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                                 <Mail size={14} /> {p.email}
                               </div>
                             )}
                             {p.telephone && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-2 text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                                 <Phone size={14} /> {p.telephone}
                               </div>
                             )}
                             {p.site_web && (
-                              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-2 text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                                 <Globe size={14} /> {p.site_web}
                               </div>
                             )}
@@ -448,7 +464,7 @@ export default function Prestataires() {
               >
                 <RotateCcw size={16} /> Précédent
               </Button>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                 Page {current} / {last}
               </div>
               <Button
@@ -489,17 +505,13 @@ export default function Prestataires() {
               required
             />
             <div>
-              <Input
-                label="Type"
-                value={form.type}
-                onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-                required
-                placeholder="Type"
-              />
+              <label className="block text-sm font-medium text-[#1A1D26] dark:text-[#9AA0AE] mb-1">
+                Type <span className="text-red-500">*</span>
+              </label>
               <select
                 value={form.type}
                 onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-                className="w-full mt-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white
+                className="w-full px-3 py-3 rounded-lg border border-[#EAECF0] dark:border-[#2A2D3E] bg-white dark:bg-[#252840] text-sm text-[#1A1D26] dark:text-white
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               >
                 {TYPE_OPTIONS.map(o => (
@@ -517,11 +529,10 @@ export default function Prestataires() {
               required
             />
             <Input
-              label="Note performance (0-5)"
-              value={form.note_performance}
-              type="number"
-              onChange={(e) => setForm(f => ({ ...f, note_performance: e.target.value }))}
-              placeholder="Ex: 4.5"
+              label="Pays"
+              value={form.pays}
+              onChange={(e) => setForm(f => ({ ...f, pays: e.target.value }))}
+              placeholder="Ex: Algérie"
             />
           </div>
 
@@ -545,11 +556,20 @@ export default function Prestataires() {
             />
           </div>
 
-          <Input
-            label="Site web (optionnel)"
-            value={form.site_web}
-            onChange={(e) => setForm(f => ({ ...f, site_web: e.target.value }))}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Input
+              label="Site web (optionnel)"
+              value={form.site_web}
+              onChange={(e) => setForm(f => ({ ...f, site_web: e.target.value }))}
+            />
+            <Input
+              label="Note performance (0-5)"
+              value={form.note_performance}
+              type="number"
+              onChange={(e) => setForm(f => ({ ...f, note_performance: e.target.value }))}
+              placeholder="Ex: 4.5"
+            />
+          </div>
 
           <div className="flex items-center gap-4">
             <Toggle
@@ -585,13 +605,13 @@ export default function Prestataires() {
       >
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Note</label>
+            <label className="block text-sm font-medium text-[#1A1D26] dark:text-[#9AA0AE] mb-2">Note</label>
             <StarRating value={evalNote} onChange={setEvalNote} size={28} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Commentaire <span className="text-gray-400 font-normal">(optionnel)</span>
+            <label className="block text-sm font-medium text-[#1A1D26] dark:text-[#9AA0AE] mb-1">
+              Commentaire <span className="text-[#9AA0AE] font-normal">(optionnel)</span>
             </label>
             <textarea
               value={evalComment}
@@ -599,9 +619,9 @@ export default function Prestataires() {
               rows={3}
               maxLength={500}
               placeholder="Votre avis sur ce prestataire..."
-              className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#00A650]/30 focus:border-[#00A650] resize-none"
+              className="w-full rounded-lg border border-[#EAECF0] dark:border-[#2A2D3E] bg-white dark:bg-[#252840] px-3 py-2 text-sm text-[#1A1D26] dark:text-white placeholder-[#9AA0AE] focus:outline-none focus:ring-1 focus:ring-[#00A650]/30 focus:border-[#00A650] resize-none"
             />
-            <div className="text-right text-xs text-gray-400 mt-0.5">{evalComment.length}/500</div>
+            <div className="text-right text-xs text-[#9AA0AE] mt-0.5">{evalComment.length}/500</div>
           </div>
 
           <div className="flex justify-end gap-2">
@@ -611,28 +631,28 @@ export default function Prestataires() {
             </Button>
           </div>
 
-          <hr className="border-gray-200 dark:border-gray-700" />
+          <hr className="border-[#EAECF0] dark:border-[#2A2D3E]" />
 
           <div>
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Avis récents</h4>
-            {avisLoading && <p className="text-sm text-gray-400">Chargement...</p>}
+            <h4 className="text-sm font-semibold text-[#1A1D26] dark:text-gray-200 mb-3">Avis récents</h4>
+            {avisLoading && <p className="text-sm text-[#9AA0AE]">Chargement...</p>}
             {!avisLoading && avis.length === 0 && (
-              <p className="text-sm text-gray-400 dark:text-gray-500">Aucun avis pour le moment.</p>
+              <p className="text-sm text-[#9AA0AE] dark:text-[#5A6070]">Aucun avis pour le moment.</p>
             )}
             {!avisLoading && avis.length > 0 && (
               <div className="space-y-3 max-h-52 overflow-y-auto">
                 {avis.slice(0, 10).map((a, i) => (
                   <div key={a.id ?? i} className="rounded-lg border border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800/50">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      <span className="text-sm font-medium text-[#1A1D26] dark:text-gray-200">
                         {a.user?.prenom ?? ''} {a.user?.nom ?? 'Anonyme'}
                       </span>
                       <StarRating value={Number(a.note ?? 0)} readonly size={14} />
                     </div>
                     {a.commentaire && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{a.commentaire}</p>
+                      <p className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1">{a.commentaire}</p>
                     )}
-                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                    <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] mt-1">
                       {a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
                     </div>
                   </div>

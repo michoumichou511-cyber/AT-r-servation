@@ -61,35 +61,39 @@ export default function FileDropZone({
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
           className={[
-            'w-full flex flex-col items-center justify-center gap-2 px-4 py-6',
-            'rounded-xl border-2 border-dashed cursor-pointer select-none',
-            'transition-all duration-200 will-change-transform',
+            'w-full flex flex-col items-center justify-center gap-3 px-5 py-8',
+            'rounded-[18px] border-2 border-dashed cursor-pointer select-none',
+            'transition-all duration-300 will-change-transform',
             dragOver
-              ? 'border-at-green bg-at-green/5 scale-[1.01]'
-              : 'border-gray-200 dark:border-gray-700 hover:border-at-green/50 hover:bg-at-green/[0.03]',
+              ? 'border-[#00A650] bg-[#00A650]/5 scale-[1.02] shadow-at-glow-green'
+              : 'border-[#EAECF0] dark:border-[#2A2D3E] hover:border-[#00A650]/50 hover:bg-[#00A650]/[0.03]',
             disabled ? 'opacity-50 cursor-not-allowed' : '',
           ].join(' ')}
         >
-          <UploadCloud
-            size={22}
-            className={`transition-colors duration-200 ${dragOver ? 'text-at-green' : 'text-gray-400'}`}
-          />
-          <span className="text-xs text-gray-500 dark:text-gray-400 text-center leading-relaxed">
+          <div className={`p-3 rounded-xl transition-all duration-300 ${dragOver ? 'bg-[#00A650]/10' : 'bg-[#F4F6FA] dark:bg-[#252840]'}`}>
+            <UploadCloud
+              size={24}
+              className={`transition-colors duration-200 ${dragOver ? 'text-[#00A650]' : 'text-[#9AA0AE]'}`}
+            />
+          </div>
+          <span className="text-xs text-[#5A6070] dark:text-[#9AA0AE] text-center leading-relaxed font-medium">
             {label}
           </span>
         </button>
       ) : (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-at-green/30 bg-at-green/5">
-          <FileIcon size={18} className="text-at-green shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 rounded-[18px] border border-[#00A650]/20 bg-[#00A650]/5 dark:bg-[#00A650]/10">
+          <div className="shrink-0 p-2 rounded-xl bg-[#00A650]/10">
+            <FileIcon size={18} className="text-[#00A650]" />
+          </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{file.name}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">{formatBytes(file.size)}</div>
+            <div className="text-sm font-semibold text-[#1A1D26] dark:text-white truncate">{file.name}</div>
+            <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE] at-number">{formatBytes(file.size)}</div>
           </div>
           <button
             type="button"
             onClick={() => { onSelect(null, null); }}
             disabled={disabled}
-            className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="shrink-0 p-2 rounded-xl text-[#9AA0AE] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
             aria-label="Retirer le fichier"
           >
             <X size={16} />

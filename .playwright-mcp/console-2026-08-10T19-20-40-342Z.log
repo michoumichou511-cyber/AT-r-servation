@@ -1,0 +1,18 @@
+[  225153ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[  225153ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[  525208ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[  525209ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[  825157ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[  825157ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 1125199ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 1125199ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 1425197ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 1425197ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 1725209ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 1725211ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 2025218ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 2025218ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 2325194ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 2325195ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[ 2625234ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/profil:0
+[ 2625234ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0

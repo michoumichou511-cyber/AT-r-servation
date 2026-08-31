@@ -4,14 +4,16 @@ import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/constants.dart';
+import 'api_service.dart';
 
 class ShareService {
   static final _storage = const FlutterSecureStorage();
 
   static Future<void> shareMissionPdf(int missionId, {String? titre}) async {
     final token = await _storage.read(key: 'sanctum_token');
+    final baseUrl = await ApiService().getBaseUrl();
     final response = await http.get(
-      Uri.parse('$kApiBaseUrl/missions/$missionId/pdf'),
+      Uri.parse('$baseUrl/missions/$missionId/pdf'),
       headers: {
         'Accept': 'application/pdf',
         'Authorization': 'Bearer $token',

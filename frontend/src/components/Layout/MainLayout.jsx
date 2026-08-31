@@ -28,7 +28,7 @@ export default function MainLayout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -37,9 +37,9 @@ export default function MainLayout() {
       {/* Sidebar */}
       <div
         className={`
-        sidebar-mobile fixed md:static inset-y-0 left-0 z-30
+        sidebar-mobile fixed lg:static inset-y-0 left-0 z-30
         transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'open translate-x-0' : '-translate-x-full md:translate-x-0'}
+        ${sidebarOpen ? 'open translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
       >
         <Sidebar onClose={() => setSidebarOpen(false)} />

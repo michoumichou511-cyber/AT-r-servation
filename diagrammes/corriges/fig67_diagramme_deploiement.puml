@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor white
+skinparam dpi 300
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam nodesep 40
+skinparam ranksep 50
+
+skinparam node {
+  BackgroundColor #E8F4FD
+  BorderColor #003DA5
+  FontColor #003DA5
+  FontSize 12
+  BorderThickness 2
+}
+
+skinparam database {
+  BackgroundColor #E8F4FD
+  BorderColor #003DA5
+  FontColor #003DA5
+  FontSize 12
+  BorderThickness 2
+}
+
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+
+skinparam arrow {
+  Color #00A650
+  FontColor #003DA5
+  FontSize 11
+  Thickness 2
+}
+
+title <b><color:#003DA5>Diagramme de deploiement — Architecture technique</color></b>
+
+node "**<<device>> PC Client**\nNavigateur Web\n\n  React 18 + Vite\n  TailwindCSS\n  Framer Motion" as client
+
+node "**<<server>> Serveur AT**\nApache (XAMPP)\n\n  Laravel 12 (PHP 8.2)\n  Sanctum Auth\n  API REST Controllers\n  SMTP (Gmail)" as server
+
+database "**<<database>> MySQL**\nXAMPP / phpMyAdmin\n\n  25 tables\n  37 comptes AT seedes" as db
+
+node "**<<device>> Smartphone**\nAndroid / iOS\n\n  Flutter (Dart)\n  API REST Client" as mobile
+
+client -right-> server : "HTTPS / JSON"
+mobile -up-> server : "API REST"
+server -right-> db : "Eloquent ORM"
+
+note right of db
+  25 tables : User, Role, Mission,
+  Reservation, Billet, Hebergement,
+  Restauration, HotelConvention,
+  Vehicule, MissionTraitementDml,
+  Validation, DelegationValidation,
+  Budget, BonCommande, Prestataire,
+  EvaluationPrestataire, Document,
+  Notification, Conversation, Message,
+  AuditLog, MissionTemplate,
+  MissionCommentaire
+end note
+
+@enduml

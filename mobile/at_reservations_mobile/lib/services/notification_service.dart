@@ -49,15 +49,21 @@ class NotificationService extends ChangeNotifier {
     final combined = '$type $titre $cat';
 
     if (combined.contains('valid') || combined.contains('approuv') ||
-        combined.contains('rejet')) return NotifCategory.validation;
+        combined.contains('rejet')) {
+      return NotifCategory.validation;
+    }
     if (combined.contains('logist') || combined.contains('billet') ||
         combined.contains('hotel') || combined.contains('transport')) {
       return NotifCategory.logistique;
     }
     if (combined.contains('message') || combined.contains('chat') ||
-        combined.contains('msg')) return NotifCategory.message;
+        combined.contains('msg')) {
+      return NotifCategory.message;
+    }
     if (combined.contains('system') || combined.contains('erreur') ||
-        combined.contains('alert')) return NotifCategory.systeme;
+        combined.contains('alert')) {
+      return NotifCategory.systeme;
+    }
     return NotifCategory.mission;
   }
 
@@ -116,6 +122,7 @@ class NotificationService extends ChangeNotifier {
     } catch (_) {}
   }
 
+  @override
   void dispose() {
     _pollTimer?.cancel();
     super.dispose();

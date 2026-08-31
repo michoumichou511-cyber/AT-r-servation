@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue des icônes - AT Réservations</title>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .stats {
+            font-size: 0.95em;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        
+        .search-box {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            font-size: 1em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .category {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .category-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-title::before {
+            content: '';
+            width: 4px;
+            height: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+        }
+        
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .icon-item:hover {
+            background: #e8ebf7;
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .icon-item svg {
+            width: 32px;
+            height: 32px;
+            color: #667eea;
+            stroke-width: 1.5;
+        }
+        
+        .icon-name {
+            font-size: 0.75em;
+            color: #333;
+            text-align: center;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        .legend {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 30px;
+        }
+        
+        .legend h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .legend-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .legend-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .legend-item strong {
+            color: #333;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.9em;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+            
+            .search-box {
+                display: none;
+            }
+            
+            .category {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Catalogue des Icônes</h1>
+            <p class="subtitle">AT Réservations - Application de Gestion des Missions</p>
+            <p class="stats">
+                <span id="total-icons">0</span> icônes Lucide React • 
+                <span id="total-categories">0</span> catégories
+            </p>
+        </header>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="🔍 Rechercher une icône..." />
+        </div>
+        
+        <div class="categories" id="categories-container"></div>
+        
+        <div class="legend">
+            <h3>📋 Information et Guide d'utilisation</h3>
+            <div class="legend-content">
+                <div class="legend-item">
+                    <strong>Navigation :</strong> L'application utilise <strong>Lucide React v0.577.0</strong> pour tous les icônes. Chaque icône est importée depuis le package 'lucide-react'.
+                </div>
+                <div class="legend-item">
+                    <strong>Catégories :</strong> Les icônes sont organisées par fonctionnalité pour une meilleure navigation et compréhension de l'interface.
+                </div>
+                <div class="legend-item">
+                    <strong>Utilisation :</strong> Pour importer une icône, utilisez <code>import { NomDeLIcone } from 'lucide-react'</code>
+                </div>
+                <div class="legend-item">
+                    <strong>Personnalisation :</strong> Chaque icône peut être redimensionnée avec la propriété <code>size</code> et coloriée avec <code>className</code> ou <code>color</code>.
+                </div>
+                <div class="legend-item">
+                    <strong>Responsive :</strong> Les icônes utilisées s'ajustent automatiquement en fonction du contexte (32px, 24px, 16px, etc.).
+                </div>
+                <div class="legend-item">
+                    <strong>Package.json :</strong> Assurez-vous que lucide-react est installé : <code>npm install lucide-react</code>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Généré le: <span id="date"></span></p>
+            <p>Document pour le mémoire de fin de formation - AT Réservations</p>
+        </footer>
+    </div>
+    
+    <script>
+        const icons = {
+            'Navigation & Structure': [
+                'ChevronDown', 'ChevronLeft', 'ChevronRight', 'ChevronsLeft', 'ChevronsRight',
+                'ChevronUp', 'Menu', 'X'
+            ],
+            'Dashboard & Statistiques': [
+                'TrendingUp', 'TrendingDown', 'BarChart3', 'PieChart', 'LineChart',
+                'Activity', 'Zap', 'Target', 'Award', 'Sparkles'
+            ],
+            'Missions & Réservations': [
+                'Briefcase', 'Plane', 'Car', 'Truck', 'Building2', 'BookOpen',
+                'FileText', 'Calendar', 'CalendarDays', 'MapPin'
+            ],
+            'Communication': [
+                'Bell', 'MessageCircle', 'MessageSquare', 'Send', 'Mail',
+                'Phone', 'UserRound', 'Users', 'User'
+            ],
+            'Actions & Statuts': [
+                'CheckCircle2', 'XCircle', 'AlertTriangle', 'AlertCircle', 'Info',
+                'Check', 'X', 'Plus', 'Edit3', 'Pencil', 'Download', 'Upload',
+                'RotateCcw', 'Trash2', 'Save'
+            ],
+            'Authentification & Sécurité': [
+                'Lock', 'Eye', 'EyeOff', 'User', 'Mail', 'Hash',
+                'KeyRound', 'ShieldCheck'
+            ],
+            'Utilitaires & Thème': [
+                'Search', 'Loader2', 'Sun', 'Moon', 'Clock', 'History',
+                'FileArchive', 'UploadCloud', 'File', 'Star', 'ZoomIn', 'ZoomOut',
+                'Code2', 'Database', 'Palette', 'Server', 'Building2', 'Info',
+                'Filter', 'Leaf', 'TreePine', 'DollarSign'
+            ]
+        };
+        
+        const searchInput = document.getElementById('search-input');
+        const container = document.getElementById('categories-container');
+        
+        function renderIcons() {
+            container.innerHTML = '';
+            let totalIcons = 0;
+            let visibleCategories = 0;
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            Object.entries(icons).forEach(([category, iconList]) => {
+                const filteredIcons = iconList.filter(icon => 
+                    icon.toLowerCase().includes(searchTerm)
+                );
+                
+                if (filteredIcons.length > 0) {
+                    visibleCategories++;
+                    totalIcons += filteredIcons.length;
+                }
+                
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category' + (filteredIcons.length === 0 ? ' hidden' : '');
+                
+                let iconsHTML = '';
+                filteredIcons.forEach(iconName => {
+                    iconsHTML += `
+                        <div class="icon-item" title="${iconName}">
+                            <div class="icon-wrapper" data-lucide="${iconName}"></div>
+                            <span class="icon-name">${iconName}</span>
+                        </div>
+                    `;
+                });
+                
+                categoryDiv.innerHTML = `
+                    <h3 class="category-title">${category}</h3>
+                    <div class="icons-grid">
+                        ${iconsHTML}
+                    </div>
+                `;
+                
+                container.appendChild(categoryDiv);
+            });
+            
+            document.getElementById('total-icons').textContent = totalIcons;
+            document.getElementById('total-categories').textContent = visibleCategories;
+            
+            // Render lucide icons
+            lucide.createIcons();
+        }
+        
+        searchInput.addEventListener('input', renderIcons);
+        
+        // Initialize
+        renderIcons();
+        
+        // Set date
+        const today = new Date();
+        document.getElementById('date').textContent = today.toLocaleDateString('fr-DZ', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Add all icon count
+        let totalCount = Object.values(icons).reduce((sum, arr) => sum + arr.length, 0);
+        document.getElementById('total-icons').textContent = totalCount;
+        document.getElementById('total-categories').textContent = Object.keys(icons).length;
+    </script>
+</body>
+</html>

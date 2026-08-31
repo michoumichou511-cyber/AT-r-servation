@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/theme.dart';
 import '../../services/api_service.dart';
 
@@ -233,24 +234,16 @@ class _RapportsScreenState extends State<RapportsScreen>
   }
 
   Future<void> _export(String format) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Export $format en cours...'),
-        backgroundColor: ATColors.primary,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
     try {
-      await _api.get(
-          '/export/missions/$format?date_debut=${_isoDate(_dateDebut)}&date_fin=${_isoDate(_dateFin)}');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Export $format terminé.'),
-          backgroundColor: ATColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      final baseUrl = await _api.getBaseUrl();
+      final url = '$baseUrl/export/missions/$format'
+          '?date_debut=${_isoDate(_dateDebut)}&date_fin=${_isoDate(_dateFin)}';
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Impossible d\'ouvrir le lien');
+      }
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,7 +261,7 @@ class _RapportsScreenState extends State<RapportsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
@@ -332,7 +325,7 @@ class _RapportsScreenState extends State<RapportsScreen>
   Widget _buildFilterSection() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
-      color: Colors.white,
+      color: context.cardBg,
       child: Column(
         children: [
           InkWell(
@@ -349,15 +342,15 @@ class _RapportsScreenState extends State<RapportsScreen>
                   Expanded(
                     child: Text(
                       'Filtres  ·  $_dateDebutStr → $_dateFinStr',
-                      style: const TextStyle(
-                          fontSize: 13, color: ATColors.textSecondary),
+                      style: TextStyle(
+                          fontSize: 13, color: context.textSecondary),
                     ),
                   ),
                   Icon(
                     _filtersExpanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: ATColors.textSecondary,
+                    color: context.textSecondary,
                   ),
                 ],
               ),
@@ -428,9 +421,9 @@ class _RapportsScreenState extends State<RapportsScreen>
                         child: OutlinedButton(
                           onPressed: _reinitialiser,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: ATColors.textSecondary,
-                            side: const BorderSide(
-                                color: ATColors.textSecondary),
+                            foregroundColor: context.textSecondary,
+                            side: BorderSide(
+                                color: context.textSecondary),
                             padding:
                                 const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -458,7 +451,7 @@ class _RapportsScreenState extends State<RapportsScreen>
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         hintText: hint,
         contentPadding:
@@ -469,7 +462,7 @@ class _RapportsScreenState extends State<RapportsScreen>
       items: [
         DropdownMenuItem<String>(
           value: null,
-          child: Text('Tous', style: TextStyle(color: ATColors.textSecondary)),
+          child: Text('Tous', style: TextStyle(color: context.textSecondary)),
         ),
         ...items.map((e) => DropdownMenuItem(value: e, child: Text(e))),
       ],
@@ -481,7 +474,7 @@ class _RapportsScreenState extends State<RapportsScreen>
 
   Widget _buildExportRow() {
     return Container(
-      color: Colors.white,
+      color: context.cardBg,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
@@ -540,7 +533,7 @@ class _RapportsScreenState extends State<RapportsScreen>
             final m = entry.value;
             return DataRow(
               color: WidgetStateProperty.all(
-                i.isEven ? Colors.white : ATColors.background,
+                i.isEven ? context.cardBg : context.surfaceVariant,
               ),
               cells: [
                 DataCell(Text(m.numero)),
@@ -586,7 +579,7 @@ class _RapportsScreenState extends State<RapportsScreen>
             final d = entry.value;
             return DataRow(
               color: WidgetStateProperty.all(
-                  i.isEven ? Colors.white : ATColors.background),
+                  i.isEven ? context.cardBg : context.surfaceVariant),
               cells: [
                 DataCell(ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 140),
@@ -649,8 +642,8 @@ class _RapportsScreenState extends State<RapportsScreen>
                               fontWeight: FontWeight.w600, fontSize: 14)),
                       Text(
                         '${p.missions} mission${p.missions != 1 ? 's' : ''}',
-                        style: const TextStyle(
-                            color: ATColors.textSecondary, fontSize: 12),
+                        style: TextStyle(
+                            color: context.textSecondary, fontSize: 12),
                       ),
                     ],
                   ),
@@ -665,9 +658,9 @@ class _RapportsScreenState extends State<RapportsScreen>
                           color: ATColors.secondary,
                           fontSize: 13),
                     ),
-                    const Text('Total',
+                    Text('Total',
                         style: TextStyle(
-                            color: ATColors.textSecondary, fontSize: 11)),
+                            color: context.textSecondary, fontSize: 11)),
                   ],
                 ),
               ],
@@ -702,11 +695,11 @@ class _RapportsScreenState extends State<RapportsScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 64, color: ATColors.textSecondary.withValues(alpha: 0.4)),
+          Icon(icon, size: 64, color: context.textSecondary.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(message,
-              style: const TextStyle(
-                  color: ATColors.textSecondary, fontSize: 15)),
+              style: TextStyle(
+                  color: context.textSecondary, fontSize: 15)),
         ],
       ),
     );
@@ -714,8 +707,8 @@ class _RapportsScreenState extends State<RapportsScreen>
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: context.shimmerBase,
+      highlightColor: context.shimmerHighlight,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 140),
         itemCount: 6,
@@ -723,7 +716,7 @@ class _RapportsScreenState extends State<RapportsScreen>
           margin: const EdgeInsets.only(bottom: 10),
           height: 50,
           decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.cardBg,
               borderRadius: BorderRadius.circular(8)),
         ),
       ),

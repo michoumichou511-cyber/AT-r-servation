@@ -37,29 +37,31 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
       {/* Panel */}
       <div
         className={[
-          'relative bg-white dark:bg-gray-900 z-10 w-full shadow-2xl',
-          'rounded-t-2xl sm:rounded-2xl',
+          'relative bg-white dark:bg-[#1A1D2E] z-10 w-full',
+          'shadow-[0_25px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]',
+          'rounded-t-[24px] sm:rounded-[24px]',
+          'border border-[#EAECF0] dark:border-[#2A2D3E]',
           'animate-slide-up sm:animate-scale-in',
           sizeClasses[size],
         ].join(' ')}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="text-base font-semibold text-gray-800 dark:text-white">
+        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-[#EAECF0] dark:border-[#2A2D3E]">
+          <h2 className="text-base font-bold text-[#1A1D26] dark:text-white">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100
-                       dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-xl text-[#9AA0AE] hover:text-[#1A1D26] hover:bg-[#F4F6FA]
+                       dark:hover:text-white dark:hover:bg-[#252840] transition-all duration-200"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto max-h-[75vh]">
+        <div className="p-5 sm:p-6 overflow-y-auto max-h-[75vh]">
           {children}
         </div>
       </div>

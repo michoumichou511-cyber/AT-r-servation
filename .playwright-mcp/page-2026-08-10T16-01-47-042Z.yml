@@ -1,0 +1,94 @@
+- generic [active] [ref=f20e1]:
+  - generic [ref=f20e441]:
+    - link "Aller au contenu principal" [ref=f20e442] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f20e444]:
+      - generic [ref=f20e445]:
+        - generic [ref=f20e447]:
+          - img "Algérie Télécom" [ref=f20e449]
+          - generic [ref=f20e450]:
+            - generic [ref=f20e451]: Réservations AT
+            - generic [ref=f20e452]: Algérie Télécom
+        - generic [ref=f20e453]:
+          - generic [ref=f20e454]: VT
+          - generic [ref=f20e455]:
+            - generic [ref=f20e456]: Validateur Test
+            - generic [ref=f20e457]: validateur
+        - textbox "Rechercher..." [ref=f20e463]
+        - navigation [ref=f20e464]:
+          - link "Tableau de bord" [ref=f20e465] [cursor=pointer]:
+            - /url: /
+          - link "Organigramme" [ref=f20e473] [cursor=pointer]:
+            - /url: /organigramme
+          - link "Mes missions" [ref=f20e478] [cursor=pointer]:
+            - /url: /missions
+          - link "Calendrier" [ref=f20e483] [cursor=pointer]:
+            - /url: /missions/calendrier
+          - link "Validations" [ref=f20e487] [cursor=pointer]:
+            - /url: /validations
+          - link "Messagerie" [ref=f20e492] [cursor=pointer]:
+            - /url: /messagerie
+          - link "Notifications" [ref=f20e496] [cursor=pointer]:
+            - /url: /notifications
+          - link "Mon profil" [ref=f20e501] [cursor=pointer]:
+            - /url: /profil
+          - link "A propos" [ref=f20e506] [cursor=pointer]:
+            - /url: /about
+          - link "Rapports" [ref=f20e510] [cursor=pointer]:
+            - /url: /rapports
+        - button "Déconnexion" [ref=f20e516] [cursor=pointer]
+    - generic [ref=f20e521]:
+      - banner [ref=f20e522]:
+        - heading "Tableau de bord" [level=1] [ref=f20e524]
+        - generic [ref=f20e525]:
+          - textbox "Rechercher..." [ref=f20e531]
+          - button [ref=f20e532] [cursor=pointer]
+          - button [ref=f20e535] [cursor=pointer]
+          - button "VT Validateur" [ref=f20e540] [cursor=pointer]:
+            - generic [ref=f20e541]: VT
+            - generic [ref=f20e542]: Validateur
+      - main [ref=f20e543]:
+        - generic [ref=f20e546]:
+          - generic [ref=f20e552]:
+            - generic [ref=f20e553]:
+              - generic [ref=f20e554]: 👋
+              - heading "Bonjour Validateur" [level=1] [ref=f20e555]
+            - paragraph [ref=f20e556]: lundi 10 août 2026
+            - generic [ref=f20e557]:
+              - generic [ref=f20e558]: En ligne
+              - generic [ref=f20e561]: 18:01:46
+          - generic [ref=f20e563]:
+            - generic [ref=f20e566] [cursor=pointer]:
+              - generic [ref=f20e573]: "10"
+              - generic [ref=f20e575]: Missions à valider
+            - generic [ref=f20e579] [cursor=pointer]:
+              - generic [ref=f20e586]: "0"
+              - generic [ref=f20e588]: Validées ce mois
+            - generic [ref=f20e592] [cursor=pointer]:
+              - generic [ref=f20e598]: "0"
+              - generic [ref=f20e600]: Rejetées ce mois
+            - generic [ref=f20e604] [cursor=pointer]:
+              - generic [ref=f20e611]: "0"
+              - generic [ref=f20e613]: Délai moyen
+          - generic [ref=f20e616]:
+            - generic [ref=f20e617]:
+              - generic [ref=f20e618]: Missions en attente de ma validation
+              - generic [ref=f20e619]: 10 URGENT
+            - generic [ref=f20e620]:
+              - generic [ref=f20e621] [cursor=pointer]:
+                - generic [ref=f20e622]: OM-2026-00043
+                - button "Valider maintenant →" [ref=f20e623]
+              - generic [ref=f20e624] [cursor=pointer]:
+                - generic [ref=f20e625]: OM-2026-00040
+                - button "Valider maintenant →" [ref=f20e626]
+              - generic [ref=f20e627] [cursor=pointer]:
+                - generic [ref=f20e628]: OM-2026-00044
+                - button "Valider maintenant →" [ref=f20e629]
+              - generic [ref=f20e630] [cursor=pointer]:
+                - generic [ref=f20e631]: OM-2026-00039
+                - button "Valider maintenant →" [ref=f20e632]
+              - generic [ref=f20e633] [cursor=pointer]:
+                - generic [ref=f20e634]: OM-2026-00037
+                - button "Valider maintenant →" [ref=f20e635]
+            - button "Voir toutes les validations →" [ref=f20e636] [cursor=pointer]
+  - generic [ref=f20e336]: Juridique

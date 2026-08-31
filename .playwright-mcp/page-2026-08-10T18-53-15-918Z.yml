@@ -1,0 +1,10 @@
+- generic [ref=f1e1]:
+  - button "Enable accessibility" [ref=f1e2]
+  - generic [active] [ref=f1e5]:
+    - generic:
+      - generic:
+        - textbox: admin@at.dz
+        - button "Submit"
+      - generic:
+        - textbox: Password@123
+        - button "Submit"

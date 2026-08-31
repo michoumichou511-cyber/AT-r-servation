@@ -1,0 +1,126 @@
+- generic [ref=f9e7]:
+  - link "Aller au contenu principal" [ref=f9e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f9e10]:
+    - generic [ref=f9e11]:
+      - generic [ref=f9e13]:
+        - img "Algérie Télécom" [ref=f9e15]
+        - generic [ref=f9e16]:
+          - generic [ref=f9e17]: Réservations AT
+          - generic [ref=f9e18]: Algérie Télécom
+      - generic [ref=f9e19]:
+        - generic [ref=f9e20]: AS
+        - generic [ref=f9e21]:
+          - generic [ref=f9e22]: Admin Système
+          - generic [ref=f9e23]: admin
+      - textbox "Rechercher..." [ref=f9e29]
+      - navigation [ref=f9e30]:
+        - link "Tableau de bord" [ref=f9e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f9e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f9e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f9e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f9e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f9e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f9e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f9e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f9e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f9e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f9e81]:
+          - button "Administration" [ref=f9e82] [cursor=pointer]
+          - generic [ref=f9e86]:
+            - link "Utilisateurs" [ref=f9e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f9e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f9e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f9e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f9e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f9e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f9e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f9e124] [cursor=pointer]
+  - generic [ref=f9e129]:
+    - banner [ref=f9e130]:
+      - heading "Mon profil" [level=1] [ref=f9e132]
+      - generic [ref=f9e133]:
+        - textbox "Rechercher..." [ref=f9e139]
+        - button [ref=f9e140] [cursor=pointer]
+        - button [ref=f9e143] [cursor=pointer]
+        - button "AS Admin" [ref=f9e148] [cursor=pointer]:
+          - generic [ref=f9e149]: AS
+          - generic [ref=f9e150]: Admin
+    - main [ref=f9e151]:
+      - generic [ref=f9e153]:
+        - generic [ref=f9e154]:
+          - generic [ref=f9e156]: AS
+          - generic [ref=f9e157]:
+            - heading "Admin Système" [level=2] [ref=f9e158]
+            - generic [ref=f9e159]:
+              - generic [ref=f9e160]: admin
+              - generic [ref=f9e161]: MAT002
+              - generic [ref=f9e162]: DG
+        - generic [ref=f9e164]:
+          - button "Informations" [ref=f9e165] [cursor=pointer]
+          - button "Statistiques" [ref=f9e168] [cursor=pointer]
+          - button "Sécurité" [ref=f9e172] [cursor=pointer]
+        - generic [ref=f9e176]:
+          - generic [ref=f9e177]:
+            - generic [ref=f9e178]:
+              - generic [ref=f9e179]: Identité
+              - generic [ref=f9e180]: Champs verrouillés sauf lorsque vous cliquez sur "Modifier".
+            - button "Modifier" [ref=f9e182] [cursor=pointer]
+          - generic [ref=f9e185]:
+            - generic [ref=f9e187]:
+              - textbox "Nom" [disabled] [ref=f9e188]:
+                - /placeholder: ""
+                - text: Système
+              - generic: Nom
+            - generic [ref=f9e190]:
+              - textbox "Prénom" [disabled] [ref=f9e191]:
+                - /placeholder: ""
+                - text: Admin
+              - generic: Prénom
+            - generic [ref=f9e193]:
+              - textbox "Email" [disabled] [ref=f9e194]:
+                - /placeholder: ""
+                - text: admin@at.dz
+              - generic: Email
+            - generic [ref=f9e196]:
+              - textbox "Matricule" [disabled] [ref=f9e197]:
+                - /placeholder: ""
+                - text: MAT002
+              - generic: Matricule
+            - generic [ref=f9e199]:
+              - textbox "Direction" [disabled] [ref=f9e200]:
+                - /placeholder: ""
+                - text: DG
+              - generic: Direction
+            - generic [ref=f9e202]:
+              - textbox "Service" [disabled] [ref=f9e203]:
+                - /placeholder: ""
+                - text: IT
+              - generic: Service
+            - generic [ref=f9e205]:
+              - textbox "Poste" [disabled] [ref=f9e206]:
+                - /placeholder: ""
+                - text: Administrateur Systeme
+              - generic: Poste
+            - generic [ref=f9e208]:
+              - textbox "Téléphone" [disabled] [ref=f9e209]:
+                - /placeholder: ""
+                - text: 0555 123 456
+              - generic: Téléphone

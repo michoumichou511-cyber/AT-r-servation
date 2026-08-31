@@ -51,8 +51,14 @@ class _Step3DocumentsState extends State<Step3Documents> {
       );
 
       if (result != null && result.files.isNotEmpty) {
+        const maxSize = 5 * 1024 * 1024; // 5 Mo
+        final rejected = <PlatformFile>[];
         setState(() {
           for (final f in result.files) {
+            if (f.size > maxSize) {
+              rejected.add(f);
+              continue;
+            }
             final alreadyAdded = widget.draft.documents
                 .any((d) => d['name'] == f.name && d['size'] == f.size);
             if (!alreadyAdded) {
@@ -61,11 +67,48 @@ class _Step3DocumentsState extends State<Step3Documents> {
                 'size': f.size,
                 'bytes': f.bytes,
                 'extension': f.extension ?? '',
-                'type_document': 'formulaire',   // valeur par défaut modifiable
+                'type_document': 'formulaire',
               });
             }
           }
         });
+        if (rejected.isNotEmpty && mounted) {
+          final names = rejected.map((f) =>
+            '• ${f.name} (${(f.size / (1024 * 1024)).toStringAsFixed(1)} Mo)').join('\n');
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(children: const [
+                Icon(Icons.warning_amber_rounded, color: ATColors.error, size: 24),
+                SizedBox(width: 8),
+                Expanded(child: Text('Fichier trop volumineux', style: TextStyle(fontSize: 16))),
+              ]),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('La taille maximale autorisée est de 5 Mo.\n'
+                      'Veuillez remplacer le(s) fichier(s) suivant(s) :',
+                      style: TextStyle(fontSize: 14)),
+                  const SizedBox(height: 12),
+                  Text(names, style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600, color: ATColors.error)),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ATColors.secondary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Compris'),
+                ),
+              ],
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -124,7 +167,7 @@ class _Step3DocumentsState extends State<Step3Documents> {
       case 'xlsx':
         return ATColors.success;
       default:
-        return ATColors.textSecondary;
+        return context.textSecondary;
     }
   }
 
@@ -137,11 +180,11 @@ class _Step3DocumentsState extends State<Step3Documents> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: context.shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -203,7 +246,7 @@ class _Step3DocumentsState extends State<Step3Documents> {
                           'PDF, JPG, PNG, DOC, DOCX',
                           style: TextStyle(
                               fontSize: 12,
-                              color: ATColors.textSecondary.withValues(alpha: 0.8)),
+                              color: context.textSecondary.withValues(alpha: 0.8)),
                         ),
                       ],
                     ),
@@ -270,7 +313,7 @@ class _Step3DocumentsState extends State<Step3Documents> {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: ATColors.background,
+                          color: context.inputFill,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: Colors.grey.withValues(alpha: 0.2)),
@@ -293,9 +336,9 @@ class _Step3DocumentsState extends State<Step3Documents> {
                                     overflow: TextOverflow.ellipsis),
                                   const SizedBox(height: 2),
                                   Text(_formatSize(doc['size'] as int),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 11,
-                                        color: ATColors.textSecondary)),
+                                        color: context.textSecondary)),
                                   const SizedBox(height: 6),
                                   // Sélecteur de type
                                   DropdownButtonFormField<String>(
@@ -353,11 +396,11 @@ class _Step3DocumentsState extends State<Step3Documents> {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: context.shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -392,7 +435,7 @@ class _Step3DocumentsState extends State<Step3Documents> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                     filled: true,
-                    fillColor: ATColors.background,
+                    fillColor: context.inputFill,
                   ),
                 ),
               ],

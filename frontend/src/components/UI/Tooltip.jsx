@@ -12,12 +12,12 @@ export default function Tooltip({ text, children }) {
       {children}
       {visible && (
         <div
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5
-                     bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap z-50
-                     shadow-lg pointer-events-none"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 px-3 py-1.5
+                     bg-[#1A1D26] dark:bg-[#252840] text-white text-xs font-medium rounded-xl whitespace-nowrap z-50
+                     shadow-xl pointer-events-none animate-at-fade-up"
         >
           {text}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1A1D26] dark:border-t-[#252840]" />
         </div>
       )}
     </div>

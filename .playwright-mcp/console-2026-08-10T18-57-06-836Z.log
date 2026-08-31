@@ -1,0 +1,56 @@
+[     630ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[     634ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[     640ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[   30543ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   30546ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   30547ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   65564ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   65565ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   65566ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   86598ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_TIMED_OUT @ http://10.0.2.2:8000/api/auth/login:0
+[   86610ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   86612ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   86613ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266397ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266406ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266409ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266798ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266799ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  266800ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267084ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267084ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267085ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267282ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267282ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267283ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267433ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267434ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267435ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267616ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267617ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267618ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267781ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267782ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  267783ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269012ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269013ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269014ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269212ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269213ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  269214ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273464ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273466ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273467ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273715ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273716ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  273717ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683

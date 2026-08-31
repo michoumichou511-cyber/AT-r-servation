@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import '../design/design_system.dart';
+import '../config/theme.dart';
 import '../utils/haptics.dart';
 
 class VoiceInputButton extends StatefulWidget {
@@ -137,7 +137,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton>
             Flexible(
               child: Text(
                 _currentText,
-                style: const TextStyle(fontSize: 13, color: DS.textPrimary),
+                style: TextStyle(fontSize: 13, color: context.textPrimary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -147,7 +147,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton>
               'Parlez...',
               style: TextStyle(
                 fontSize: 13,
-                color: DS.textMuted,
+                color: context.textMuted,
                 fontStyle: FontStyle.italic,
               ),
             )

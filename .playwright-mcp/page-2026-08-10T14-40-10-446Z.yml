@@ -1,0 +1,142 @@
+- generic [ref=f3e7]:
+  - link "Aller au contenu principal" [ref=f3e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f3e10]:
+    - generic [ref=f3e11]:
+      - generic [ref=f3e13]:
+        - img "Algérie Télécom" [ref=f3e15]
+        - generic [ref=f3e16]:
+          - generic [ref=f3e17]: Réservations AT
+          - generic [ref=f3e18]: Algérie Télécom
+      - generic [ref=f3e19]:
+        - generic [ref=f3e20]: AS
+        - generic [ref=f3e21]:
+          - generic [ref=f3e22]: Admin Système
+          - generic [ref=f3e23]: admin
+      - textbox "Rechercher..." [ref=f3e29]
+      - navigation [ref=f3e30]:
+        - link "Tableau de bord" [ref=f3e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f3e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f3e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f3e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f3e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f3e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f3e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f3e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f3e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f3e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f3e81]:
+          - button "Administration" [ref=f3e82] [cursor=pointer]
+          - generic [ref=f3e86]:
+            - link "Utilisateurs" [ref=f3e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f3e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f3e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f3e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f3e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f3e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f3e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f3e124] [cursor=pointer]
+  - generic [ref=f3e129]:
+    - banner [ref=f3e130]:
+      - heading "Rapports" [level=1] [ref=f3e132]
+      - generic [ref=f3e133]:
+        - textbox "Rechercher..." [ref=f3e139]
+        - button [ref=f3e140] [cursor=pointer]
+        - button [ref=f3e143] [cursor=pointer]
+        - button "AS Admin" [ref=f3e148] [cursor=pointer]:
+          - generic [ref=f3e149]: AS
+          - generic [ref=f3e150]: Admin
+    - main [ref=f3e151]:
+      - generic [ref=f3e153]:
+        - generic [ref=f3e154]:
+          - button "← Retour" [ref=f3e155] [cursor=pointer]
+          - generic [ref=f3e157]:
+            - heading "Rapports" [level=1] [ref=f3e158]
+            - paragraph [ref=f3e159]: Export et rapports
+        - generic [ref=f3e160]:
+          - generic [ref=f3e161]: Filtres d'export
+          - generic [ref=f3e165]:
+            - generic [ref=f3e168]:
+              - textbox "Direction" [ref=f3e169]:
+                - /placeholder: ""
+              - generic: Direction
+            - generic [ref=f3e170]:
+              - generic [ref=f3e171]: Mois
+              - combobox [ref=f3e172]:
+                - option "Tous" [selected]
+                - option "01"
+                - option "02"
+                - option "03"
+                - option "04"
+                - option "05"
+                - option "06"
+                - option "07"
+                - option "08"
+                - option "09"
+                - option "10"
+                - option "11"
+                - option "12"
+            - generic [ref=f3e173]:
+              - generic [ref=f3e174]: Année
+              - combobox [ref=f3e175]:
+                - option "2023"
+                - option "2024"
+                - option "2025"
+                - option "2026" [selected]
+                - option "2027"
+                - option "2028"
+                - option "2029"
+            - generic [ref=f3e176]:
+              - generic [ref=f3e177]: Type mission
+              - combobox [ref=f3e178]:
+                - option "Tous" [selected]
+                - option "Formation"
+                - option "Conférence"
+                - option "Réunion"
+                - option "Inspection"
+                - option "Audit"
+                - option "Autre"
+            - generic [ref=f3e179]:
+              - generic [ref=f3e180]: Statut
+              - combobox [ref=f3e181]:
+                - option "Tous" [selected]
+                - option "Brouillon"
+                - option "Soumis"
+                - option "En validation"
+                - option "Approuvé"
+                - option "Rejeté"
+                - option "Annulé"
+                - option "Terminé"
+          - generic [ref=f3e182]:
+            - generic [ref=f3e183]: "Année: 2026"
+            - button "Reset" [ref=f3e186] [cursor=pointer]
+        - generic [ref=f3e190]:
+          - generic [ref=f3e191]: Missions
+          - generic [ref=f3e196]:
+            - button "Missions Excel" [ref=f3e197] [cursor=pointer]
+            - button "Missions PDF" [ref=f3e201] [cursor=pointer]
+        - generic [ref=f3e205]:
+          - generic [ref=f3e206]: Dépenses
+          - generic [ref=f3e211]:
+            - button "Dépenses Excel" [ref=f3e212] [cursor=pointer]
+            - button "Dépenses par direction" [disabled] [ref=f3e216]
+        - generic [ref=f3e220]:
+          - generic [ref=f3e221]: Prestataires
+          - button "Prestataires Excel" [ref=f3e228] [cursor=pointer]

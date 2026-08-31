@@ -8,6 +8,11 @@ class MissionDraft {
   DateTime? dateDepart;
   DateTime? dateRetour;
   String moyenTransport = 'vehicule_service';
+  String priorite = 'normale'; // normale | urgente | tres_urgente
+  String description = '';
+  String budgetMode = 'avance'; // avance | remboursement
+  bool demandeAvance = false;
+  double? montantAvance;
 
   // Hébergement
   bool hebergementRequis = false;

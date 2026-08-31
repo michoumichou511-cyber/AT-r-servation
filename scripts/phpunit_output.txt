@@ -1,0 +1,118 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                                                            0.01s  
+
+   PASS  Tests\Unit\MissionStatutTest
+  ✓ brouillon is editable                                                                                        0.02s  
+  ✓ can submit from brouillon or rejete
+  ✓ approuve and annule are final
+  ✓ labels are french
+  ✓ all statuts have values
+
+   PASS  Tests\Feature\AuditLogCreatedAtTest
+  ✓ audit log created at is filled when missing                                                                  1.90s  
+
+   PASS  Tests\Feature\AuthApiTest
+  ✓ user can register                                                                                            0.17s  
+  ✓ user can login                                                                                               0.05s  
+  ✓ inactive user cannot login                                                                                   0.05s  
+  ✓ user can update profile                                                                                      0.05s  
+  ✓ user can logout                                                                                              0.05s  
+
+   PASS  Tests\Feature\AuthControllerTest
+  ✓ change password success                                                                                      0.06s  
+  ✓ change password wrong current                                                                                0.05s  
+  ✓ change password weak rejected                                                                                0.05s  
+  ✓ me returns user and stats                                                                                    0.05s  
+  ✓ register validation fails                                                                                    0.05s  
+  ✓ login invalid credentials                                                                                    0.25s  
+  ✓ unauthenticated me returns 401                                                                               0.06s  
+
+   PASS  Tests\Feature\AuthTest
+  ✓ user can register                                                                                            0.06s  
+  ✓ register validates email                                                                                     0.04s  
+  ✓ user can login                                                                                               0.05s  
+  ✓ login fails with wrong password                                                                              0.25s  
+  ✓ authenticated user can get profile                                                                           0.06s  
+  ✓ unauthenticated user gets redirected                                                                         0.04s  
+
+   PASS  Tests\Feature\DashboardApiTest
+  ✓ missions du mois                                                                                             0.06s  
+  ✓ depenses par direction                                                                                       0.05s  
+  ✓ alertes                                                                                                      0.05s  
+  ✓ unauthenticated dashboard returns 401                                                                        0.04s  
+
+   PASS  Tests\Feature\EvaluationPrestataireTest
+  ✓ duplicate evaluation is blocked when reservation id is null                                                  0.07s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                                                                0.06s  
+
+   PASS  Tests\Feature\HealthCheckTest
+  ✓ health endpoint returns ok                                                                                   0.06s  
+  ✓ laravel health route returns ok                                                                              0.04s  
+
+   PASS  Tests\Feature\MessageApiTest
+  ✓ user can send message                                                                                        0.06s  
+  ✓ message requires contenu                                                                                     0.04s  
+  ✓ user can list conversations                                                                                  0.04s  
+  ✓ unread count returns number                                                                                  0.05s  
+
+   PASS  Tests\Feature\MissionApiTest
+  ✓ crud and actions for missions                                                                                0.26s  
+
+   PASS  Tests\Feature\MissionEdgeCaseTest
+  ✓ list missions with filters                                                                                   0.05s  
+  ✓ list missions search                                                                                         0.05s  
+  ✓ show mission                                                                                                 0.05s  
+  ✓ delete brouillon mission                                                                                     0.05s  
+  ✓ cancel mission                                                                                               0.05s  
+  ✓ mission not found                                                                                            0.04s  
+  ✓ admin sees all missions                                                                                      0.05s  
+  ✓ store mission validation                                                                                     0.04s  
+
+   PASS  Tests\Feature\MissionWorkflowTest
+  ✓ full mission lifecycle create submit                                                                         0.07s  
+  ✓ cannot submit already submitted mission                                                                      0.08s  
+  ✓ mission duplicate creates brouillon                                                                          0.05s  
+  ✓ inactive user cannot create mission                                                                          0.04s  
+
+   PASS  Tests\Feature\NotificationApiTest
+  ✓ user can list notifications                                                                                  0.05s  
+  ✓ user can get unread count                                                                                    0.04s  
+  ✓ user can mark all read                                                                                       0.04s  
+  ✓ user can delete own notification                                                                             0.04s  
+
+   PASS  Tests\Feature\PolicyTest
+  ✓ owner can view own mission                                                                                   0.06s  
+  ✓ other user cannot view mission                                                                               0.05s  
+  ✓ admin can view any mission                                                                                   0.05s  
+  ✓ other user cannot update mission                                                                             0.05s  
+  ✓ other user cannot delete mission                                                                             0.04s  
+  ✓ owner cannot update non brouillon mission                                                                    0.05s  
+
+   PASS  Tests\Feature\ReservationApiTest
+  ✓ user can list reservations for own mission                                                                   0.05s  
+  ✓ user can create reservation                                                                                  0.05s  
+  ✓ reservation requires type                                                                                    0.05s  
+
+   PASS  Tests\Feature\RolePermissionsTest
+  ✓ utilisateur cannot access admin dashboard                                                                    0.05s  
+  ✓ admin can access admin dashboard                                                                             0.05s  
+  ✓ utilisateur cannot access validations list                                                                   0.05s  
+  ✓ validateur can access validations list                                                                       0.05s  
+  ✓ utilisateur can only see own missions                                                                        0.05s  
+  ✓ admin can see all missions                                                                                   0.05s  
+
+   PASS  Tests\Feature\SecurityHeadersTest
+  ✓ api responses include security headers                                                                       0.04s  
+
+   PASS  Tests\Feature\ValidationApiTest
+  ✓ validateur can list his validations                                                                          0.05s  
+  ✓ validateur can approve validation                                                                            0.05s  
+  ✓ validateur can reject validation with comment                                                                0.05s  
+  ✓ validateur cannot reject validation without comment                                                          0.05s  
+
+  Tests:    74 passed (182 assertions)
+  Duration: 6.71s
+

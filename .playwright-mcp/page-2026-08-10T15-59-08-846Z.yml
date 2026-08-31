@@ -1,0 +1,173 @@
+- generic [ref=f17e7]:
+  - link "Aller au contenu principal" [ref=f17e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f17e10]:
+    - generic [ref=f17e11]:
+      - generic [ref=f17e13]:
+        - img "Algérie Télécom" [ref=f17e15]
+        - generic [ref=f17e16]:
+          - generic [ref=f17e17]: Réservations AT
+          - generic [ref=f17e18]: Algérie Télécom
+      - generic [ref=f17e19]:
+        - generic [ref=f17e20]: AS
+        - generic [ref=f17e21]:
+          - generic [ref=f17e22]: Admin Système
+          - generic [ref=f17e23]: admin
+      - textbox "Rechercher..." [ref=f17e29]
+      - navigation [ref=f17e30]:
+        - link "Tableau de bord" [ref=f17e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f17e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f17e44] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f17e49] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f17e53] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f17e58] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f17e62] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f17e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f17e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f17e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f17e81]:
+          - button "Administration" [ref=f17e82] [cursor=pointer]
+          - generic [ref=f17e86]:
+            - link "Utilisateurs" [ref=f17e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f17e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f17e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f17e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f17e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f17e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f17e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f17e124] [cursor=pointer]
+  - generic [ref=f17e129]:
+    - banner [ref=f17e130]:
+      - heading "AT Réservations" [level=1] [ref=f17e132]
+      - generic [ref=f17e133]:
+        - textbox "Rechercher..." [ref=f17e139]
+        - button [ref=f17e140] [cursor=pointer]
+        - button [ref=f17e143] [cursor=pointer]
+        - button "AS Admin" [ref=f17e148] [cursor=pointer]:
+          - generic [ref=f17e149]: AS
+          - generic [ref=f17e150]: Admin
+    - main [ref=f17e151]:
+      - generic [ref=f17e153]:
+        - generic [ref=f17e155]:
+          - generic [ref=f17e162]:
+            - generic [ref=f17e163]: Algerie Telecom
+            - generic [ref=f17e164]: Organigramme General Interactif
+          - generic [ref=f17e165]:
+            - textbox "Rechercher..." [ref=f17e170]
+            - button "Deplier" [ref=f17e171] [cursor=pointer]
+            - button "Replier" [ref=f17e174] [cursor=pointer]
+        - generic [ref=f17e177]:
+          - paragraph [ref=f17e178]: Organigramme de la Direction Generale d'Algerie Telecom. Structure officielle extraite des documents internes (memoire ISIL E-014). Les noms du personnel sont fictifs.
+          - generic [ref=f17e179]:
+            - generic [ref=f17e180]: Direction / Division Centrale
+            - generic [ref=f17e183]: Division Technique / Commerciale
+            - generic [ref=f17e186]: Direction Support / Operationnelle
+            - generic [ref=f17e189]: "* Noms fictifs"
+        - generic [ref=f17e190]:
+          - button [ref=f17e191] [cursor=pointer]
+          - button "100%" [ref=f17e195] [cursor=pointer]
+          - button [ref=f17e196] [cursor=pointer]
+        - generic [ref=f17e202]:
+          - generic [ref=f17e203]:
+            - generic [ref=f17e204] [cursor=pointer]:
+              - generic [ref=f17e205]: MK
+              - generic [ref=f17e206]: President Directeur General
+              - generic [ref=f17e207]: M. Karim Bensalem
+              - generic [ref=f17e208]: 2 u.
+              - generic [ref=f17e209]: "13"
+            - button "−" [ref=f17e210] [cursor=pointer]
+          - generic [ref=f17e214]:
+            - generic [ref=f17e219] [cursor=pointer]:
+              - generic [ref=f17e220]: MN
+              - generic [ref=f17e221]: Cellule Reporting & Analyse
+              - generic [ref=f17e222]: Mme. Nadia Khelifi
+              - generic [ref=f17e223]: 1 u.
+            - generic [ref=f17e228] [cursor=pointer]:
+              - generic [ref=f17e229]: MM
+              - generic [ref=f17e230]: Inspection Generale
+              - generic [ref=f17e231]: M. Mourad Tebbal
+              - generic [ref=f17e232]: 1 u.
+            - generic [ref=f17e236]:
+              - generic [ref=f17e237] [cursor=pointer]:
+                - generic [ref=f17e238]: MY
+                - generic [ref=f17e239]: Division Systemes d'Information
+                - generic [ref=f17e240]: M. Yacine Boudiaf
+                - generic [ref=f17e241]: 2 u.
+                - generic [ref=f17e242]: "4"
+              - button "+" [ref=f17e243] [cursor=pointer]
+            - generic [ref=f17e247]:
+              - generic [ref=f17e248] [cursor=pointer]:
+                - generic [ref=f17e249]: ML
+                - generic [ref=f17e250]: Division Ressources Humaines et Formation
+                - generic [ref=f17e251]: Mme. Leila Mebarki
+                - generic [ref=f17e252]: 2 u.
+                - generic [ref=f17e253]: "4"
+              - button "+" [ref=f17e254] [cursor=pointer]
+            - generic [ref=f17e259] [cursor=pointer]:
+              - generic [ref=f17e260]: MB
+              - generic [ref=f17e261]: Division Commerciale, Communication et Marketing
+              - generic [ref=f17e262]: M. Bilal Hadidi
+              - generic [ref=f17e263]: 1 u.
+            - generic [ref=f17e268] [cursor=pointer]:
+              - generic [ref=f17e269]: MK
+              - generic [ref=f17e270]: Division Finances & Comptabilite
+              - generic [ref=f17e271]: Mme. Karima Bouziane
+              - generic [ref=f17e272]: 1 u.
+            - generic [ref=f17e277] [cursor=pointer]:
+              - generic [ref=f17e278]: MA
+              - generic [ref=f17e279]: Division Interconnexion et Relations Internationales
+              - generic [ref=f17e280]: M. Adel Boukhobza
+              - generic [ref=f17e281]: 1 u.
+            - generic [ref=f17e286] [cursor=pointer]:
+              - generic [ref=f17e287]: ML
+              - generic [ref=f17e288]: Direction Surete Interne de l'Entreprise
+              - generic [ref=f17e289]: M. Lotfi Aoudjane
+              - generic [ref=f17e290]: Vacant
+            - generic [ref=f17e295] [cursor=pointer]:
+              - generic [ref=f17e296]: MS
+              - generic [ref=f17e297]: Direction Affaires Juridiques
+              - generic [ref=f17e298]: Mme. Sara Benkhalil
+              - generic [ref=f17e299]: Vacant
+            - generic [ref=f17e304] [cursor=pointer]:
+              - generic [ref=f17e305]: MF
+              - generic [ref=f17e306]: Direction Audit Interne
+              - generic [ref=f17e307]: M. Fares Toumi
+              - generic [ref=f17e308]: Vacant
+            - generic [ref=f17e313] [cursor=pointer]:
+              - generic [ref=f17e314]: MD
+              - generic [ref=f17e315]: Division Achats, Moyens & Patrimoine
+              - generic [ref=f17e316]: Mme. Djamila Rekik
+              - generic [ref=f17e317]: 1 u.
+            - generic [ref=f17e321]:
+              - generic [ref=f17e322] [cursor=pointer]:
+                - generic [ref=f17e323]: MA
+                - generic [ref=f17e324]: Pole Infrastructures et Reseaux
+                - generic [ref=f17e325]: M. Abdelaziz Guerroudj
+                - generic [ref=f17e326]: 1 u.
+                - generic [ref=f17e327]: "3"
+              - button "+" [ref=f17e328] [cursor=pointer]
+            - generic [ref=f17e332]:
+              - generic [ref=f17e333] [cursor=pointer]:
+                - generic [ref=f17e334]: DR
+                - generic [ref=f17e335]: Directions Operationnelles (60 DO)
+                - generic [ref=f17e336]: Directions Regionales
+                - generic [ref=f17e337]: Vacant
+                - generic [ref=f17e338]: "3"
+              - button "+" [ref=f17e339] [cursor=pointer]

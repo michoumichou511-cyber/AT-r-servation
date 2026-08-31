@@ -71,9 +71,9 @@ export const missionsAPI = {
   /** @deprecated préférer submit */
   submit:  (id)     => api.post(`/missions/${id}/submit`),
   /** @deprecated préférer cancel */
-  cancel:  (id)     => api.post(`/missions/${id}/cancel`),
-  soumettre: (id)   => api.post(`/missions/${id}/submit`),
-  annuler: (id)     => api.post(`/missions/${id}/cancel`),
+  cancel:  (id, data) => api.post(`/missions/${id}/cancel`, data),
+  soumettre: (id)     => api.post(`/missions/${id}/submit`),
+  annuler: (id, data) => api.post(`/missions/${id}/cancel`, data),
   dupliquer: (id)   => api.post(`/missions/${id}/duplicate`),
   /** Alias backend : /historique (pas /timeline) */
   timeline:(id)     => api.get(`/missions/${id}/historique`),
@@ -281,6 +281,7 @@ export const adminAPI = {
   toggleFavori: (id) => api.post(`/prestataires/${id}/favori`, {}),
 
   budgets: (params) => api.get('/admin/budgets', { params }),
+  creerBudget: (data) => api.post('/admin/budgets', data),
   modifierBudget: (id, data) => api.put(`/admin/budgets/${id}`, data),
 
   auditLogs: (params) => api.get('/admin/audit-logs', { params }),
@@ -357,6 +358,7 @@ export const dmlAPI = {
   assignerHotel:          (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-hotel`, data),
   assignerVehicule:       (missionId, data)  => api.post(`/dml/missions/${missionId}/assigner-vehicule`, data),
   marquerLogistiqueOk:    (missionId)        => api.post(`/dml/missions/${missionId}/logistique-ok`),
+  cloturerMission:        (missionId)        => api.post(`/dml/missions/${missionId}/cloturer`),
   getHotelsConventions:   (params)           => api.get('/dml/hotels-conventions', { params }),
   getVehiculesDisponibles:(params)           => api.get('/dml/vehicules-disponibles', { params }),
   adminHotels:            (params)           => api.get('/admin/dml/hotels', { params }),

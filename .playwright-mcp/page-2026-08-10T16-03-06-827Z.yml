@@ -1,0 +1,45 @@
+- generic [ref=f21e538]:
+  - link "Aller au contenu principal" [ref=f21e539] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f21e541]:
+    - generic [ref=f21e542]:
+      - generic [ref=f21e544]:
+        - img "Algérie Télécom" [ref=f21e546]
+        - generic [ref=f21e547]:
+          - generic [ref=f21e548]: Réservations AT
+          - generic [ref=f21e549]: Algérie Télécom
+      - generic [ref=f21e550]:
+        - generic [ref=f21e551]: DT
+        - generic [ref=f21e552]:
+          - generic [ref=f21e553]: Demandeur Test
+          - generic [ref=f21e554]: demandeur
+      - textbox "Rechercher..." [ref=f21e560]
+      - navigation [ref=f21e561]:
+        - link "Tableau de bord" [ref=f21e562] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f21e570] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f21e575] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f21e580] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Messagerie" [ref=f21e584] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f21e588] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f21e593] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f21e598] [cursor=pointer]:
+          - /url: /about
+      - button "Déconnexion" [ref=f21e603] [cursor=pointer]
+  - generic [ref=f21e608]:
+    - banner [ref=f21e609]:
+      - heading "Tableau de bord" [level=1] [ref=f21e611]
+      - generic [ref=f21e612]:
+        - textbox "Rechercher..." [ref=f21e618]
+        - button [ref=f21e619] [cursor=pointer]
+        - button "2" [ref=f21e622] [cursor=pointer]
+        - button "DT Demandeur" [ref=f21e628] [cursor=pointer]:
+          - generic [ref=f21e629]: DT
+          - generic [ref=f21e630]: Demandeur
+    - main [ref=f21e631]

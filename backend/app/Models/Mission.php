@@ -30,12 +30,17 @@ class Mission extends Model
         'numero_unique',
         'budget_previsionnel',
         'budget_mode',
+        'demande_avance',
+        'montant_avance',
         'soumis_le',
+        'motif_annulation',
     ];
 
     protected $casts = [
         'date_depart' => 'datetime:Y-m-d',
         'date_retour' => 'datetime:Y-m-d',
+        'demande_avance' => 'boolean',
+        'montant_avance' => 'decimal:2',
     ];
 
     protected static function boot()

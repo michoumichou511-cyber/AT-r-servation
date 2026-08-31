@@ -1,0 +1,142 @@
+- generic [active] [ref=f14e1]:
+  - generic [ref=f14e7]:
+    - link "Aller au contenu principal" [ref=f14e8] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary [ref=f14e10]:
+      - generic [ref=f14e11]:
+        - generic [ref=f14e13]:
+          - img "Algérie Télécom" [ref=f14e15]
+          - generic [ref=f14e16]:
+            - generic [ref=f14e17]: Réservations AT
+            - generic [ref=f14e18]: Algérie Télécom
+        - generic [ref=f14e19]:
+          - generic [ref=f14e20]: AS
+          - generic [ref=f14e21]:
+            - generic [ref=f14e22]: Admin Système
+            - generic [ref=f14e23]: admin
+        - textbox "Rechercher..." [ref=f14e29]
+        - navigation [ref=f14e30]:
+          - link "Tableau de bord" [ref=f14e31] [cursor=pointer]:
+            - /url: /
+          - link "Organigramme" [ref=f14e38] [cursor=pointer]:
+            - /url: /organigramme
+          - link "Mes missions" [ref=f14e43] [cursor=pointer]:
+            - /url: /missions
+          - link "Calendrier" [ref=f14e48] [cursor=pointer]:
+            - /url: /missions/calendrier
+          - link "Validations" [ref=f14e52] [cursor=pointer]:
+            - /url: /validations
+          - link "Messagerie" [ref=f14e57] [cursor=pointer]:
+            - /url: /messagerie
+          - link "Notifications" [ref=f14e61] [cursor=pointer]:
+            - /url: /notifications
+          - link "Mon profil" [ref=f14e66] [cursor=pointer]:
+            - /url: /profil
+          - link "A propos" [ref=f14e71] [cursor=pointer]:
+            - /url: /about
+          - link "Rapports" [ref=f14e75] [cursor=pointer]:
+            - /url: /rapports
+          - generic [ref=f14e80]:
+            - button "Administration" [ref=f14e81] [cursor=pointer]
+            - generic [ref=f14e85]:
+              - link "Utilisateurs" [ref=f14e86] [cursor=pointer]:
+                - /url: /admin/utilisateurs
+              - link "Prestataires" [ref=f14e93] [cursor=pointer]:
+                - /url: /admin/prestataires
+              - link "Budgets" [ref=f14e99] [cursor=pointer]:
+                - /url: /admin/budgets
+              - link "Audit Logs" [ref=f14e104] [cursor=pointer]:
+                - /url: /admin/audit-logs
+              - link "Statistiques" [ref=f14e109] [cursor=pointer]:
+                - /url: /admin/statistiques
+              - link "Dashboard DSI" [ref=f14e113] [cursor=pointer]:
+                - /url: /admin/dashboard-executif
+              - link "Simulateur Budget" [ref=f14e118] [cursor=pointer]:
+                - /url: /admin/simulateur-budget
+        - button "Déconnexion" [ref=f14e124] [cursor=pointer]
+    - generic [ref=f14e129]:
+      - banner [ref=f14e130]:
+        - heading "AT Réservations" [level=1] [ref=f14e132]
+        - generic [ref=f14e133]:
+          - textbox "Rechercher..." [ref=f14e139]
+          - button [ref=f14e140] [cursor=pointer]
+          - button [ref=f14e143] [cursor=pointer]
+          - button "AS Admin" [ref=f14e148] [cursor=pointer]:
+            - generic [ref=f14e149]: AS
+            - generic [ref=f14e150]: Admin
+      - main [ref=f14e151]:
+        - generic [ref=f14e153]:
+          - generic [ref=f14e156]:
+            - heading "Dashboard DSI" [level=1] [ref=f14e157]
+            - paragraph [ref=f14e158]: Vue exécutive des missions
+          - generic [ref=f14e159]:
+            - generic [ref=f14e160]:
+              - generic [ref=f14e161]: "+0"
+              - generic [ref=f14e170]: "0"
+              - generic [ref=f14e171]: Missions ce mois
+            - generic [ref=f14e172]:
+              - generic [ref=f14e178]: 0%
+              - generic [ref=f14e179]: Taux d'approbation
+            - generic [ref=f14e180]:
+              - generic [ref=f14e185]: 0%
+              - generic [ref=f14e186]: Budget consommé
+              - generic [ref=f14e187]: 0k / 0k DA
+            - generic [ref=f14e188]:
+              - generic [ref=f14e194]: 0 j
+              - generic [ref=f14e195]: Temps moyen traitement
+          - generic [ref=f14e196]:
+            - generic [ref=f14e197]:
+              - heading "Évolution 12 mois" [level=3] [ref=f14e198]
+              - application [ref=f14e201]:
+                - generic [ref=f14e218]:
+                  - generic [ref=f14e219]:
+                    - generic [ref=f14e220]: Apr 2026
+                    - generic [ref=f14e222]: May 2026
+                    - generic [ref=f14e224]: Jun 2026
+                    - generic [ref=f14e226]: Jul 2026
+                  - generic [ref=f14e228]:
+                    - generic [ref=f14e229]: "0"
+                    - generic [ref=f14e231]: "0.5"
+                    - generic [ref=f14e233]: "1"
+                    - generic [ref=f14e235]: "1.5"
+                    - generic [ref=f14e237]: "2"
+            - generic [ref=f14e239]:
+              - heading "Missions par direction" [level=3] [ref=f14e240]
+              - application [ref=f14e243]:
+                - generic [ref=f14e271]:
+                  - generic [ref=f14e272]:
+                    - generic [ref=f14e273]: "0"
+                    - generic [ref=f14e275]: "4"
+                    - generic [ref=f14e277]: "8"
+                    - generic [ref=f14e279]: "12"
+                    - generic [ref=f14e281]: "16"
+                  - generic [ref=f14e283]:
+                    - generic [ref=f14e284]: DG
+                    - generic [ref=f14e286]: DRH
+                    - generic [ref=f14e288]: DSI
+                    - generic [ref=f14e290]: DAF
+            - generic [ref=f14e292]:
+              - heading "Top 5 destinations" [level=3] [ref=f14e293]
+              - application [ref=f14e296]:
+                - generic [ref=f14e315]:
+                  - generic [ref=f14e316]: Alger (42%)
+                  - generic [ref=f14e319]: Oran (25%)
+                  - generic [ref=f14e322]: Paris (17%)
+                  - generic [ref=f14e324]: Tunis (10%)
+                  - generic [ref=f14e327]: Istanbul (6%)
+            - generic [ref=f14e330]:
+              - heading "Alertes actives" [level=3] [ref=f14e331]
+              - paragraph [ref=f14e336]: Aucune alerte active
+          - generic [ref=f14e338]:
+            - heading "Empreinte carbone" [level=3] [ref=f14e344]
+            - generic [ref=f14e346]:
+              - generic [ref=f14e347]:
+                - generic [ref=f14e348]: 0kg CO2
+                - generic [ref=f14e349]: ce mois
+              - generic [ref=f14e351]:
+                - generic [ref=f14e354]: "0"
+                - generic [ref=f14e355]: arbres/an
+              - generic [ref=f14e356]:
+                - generic [ref=f14e357]: 0 kg
+                - generic [ref=f14e361]: 0 kg
+  - generic [ref=f14e367]: DG

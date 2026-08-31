@@ -1,0 +1,245 @@
+- generic [ref=f8e7]:
+  - link "Aller au contenu principal" [ref=f8e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f8e10]:
+    - generic [ref=f8e11]:
+      - generic [ref=f8e13]:
+        - img "Algérie Télécom" [ref=f8e15]
+        - generic [ref=f8e16]:
+          - generic [ref=f8e17]: Réservations AT
+          - generic [ref=f8e18]: Algérie Télécom
+      - generic [ref=f8e19]:
+        - generic [ref=f8e20]: AS
+        - generic [ref=f8e21]:
+          - generic [ref=f8e22]: Admin Système
+          - generic [ref=f8e23]: admin
+      - textbox "Rechercher..." [ref=f8e29]
+      - navigation [ref=f8e30]:
+        - link "Tableau de bord" [ref=f8e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f8e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f8e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f8e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f8e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f8e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f8e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f8e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f8e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f8e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f8e81]:
+          - button "Administration" [ref=f8e82] [cursor=pointer]
+          - generic [ref=f8e86]:
+            - link "Utilisateurs" [ref=f8e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f8e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f8e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f8e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f8e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f8e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f8e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f8e124] [cursor=pointer]
+  - generic [ref=f8e129]:
+    - banner [ref=f8e130]:
+      - heading "Notifications" [level=1] [ref=f8e132]
+      - generic [ref=f8e133]:
+        - textbox "Rechercher..." [ref=f8e139]
+        - button [ref=f8e140] [cursor=pointer]
+        - button [ref=f8e143] [cursor=pointer]
+        - button "AS Admin" [ref=f8e148] [cursor=pointer]:
+          - generic [ref=f8e149]: AS
+          - generic [ref=f8e150]: Admin
+    - main [ref=f8e151]:
+      - generic [ref=f8e153]:
+        - generic [ref=f8e154]:
+          - button "← Retour" [ref=f8e155] [cursor=pointer]
+          - generic [ref=f8e156]:
+            - generic [ref=f8e157]:
+              - heading "Notifications" [level=1] [ref=f8e158]
+              - paragraph [ref=f8e159]: Vos notifications
+            - button "Tout marquer lu" [ref=f8e162] [cursor=pointer]
+        - generic [ref=f8e166]:
+          - button "Toutes (20)" [ref=f8e167] [cursor=pointer]
+          - button "Missions (20)" [ref=f8e170] [cursor=pointer]
+        - generic [ref=f8e174]: Tout est à jour
+        - generic [ref=f8e175]:
+          - generic [ref=f8e176]:
+            - generic [ref=f8e177]: Plus ancien
+            - generic [ref=f8e180] [cursor=pointer]:
+              - generic [ref=f8e185]:
+                - generic [ref=f8e186]: Nouvelle mission
+                - generic [ref=f8e187]: Mission OM-2026-00055 créée par Demandeur Test
+                - generic [ref=f8e188]:
+                  - generic [ref=f8e189]: il y a 15 j
+                  - generic [ref=f8e190]: Missions
+              - generic [ref=f8e191]: Lu
+          - generic [ref=f8e194] [cursor=pointer]:
+            - generic [ref=f8e199]:
+              - generic [ref=f8e200]: Nouvelle mission
+              - generic [ref=f8e201]: Mission OM-2026-00054 créée par Admin Système
+              - generic [ref=f8e202]:
+                - generic [ref=f8e203]: il y a 17 j
+                - generic [ref=f8e204]: Missions
+            - generic [ref=f8e205]: Lu
+          - generic [ref=f8e208] [cursor=pointer]:
+            - generic [ref=f8e213]:
+              - generic [ref=f8e214]: Nouvelle mission
+              - generic [ref=f8e215]: Mission OM-2026-00053 créée par Demandeur Test
+              - generic [ref=f8e216]:
+                - generic [ref=f8e217]: il y a 38 j
+                - generic [ref=f8e218]: Missions
+            - generic [ref=f8e219]: Lu
+          - generic [ref=f8e222] [cursor=pointer]:
+            - generic [ref=f8e227]:
+              - generic [ref=f8e228]: Nouvelle mission
+              - generic [ref=f8e229]: Mission OM-2026-00054 créée par Demandeur Test
+              - generic [ref=f8e230]:
+                - generic [ref=f8e231]: il y a 64 j
+                - generic [ref=f8e232]: Missions
+            - generic [ref=f8e233]: Lu
+          - generic [ref=f8e236] [cursor=pointer]:
+            - generic [ref=f8e241]:
+              - generic [ref=f8e242]: Nouvelle mission
+              - generic [ref=f8e243]: Mission OM-2026-00053 créée par Demandeur Test
+              - generic [ref=f8e244]:
+                - generic [ref=f8e245]: il y a 64 j
+                - generic [ref=f8e246]: Missions
+            - generic [ref=f8e247]: Lu
+          - generic [ref=f8e250] [cursor=pointer]:
+            - generic [ref=f8e255]:
+              - generic [ref=f8e256]: Nouvelle mission
+              - generic [ref=f8e257]: Mission OM-2026-00052 créée par Demandeur Test
+              - generic [ref=f8e258]:
+                - generic [ref=f8e259]: il y a 65 j
+                - generic [ref=f8e260]: Missions
+            - generic [ref=f8e261]: Lu
+          - generic [ref=f8e264] [cursor=pointer]:
+            - generic [ref=f8e269]:
+              - generic [ref=f8e270]: Nouvelle mission
+              - generic [ref=f8e271]: Mission OM-2026-00051 créée par Demandeur Test
+              - generic [ref=f8e272]:
+                - generic [ref=f8e273]: il y a 66 j
+                - generic [ref=f8e274]: Missions
+            - generic [ref=f8e275]: Lu
+          - generic [ref=f8e278] [cursor=pointer]:
+            - generic [ref=f8e283]:
+              - generic [ref=f8e284]: Nouvelle mission
+              - generic [ref=f8e285]: Mission OM-2026-00050 créée par Demandeur Test
+              - generic [ref=f8e286]:
+                - generic [ref=f8e287]: il y a 66 j
+                - generic [ref=f8e288]: Missions
+            - generic [ref=f8e289]: Lu
+          - generic [ref=f8e292] [cursor=pointer]:
+            - generic [ref=f8e297]:
+              - generic [ref=f8e298]: Nouvelle mission
+              - generic [ref=f8e299]: Mission OM-2026-00049 créée par Demandeur Test
+              - generic [ref=f8e300]:
+                - generic [ref=f8e301]: il y a 66 j
+                - generic [ref=f8e302]: Missions
+            - generic [ref=f8e303]: Lu
+          - generic [ref=f8e306] [cursor=pointer]:
+            - generic [ref=f8e311]:
+              - generic [ref=f8e312]: Nouvelle mission
+              - generic [ref=f8e313]: Mission OM-2026-00048 créée par Demandeur Test
+              - generic [ref=f8e314]:
+                - generic [ref=f8e315]: il y a 66 j
+                - generic [ref=f8e316]: Missions
+            - generic [ref=f8e317]: Lu
+          - generic [ref=f8e320] [cursor=pointer]:
+            - generic [ref=f8e325]:
+              - generic [ref=f8e326]: Nouvelle mission
+              - generic [ref=f8e327]: Mission OM-2026-00047 créée par Demandeur Test
+              - generic [ref=f8e328]:
+                - generic [ref=f8e329]: il y a 70 j
+                - generic [ref=f8e330]: Missions
+            - generic [ref=f8e331]: Lu
+          - generic [ref=f8e334] [cursor=pointer]:
+            - generic [ref=f8e339]:
+              - generic [ref=f8e340]: Nouvelle mission
+              - generic [ref=f8e341]: Mission OM-2026-00046 créée par Demandeur Test
+              - generic [ref=f8e342]:
+                - generic [ref=f8e343]: il y a 70 j
+                - generic [ref=f8e344]: Missions
+            - generic [ref=f8e345]: Lu
+          - generic [ref=f8e348] [cursor=pointer]:
+            - generic [ref=f8e353]:
+              - generic [ref=f8e354]: Nouvelle mission
+              - generic [ref=f8e355]: Mission OM-2026-00045 créée par Demandeur Test
+              - generic [ref=f8e356]:
+                - generic [ref=f8e357]: il y a 70 j
+                - generic [ref=f8e358]: Missions
+            - generic [ref=f8e359]: Lu
+          - generic [ref=f8e362] [cursor=pointer]:
+            - generic [ref=f8e367]:
+              - generic [ref=f8e368]: Nouvelle mission
+              - generic [ref=f8e369]: Mission OM-2026-00044 créée par Demandeur Test
+              - generic [ref=f8e370]:
+                - generic [ref=f8e371]: il y a 74 j
+                - generic [ref=f8e372]: Missions
+            - generic [ref=f8e373]: Lu
+          - generic [ref=f8e376] [cursor=pointer]:
+            - generic [ref=f8e381]:
+              - generic [ref=f8e382]: Nouvelle mission
+              - generic [ref=f8e383]: Mission OM-2026-00043 créée par Demandeur Test
+              - generic [ref=f8e384]:
+                - generic [ref=f8e385]: il y a 76 j
+                - generic [ref=f8e386]: Missions
+            - generic [ref=f8e387]: Lu
+          - generic [ref=f8e390] [cursor=pointer]:
+            - generic [ref=f8e395]:
+              - generic [ref=f8e396]: Nouvelle mission
+              - generic [ref=f8e397]: Mission OM-2026-00042 créée par Demandeur Test
+              - generic [ref=f8e398]:
+                - generic [ref=f8e399]: il y a 77 j
+                - generic [ref=f8e400]: Missions
+            - generic [ref=f8e401]: Lu
+          - generic [ref=f8e404] [cursor=pointer]:
+            - generic [ref=f8e409]:
+              - generic [ref=f8e410]: Nouvelle mission
+              - generic [ref=f8e411]: Mission OM-2026-00041 créée par Demandeur Test
+              - generic [ref=f8e412]:
+                - generic [ref=f8e413]: il y a 78 j
+                - generic [ref=f8e414]: Missions
+            - generic [ref=f8e415]: Lu
+          - generic [ref=f8e418] [cursor=pointer]:
+            - generic [ref=f8e423]:
+              - generic [ref=f8e424]: Nouvelle mission
+              - generic [ref=f8e425]: Mission OM-2026-00040 créée par Demandeur Test
+              - generic [ref=f8e426]:
+                - generic [ref=f8e427]: il y a 78 j
+                - generic [ref=f8e428]: Missions
+            - generic [ref=f8e429]: Lu
+          - generic [ref=f8e432] [cursor=pointer]:
+            - generic [ref=f8e437]:
+              - generic [ref=f8e438]: Nouvelle mission
+              - generic [ref=f8e439]: Mission OM-2026-00039 créée par Demandeur Test
+              - generic [ref=f8e440]:
+                - generic [ref=f8e441]: il y a 78 j
+                - generic [ref=f8e442]: Missions
+            - generic [ref=f8e443]: Lu
+          - generic [ref=f8e446] [cursor=pointer]:
+            - generic [ref=f8e451]:
+              - generic [ref=f8e452]: Nouvelle mission
+              - generic [ref=f8e453]: Mission OM-2026-00038 créée par Demandeur Test
+              - generic [ref=f8e454]:
+                - generic [ref=f8e455]: il y a 78 j
+                - generic [ref=f8e456]: Missions
+            - generic [ref=f8e457]: Lu
+        - generic [ref=f8e459]:
+          - button "← Précédent" [disabled] [ref=f8e460]
+          - generic [ref=f8e461]: Page 1 / 3
+          - button "Suivant →" [ref=f8e462] [cursor=pointer]

@@ -1,0 +1,119 @@
+[      42ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[      45ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[      47ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  112044ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[  112047ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[  112049ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[  123155ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[  123158ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[  123159ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[  123440ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  123445ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  123446ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  202691ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[  202693ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[  202695ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[  202737ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  202741ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  202742ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  260457ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  260458ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  260459ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  260604ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8888/?t=1786388849281#/login:0
+[  283733ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  283735ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  283737ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  327862ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[  327864ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[  327866ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[  327903ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  327906ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  327907ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  330127ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  330132ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  330135ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  330303ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:8888/#/login:0
+[  342702ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/auth/login' from origin 'http://localhost:8888' has been blocked by CORS policy: Request header field ngrok-skip-browser-warning is not allowed by Access-Control-Allow-Headers in preflight response. @ http://localhost:8888/#/login:0
+[  342702ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/auth/login:0
+[  343377ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  343381ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  343384ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  413209ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/auth/login' from origin 'http://localhost:8888' has been blocked by CORS policy: Request header field x-client-type is not allowed by Access-Control-Allow-Headers in preflight response. @ http://localhost:8888/#/login:0
+[  413210ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/auth/login:0
+[  413899ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  413903ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  413905ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  468076ms] [ERROR] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) @ http://127.0.0.1:8000/api/auth/login:0
+[  468411ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  468413ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  468414ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  551500ms] [ERROR] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) @ http://127.0.0.1:8000/api/auth/login:0
+[  552174ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  552175ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  552176ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  725720ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  725724ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  725726ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  766734ms] [LOG] Got object store box in database at_cache. @ http://localhost:8888/main.dart.js:40683
+[  766737ms] [LOG] Got object store box in database at_offline_queue. @ http://localhost:8888/main.dart.js:40683
+[  766740ms] Error
+    at Object.e (http://localhost:8888/main.dart.js:3913:20)
+    at http://localhost:8888/main.dart.js:106924:15
+    at bgy.a (http://localhost:8888/main.dart.js:5304:63)
+    at bgy.$2 (http://localhost:8888/main.dart.js:52520:14)
+    at bfw.$1 (http://localhost:8888/main.dart.js:52514:21)
+    at b91.aVc (http://localhost:8888/main.dart.js:53584:34)
+    at b91.M_ (http://localhost:8888/main.dart.js:53587:13)
+    at b0D.$0 (http://localhost:8888/main.dart.js:52980:11)
+    at Object.zV (http://localhost:8888/main.dart.js:5453:40)
+    at aA.tC (http://localhost:8888/main.dart.js:52891:3)
+[  766822ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  766826ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  766827ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  918652ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  918655ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  918656ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  918770ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/dashboard:0
+[  918770ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0
+[  918924ms] [ERROR] Access to fetch at 'http://127.0.0.1:8000/api/user/presence' from origin 'http://localhost:8888' has been blocked by CORS policy: Method PATCH is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:8888/#/dashboard:0
+[  918925ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8000/api/user/presence:0

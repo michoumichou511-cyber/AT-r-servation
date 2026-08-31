@@ -1,0 +1,49 @@
+- generic [ref=f20e105]:
+  - link "Aller au contenu principal" [ref=f20e106] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f20e108]:
+    - generic [ref=f20e109]:
+      - generic [ref=f20e111]:
+        - img "Algérie Télécom" [ref=f20e113]
+        - generic [ref=f20e114]:
+          - generic [ref=f20e115]: Réservations AT
+          - generic [ref=f20e116]: Algérie Télécom
+      - generic [ref=f20e117]:
+        - generic [ref=f20e118]: VT
+        - generic [ref=f20e119]:
+          - generic [ref=f20e120]: Validateur Test
+          - generic [ref=f20e121]: validateur
+      - textbox "Rechercher..." [ref=f20e127]
+      - navigation [ref=f20e128]:
+        - link "Tableau de bord" [ref=f20e129] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f20e137] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f20e142] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f20e147] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f20e151] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f20e156] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f20e160] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f20e165] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f20e170] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f20e174] [cursor=pointer]:
+          - /url: /rapports
+      - button "Déconnexion" [ref=f20e180] [cursor=pointer]
+  - generic [ref=f20e185]:
+    - banner [ref=f20e186]:
+      - heading "Tableau de bord" [level=1] [ref=f20e188]
+      - generic [ref=f20e189]:
+        - textbox "Rechercher..." [ref=f20e195]
+        - button [ref=f20e196] [cursor=pointer]
+        - button [ref=f20e199] [cursor=pointer]
+        - button "VT Validateur" [ref=f20e204] [cursor=pointer]:
+          - generic [ref=f20e205]: VT
+          - generic [ref=f20e206]: Validateur
+    - main [ref=f20e207]

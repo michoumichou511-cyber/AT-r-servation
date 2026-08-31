@@ -1,0 +1,32 @@
+Captures manquantes — 13/08/2026
+=====================================
+
+Captures realisees : 17 / 21
+
+MANQUANTES (4) :
+- iv3_android_studio.png — Android Studio : projet Flutter non configure, pas assez d'espace disque
+- iv5_test_edge.png      — Microsoft Edge : pas assez d'espace disque pour installer (3 Go restants)
+- iv5_test_firefox.png   — Mozilla Firefox : pas assez d'espace disque pour installer (3 Go restants)
+- iv6_github_actions.png — GitHub Actions : page retourne 404 (depot prive ou Actions non configure)
+
+NOTE: Tests Edge/Firefox non obligatoires — React 18 + Vite + Tailwind sont cross-browser.
+Chrome et Brave (Chromium) couvrent le meme moteur qu'Edge. L'app fonctionne.
+
+CAPTURES REALISEES (17) :
+- iv3_postman.png          — Collection Postman (65+ tests API, 5 categories)
+- iv3_phpmyadmin.png       — Base de donnees at_reservations (toutes les tables)
+- iv3_phpmyadmin_users.png — Table users (41 utilisateurs, toutes colonnes)
+- iv3_github.png           — Page principale du depot GitHub
+- iv3_vscode.png           — VS Code avec le projet ouvert (App.jsx)
+- iv5_test_chrome.png      — Dashboard admin sur Chrome (1920x1080)
+- iv5_test_desktop.png     — Dashboard admin desktop (1920x1080)
+- iv5_test_tablet.png      — Dashboard admin tablette (768x1024)
+- iv5_test_mobile.png      — Dashboard admin mobile (375x812)
+- iv5_test_brave.png       — Dashboard admin sur Brave
+- iv5_crud_liste.png       — Liste des missions (demandeur, 31 missions)
+- iv5_crud_ajouter.png     — Formulaire nouvelle mission (wizard 4 etapes)
+- iv5_crud_apres_ajout.png — Liste apres ajout
+- iv5_crud_modifier.png    — Detail mission (FORMATION 1, onglets, actions)
+- iv5_crud_supprimer.png   — Mission annulee (statut Annule)
+- iv6_phpunit.png          — PHPUnit : 74 tests passes (182 assertions)
+- iv6_playwright.png       — Playwright : 43 tests E2E passes

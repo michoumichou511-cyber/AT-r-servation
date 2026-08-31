@@ -129,7 +129,7 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
               TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 decoration: const InputDecoration(labelText: 'Rôle'),
                 items: const [
                   DropdownMenuItem(value: 'demandeur', child: Text('Demandeur')),
@@ -172,8 +172,8 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (_, __) => Container(height: 72, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (_, _) => Container(height: 72, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
       ),
     );
   }
@@ -205,8 +205,8 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
                 controller: _searchCtrl,
                 decoration: InputDecoration(
                   hintText: 'Rechercher un utilisateur...',
-                  prefixIcon: const Icon(Icons.search, color: ATColors.textSecondary),
-                  filled: true, fillColor: Colors.white,
+                  prefixIcon: Icon(Icons.search, color: context.textSecondary),
+                  filled: true, fillColor: context.inputFill,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -220,7 +220,7 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _roles.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final r = _roles[i];
                   final selected = _roleFilter == r;
@@ -241,9 +241,9 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
             SliverFillRemaining(
               child: Center(
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.people_outline, size: 64, color: ATColors.textSecondary.withValues(alpha: 0.5)),
+                  Icon(Icons.people_outline, size: 64, color: context.textSecondary.withValues(alpha: 0.5)),
                   const SizedBox(height: 12),
-                  const Text('Aucun utilisateur trouvé', style: TextStyle(color: ATColors.textSecondary)),
+                  Text('Aucun utilisateur trouvé', style: TextStyle(color: context.textSecondary)),
                 ]),
               ),
             )
@@ -268,7 +268,7 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
                       ),
                       title: Text('${u['prenom']} ${u['nom']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(u['email'] as String? ?? '', style: const TextStyle(fontSize: 12, color: ATColors.textSecondary)),
+                        Text(u['email'] as String? ?? '', style: TextStyle(fontSize: 12, color: context.textSecondary)),
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -279,7 +279,7 @@ class _UtilisateursScreenState extends State<UtilisateursScreen> {
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         Switch(
                           value: u['is_active'] == true || u['is_active'] == 1,
-                          activeColor: ATColors.primary,
+                          activeThumbColor: ATColors.primary,
                           onChanged: (v) => _toggleActive(u['id'] as int, v),
                         ),
                         PopupMenuButton<String>(

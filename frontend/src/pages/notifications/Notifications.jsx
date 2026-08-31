@@ -173,10 +173,10 @@ export default function Notifications() {
             type="button"
             onClick={() => setActiveFilter('all')}
             className={[
-              'px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
+              'px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap border',
               activeFilter === 'all'
-                ? 'bg-[#00A650] text-white shadow-sm'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                ? 'bg-gradient-to-br from-[#003DA5] to-[#00A650] text-white border-transparent shadow-sm'
+                : 'bg-white dark:bg-[#1E2235] text-[#5A6070] dark:text-[#9AA0AE] border-[#EAECF0] dark:border-[#2A2D3E] hover:border-[#00A650] hover:text-[#00A650]',
             ].join(' ')}
           >
             <Filter size={12} className="inline mr-1 -mt-0.5" />
@@ -192,10 +192,10 @@ export default function Notifications() {
                 type="button"
                 onClick={() => setActiveFilter(key)}
                 className={[
-                  'px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
+                  'px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap border',
                   activeFilter === key
-                    ? 'text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                    ? 'text-white border-transparent shadow-sm'
+                    : 'bg-white dark:bg-[#1E2235] text-[#5A6070] dark:text-[#9AA0AE] border-[#EAECF0] dark:border-[#2A2D3E] hover:border-[#00A650] hover:text-[#00A650]',
                 ].join(' ')}
                 style={activeFilter === key ? { backgroundColor: cat.color } : undefined}
               >
@@ -255,11 +255,11 @@ export default function Notifications() {
                 return (
                   <div key={n.id ?? index}>
                   {nouveauGroupe && (
-                    <div className="flex items-center gap-3 pt-2 pb-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <div className="flex items-center gap-3 pt-3 pb-1.5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#9AA0AE]">
                         {groupe}
                       </span>
-                      <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
+                      <div className="flex-1 at-divider" />
                     </div>
                   )}
                   <motion.div
@@ -267,41 +267,41 @@ export default function Notifications() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 12 }}
                     transition={{ delay: Math.min(index * 0.04, 0.3), duration: 0.25 }}
-                    whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,166,80,0.12)' }}
+                    whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,61,165,0.1)' }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { if (!isRead) markOneRead(n.id) }}
                     className={[
-                      'at-card-surface mb-2 flex items-start gap-3.5 rounded-[14px] p-4 cursor-pointer',
-                      !isRead
-                        ? 'border-l-[3px] dark:bg-opacity-20'
-                        : 'border-l-[3px] border-l-transparent',
+                      'at-card-surface mb-2 flex items-start gap-3.5 rounded-[18px] p-4 cursor-pointer relative',
+                      !isRead ? 'ring-1 ring-inset' : '',
                     ].join(' ')}
-                    style={!isRead ? { borderLeftColor: cat.border } : undefined}
+                    style={!isRead ? { '--tw-ring-color': `${cat.border}30` } : undefined}
                   >
+                    {!isRead && (
+                      <div className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full at-dot-live" style={{ backgroundColor: cat.color }} />
+                    )}
                     <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: isRead ? 'var(--notif-icon-read-bg, #F1F5F9)' : cat.bg,
-                        border: `1px solid ${isRead ? '#EAECF0' : cat.border}`,
+                        background: isRead ? '#F4F6FA' : cat.bg,
                         color: cat.color,
                       }}
                     >
                       <CatIcon size={18} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-gray-900 dark:text-gray-100 text-sm truncate">
+                      <div className="font-bold text-[#1A1D26] dark:text-white text-sm truncate pr-6">
                         {n.titre ?? 'Notification'}
                       </div>
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1 whitespace-pre-wrap leading-relaxed">
                         {n.message ?? ''}
                       </div>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-3 mt-2.5">
+                        <span className="text-xs text-[#9AA0AE]">
                           {formatRelative(n.created_at)}
                         </span>
                         <span
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                          style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
+                          className="text-[10px] font-semibold px-2.5 py-0.5 rounded-lg"
+                          style={{ backgroundColor: `${cat.color}12`, color: cat.color }}
                         >
                           {cat.label}
                         </span>

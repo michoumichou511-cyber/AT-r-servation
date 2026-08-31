@@ -1,0 +1,72 @@
+@startuml
+skinparam backgroundColor white
+skinparam dpi 200
+skinparam defaultFontSize 13
+skinparam ActivityFontSize 13
+skinparam ActivityDiamondFontSize 12
+
+|#DBEAFE|Demandeur|
+|#D1FAE5|Directeur|
+|#E9D5FF|Agent DML|
+|#FFF3CD|Systeme|
+
+|Demandeur|
+start
+:Creer demande\nde mission;
+:Remplir formulaire\n(dates, motif, destination,\ntransport, budget);
+:Soumettre demande;
+
+|Systeme|
+:Notifier le Directeur;
+
+|Directeur|
+:Examiner la demande;
+
+if (Decision ?) then (Approuver)
+  |Systeme|
+  :Notifier l'Agent DML;
+
+  |Agent DML|
+  :Prendre en charge;
+  fork
+    :Reserver hotel;
+  fork again
+    :Affecter vehicule;
+  end fork
+  :Generer ordre\nde mission;
+
+  |Systeme|
+  :Notifier le Demandeur;
+
+  |Demandeur|
+  :Realiser la mission;
+  :Soumettre rapport;
+  stop
+
+elseif (Modification) then
+  |Systeme|
+  :Notifier le Demandeur\n(modification requise);
+
+  |Demandeur|
+  :Modifier la demande;
+  :Re-soumettre;
+
+  |Systeme|
+  :Notifier le Directeur;
+  note right
+    Retour au circuit
+    de validation
+  end note
+  detach
+
+else (Refuser)
+  |Systeme|
+  :Notifier le Demandeur\n(demande refusee);
+
+  |Demandeur|
+  :Demande refusee;
+  stop
+
+endif
+
+@enduml

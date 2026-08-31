@@ -1,23 +1,23 @@
 export default function Toggle({ checked, onChange, label, disabled = false }) {
   return (
-    <label className={`inline-flex items-center gap-2 cursor-pointer select-none ${
+    <label className={`inline-flex items-center gap-2.5 cursor-pointer select-none ${
       disabled ? 'opacity-50 cursor-not-allowed' : ''
     }`}>
       <div
         onClick={() => !disabled && onChange(!checked)}
-        className={`relative w-10 h-5.5 rounded-full transition-colors duration-200 ${
-          checked ? 'bg-at-green' : 'bg-gray-300 dark:bg-gray-600'
+        className={`relative rounded-full transition-all duration-300 ${
+          checked ? 'bg-gradient-to-r from-[#00A650] to-[#00C060] shadow-sm shadow-[#00A650]/30' : 'bg-[#EAECF0] dark:bg-[#2A2D3E]'
         }`}
-        style={{ height: '22px', width: '40px' }}
+        style={{ height: '24px', width: '44px' }}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
+          className={`absolute top-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-sm transition-all duration-300 ${
+            checked ? 'translate-x-[23px]' : 'translate-x-[3px]'
           }`}
         />
       </div>
       {label && (
-        <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+        <span className="text-sm font-medium text-[#1A1D26] dark:text-[#E5E7EB]">{label}</span>
       )}
     </label>
   );

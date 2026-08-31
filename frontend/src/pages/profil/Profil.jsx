@@ -398,27 +398,27 @@ export default function Profil() {
             {!statsLoading && !statsError && stats && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-                  <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Total missions</div>
-                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
+                  <div className="at-card-surface p-5 group hover:-translate-y-1 hover:shadow-at-glow-blue">
+                    <div className="text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] tracking-wide uppercase">Total missions</div>
+                    <div className="text-[28px] font-extrabold text-[#1A1D26] dark:text-white mt-1 at-number">
                       {totalMissions}
                     </div>
                   </div>
-                  <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Taux d&apos;approbation</div>
-                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
+                  <div className="at-card-surface p-5 group hover:-translate-y-1 hover:shadow-at-glow-green">
+                    <div className="text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] tracking-wide uppercase">Taux d&apos;approbation</div>
+                    <div className="text-[28px] font-extrabold text-[#00A650] mt-1 at-number">
                       {taux}%
                     </div>
                   </div>
-                  <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Budget total approuvé</div>
-                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mt-1 tabular-nums">
+                  <div className="at-card-surface p-5 group hover:-translate-y-1 hover:shadow-at-glow-blue">
+                    <div className="text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] tracking-wide uppercase">Budget total approuvé</div>
+                    <div className="text-[28px] font-extrabold text-[#003DA5] mt-1 at-number">
                       {formatDZD(budgetTotal)}
                     </div>
                   </div>
-                  <div className="at-card-surface p-5">
-                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">Destination favorite</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white mt-2">
+                  <div className="at-card-surface p-5 group hover:-translate-y-1 hover:shadow-at-glow-green">
+                    <div className="text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] tracking-wide uppercase">Destination favorite</div>
+                    <div className="text-base font-bold text-[#1A1D26] dark:text-white mt-2">
                       {destFav || 'Aucune'}
                     </div>
                   </div>
@@ -427,8 +427,8 @@ export default function Profil() {
                 <div className="at-card-surface p-5">
                   <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
                     <div>
-                      <div className="text-sm font-semibold text-gray-800 dark:text-white">Missions par mois (6 mois)</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="text-sm font-bold text-[#1A1D26] dark:text-white">Missions par mois (6 mois)</div>
+                      <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE] mt-1">
                         Visualisation basée sur les données backend.
                       </div>
                     </div>
@@ -467,13 +467,13 @@ export default function Profil() {
                       {stats.dernieres_missions.slice(0, 5).map((m, idx) => (
                         <div
                           key={m.id ?? idx}
-                          className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 bg-[#F8FAFC] dark:border-gray-700 dark:bg-white/5"
+                          className="flex items-center justify-between gap-3 p-3.5 rounded-[16px] border border-[#EAECF0] bg-[#F8FAFB] dark:border-[#2A2D3E] dark:bg-[#1E2235] hover:bg-white dark:hover:bg-[#252840] transition-colors duration-200"
                         >
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                            <div className="text-sm font-semibold text-[#1A1D26] dark:text-white truncate">
                               {m.titre ?? '—'}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE] mt-1">
                               {m.destination_ville ?? m.destination ?? '—'} • {m.type_mission ?? '—'}
                             </div>
                           </div>

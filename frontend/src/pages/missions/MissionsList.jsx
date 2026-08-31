@@ -298,36 +298,38 @@ export default function MissionsList() {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && navigate(`/missions/${m.id}`)}
-                    className="at-card-surface at-hover-lift flex cursor-pointer items-center justify-between border-l-[4px] px-4 py-4 md:px-5"
-                    style={{ borderLeftColor: bordureStatut(m.statut) }}
+                    className="at-card-interactive flex items-center justify-between px-4 py-4 md:px-5 group"
                   >
-                    <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="mb-2 flex items-center gap-2 font-mono text-xs text-[#9AA0AE]">
-                          <span>{m.numero_unique ?? 'OM-—'}</span>
+                    <div className="flex min-w-0 flex-1 items-start gap-4">
+                      <div
+                        className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ring-[3px] ring-opacity-20 transition-transform duration-300 group-hover:scale-125"
+                        style={{ backgroundColor: bordureStatut(m.statut), '--tw-ring-color': bordureStatut(m.statut) + '33' }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2 font-mono text-xs text-[#9AA0AE]">
+                          <span className="bg-[#F4F6FA] dark:bg-[#252840] px-2 py-0.5 rounded-md">{m.numero_unique ?? 'OM-—'}</span>
                           {m.created_at && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              — Créée le {new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            <span className="text-gray-400 dark:text-gray-500">
+                              {new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </span>
                           )}
                         </div>
-                        <div className="mb-2 truncate text-base font-bold text-[#1A1D26] dark:text-[#E8EAF0]">
+                        <div className="mb-1.5 truncate text-base font-bold text-[#1A1D26] dark:text-[#E8EAF0] group-hover:text-at-green transition-colors duration-200">
                           {m.titre ?? 'Sans titre'}
                         </div>
-                        <div className="mb-2 text-sm text-[#5A6070] dark:text-[#9AA0AE]">
-                          <span className="font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
-                            {destination_ville || '—'}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+                          <span className="inline-flex items-center gap-1">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#9AA0AE]"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span className="font-medium text-[#1A1D26] dark:text-[#E8EAF0]">{destination_ville || '—'}</span>
+                            {destination_pays ? <span className="text-[#9AA0AE]">{destination_pays}</span> : null}
                           </span>
-                          {destination_pays ? `, ${destination_pays}` : ''}
-                        </div>
-                        <div className="mb-2 text-sm text-[#5A6070] dark:text-[#9AA0AE]">
-                          {depart}
-                          {' '}
-                          →
-                          {retour}
-                        </div>
-                        <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
-                          {formatDZD(m.budget_previsionnel)}
+                          <span className="inline-flex items-center gap-1 text-[#9AA0AE]">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            {depart} → {retour}
+                          </span>
+                          <span className="at-number text-[#1A1D26] dark:text-[#E8EAF0]">
+                            {formatDZD(m.budget_previsionnel)}
+                          </span>
                         </div>
                       </div>
 

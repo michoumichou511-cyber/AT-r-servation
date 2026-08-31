@@ -5,10 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../services/api_service.dart';
 import '../../utils/date_utils.dart';
 
@@ -165,7 +164,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
     final totalUnread = _convs.fold(0, (sum, c) => sum + c.unread);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -315,7 +314,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
                 duration: const Duration(milliseconds: 200),
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _searchFocused
@@ -327,7 +326,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
                     BoxShadow(
                       color: _searchFocused
                           ? DS.primary.withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.06),
+                          : context.shadowColor,
                       blurRadius: _searchFocused ? 12 : 6,
                       offset: const Offset(0, 2),
                     ),
@@ -341,7 +340,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
                     hintText: 'Rechercher une conversation…',
                     hintStyle: GoogleFonts.inter(
                         color: DS.textPlaceholder, fontSize: 14),
-                    prefixIcon: Icon(IconlyLight.search,
+                    prefixIcon: Icon(Icons.search_rounded,
                         color: _searchFocused ? DS.primary : DS.textPlaceholder,
                         size: 18),
                     suffixIcon: _searchCtrl.text.isNotEmpty
@@ -367,7 +366,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
                 child: Text(
                   '${_filtered.length} conversation${_filtered.length > 1 ? "s" : ""}',
                   style: GoogleFonts.inter(
-                    color: DS.textMuted, fontSize: 12, fontWeight: FontWeight.w600),
+                    color: context.textMuted, fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -399,7 +398,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
                       final conv = _filtered[i];
                       final nomEnc = Uri.encodeComponent(conv.nom);
                       final recvId = conv.interlocuteurId ?? 0;
-                      context.go('/messagerie/${conv.id}?nom=$nomEnc&receiverId=$recvId');
+                      context.push('/messagerie/${conv.id}?nom=$nomEnc&receiverId=$recvId');
                     },
                   );
                 },
@@ -420,7 +419,7 @@ class _ImessagerieScreenState extends State<ImessagerieScreen> {
         onSelectUser: (userId, userName) {
           Navigator.pop(sheetCtx);
           final nomEnc = Uri.encodeComponent(userName);
-          context.go('/messagerie/0?nom=$nomEnc&receiverId=$userId');
+          context.push('/messagerie/0?nom=$nomEnc&receiverId=$userId');
         },
       ),
     );
@@ -468,7 +467,7 @@ class _EmptyState extends StatelessWidget {
         Text(
           isSearch ? 'Aucun résultat' : 'Aucune conversation',
           style: GoogleFonts.inter(
-            fontSize: 20, fontWeight: FontWeight.w800, color: DS.textPrimary),
+            fontSize: 20, fontWeight: FontWeight.w800, color: context.textPrimary),
         )
             .animate().fadeIn(delay: 100.ms).slideY(begin: 0.2),
         const SizedBox(height: 8),
@@ -476,7 +475,7 @@ class _EmptyState extends StatelessWidget {
           isSearch
               ? 'Essayez avec un autre terme'
               : 'Commencez une nouvelle discussion',
-          style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14),
+          style: GoogleFonts.inter(color: context.textSecondary, fontSize: 14),
         )
             .animate().fadeIn(delay: 200.ms),
         if (!isSearch) ...[
@@ -511,25 +510,25 @@ class _ConvSkeleton extends StatelessWidget {
   const _ConvSkeleton();
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE5E7EB),
-    highlightColor: const Color(0xFFF9FAFB),
+    baseColor: context.shimmerBase,
+    highlightColor: context.shimmerHighlight,
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(children: [
-        Container(width: 54, height: 54, decoration: const BoxDecoration(
-          color: Colors.white, shape: BoxShape.circle)),
+        Container(width: 54, height: 54, decoration: BoxDecoration(
+          color: context.cardBg, shape: BoxShape.circle)),
         const SizedBox(width: 14),
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(height: 14, width: 140,
                 decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(7))),
             const SizedBox(height: 8),
             Container(height: 11, width: double.infinity,
                 decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(5))),
           ],
         )),
@@ -565,10 +564,10 @@ class _ConvTileState extends State<_ConvTile> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       color: _pressed
-          ? const Color(0xFFF0F4FF)
+          ? context.subtleBg
           : hasUnread
               ? DS.primary.withValues(alpha: 0.02)
-              : Colors.white,
+              : context.cardBg,
       child: InkWell(
         onTapDown: (_) => setState(() => _pressed = true),
         onTapUp: (_) => setState(() => _pressed = false),
@@ -616,7 +615,7 @@ class _ConvTileState extends State<_ConvTile> {
                     decoration: BoxDecoration(
                       color: DS.primary,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: context.cardBg, width: 2),
                     ),
                     child: Center(
                       child: Text(
@@ -638,12 +637,12 @@ class _ConvTileState extends State<_ConvTile> {
                   Expanded(child: Text(conv.nom,
                     style: GoogleFonts.inter(
                       fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w600,
-                      fontSize: 15, color: DS.textPrimary),
+                      fontSize: 15, color: context.textPrimary),
                     overflow: TextOverflow.ellipsis)),
                   Text(timeStr,
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: hasUnread ? DS.primary : DS.textMuted,
+                      color: hasUnread ? DS.primary : context.textMuted,
                       fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w400)),
                 ]),
                 const SizedBox(height: 4),
@@ -651,7 +650,7 @@ class _ConvTileState extends State<_ConvTile> {
                   conv.lastMessage ?? 'Pas encore de message',
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: hasUnread ? DS.textSecondary : DS.textMuted,
+                    color: hasUnread ? context.textSecondary : context.textMuted,
                     fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
@@ -743,9 +742,9 @@ class _NewConvSheetState extends State<_NewConvSheet> {
     final sh = MediaQuery.of(context).size.height * 0.75;
     return Container(
       height: sh,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(children: [
         // Handle
@@ -754,7 +753,7 @@ class _NewConvSheetState extends State<_NewConvSheet> {
           child: Container(
             width: 40, height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(2))),
         ),
         // Header
@@ -777,10 +776,10 @@ class _NewConvSheetState extends State<_NewConvSheet> {
                 Text('Nouvelle conversation',
                   style: GoogleFonts.inter(
                     fontSize: 17, fontWeight: FontWeight.w800,
-                    color: DS.textPrimary)),
+                    color: context.textPrimary)),
                 Text('Sélectionnez un destinataire',
                   style: GoogleFonts.inter(
-                    fontSize: 12, color: DS.textSecondary)),
+                    fontSize: 12, color: context.textSecondary)),
               ])),
           ]),
         ),
@@ -794,10 +793,10 @@ class _NewConvSheetState extends State<_NewConvSheet> {
               hintText: 'Rechercher un utilisateur…',
               hintStyle: GoogleFonts.inter(
                   color: DS.textPlaceholder, fontSize: 14),
-              prefixIcon: Icon(IconlyLight.search,
+              prefixIcon: Icon(Icons.search_rounded,
                   color: DS.textPlaceholder, size: 18),
               filled: true,
-              fillColor: const Color(0xFFF3F4F6),
+              fillColor: context.inputFill,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
@@ -816,7 +815,7 @@ class _NewConvSheetState extends State<_NewConvSheet> {
                       _users.isEmpty
                           ? 'Aucun utilisateur disponible'
                           : 'Aucun résultat',
-                      style: GoogleFonts.inter(color: DS.textMuted)))
+                      style: GoogleFonts.inter(color: context.textMuted)))
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       itemCount: _filtered.length,
@@ -844,10 +843,10 @@ class _NewConvSheetState extends State<_NewConvSheet> {
                           title: Text(name,
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w600, fontSize: 14,
-                              color: DS.textPrimary)),
+                              color: context.textPrimary)),
                           subtitle: Text(role,
                             style: GoogleFonts.inter(
-                              fontSize: 12, color: DS.textMuted)),
+                              fontSize: 12, color: context.textMuted)),
                           onTap: () => widget.onSelectUser(
                               u['id'] as int, name),
                           shape: RoundedRectangleBorder(

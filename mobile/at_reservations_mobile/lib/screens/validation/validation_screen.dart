@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../config/theme.dart';
 import '../../design/design_system.dart';
 import '../../models/mission.dart';
 import '../../services/api_service.dart';
@@ -25,7 +26,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
     if (!mounted) return;
     setState(() => _loading = true);
     try {
-      final data = await ApiService().get('/validations/mes-validations');
+      final data = await ApiService().get('/validations');
       final dynamic raw = data['data'];
       final list = raw is List ? raw
           : (raw is Map<String, dynamic> ? (raw['data'] ?? raw)
@@ -42,7 +43,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
   Widget build(BuildContext context) {
     final count = _validations.length;
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -253,12 +254,12 @@ class _EmptyValidation extends StatelessWidget {
         Text('Tout est traité !',
           style: GoogleFonts.inter(
             fontSize: 22, fontWeight: FontWeight.w800,
-            color: DS.textPrimary,
+            color: context.textPrimary,
           )),
         const SizedBox(height: 8),
         Text('Aucune validation en attente',
           style: GoogleFonts.inter(
-            color: DS.textSecondary, fontSize: 14)),
+            color: context.textSecondary, fontSize: 14)),
       ]),
     ),
   );
@@ -327,12 +328,12 @@ class _ValidationItemState extends State<_ValidationItem> {
             Text(titre,
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w800, fontSize: 18,
-                color: DS.textPrimary,
+                color: context.textPrimary,
               )),
             const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
-                color: DS.surfaceVariant,
+                color: context.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: DS.border),
               ),
@@ -357,12 +358,12 @@ class _ValidationItemState extends State<_ValidationItem> {
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: DS.surfaceVariant,
+                      color: context.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(child: Text('Annuler',
                       style: GoogleFonts.inter(
-                        color: DS.textSecondary,
+                        color: context.textSecondary,
                         fontWeight: FontWeight.w600,
                       ))),
                   ),
@@ -562,7 +563,7 @@ class _ActionBtn extends StatelessWidget {
       height: 42,
       decoration: BoxDecoration(
         gradient: onTap != null ? gradient : null,
-        color: onTap == null ? DS.surfaceVariant : null,
+        color: onTap == null ? context.surfaceVariant : null,
         borderRadius: BorderRadius.circular(12),
         boxShadow: onTap != null ? [BoxShadow(
           color: shadowColor.withValues(alpha: 0.3),
@@ -572,7 +573,7 @@ class _ActionBtn extends StatelessWidget {
       child: Center(
         child: Text(label,
           style: GoogleFonts.inter(
-            color: onTap != null ? Colors.white : DS.textMuted,
+            color: onTap != null ? Colors.white : context.textMuted,
             fontSize: 13, fontWeight: FontWeight.w800,
           )),
       ),

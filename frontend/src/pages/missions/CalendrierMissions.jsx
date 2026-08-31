@@ -133,7 +133,7 @@ export default function CalendrierMissions() {
           <Button variant="outline" size="sm" onClick={prevMonth}>
             <ChevronLeft size={16} />
           </Button>
-          <span className="text-sm font-semibold text-gray-800 dark:text-gray-100 min-w-[140px] text-center">
+          <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] min-w-[140px] text-center">
             {MOIS_NOMS[month]} {year}
           </span>
           <Button variant="outline" size="sm" onClick={nextMonth}>
@@ -149,7 +149,7 @@ export default function CalendrierMissions() {
               'px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
               filterStatut === 'all'
                 ? 'bg-[#00A650] text-white'
-                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+                : 'bg-[#F4F6FA] text-[#5A6070] dark:bg-[#252840] dark:text-[#9AA0AE]',
             ].join(' ')}
           >
             Tous
@@ -163,7 +163,7 @@ export default function CalendrierMissions() {
                 'px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
                 filterStatut === key
                   ? 'text-white'
-                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+                  : 'bg-[#F4F6FA] text-[#5A6070] dark:bg-[#252840] dark:text-[#9AA0AE]',
               ].join(' ')}
               style={filterStatut === key ? { backgroundColor: val.bg } : undefined}
             >
@@ -176,9 +176,9 @@ export default function CalendrierMissions() {
       {/* Desktop: Grid calendar */}
       <div className="hidden md:block at-card-surface overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700">
+        <div className="grid grid-cols-7 border-b border-[#EAECF0] dark:border-[#2A2D3E]">
           {JOURS.map(j => (
-            <div key={j} className="py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <div key={j} className="py-2 text-center text-xs font-semibold text-[#9AA0AE] uppercase tracking-wider">
               {j}
             </div>
           ))}
@@ -194,14 +194,14 @@ export default function CalendrierMissions() {
               <div
                 key={i}
                 className={[
-                  'min-h-[90px] border-b border-r border-gray-50 dark:border-gray-800 p-1.5 transition-colors',
-                  !day.inMonth ? 'bg-gray-50/50 dark:bg-gray-900/30' : '',
+                  'min-h-[90px] border-b border-r border-[#EAECF0]/50 dark:border-[#2A2D3E] p-1.5 transition-colors',
+                  !day.inMonth ? 'bg-[#F8FAFB]/50 dark:bg-[#141727]/30' : '',
                   isToday ? 'bg-[#00A650]/5 dark:bg-[#00A650]/10' : '',
                 ].join(' ')}
               >
                 <div className={[
                   'text-xs font-semibold mb-1',
-                  !day.inMonth ? 'text-gray-300 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300',
+                  !day.inMonth ? 'text-[#EAECF0] dark:text-[#2A2D3E]' : 'text-[#5A6070] dark:text-[#9AA0AE]',
                   isToday ? 'text-[#00A650] font-bold' : '',
                 ].join(' ')}>
                   {day.date.getDate()}
@@ -222,7 +222,7 @@ export default function CalendrierMissions() {
                     )
                   })}
                   {dayEvents.length > 3 && (
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500 pl-1">
+                    <div className="text-[10px] text-[#9AA0AE] pl-1">
                       +{dayEvents.length - 3} autre(s)
                     </div>
                   )}
@@ -236,7 +236,7 @@ export default function CalendrierMissions() {
       {/* Mobile: list chronologique */}
       <div className="block md:hidden space-y-2">
         {filteredEvents.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+          <div className="text-center py-12 text-[#9AA0AE]">
             <Calendar size={40} className="mx-auto mb-3 opacity-40" />
             <p className="text-sm">Aucune mission ce mois</p>
           </div>
@@ -251,14 +251,14 @@ export default function CalendrierMissions() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => navigate(ev.url ?? `/missions/${ev.id}`)}
-                className="at-card-surface w-full text-left p-3 flex items-center gap-3 border-l-[3px]"
-                style={{ borderLeftColor: sc.bg }}
+                className="at-card-surface w-full text-left p-3 flex items-center gap-3"
               >
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: sc.bg }} />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                  <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] truncate">
                     {ev.title}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                     {ev.start} - {ev.end}
                   </div>
                 </div>
@@ -291,18 +291,18 @@ export default function CalendrierMissions() {
               onClick={e => e.stopPropagation()}
               className={[
                 'w-full max-w-sm rounded-2xl shadow-2xl p-6',
-                darkMode ? 'bg-[#1E2235] text-gray-100' : 'bg-white text-gray-900',
+                darkMode ? 'bg-[#1E2235] text-[#E8EAF0]' : 'bg-white text-[#1A1D26]',
               ].join(' ')}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold truncate pr-4">{popup.title}</h3>
-                <button type="button" onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600">
+                <button type="button" onClick={() => setPopup(null)} className="text-[#9AA0AE] hover:text-[#5A6070]">
                   <X size={20} />
                 </button>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">Statut :</span>
+                  <span className="text-[#5A6070] dark:text-[#9AA0AE]">Statut :</span>
                   <span
                     className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: getStatutColor(popup.status).light, color: getStatutColor(popup.status).text }}
@@ -311,7 +311,7 @@ export default function CalendrierMissions() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Dates : </span>
+                  <span className="text-[#5A6070] dark:text-[#9AA0AE]">Dates : </span>
                   <span>{popup.start} - {popup.end}</span>
                 </div>
               </div>

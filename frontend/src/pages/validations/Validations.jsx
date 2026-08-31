@@ -232,34 +232,33 @@ export default function Validations() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <div className="font-mono text-gray-500 dark:text-gray-400 text-xs">
+                        <div className="bg-[#F4F6FA] dark:bg-[#252840] px-2 py-0.5 rounded-md font-mono text-[#5A6070] dark:text-[#9AA0AE] text-xs">
                           {mission.numero_unique ?? 'OM-—'}
                         </div>
                         <Badge status={badgeStatus} />
                         {urgent && (
                           <span
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
-                            style={{ background: '#FEE2E2', color: '#B91C1C' }}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
                           >
                             URGENT
                           </span>
                         )}
                       </div>
 
-                      <div className="mt-2 font-bold text-gray-900 dark:text-white text-base truncate">
+                      <div className="mt-2 font-bold text-[#1A1D26] dark:text-white text-base truncate">
                         {mission.titre ?? 'Sans titre'}
                       </div>
 
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                        Demandeur : <span className="font-semibold">{demandeur}</span>
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-2">
+                        Demandeur : <span className="font-semibold text-[#1A1D26] dark:text-white">{demandeur}</span>
                       </div>
 
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mt-1">
                         {mission.destination ?? '—'} • {depart ?? '—'} →{' '}
                         {mission.dates?.retour ?? '—'}
                       </div>
 
-                      <div className="text-sm text-gray-800 dark:text-gray-200 font-semibold mt-2">
+                      <div className="text-sm text-[#1A1D26] dark:text-white font-semibold mt-2 at-number">
                         Budget : {formatBudgetLight(budget)}
                       </div>
                     </div>
@@ -345,14 +344,14 @@ export default function Validations() {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
             {modal.type === 'approuver' && 'Commentaire (optionnel).'}
             {modal.type === 'rejeter' && 'Commentaire (obligatoire, min 10 caractères).'}
             {modal.type === 'modifier' && 'Commentaire (obligatoire, min 10 caractères).'}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+            <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2 tracking-wide">
               Commentaire
             </label>
             <textarea
@@ -360,7 +359,7 @@ export default function Validations() {
               onChange={(e) => setCommentaire(e.target.value)}
               rows={4}
               placeholder="Détaillez votre commentaire..."
-              className="at-input min-h-[100px] py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              className="at-input min-h-[100px] py-3"
             />
             {modalError && (
               <p className="mt-2 text-sm font-semibold text-red-600">{modalError}</p>

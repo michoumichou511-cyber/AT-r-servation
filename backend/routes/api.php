@@ -42,9 +42,6 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refreshToken']);
     Route::get('/users/by-structure', [UserController::class, 'byStructure']);
-    Route::patch('/user/presence', [UserController::class, 'updatePresence']);
-    Route::post('/user/presence', [UserController::class, 'updatePresence']);
-    Route::get('/users/{id}/presence', [UserController::class, 'getPresence']);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
@@ -152,8 +149,8 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/prestataires/{id}/evaluer', [AdminPrestataireController::class, 'evaluerPrestataire']);
     Route::get('/prestataires/{id}/evaluations', [AdminPrestataireController::class, 'evaluationsPrestataire']);
 
-    // EXPORTS (throttle spécial : 10/heure)
-    Route::middleware('throttle:10,60')->group(function () {
+    // EXPORTS (throttle : 60/minute)
+    Route::middleware('throttle:60,1')->group(function () {
         Route::get('/export/missions/excel', [ExportController::class, 'exportMissionsExcel']);
         Route::get('/export/missions/pdf', [ExportController::class, 'exportMissionsPdf']);
         Route::get('/export/depenses/excel', [ExportController::class, 'exportDepensesExcel']);
@@ -170,6 +167,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
         Route::post('/missions/{missionId}/assigner-hotel', [DmlController::class, 'assignerHotel']);
         Route::post('/missions/{missionId}/assigner-vehicule', [DmlController::class, 'assignerVehicule']);
         Route::post('/missions/{missionId}/logistique-ok', [DmlController::class, 'marquerLogistiqueOk']);
+        Route::post('/missions/{missionId}/cloturer', [DmlController::class, 'cloturerMission']);
     });
 
     // ADMIN (role:admin uniquement)

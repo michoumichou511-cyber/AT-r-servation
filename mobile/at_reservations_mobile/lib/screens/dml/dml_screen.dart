@@ -77,7 +77,7 @@ class _DmlScreenState extends State<DmlScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/scan-ticket'),
         backgroundColor: ATColors.primary,
@@ -162,14 +162,14 @@ class _DmlScreenState extends State<DmlScreen> {
           else if (_error != null)
             SliverFillRemaining(child: _buildErrorState())
           else if (_visibles.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text('🚛', style: TextStyle(fontSize: 48)),
-                  SizedBox(height: 12),
+                  const Text('🚛', style: TextStyle(fontSize: 48)),
+                  const SizedBox(height: 12),
                   Text('Aucune mission ici',
-                      style: TextStyle(color: ATColors.textSecondary)),
+                      style: TextStyle(color: context.textSecondary)),
                 ]),
               ),
             )
@@ -244,10 +244,10 @@ class _DmlScreenState extends State<DmlScreen> {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            color: selected ? ATColors.primary : Colors.white,
+            color: selected ? ATColors.primary : context.cardBg,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected ? ATColors.primary : const Color(0xFFE2E8F0),
+              color: selected ? ATColors.primary : context.borderColor,
             ),
             boxShadow: selected
                 ? [BoxShadow(
@@ -264,7 +264,7 @@ class _DmlScreenState extends State<DmlScreen> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: selected ? Colors.white : ATColors.textPrimary,
+                    color: selected ? Colors.white : context.textPrimary,
                   )),
               const SizedBox(height: 2),
               Text('$count',
@@ -373,6 +373,69 @@ class _DmlCardState extends State<_DmlCard> {
     context.push('/missions/${widget.mission.id}');
   }
 
+  // ── Clôturer mission (retour demandeur, libère véhicule) ────────────────
+  Future<void> _cloturerMission() async {
+    final titre = widget.mission.displayTitre;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Clôturer la mission'),
+        content: Text(
+          'Confirmer le retour du demandeur pour « $titre » ?\nLe véhicule de service sera libéré.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dCtx, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.check, size: 18),
+            label: const Text('Clôturer'),
+            onPressed: () => Navigator.pop(dCtx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF59E0B),
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    setState(() => _acting = true);
+    try {
+      await ApiService().post(
+        '/dml/missions/${widget.mission.id}/cloturer',
+        null,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Row(children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Mission clôturée — véhicule libéré'),
+          ]),
+          backgroundColor: ATColors.warning,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10)),
+        ));
+      }
+      widget.onRefresh();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: ATColors.error,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _acting = false);
+    }
+  }
+
   // ── Dialog confirmation Logistique OK (Amélioration 3) ─────────────────
   Future<void> _logistiqueOk() async {
     final titre = widget.mission.displayTitre;
@@ -393,9 +456,9 @@ class _DmlCardState extends State<_DmlCard> {
             const SizedBox(height: 8),
             Text(
               widget.mission.numeroUnique ?? 'Mission #${widget.mission.id}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12,
-                  color: ATColors.textSecondary,
+                  color: context.textSecondary,
                   fontWeight: FontWeight.w600),
             ),
           ],
@@ -487,6 +550,23 @@ class _DmlCardState extends State<_DmlCard> {
     }
   }
 
+  // ── Charger hôtels conventionnés filtrés par ville ──────────────────────
+  Future<List<Map<String, dynamic>>> _fetchHotels(String? ville) async {
+    try {
+      final path = ville != null && ville.isNotEmpty
+          ? '/dml/hotels-conventions?ville=${Uri.encodeComponent(ville)}'
+          : '/dml/hotels-conventions';
+      final data = await ApiService().get(path);
+      final raw = data['data'];
+      if (raw is List) {
+        return raw.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
   // ── BottomSheet : Modifier logistique DML ──────────────────────────────
   Future<void> _modifierLogistique() async {
     final nomHotelCtrl     = TextEditingController();
@@ -494,201 +574,321 @@ class _DmlCardState extends State<_DmlCard> {
     final compagnieCtrl    = TextEditingController();
     final prixHebergCtrl   = TextEditingController();
     bool saving = false;
+    bool loadingHotels = true;
+    List<Map<String, dynamic>> hotels = [];
+    int? selectedHotelId;
+    bool saisieLibre = false;
+
+    final ville = widget.mission.destinationVille;
+    _fetchHotels(ville).then((h) {
+      hotels = h;
+      loadingHotels = false;
+    });
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModal) => Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-            child: SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(height: 16),
-                Row(children: const [
-                  Icon(Icons.edit_note_rounded,
-                      color: ATColors.secondary, size: 22),
-                  SizedBox(width: 8),
-                  Text('Modifications logistiques',
+        builder: (ctx, setModal) {
+          if (loadingHotels) {
+            _fetchHotels(ville).then((h) {
+              if (ctx.mounted) {
+                setModal(() {
+                  hotels = h;
+                  loadingHotels = false;
+                });
+              }
+            });
+          }
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.cardBg,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              child: SingleChildScrollView(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2)),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(children: const [
+                    Icon(Icons.edit_note_rounded,
+                        color: ATColors.secondary, size: 22),
+                    SizedBox(width: 8),
+                    Text('Modifications logistiques',
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: ATColors.secondary)),
+                  ]),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Mission : ${widget.mission.numeroUnique ?? "#${widget.mission.id}"}',
+                    style: TextStyle(
+                        fontSize: 12, color: context.textSecondary),
+                  ),
+                  if (ville != null && ville.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Destination : $ville',
                       style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: ATColors.secondary)),
-                ]),
-                const SizedBox(height: 4),
-                Text(
-                  'Mission : ${widget.mission.numeroUnique ?? "#${widget.mission.id}"}',
-                  style: const TextStyle(
-                      fontSize: 12, color: ATColors.textSecondary),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: nomHotelCtrl,
-                  decoration: InputDecoration(
-                    labelText: 'Nom de l\'hôtel (si modifié)',
-                    hintText: 'Laisser vide si inchangé',
-                    prefixIcon:
-                        const Icon(Icons.hotel_outlined, size: 20),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: numeroBilletCtrl,
-                  decoration: InputDecoration(
-                    labelText: 'Numéro de billet ✈',
-                    hintText: 'Ex: AH1234567890',
-                    prefixIcon: const Icon(
-                        Icons.confirmation_number_outlined,
-                        size: 20),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: compagnieCtrl,
-                  decoration: InputDecoration(
-                    labelText: 'Compagnie aérienne / Opérateur',
-                    hintText: 'Ex: Air Algérie',
-                    prefixIcon:
-                        const Icon(Icons.flight_outlined, size: 20),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: prixHebergCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
-                  decoration: InputDecoration(
-                    labelText: 'Prix hébergement réel (DZD)',
-                    hintText: 'Montant facturé par l\'hôtel',
-                    prefixIcon:
-                        const Icon(Icons.payments_outlined, size: 20),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    icon: saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.save_outlined),
-                    label: Text(saving
-                        ? 'Enregistrement…'
-                        : 'Enregistrer les modifications logistiques'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ATColors.secondary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                          fontSize: 11,
+                          color: ATColors.primary,
+                          fontWeight: FontWeight.w600),
                     ),
-                    onPressed: saving
-                        ? null
-                        : () async {
-                            final hasData = nomHotelCtrl.text.trim().isNotEmpty ||
-                                numeroBilletCtrl.text.trim().isNotEmpty ||
-                                compagnieCtrl.text.trim().isNotEmpty ||
-                                prixHebergCtrl.text.trim().isNotEmpty;
-                            if (!hasData) {
-                              ScaffoldMessenger.of(ctx).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Veuillez renseigner au moins un champ.'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                              return;
-                            }
-                            setModal(() => saving = true);
-                            try {
-                              final body = <String, dynamic>{};
-                              if (nomHotelCtrl.text.trim().isNotEmpty) {
-                                body['nom_hotel'] =
-                                    nomHotelCtrl.text.trim();
-                              }
-                              if (numeroBilletCtrl.text.trim().isNotEmpty) {
-                                body['numero_billet'] =
-                                    numeroBilletCtrl.text.trim();
-                              }
-                              if (compagnieCtrl.text.trim().isNotEmpty) {
-                                body['compagnie'] =
-                                    compagnieCtrl.text.trim();
-                              }
-                              if (prixHebergCtrl.text.trim().isNotEmpty) {
-                                body['prix_hebergement_reel'] =
-                                    double.tryParse(
-                                        prixHebergCtrl.text.trim());
-                              }
-                              await ApiService().patch(
-                                '/missions/${widget.mission.id}/logistique',
-                                body,
-                              );
-                              if (ctx.mounted) Navigator.pop(ctx);
-                              widget.onRefresh();
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                  ],
+                  const SizedBox(height: 20),
+                  // ── Hôtel : dropdown filtré par ville ──
+                  if (loadingHotels)
+                    Container(
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    )
+                  else if (!saisieLibre && hotels.isNotEmpty)
+                    Column(children: [
+                      DropdownButtonFormField<int>(
+                        initialValue: selectedHotelId,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Hôtel conventionné',
+                          hintText: ville != null && ville.isNotEmpty
+                              ? 'Hôtels à $ville'
+                              : 'Sélectionner un hôtel',
+                          prefixIcon: const Icon(Icons.hotel_outlined, size: 20),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                        ),
+                        items: hotels.map((h) {
+                          final nom = h['nom'] ?? 'Hôtel';
+                          final hVille = h['ville'] ?? '';
+                          final etoiles = h['etoiles'] ?? 0;
+                          final stars = etoiles > 0 ? ' ${'★' * (etoiles as int)}' : '';
+                          return DropdownMenuItem<int>(
+                            value: h['id'] as int,
+                            child: Text(
+                              '$nom — $hVille$stars',
+                              style: const TextStyle(fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (v) => setModal(() => selectedHotelId = v),
+                      ),
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () => setModal(() => saisieLibre = true),
+                          icon: const Icon(Icons.edit, size: 14),
+                          label: const Text('Autre hôtel (saisie libre)',
+                              style: TextStyle(fontSize: 11)),
+                          style: TextButton.styleFrom(
+                            foregroundColor: ATColors.secondary,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                        ),
+                      ),
+                    ])
+                  else
+                    Column(children: [
+                      TextField(
+                        controller: nomHotelCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Nom de l\'hôtel',
+                          hintText: 'Saisir le nom de l\'hôtel',
+                          prefixIcon: const Icon(Icons.hotel_outlined, size: 20),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                        ),
+                      ),
+                      if (hotels.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: () => setModal(() {
+                              saisieLibre = false;
+                              nomHotelCtrl.clear();
+                            }),
+                            icon: const Icon(Icons.list, size: 14),
+                            label: const Text('Voir hôtels conventionnés',
+                                style: TextStyle(fontSize: 11)),
+                            style: TextButton.styleFrom(
+                              foregroundColor: ATColors.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ]),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: numeroBilletCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Numéro de billet',
+                      hintText: 'Ex: AH1234567890',
+                      prefixIcon: const Icon(
+                          Icons.confirmation_number_outlined,
+                          size: 20),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: compagnieCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Compagnie aérienne / Opérateur',
+                      hintText: 'Ex: Air Algérie',
+                      prefixIcon:
+                          const Icon(Icons.flight_outlined, size: 20),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: prixHebergCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true),
+                    decoration: InputDecoration(
+                      labelText: 'Prix hébergement réel (DZD)',
+                      hintText: 'Montant facturé par l\'hôtel',
+                      prefixIcon:
+                          const Icon(Icons.payments_outlined, size: 20),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      icon: saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.save_outlined),
+                      label: Text(saving
+                          ? 'Enregistrement…'
+                          : 'Enregistrer les modifications'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ATColors.secondary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                      onPressed: saving
+                          ? null
+                          : () async {
+                              final hotelFromDropdown = selectedHotelId != null;
+                              final hotelFromText = nomHotelCtrl.text.trim().isNotEmpty;
+                              final hasData = hotelFromDropdown ||
+                                  hotelFromText ||
+                                  numeroBilletCtrl.text.trim().isNotEmpty ||
+                                  compagnieCtrl.text.trim().isNotEmpty ||
+                                  prixHebergCtrl.text.trim().isNotEmpty;
+                              if (!hasData) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
                                   const SnackBar(
-                                    content: Row(children: [
-                                      Icon(Icons.check_circle,
-                                          color: Colors.white),
-                                      SizedBox(width: 8),
-                                      Text('Modifications enregistrées !'),
-                                    ]),
-                                    backgroundColor: ATColors.success,
+                                    content: Text(
+                                        'Veuillez renseigner au moins un champ.'),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
+                                return;
                               }
-                            } catch (e) {
-                              setModal(() => saving = false);
-                              if (ctx.mounted) {
-                                ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-                                  content: Text(e.toString()),
-                                  backgroundColor: ATColors.error,
-                                  behavior: SnackBarBehavior.floating,
-                                ));
+                              setModal(() => saving = true);
+                              try {
+                                final body = <String, dynamic>{};
+                                if (hotelFromDropdown) {
+                                  body['hotel_convention_id'] = selectedHotelId;
+                                } else if (hotelFromText) {
+                                  body['nom_hotel'] = nomHotelCtrl.text.trim();
+                                }
+                                if (numeroBilletCtrl.text.trim().isNotEmpty) {
+                                  body['numero_billet'] =
+                                      numeroBilletCtrl.text.trim();
+                                }
+                                if (compagnieCtrl.text.trim().isNotEmpty) {
+                                  body['compagnie'] =
+                                      compagnieCtrl.text.trim();
+                                }
+                                if (prixHebergCtrl.text.trim().isNotEmpty) {
+                                  body['prix_hebergement_reel'] =
+                                      double.tryParse(
+                                          prixHebergCtrl.text.trim());
+                                }
+                                await ApiService().patch(
+                                  '/missions/${widget.mission.id}/logistique',
+                                  body,
+                                );
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                widget.onRefresh();
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Row(children: [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.white),
+                                        SizedBox(width: 8),
+                                        Text('Modifications enregistrées !'),
+                                      ]),
+                                      backgroundColor: ATColors.success,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                setModal(() => saving = false);
+                                if (ctx.mounted) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                                    content: Text(e.toString()),
+                                    backgroundColor: ATColors.error,
+                                    behavior: SnackBarBehavior.floating,
+                                  ));
+                                }
                               }
-                            }
-                          },
+                            },
+                    ),
                   ),
-                ),
-              ]),
+                ]),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
 
@@ -740,24 +940,24 @@ class _DmlCardState extends State<_DmlCard> {
               children: [
                 Text(
                   u.nomComplet,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: ATColors.textPrimary,
+                    color: context.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (formattedDate != null)
                   Text(
                     'Mission prévue le $formattedDate',
-                    style: const TextStyle(
-                        fontSize: 11, color: ATColors.textSecondary),
+                    style: TextStyle(
+                        fontSize: 11, color: context.textSecondary),
                   ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded,
-              color: ATColors.textSecondary, size: 18),
+          Icon(Icons.chevron_right_rounded,
+              color: context.textSecondary, size: 18),
         ]),
       ),
     );
@@ -817,6 +1017,29 @@ class _DmlCardState extends State<_DmlCard> {
                 ),
               ),
             ]),
+          ),
+        if (widget.readonly && widget.mission.statut != 'termine')
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
+            child: SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: OutlinedButton.icon(
+                onPressed: _acting ? null : _cloturerMission,
+                icon: _acting
+                    ? const SpinKitFadingCircle(
+                        color: Color(0xFFF59E0B), size: 20)
+                    : const Icon(Icons.assignment_return_outlined, size: 18),
+                label: const Text('Clôturer (retour mission)',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFF59E0B),
+                  side: const BorderSide(color: Color(0xFFF59E0B)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
           ),
       ])
           .animate(delay: (widget.index * 70).ms)

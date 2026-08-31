@@ -56,7 +56,9 @@ class ExportService
             $query->where('statut', $filters['statut']);
         }
         if (! empty($filters['direction'])) {
-            $query->where('direction', $filters['direction']);
+            $query->whereHas('user', function ($q) use ($filters) {
+                $q->where('direction', $filters['direction']);
+            });
         }
         if (! empty($filters['date_debut'])) {
             $query->where('date_depart', '>=', $filters['date_debut']);
@@ -66,7 +68,16 @@ class ExportService
         }
 
         if (! $user->hasRole('admin')) {
-            $query->where('user_id', $user->id);
+            if ($user->hasRole('validateur')) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                        ->orWhereHas('circuitsValidation', function ($cv) use ($user) {
+                            $cv->where('validateur_id', $user->id);
+                        });
+                });
+            } else {
+                $query->where('user_id', $user->id);
+            }
         }
 
         return $query;

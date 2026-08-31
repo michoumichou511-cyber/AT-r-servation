@@ -21,6 +21,7 @@ const ROLE_OPTIONS = [
   { value: 'validateur', label: 'Validateur' },
   { value: 'utilisateur', label: 'Utilisateur' },
   { value: 'demandeur', label: 'Demandeur' },
+  { value: 'agent_dml', label: 'Agent DML' },
 ]
 
 export default function Utilisateurs() {
@@ -180,7 +181,7 @@ export default function Utilisateurs() {
         backTo="/"
         actions={
           <Button size="sm" onClick={openCreate}>
-            <Plus size={16} /> + Nouvel utilisateur
+            <Plus size={16} /> Nouvel utilisateur
           </Button>
         }
       />
@@ -189,11 +190,12 @@ export default function Utilisateurs() {
       <div className="at-card-surface mb-6 p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Rôle</label>
+            <label className="block text-xs font-semibold text-[#5A6070] mb-2">Rôle</label>
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
+                         dark:bg-[#252840] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               <option value="">Tous</option>
@@ -203,21 +205,23 @@ export default function Utilisateurs() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Direction</label>
+            <label className="block text-xs font-semibold text-[#5A6070] mb-2">Direction</label>
             <input
               value={filterDirection}
               onChange={(e) => setFilterDirection(e.target.value)}
-              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
+                         dark:bg-[#252840] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               placeholder="Ex: Direction X"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Statut</label>
+            <label className="block text-xs font-semibold text-[#5A6070] mb-2">Statut</label>
             <select
               value={filterActif}
               onChange={(e) => setFilterActif(e.target.value)}
-              className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
+                         dark:bg-[#252840] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
             >
               <option value="">Tous</option>
@@ -267,11 +271,11 @@ export default function Utilisateurs() {
             <table className="min-w-[880px] w-full">
               <thead className="at-table-head border-b border-[#EAECF0] dark:border-[#2A2D3E]">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Utilisateur</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Direction</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Rôle</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Statut</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Actions</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5A6070]">Utilisateur</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5A6070]">Direction</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5A6070]">Rôle</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5A6070]">Statut</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#5A6070]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,25 +300,26 @@ export default function Utilisateurs() {
                               border: '1px solid rgba(148,163,184,0.22)',
                             }}
                           >
-                            <span className="text-sm font-bold text-gray-700">{initials(u.prenom, u.nom)}</span>
+                            <span className="text-sm font-bold text-[#1A1D26]">{initials(u.prenom, u.nom)}</span>
                           </div>
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">
+                            <div className="text-sm font-semibold text-[#1A1D26] truncate">
                               {u.prenom} {u.nom}
                             </div>
-                            <div className="text-xs text-gray-500 truncate">{u.email}</div>
-                            <div className="text-[11px] text-gray-400 mt-1 truncate">{u.matricule ?? ''}</div>
+                            <div className="text-xs text-[#5A6070] truncate">{u.email}</div>
+                            <div className="text-[11px] text-[#9AA0AE] mt-1 truncate">{u.matricule ?? ''}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-[#1A1D26]">
                         {u.direction || u.structure_id || '—'}
                       </td>
                       <td className="px-4 py-3">
                         <select
                           value={roleName}
                           onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                          className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                          className="px-3 py-2 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
+                                     dark:bg-[#252840] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                                      focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
                         >
                           {ROLE_OPTIONS.map((r) => (
@@ -344,8 +349,8 @@ export default function Utilisateurs() {
             </table>
           </div>
 
-          <div className="p-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white">
-            <div className="text-sm text-gray-500">
+          <div className="p-4 flex items-center justify-between gap-3 border-t border-gray-100 bg-white dark:bg-gray-800 dark:border-gray-700">
+            <div className="text-sm text-[#5A6070]">
               Page {current} / {last}
             </div>
             <div className="flex items-center gap-2">
@@ -398,7 +403,7 @@ export default function Utilisateurs() {
               onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
             />
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-2">Mot de passe</label>
+              <label className="block text-xs font-semibold text-[#5A6070] mb-2">Mot de passe</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPwd ? 'text' : 'password'}
@@ -441,12 +446,13 @@ export default function Utilisateurs() {
               onChange={(e) => setForm(f => ({ ...f, direction: e.target.value }))}
             />
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-2">Structure</label>
+              <label className="block text-xs font-semibold text-[#5A6070] mb-2">Structure</label>
               <select
                 name="structure_id"
                 value={form.structure_id}
                 onChange={(e) => setForm(f => ({ ...f, structure_id: e.target.value }))}
-                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+                className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
+                           dark:bg-[#252840] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               >
                 <option value="">— Choisir une structure —</option>

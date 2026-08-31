@@ -63,7 +63,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
       case 'create': return ATColors.success;
       case 'update': return ATColors.warning;
       case 'delete': return ATColors.error;
-      default: return ATColors.textSecondary;
+      default: return const Color(0xFF6B7280);
     }
   }
 
@@ -119,8 +119,8 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (_, __) => Container(height: 80, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (_, _) => Container(height: 80, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
       ),
     );
   }
@@ -161,7 +161,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final f = _filters[i];
                   final selected = _actionFilter == f;
@@ -182,9 +182,9 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
             SliverFillRemaining(
               child: Center(
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(Icons.history, size: 64, color: ATColors.textSecondary.withValues(alpha: 0.4)),
+                  Icon(Icons.history, size: 64, color: context.textSecondary.withValues(alpha: 0.4)),
                   const SizedBox(height: 12),
-                  const Text('Aucun log trouvé', style: TextStyle(color: ATColors.textSecondary)),
+                  Text('Aucun log trouvé', style: TextStyle(color: context.textSecondary)),
                 ]),
               ),
             )
@@ -220,19 +220,19 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                                 ]),
                               ),
                             ]),
-                            Text(_userEmail(log), style: const TextStyle(fontSize: 11, color: ATColors.textSecondary)),
+                            Text(_userEmail(log), style: TextStyle(fontSize: 11, color: context.textSecondary)),
                             const SizedBox(height: 4),
                             Text(log['description'] as String? ?? log['action'] as String? ?? '', style: const TextStyle(fontSize: 12)),
                             const SizedBox(height: 4),
                             Row(children: [
-                              const Icon(Icons.access_time, size: 12, color: ATColors.textSecondary),
+                              Icon(Icons.access_time, size: 12, color: context.textSecondary),
                               const SizedBox(width: 4),
-                              Text(_formatDate(log['created_at'] as String?), style: const TextStyle(fontSize: 11, color: ATColors.textSecondary)),
+                              Text(_formatDate(log['created_at'] as String?), style: TextStyle(fontSize: 11, color: context.textSecondary)),
                               if (log['ip_address'] != null) ...[
                                 const SizedBox(width: 12),
-                                const Icon(Icons.dns_outlined, size: 12, color: ATColors.textSecondary),
+                                Icon(Icons.dns_outlined, size: 12, color: context.textSecondary),
                                 const SizedBox(width: 4),
-                                Text(log['ip_address'] as String, style: const TextStyle(fontSize: 11, color: ATColors.textSecondary)),
+                                Text(log['ip_address'] as String, style: TextStyle(fontSize: 11, color: context.textSecondary)),
                               ],
                             ]),
                           ]),
@@ -254,7 +254,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                   label: const Text('Précédent'),
                   style: ElevatedButton.styleFrom(backgroundColor: ATColors.secondary),
                 ),
-                Text('Page $_page / $_lastPage', style: const TextStyle(color: ATColors.textSecondary)),
+                Text('Page $_page / $_lastPage', style: TextStyle(color: context.textSecondary)),
                 ElevatedButton.icon(
                   onPressed: _page < _lastPage ? () => _load(_page + 1) : null,
                   icon: const Icon(Icons.chevron_right),

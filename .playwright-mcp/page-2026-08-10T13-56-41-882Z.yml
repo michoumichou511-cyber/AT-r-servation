@@ -1,0 +1,137 @@
+- generic [ref=f29e7]:
+  - link "Aller au contenu principal" [ref=f29e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f29e10]:
+    - generic [ref=f29e11]:
+      - generic [ref=f29e13]:
+        - img "Algérie Télécom" [ref=f29e15]
+        - generic [ref=f29e16]:
+          - generic [ref=f29e17]: Réservations AT
+          - generic [ref=f29e18]: Algérie Télécom
+      - generic [ref=f29e19]:
+        - generic [ref=f29e20]: AS
+        - generic [ref=f29e21]:
+          - generic [ref=f29e22]: Admin Système
+          - generic [ref=f29e23]: admin
+      - textbox "Rechercher..." [ref=f29e29]
+      - navigation [ref=f29e30]:
+        - link "Tableau de bord" [ref=f29e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f29e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f29e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f29e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f29e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f29e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f29e62] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f29e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f29e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f29e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f29e81]:
+          - button "Administration" [ref=f29e82] [cursor=pointer]
+          - generic [ref=f29e86]:
+            - link "Utilisateurs" [ref=f29e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f29e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f29e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f29e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f29e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f29e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f29e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f29e124] [cursor=pointer]
+  - generic [ref=f29e129]:
+    - banner [ref=f29e130]:
+      - heading "Messagerie" [level=1] [ref=f29e132]
+      - generic [ref=f29e133]:
+        - textbox "Rechercher..." [ref=f29e139]
+        - button [ref=f29e140] [cursor=pointer]
+        - button [ref=f29e143] [cursor=pointer]
+        - button "AS Admin" [ref=f29e148] [cursor=pointer]:
+          - generic [ref=f29e149]: AS
+          - generic [ref=f29e150]: Admin
+    - main [ref=f29e151]:
+      - generic [ref=f29e153]:
+        - generic [ref=f29e154]:
+          - button "← Retour" [ref=f29e155] [cursor=pointer]
+          - generic [ref=f29e157]:
+            - heading "Messagerie" [level=1] [ref=f29e158]
+            - paragraph [ref=f29e159]: Messagerie interne AT
+        - generic [ref=f29e161]:
+          - generic [ref=f29e162]:
+            - generic [ref=f29e163]:
+              - generic [ref=f29e164]:
+                - generic [ref=f29e167]: Conversations
+                - generic [ref=f29e168]: "4"
+              - button "Nouvelle conversation" [ref=f29e169] [cursor=pointer]
+            - textbox "Rechercher une conversation..." [ref=f29e176]
+            - generic [ref=f29e177]:
+              - button "DT Demandeur Test Test message soutenance - verification E... 24/07/2026" [ref=f29e178] [cursor=pointer]:
+                - generic [ref=f29e179]:
+                  - generic [ref=f29e180]: DT
+                  - generic [ref=f29e182]:
+                    - generic [ref=f29e183]: Demandeur Test
+                    - generic [ref=f29e185]: Test message soutenance - verification E...
+                    - generic [ref=f29e186]: 24/07/2026
+              - button "KB Karim Bensalem touts est ok pour linstant 09/05/2026" [ref=f29e187] [cursor=pointer]:
+                - generic [ref=f29e188]:
+                  - generic [ref=f29e189]: KB
+                  - generic [ref=f29e191]:
+                    - generic [ref=f29e192]: Karim Bensalem
+                    - generic [ref=f29e194]: touts est ok pour linstant
+                    - generic [ref=f29e195]: 09/05/2026
+              - button "KL kamal loulou tu vas bien 09/05/2026" [ref=f29e196] [cursor=pointer]:
+                - generic [ref=f29e197]:
+                  - generic [ref=f29e198]: KL
+                  - generic [ref=f29e200]:
+                    - generic [ref=f29e201]: kamal loulou
+                    - generic [ref=f29e203]: tu vas bien
+                    - generic [ref=f29e204]: 09/05/2026
+              - button "YB Yacine Boudiaf salut yaccin bodiaf touts va bien 09/05/2026" [ref=f29e205] [cursor=pointer]:
+                - generic [ref=f29e206]:
+                  - generic [ref=f29e207]: YB
+                  - generic [ref=f29e209]:
+                    - generic [ref=f29e210]: Yacine Boudiaf
+                    - generic [ref=f29e212]: salut yaccin bodiaf touts va bien
+                    - generic [ref=f29e213]: 09/05/2026
+          - generic [ref=f29e215]:
+            - generic [ref=f29e217]:
+              - generic [ref=f29e218]: DT
+              - generic [ref=f29e220]:
+                - generic [ref=f29e221]: Demandeur Test
+                - generic [ref=f29e222]: "Mission : —"
+            - generic [ref=f29e224]:
+              - generic [ref=f29e226]:
+                - generic [ref=f29e227]: Test API inter-role
+                - generic [ref=f29e228]: 21/04/2026
+              - generic [ref=f29e230]:
+                - generic [ref=f29e231]: salut 00
+                - generic [ref=f29e232]: 28/04/2026
+              - generic [ref=f29e234]:
+                - generic [ref=f29e235]: def
+                - generic [ref=f29e236]: 28/04/2026
+              - generic [ref=f29e238]:
+                - generic [ref=f29e239]: askdd
+                - generic [ref=f29e240]: 28/04/2026
+              - generic [ref=f29e242]:
+                - generic [ref=f29e243]: bien resue
+                - generic [ref=f29e244]: 09/05/2026
+              - generic [ref=f29e246]:
+                - generic [ref=f29e247]: Test message soutenance - verification E2E
+                - generic [ref=f29e248]: 24/07/2026
+            - generic [ref=f29e250]:
+              - textbox "Écrire un message..." [ref=f29e252]
+              - button "Envoyer" [disabled] [ref=f29e253]

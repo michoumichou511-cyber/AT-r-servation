@@ -10,6 +10,7 @@ class UserModel {
   final String? poste;
   final String? telephone;
   final String? authMethod;
+  final String? avatarUrl;
 
   UserModel({
     required this.id,
@@ -23,6 +24,7 @@ class UserModel {
     this.poste,
     this.telephone,
     this.authMethod,
+    this.avatarUrl,
   });
 
   String get nomComplet {
@@ -73,6 +75,7 @@ class UserModel {
       poste:      j['poste'] as String?,
       telephone:  j['telephone'] as String?,
       authMethod: j['auth_method'] as String?,
+      avatarUrl:  j['avatar_url'] as String?,
     );
   }
 }

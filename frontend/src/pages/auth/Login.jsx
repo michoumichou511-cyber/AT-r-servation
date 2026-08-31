@@ -633,58 +633,561 @@ function LoginMobileAnimated({
   )
 }
 
-const SLIDES = [
-  'Gerez vos missions de deplacement en quelques clics',
-  'Suivez en temps reel l\'etat de vos reservations',
-  'Validez les demandes depuis votre bureau',
+const WELCOME_FEATURES = [
+  { icon: '🚀', title: 'Gestion des missions', desc: 'Ordres de mission en quelques clics' },
+  { icon: '📊', title: 'Suivi en temps réel', desc: 'Tableaux de bord interactifs' },
+  { icon: '✅', title: 'Validation simplifiée', desc: 'Circuit de validation rapide' },
+  { icon: '🔐', title: 'Espace sécurisé', desc: 'Réservé aux agents AT' },
 ]
 
-function LoginSlideshow() {
-  const [index, setIndex] = useState(0)
+function CircuitSVGOverlay() {
+  return (
+    <svg
+      viewBox="0 0 500 600"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 2, pointerEvents: 'none', opacity: 0.18 }}
+      aria-hidden
+    >
+      <m.path
+        d="M50 100 L150 100 L150 200 L250 200 L250 150 L350 150"
+        stroke="#52FF8A" strokeWidth="1.5" strokeLinecap="round"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 2.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <m.path
+        d="M400 50 L400 180 L300 180 L300 300 L200 300"
+        stroke="#00A650" strokeWidth="1" strokeLinecap="round"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 2, delay: 1, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <m.path
+        d="M80 400 L180 400 L180 350 L280 350 L280 450 L380 450"
+        stroke="#52FF8A" strokeWidth="1.5" strokeLinecap="round"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 2.5, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <m.path
+        d="M450 300 L350 300 L350 500 L200 500 L200 550"
+        stroke="#0096D6" strokeWidth="1" strokeLinecap="round"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 2, delay: 2, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <m.path
+        d="M100 550 L100 480 L220 480 L220 420 L350 420"
+        stroke="#00A650" strokeWidth="1.5" strokeLinecap="round"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 2, delay: 2.5, ease: [0.22, 1, 0.36, 1] }}
+      />
+      {[[150, 100], [250, 200], [350, 150], [300, 300], [400, 180], [180, 400], [280, 350], [380, 450], [350, 500], [220, 480]].map(([cx, cy], i) => (
+        <m.circle
+          key={i} cx={cx} cy={cy} r="3" fill="#52FF8A"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0, 1.5, 1], opacity: [0, 1, 0.8] }}
+          transition={{ duration: 0.4, delay: 1 + i * 0.25 }}
+        />
+      ))}
+      <m.circle
+        cx="250" cy="300" r="60" stroke="#52FF8A" strokeWidth="0.5" fill="none"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.05, 0.15] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <m.circle
+        cx="250" cy="300" r="100" stroke="#0096D6" strokeWidth="0.3" fill="none"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.03, 0.1] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      />
+    </svg>
+  )
+}
+
+function useMouseParallax(strength = 1) {
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
   useEffect(() => {
-    const timer = setInterval(() => setIndex(i => (i + 1) % SLIDES.length), 5000)
+    const onMove = (e) => {
+      const cx = window.innerWidth / 2
+      const cy = window.innerHeight / 2
+      setOffset({
+        x: ((e.clientX - cx) / cx) * 12 * strength,
+        y: ((e.clientY - cy) / cy) * 8 * strength,
+      })
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [strength])
+  return offset
+}
+
+function FallingParticles() {
+  const particles = useMemo(() => {
+    const items = []
+    for (let i = 0; i < 18; i++) {
+      items.push({
+        left: `${5 + Math.random() * 90}%`,
+        size: 2 + Math.random() * 4,
+        duration: 6 + Math.random() * 8,
+        delay: Math.random() * 10,
+        opacity: 0.15 + Math.random() * 0.25,
+        color: i % 3 === 0 ? '#52FF8A' : i % 3 === 1 ? '#00A650' : '#0096D6',
+      })
+    }
+    return items
+  }, [])
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }} aria-hidden>
+      <style>{`
+        @keyframes fallDown {
+          0% { transform: translateY(-20px) scale(1); opacity: 0; }
+          10% { opacity: var(--p-opacity); }
+          90% { opacity: var(--p-opacity); }
+          100% { transform: translateY(calc(100vh + 20px)) scale(0.5); opacity: 0; }
+        }
+        @keyframes sway {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(20px); }
+        }
+      `}</style>
+      {particles.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: p.left,
+            top: -20,
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background: p.color,
+            boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+            '--p-opacity': p.opacity,
+            animation: `fallDown ${p.duration}s ${p.delay}s linear infinite, sway ${3 + Math.random() * 2}s ${p.delay}s ease-in-out infinite`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function FlowingOrbs() {
+  return (
+    <svg
+      viewBox="0 0 500 600"
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 4, pointerEvents: 'none' }}
+      aria-hidden
+    >
+      <defs>
+        <filter id="orbGlow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <path id="orb-path-1" d="M0 100 Q125 50 250 150 T500 100" />
+        <path id="orb-path-2" d="M500 300 Q375 200 250 350 T0 300" />
+        <path id="orb-path-3" d="M50 500 Q200 400 350 500 T500 450" />
+      </defs>
+      <circle r="4" fill="#52FF8A" filter="url(#orbGlow)" opacity="0.6">
+        <animateMotion dur="7s" repeatCount="indefinite" rotate="auto">
+          <mpath xlinkHref="#orb-path-1" />
+        </animateMotion>
+      </circle>
+      <circle r="3" fill="#00A650" filter="url(#orbGlow)" opacity="0.5">
+        <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" begin="2s">
+          <mpath xlinkHref="#orb-path-2" />
+        </animateMotion>
+      </circle>
+      <circle r="3.5" fill="#0096D6" filter="url(#orbGlow)" opacity="0.4">
+        <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" begin="4s">
+          <mpath xlinkHref="#orb-path-3" />
+        </animateMotion>
+      </circle>
+      <circle r="2" fill="#52FF8A" filter="url(#orbGlow)" opacity="0.3">
+        <animateMotion dur="6s" repeatCount="indefinite" rotate="auto" begin="1s">
+          <mpath xlinkHref="#orb-path-1" />
+        </animateMotion>
+      </circle>
+      <circle r="2.5" fill="#00A650" filter="url(#orbGlow)" opacity="0.35">
+        <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" begin="5s">
+          <mpath xlinkHref="#orb-path-2" />
+        </animateMotion>
+      </circle>
+    </svg>
+  )
+}
+
+function CharReveal({ text, delay = 0, className, style }) {
+  return (
+    <span className={className} style={{ display: 'inline-flex', flexWrap: 'wrap', ...style }}>
+      {text.split('').map((char, i) => (
+        <m.span
+          key={i}
+          initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.45, delay: delay + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+          style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : undefined }}
+        >
+          {char}
+        </m.span>
+      ))}
+    </span>
+  )
+}
+
+function NetworkParticleCanvas() {
+  const canvasRef = useRef(null)
+  const mouseRef = useRef({ x: -9999, y: -9999 })
+  const reducedMotion = usePrefersReducedMotion()
+
+  useEffect(() => {
+    if (reducedMotion) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const parent = canvas.parentElement
+    if (!parent) return
+    const ctx = canvas.getContext('2d', { alpha: true })
+    if (!ctx) return
+
+    let animId = 0
+    let particles = []
+    let t = 0
+    const COUNT = 50
+    const LINK_DIST = 110
+    const MOUSE_R = 140
+
+    const COLS = [
+      { r: 0, g: 166, b: 80 },
+      { r: 0, g: 100, b: 200 },
+      { r: 82, g: 255, b: 138 },
+      { r: 0, g: 150, b: 214 },
+    ]
+
+    const seed = (w, h) => {
+      particles = []
+      for (let i = 0; i < COUNT; i++) {
+        const c = COLS[i % COLS.length]
+        particles.push({
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+          r: Math.random() * 2 + 1, c,
+          op: Math.random() * 0.4 + 0.25,
+          ph: Math.random() * Math.PI * 2,
+        })
+      }
+    }
+
+    const resize = () => {
+      const rect = parent.getBoundingClientRect()
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width = Math.floor(rect.width * dpr)
+      canvas.height = Math.floor(rect.height * dpr)
+      canvas.style.width = `${rect.width}px`
+      canvas.style.height = `${rect.height}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      seed(rect.width, rect.height)
+    }
+
+    const onMove = (e) => {
+      const rect = parent.getBoundingClientRect()
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    }
+    const onLeave = () => { mouseRef.current = { x: -9999, y: -9999 } }
+
+    const loop = () => {
+      const rect = parent.getBoundingClientRect()
+      const w = rect.width, h = rect.height
+      ctx.clearRect(0, 0, w, h)
+      const mx = mouseRef.current.x, my = mouseRef.current.y
+      t += 0.015
+
+      particles.forEach(p => {
+        const dx = p.x - mx, dy = p.y - my
+        const d = Math.sqrt(dx * dx + dy * dy)
+        if (d < MOUSE_R && d > 1) {
+          const f = (MOUSE_R - d) / MOUSE_R * 0.02
+          p.vx += (dx / d) * f
+          p.vy += (dy / d) * f
+        }
+        p.x += p.vx; p.y += p.vy
+        p.vx *= 0.998; p.vy *= 0.998
+        if (p.x < 0 || p.x > w) p.vx *= -1
+        if (p.y < 0 || p.y > h) p.vy *= -1
+        p.x = Math.max(0, Math.min(w, p.x))
+        p.y = Math.max(0, Math.min(h, p.y))
+      })
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i], b = particles[j]
+          const dx = a.x - b.x, dy = a.y - b.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < LINK_DIST) {
+            const alpha = (1 - dist / LINK_DIST) * 0.22
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.strokeStyle = `rgba(82, 255, 138, ${alpha})`
+            ctx.lineWidth = 0.6
+            ctx.stroke()
+          }
+        }
+      }
+
+      particles.forEach(p => {
+        const pulse = 1 + Math.sin(t * 2 + p.ph) * 0.25
+        const radius = p.r * pulse
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius * 5)
+        g.addColorStop(0, `rgba(${p.c.r},${p.c.g},${p.c.b},${p.op * 0.2})`)
+        g.addColorStop(1, 'transparent')
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, radius * 5, 0, Math.PI * 2)
+        ctx.fillStyle = g
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${p.c.r},${p.c.g},${p.c.b},${p.op * 0.8})`
+        ctx.fill()
+      })
+
+      animId = requestAnimationFrame(loop)
+    }
+
+    resize()
+    animId = requestAnimationFrame(loop)
+    parent.addEventListener('mousemove', onMove)
+    parent.addEventListener('mouseleave', onLeave)
+    window.addEventListener('resize', resize)
+    const onVis = () => {
+      cancelAnimationFrame(animId)
+      if (document.visibilityState === 'visible') animId = requestAnimationFrame(loop)
+    }
+    document.addEventListener('visibilitychange', onVis)
+
+    return () => {
+      cancelAnimationFrame(animId)
+      parent.removeEventListener('mousemove', onMove)
+      parent.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('resize', resize)
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [reducedMotion])
+
+  if (reducedMotion) return null
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, zIndex: 2 }} aria-hidden />
+}
+
+function TelecomDishSVG() {
+  return (
+    <svg
+      viewBox="0 0 220 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ position: 'absolute', right: 20, top: 20, width: 180, zIndex: 2, pointerEvents: 'none', opacity: 0.85 }}
+      aria-hidden
+    >
+      <defs>
+        <filter id="sig-glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+
+      <g transform="translate(110,130)">
+        {/* Réflecteur parabolique — vue 3/4 */}
+        <m.path
+          d="M-70 10 C-65 -45 -30 -80 0 -85 C30 -80 65 -45 70 10"
+          stroke="rgba(255,255,255,0.8)" strokeWidth="2" fill="rgba(255,255,255,0.06)" strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        />
+        {/* Bord bas (ellipse perspective) */}
+        <m.ellipse
+          cx="0" cy="10" rx="70" ry="18"
+          stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" fill="none"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        />
+        {/* Nervures internes du réflecteur */}
+        <m.path d="M0 10 L0 -85" stroke="rgba(255,255,255,0.2)" strokeWidth="0.8"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1 }} />
+        <m.path d="M-35 10 L-15 -78" stroke="rgba(255,255,255,0.15)" strokeWidth="0.6"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1.1 }} />
+        <m.path d="M35 10 L15 -78" stroke="rgba(255,255,255,0.15)" strokeWidth="0.6"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1.2 }} />
+
+        {/* Bras de support vers le LNB */}
+        <m.line x1="-50" y1="0" x2="0" y2="-55" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1.4 }} />
+        <m.line x1="50" y1="0" x2="0" y2="-55" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 1.5 }} />
+
+        {/* Tête LNB (récepteur) */}
+        <m.rect x="-4" y="-62" width="8" height="14" rx="2"
+          fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.9)" strokeWidth="1"
+          initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.4, delay: 1.8 }} />
+
+        {/* Point lumineux du LNB */}
+        <m.circle cx="0" cy="-55" r="3" fill="#52FF8A" filter="url(#sig-glow)"
+          initial={{ scale: 0 }} animate={{ scale: [0, 1.3, 1] }} transition={{ duration: 0.5, delay: 2 }} />
+
+        {/* Pied court */}
+        <m.line x1="0" y1="28" x2="0" y2="50" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 1.6 }} />
+        {/* Base */}
+        <m.path d="M-18 50 L18 50" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 1.9 }} />
+        <m.path d="M-12 50 L-16 56 M12 50 L16 56" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.3, delay: 2.1 }} />
+      </g>
+
+      {/* Ondes signal émises vers le haut-gauche */}
+      <g transform="translate(110,75)">
+        {[0, 1, 2, 3].map(i => (
+          <m.path
+            key={i}
+            d={`M${-10 - i * 14},${5 + i * 5} A${18 + i * 14},${18 + i * 14} 0 0,1 ${10 + i * 14},${5 + i * 5}`}
+            stroke="#52FF8A" strokeWidth={1.8 - i * 0.3} fill="none" strokeLinecap="round"
+            filter="url(#sig-glow)"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: [0, 1, 0], opacity: [0, 0.9 - i * 0.18, 0] }}
+            transition={{ duration: 1.8, delay: 2.5 + i * 0.35, repeat: Infinity, repeatDelay: 2 }}
+          />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+function LoginWelcomeOverlay() {
+  const [featureIdx, setFeatureIdx] = useState(0)
+  const parallax = useMouseParallax(1)
+
+  useEffect(() => {
+    const timer = setInterval(() => setFeatureIdx(i => (i + 1) % WELCOME_FEATURES.length), 4000)
     return () => clearInterval(timer)
   }, [])
+
   return (
-    <div style={{ position: 'relative', zIndex: 10, paddingBottom: 24 }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, marginBottom: 16 }}>
-        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#52FF8A' }} />
-        <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Direction des Systemes d'Information
-        </span>
+    <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', transform: `translate(${parallax.x}px, ${parallax.y}px)`, transition: 'transform 0.15s ease-out' }}>
+      <m.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 20, marginBottom: 24 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#52FF8A', boxShadow: '0 0 10px rgba(82,255,138,0.6)' }} />
+          <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Direction des Systèmes d'Information
+          </span>
+        </div>
+      </m.div>
+
+      <div style={{ marginBottom: 8 }}>
+        <CharReveal
+          text="Bienvenue"
+          delay={0.4}
+          style={{ fontSize: 46, fontWeight: 800, color: 'white', lineHeight: 1.1 }}
+        />
       </div>
-      <div style={{ minHeight: 100, position: 'relative' }}>
-        {SLIDES.map((text, i) => (
+
+      <m.div
+        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+        animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+        transition={{ duration: 0.8, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}
+      >
+        <span style={{ fontSize: 20, fontWeight: 500, color: 'rgba(255,255,255,0.85)' }}>
+          sur <strong style={{ fontWeight: 700 }}>AT Réservations</strong>
+        </span>
+        <m.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.7, repeat: Infinity, repeatType: 'reverse' }}
+          style={{ display: 'inline-block', width: 2, height: 22, background: '#52FF8A', borderRadius: 1 }}
+        />
+      </m.div>
+
+      <m.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 1, delay: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ width: 80, height: 3, background: 'linear-gradient(90deg, #52FF8A, #00A650)', borderRadius: 2, marginBottom: 16, transformOrigin: 'left' }}
+      />
+
+      <m.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 1.6 }}
+        style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.7, marginBottom: 24, maxWidth: 340 }}
+      >
+        Votre plateforme de gestion des missions et déplacements professionnels au sein d'Algérie Télécom
+      </m.p>
+
+      <div style={{ position: 'relative', minHeight: 64, marginBottom: 14 }}>
+        {WELCOME_FEATURES.map((f, i) => (
           <m.div
             key={i}
             initial={false}
-            animate={{ opacity: i === index ? 1 : 0, y: i === index ? 0 : 12 }}
-            transition={{ duration: 0.5 }}
-            style={{ position: i === 0 ? 'relative' : 'absolute', top: 0, left: 0, right: 0 }}
+            animate={{
+              opacity: i === featureIdx ? 1 : 0,
+              x: i === featureIdx ? 0 : 40,
+              scale: i === featureIdx ? 1 : 0.9,
+            }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              position: i === 0 ? 'relative' : 'absolute',
+              top: 0, left: 0, right: 0,
+              display: 'flex', alignItems: 'center', gap: 14,
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 12,
+              padding: '12px 16px',
+              pointerEvents: i === featureIdx ? 'auto' : 'none',
+            }}
           >
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1.3 }}>
-              {text}
-            </h1>
+            <span style={{ fontSize: 22, flexShrink: 0 }}>{f.icon}</span>
+            <div>
+              <div style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{f.title}</div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 1 }}>{f.desc}</div>
+            </div>
           </m.div>
         ))}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-        {SLIDES.map((_, i) => (
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {WELCOME_FEATURES.map((_, i) => (
           <button
             key={i}
             type="button"
-            onClick={() => setIndex(i)}
-            aria-label={`Slide ${i + 1}`}
+            onClick={() => setFeatureIdx(i)}
+            aria-label={`Fonctionnalité ${i + 1}`}
             style={{
-              width: i === index ? 24 : 8,
+              position: 'relative',
+              width: i === featureIdx ? 32 : 8,
               height: 8,
               borderRadius: 4,
               border: 'none',
               cursor: 'pointer',
-              background: i === index ? '#52FF8A' : 'rgba(255,255,255,0.3)',
-              transition: 'all 0.3s',
+              background: i === featureIdx ? '#52FF8A' : 'rgba(255,255,255,0.2)',
+              boxShadow: i === featureIdx ? '0 0 14px rgba(82,255,138,0.5)' : 'none',
+              transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+              overflow: 'hidden',
             }}
-          />
+          >
+            {i === featureIdx && (
+              <m.div
+                key={featureIdx}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 4, ease: 'linear' }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  background: 'rgba(255,255,255,0.3)',
+                  borderRadius: 4,
+                  transformOrigin: 'left',
+                }}
+              />
+            )}
+          </button>
         ))}
       </div>
     </div>
@@ -849,11 +1352,7 @@ export default function Login() {
           }}
         />
 
-        {!reducedMotion && (
-          <Suspense fallback={null}>
-            <LoginDecor3D />
-          </Suspense>
-        )}
+        {!reducedMotion && <TelecomDishSVG />}
 
         {/* Cercle déco haut droite */}
         <div
@@ -928,8 +1427,14 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Slideshow central */}
-        <LoginSlideshow />
+        {/* Interactive particle network overlay */}
+        <NetworkParticleCanvas />
+        <CircuitSVGOverlay />
+        <FallingParticles />
+        <FlowingOrbs />
+
+        {/* Welcome overlay with animated text */}
+        <LoginWelcomeOverlay />
 
         {/* Bloc accès sécurisé */}
         <div
@@ -1115,9 +1620,12 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               placeholder="Mot de passe"
               required
-              className="min-h-[44px] w-full rounded-xl border-2 border-[#EAECF0] dark:border-gray-600 text-[13px] text-[#1A1D26] dark:text-white outline-none font-inherit px-11 py-3.5 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#00A650]/40"
+              className={`min-h-[44px] w-full rounded-xl border-2 text-[13px] outline-none font-inherit px-11 py-3.5 focus-visible:ring-2 focus-visible:ring-[#00A650]/40 ${
+                darkMode
+                  ? 'border-[rgba(255,255,255,0.1)] text-white placeholder:text-gray-500 bg-[rgba(255,255,255,0.06)]'
+                  : 'border-[#EAECF0] text-[#1A1D26] bg-[#F8F9FC] placeholder:text-gray-400'
+              }`}
               style={{
-                background: 'var(--input-bg, #F8F9FC)',
                 fontFamily: 'inherit',
               }}
             />

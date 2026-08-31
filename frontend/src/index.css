@@ -7,11 +7,15 @@
 html {
   background-color: transparent;
   min-height: 100%;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  font-family: 'IBM Plex Sans', sans-serif;
-  background-color: #F4F6FA;
+  font-family: ‘IBM Plex Sans’, sans-serif;
+  background-color: #F8FAFB;
   min-height: 100vh;
 }
 
@@ -415,4 +419,122 @@ body {
   .grid-cols-4-kpi {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ─── Enhanced focus rings ─── */
+:focus-visible {
+  outline: 2px solid #00A650;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #00A650;
+  outline-offset: 2px;
+}
+
+/* ─── Status dot animation ─── */
+@keyframes at-dot-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.at-dot-live {
+  animation: at-dot-breathe 2s ease-in-out infinite;
+}
+
+/* ─── Mission card status indicator ─── */
+.at-status-pill {
+  position: relative;
+  overflow: hidden;
+}
+
+.at-status-pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: at-pill-shine 3s ease-in-out infinite;
+}
+
+@keyframes at-pill-shine {
+  0% { left: -100%; }
+  40%, 100% { left: 150%; }
+}
+
+/* ─── Improved card hover ─── */
+.at-card-interactive {
+  border-radius: 20px;
+  border: 1px solid #EAECF0;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  cursor: pointer;
+}
+
+.at-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 61, 165, 0.1), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.dark .at-card-interactive {
+  border-color: #2A2D3E;
+  background-color: #1A1D2E;
+}
+
+.dark .at-card-interactive:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 166, 80, 0.2);
+}
+
+/* ─── Subtle text highlight on hover ─── */
+.at-text-hover {
+  transition: color 0.2s ease;
+}
+
+.at-text-hover:hover {
+  color: #00A650;
+}
+
+/* ─── Improved number display ─── */
+.at-number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* ─── Glass morphism panel ─── */
+.at-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .at-glass {
+  background: rgba(26, 29, 46, 0.7);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Divider with gradient ─── */
+.at-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #EAECF0, transparent);
+}
+
+.dark .at-divider {
+  background: linear-gradient(90deg, transparent, #2A2D3E, transparent);
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .at-dot-live,
+  .at-status-pill::after { animation: none !important; }
+  .at-card-interactive:hover { transform: none; }
 }

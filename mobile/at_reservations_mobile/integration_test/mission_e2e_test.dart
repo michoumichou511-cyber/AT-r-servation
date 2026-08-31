@@ -54,7 +54,7 @@ class _E2eReport {
       'passed':   passed,
       'error':    error,
       'duration_ms': DateTime.now().difference(_start).inMilliseconds,
-      if (extra != null) ...extra,
+      ...?extra,
     });
   }
 

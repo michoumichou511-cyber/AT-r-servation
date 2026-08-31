@@ -1,0 +1,347 @@
+- generic [ref=f5e7]:
+  - link "Aller au contenu principal" [ref=f5e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f5e10]:
+    - generic [ref=f5e11]:
+      - generic [ref=f5e13]:
+        - img "Algérie Télécom" [ref=f5e15]
+        - generic [ref=f5e16]:
+          - generic [ref=f5e17]: Réservations AT
+          - generic [ref=f5e18]: Algérie Télécom
+      - generic [ref=f5e19]:
+        - generic [ref=f5e20]: AS
+        - generic [ref=f5e21]:
+          - generic [ref=f5e22]: Admin Système
+          - generic [ref=f5e23]: admin
+      - textbox "Rechercher..." [ref=f5e29]
+      - navigation [ref=f5e30]:
+        - link "Tableau de bord" [ref=f5e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f5e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f5e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f5e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f5e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f5e58] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f5e62] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f5e67] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f5e72] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f5e76] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f5e81]:
+          - button "Administration" [ref=f5e82] [cursor=pointer]
+          - generic [ref=f5e86]:
+            - link "Utilisateurs" [ref=f5e87] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f5e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f5e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f5e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f5e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f5e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f5e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f5e124] [cursor=pointer]
+  - generic [ref=f5e129]:
+    - banner [ref=f5e130]:
+      - heading "Validations" [level=1] [ref=f5e132]
+      - generic [ref=f5e133]:
+        - textbox "Rechercher..." [ref=f5e139]
+        - button [ref=f5e140] [cursor=pointer]
+        - button [ref=f5e143] [cursor=pointer]
+        - button "AS Admin" [ref=f5e148] [cursor=pointer]:
+          - generic [ref=f5e149]: AS
+          - generic [ref=f5e150]: Admin
+    - main [ref=f5e151]:
+      - generic [ref=f5e153]:
+        - generic [ref=f5e154]:
+          - button "← Retour" [ref=f5e155] [cursor=pointer]
+          - generic [ref=f5e157]:
+            - heading "Validations" [level=1] [ref=f5e158]
+            - paragraph [ref=f5e159]: Gérez les demandes de validation
+        - generic [ref=f5e160]:
+          - generic [ref=f5e161]:
+            - generic [ref=f5e162]:
+              - generic [ref=f5e163]:
+                - generic [ref=f5e164]:
+                  - generic [ref=f5e165]: OM-2026-00043
+                  - generic [ref=f5e166]: En attente
+                  - generic [ref=f5e168]: URGENT
+                - generic [ref=f5e169]: Test BUG-001 Validation Screen
+                - generic [ref=f5e170]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e171]: Alger, Algerie • 10/06/2026 → 12/06/2026
+                - generic [ref=f5e172]: "Budget : 0,00 DA"
+              - generic [ref=f5e173]:
+                - button "Approuver" [ref=f5e174] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e178] [cursor=pointer]
+                - button "Rejeter" [ref=f5e181] [cursor=pointer]
+            - generic [ref=f5e186]:
+              - button "Ouvrir mission" [disabled] [ref=f5e187]
+              - generic [ref=f5e191]: "En attente : Il y a 76 jour(s)"
+          - generic [ref=f5e192]:
+            - generic [ref=f5e193]:
+              - generic [ref=f5e194]:
+                - generic [ref=f5e195]:
+                  - generic [ref=f5e196]: OM-2026-00040
+                  - generic [ref=f5e197]: En attente
+                  - generic [ref=f5e199]: URGENT
+                - generic [ref=f5e200]: inspection
+                - generic [ref=f5e201]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e202]: Oran, Algérie • 28/05/2026 → 02/06/2026
+                - generic [ref=f5e203]: "Budget : 0,00 DA"
+              - generic [ref=f5e204]:
+                - button "Approuver" [ref=f5e205] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e209] [cursor=pointer]
+                - button "Rejeter" [ref=f5e212] [cursor=pointer]
+            - generic [ref=f5e217]:
+              - button "Ouvrir mission" [disabled] [ref=f5e218]
+              - generic [ref=f5e222]: "En attente : Il y a 74 jour(s)"
+          - generic [ref=f5e223]:
+            - generic [ref=f5e224]:
+              - generic [ref=f5e225]:
+                - generic [ref=f5e226]:
+                  - generic [ref=f5e227]: OM-2026-00044
+                  - generic [ref=f5e228]: En attente
+                  - generic [ref=f5e230]: URGENT
+                - generic [ref=f5e231]: interseption
+                - generic [ref=f5e232]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e233]: Constantine, Algérie • 31/05/2026 → 04/06/2026
+                - generic [ref=f5e234]: "Budget : 0,00 DA"
+              - generic [ref=f5e235]:
+                - button "Approuver" [ref=f5e236] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e240] [cursor=pointer]
+                - button "Rejeter" [ref=f5e243] [cursor=pointer]
+            - generic [ref=f5e248]:
+              - button "Ouvrir mission" [disabled] [ref=f5e249]
+              - generic [ref=f5e253]: "En attente : Il y a 74 jour(s)"
+          - generic [ref=f5e254]:
+            - generic [ref=f5e255]:
+              - generic [ref=f5e256]:
+                - generic [ref=f5e257]:
+                  - generic [ref=f5e258]: OM-2026-00039
+                  - generic [ref=f5e259]: En attente
+                  - generic [ref=f5e261]: URGENT
+                - generic [ref=f5e262]: inspection
+                - generic [ref=f5e263]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e264]: Oran, Algérie • 26/05/2026 → 01/06/2026
+                - generic [ref=f5e265]: "Budget : 0,00 DA"
+              - generic [ref=f5e266]:
+                - button "Approuver" [ref=f5e267] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e271] [cursor=pointer]
+                - button "Rejeter" [ref=f5e274] [cursor=pointer]
+            - generic [ref=f5e279]:
+              - button "Ouvrir mission" [disabled] [ref=f5e280]
+              - generic [ref=f5e284]: "En attente : Il y a 74 jour(s)"
+          - generic [ref=f5e285]:
+            - generic [ref=f5e286]:
+              - generic [ref=f5e287]:
+                - generic [ref=f5e288]:
+                  - generic [ref=f5e289]: OM-2026-00037
+                  - generic [ref=f5e290]: En attente
+                  - generic [ref=f5e292]: URGENT
+                - generic [ref=f5e293]: inspection
+                - generic [ref=f5e294]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e295]: Oran, Algérie • 26/05/2026 → 01/06/2026
+                - generic [ref=f5e296]: "Budget : 0,00 DA"
+              - generic [ref=f5e297]:
+                - button "Approuver" [ref=f5e298] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e302] [cursor=pointer]
+                - button "Rejeter" [ref=f5e305] [cursor=pointer]
+            - generic [ref=f5e310]:
+              - button "Ouvrir mission" [disabled] [ref=f5e311]
+              - generic [ref=f5e315]: "En attente : Il y a 74 jour(s)"
+          - generic [ref=f5e316]:
+            - generic [ref=f5e317]:
+              - generic [ref=f5e318]:
+                - generic [ref=f5e319]:
+                  - generic [ref=f5e320]: OM-2026-00038
+                  - generic [ref=f5e321]: En attente
+                  - generic [ref=f5e323]: URGENT
+                - generic [ref=f5e324]: inspection
+                - generic [ref=f5e325]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e326]: Oran, Algérie • 26/05/2026 → 01/06/2026
+                - generic [ref=f5e327]: "Budget : 0,00 DA"
+              - generic [ref=f5e328]:
+                - button "Approuver" [ref=f5e329] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e333] [cursor=pointer]
+                - button "Rejeter" [ref=f5e336] [cursor=pointer]
+            - generic [ref=f5e341]:
+              - button "Ouvrir mission" [disabled] [ref=f5e342]
+              - generic [ref=f5e346]: "En attente : Il y a 74 jour(s)"
+          - generic [ref=f5e347]:
+            - generic [ref=f5e348]:
+              - generic [ref=f5e349]:
+                - generic [ref=f5e350]:
+                  - generic [ref=f5e351]: OM-2026-00045
+                  - generic [ref=f5e352]: En attente
+                  - generic [ref=f5e354]: URGENT
+                - generic [ref=f5e355]: ramzi01
+                - generic [ref=f5e356]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e357]: alger, france • 01/06/2026 → 02/06/2026
+                - generic [ref=f5e358]: "Budget : 250 000,00 DA"
+              - generic [ref=f5e359]:
+                - button "Approuver" [ref=f5e360] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e364] [cursor=pointer]
+                - button "Rejeter" [ref=f5e367] [cursor=pointer]
+            - generic [ref=f5e372]:
+              - button "Ouvrir mission" [disabled] [ref=f5e373]
+              - generic [ref=f5e377]: "En attente : Il y a 70 jour(s)"
+          - generic [ref=f5e378]:
+            - generic [ref=f5e379]:
+              - generic [ref=f5e380]:
+                - generic [ref=f5e381]:
+                  - generic [ref=f5e382]: OM-2026-00050
+                  - generic [ref=f5e383]: En attente
+                  - generic [ref=f5e385]: URGENT
+                - generic [ref=f5e386]: Formation
+                - generic [ref=f5e387]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e388]: Oran, Algérie • 11/06/2026 → 01/07/2026
+                - generic [ref=f5e389]: "Budget : 300 000,00 DA"
+              - generic [ref=f5e390]:
+                - button "Approuver" [ref=f5e391] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e395] [cursor=pointer]
+                - button "Rejeter" [ref=f5e398] [cursor=pointer]
+            - generic [ref=f5e403]:
+              - button "Ouvrir mission" [disabled] [ref=f5e404]
+              - generic [ref=f5e408]: "En attente : Il y a 66 jour(s)"
+          - generic [ref=f5e409]:
+            - generic [ref=f5e410]:
+              - generic [ref=f5e411]:
+                - generic [ref=f5e412]:
+                  - generic [ref=f5e413]: OM-2026-00051
+                  - generic [ref=f5e414]: En attente
+                  - generic [ref=f5e416]: URGENT
+                - generic [ref=f5e417]: Mission Test E2E ville_depart
+                - generic [ref=f5e418]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e419]: Constantine, Algerie • 15/07/2026 → 20/07/2026
+                - generic [ref=f5e420]: "Budget : 50 000,00 DA"
+              - generic [ref=f5e421]:
+                - button "Approuver" [ref=f5e422] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e426] [cursor=pointer]
+                - button "Rejeter" [ref=f5e429] [cursor=pointer]
+            - generic [ref=f5e434]:
+              - button "Ouvrir mission" [disabled] [ref=f5e435]
+              - generic [ref=f5e439]: "En attente : Il y a 66 jour(s)"
+          - generic [ref=f5e440]:
+            - generic [ref=f5e441]:
+              - generic [ref=f5e442]:
+                - generic [ref=f5e443]:
+                  - generic [ref=f5e444]: OM-2026-00055
+                  - generic [ref=f5e445]: En attente
+                  - generic [ref=f5e447]: URGENT
+                - generic [ref=f5e448]: FORMATION 1
+                - generic [ref=f5e449]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e450]: Oran, Algérie • 27/07/2026 → 30/07/2026
+                - generic [ref=f5e451]: "Budget : 25 000,00 DA"
+              - generic [ref=f5e452]:
+                - button "Approuver" [ref=f5e453] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e457] [cursor=pointer]
+                - button "Rejeter" [ref=f5e460] [cursor=pointer]
+            - generic [ref=f5e465]:
+              - button "Ouvrir mission" [disabled] [ref=f5e466]
+              - generic [ref=f5e470]: "En attente : Il y a 15 jour(s)"
+          - generic [ref=f5e471]:
+            - generic [ref=f5e472]:
+              - generic [ref=f5e473]:
+                - generic [ref=f5e474]:
+                  - generic [ref=f5e475]: OM-2026-00002
+                  - generic [ref=f5e476]: En attente
+                  - generic [ref=f5e478]: URGENT
+                - generic [ref=f5e479]: loulou
+                - generic [ref=f5e480]: "Demandeur : Utilisateur Test"
+                - generic [ref=f5e481]: paris, france • 15/04/2026 → 20/04/2026
+                - generic [ref=f5e482]: "Budget : 30 000,00 DA"
+              - generic [ref=f5e483]:
+                - button "Approuver" [ref=f5e484] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e488] [cursor=pointer]
+                - button "Rejeter" [ref=f5e491] [cursor=pointer]
+            - generic [ref=f5e496]:
+              - button "Ouvrir mission" [disabled] [ref=f5e497]
+              - generic [ref=f5e501]: "En attente : Il y a 117 jour(s)"
+          - generic [ref=f5e502]:
+            - generic [ref=f5e503]:
+              - generic [ref=f5e504]:
+                - generic [ref=f5e505]:
+                  - generic [ref=f5e506]: OM-2026-00009
+                  - generic [ref=f5e507]: En attente
+                  - generic [ref=f5e509]: URGENT
+                - generic [ref=f5e510]: "Mission seed #5"
+                - generic [ref=f5e511]: "Demandeur : Demandeur Test"
+                - generic [ref=f5e512]: Oran, Algérie • 01/05/2026 → 04/05/2026
+                - generic [ref=f5e513]: "Budget : 145 000,00 DA"
+              - generic [ref=f5e514]:
+                - button "Approuver" [ref=f5e515] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e519] [cursor=pointer]
+                - button "Rejeter" [ref=f5e522] [cursor=pointer]
+            - generic [ref=f5e527]:
+              - button "Ouvrir mission" [disabled] [ref=f5e528]
+              - generic [ref=f5e532]: "En attente : Il y a 104 jour(s)"
+          - generic [ref=f5e533]:
+            - generic [ref=f5e534]:
+              - generic [ref=f5e535]:
+                - generic [ref=f5e536]:
+                  - generic [ref=f5e537]: OM-2026-00020
+                  - generic [ref=f5e538]: En attente
+                  - generic [ref=f5e540]: URGENT
+                - generic [ref=f5e541]: "Mission seed #16"
+                - generic [ref=f5e542]: "Demandeur : Utilisateur Test"
+                - generic [ref=f5e543]: Alger, Algérie • 01/05/2026 → 04/05/2026
+                - generic [ref=f5e544]: "Budget : 200 000,00 DA"
+              - generic [ref=f5e545]:
+                - button "Approuver" [ref=f5e546] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e550] [cursor=pointer]
+                - button "Rejeter" [ref=f5e553] [cursor=pointer]
+            - generic [ref=f5e558]:
+              - button "Ouvrir mission" [disabled] [ref=f5e559]
+              - generic [ref=f5e563]: "En attente : Il y a 104 jour(s)"
+          - generic [ref=f5e564]:
+            - generic [ref=f5e565]:
+              - generic [ref=f5e566]:
+                - generic [ref=f5e567]:
+                  - generic [ref=f5e568]: OM-2026-00021
+                  - generic [ref=f5e569]: En attente
+                  - generic [ref=f5e571]: URGENT
+                - generic [ref=f5e572]: "Mission seed #17"
+                - generic [ref=f5e573]: "Demandeur : Utilisateur Test"
+                - generic [ref=f5e574]: Oran, Algérie • 01/05/2026 → 04/05/2026
+                - generic [ref=f5e575]: "Budget : 205 000,00 DA"
+              - generic [ref=f5e576]:
+                - button "Approuver" [ref=f5e577] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e581] [cursor=pointer]
+                - button "Rejeter" [ref=f5e584] [cursor=pointer]
+            - generic [ref=f5e589]:
+              - button "Ouvrir mission" [disabled] [ref=f5e590]
+              - generic [ref=f5e594]: "En attente : Il y a 104 jour(s)"
+          - generic [ref=f5e595]:
+            - generic [ref=f5e596]:
+              - generic [ref=f5e597]:
+                - generic [ref=f5e598]:
+                  - generic [ref=f5e599]: OM-2026-00023
+                  - generic [ref=f5e600]: En attente
+                  - generic [ref=f5e602]: URGENT
+                - generic [ref=f5e603]: "Mission seed #19"
+                - generic [ref=f5e604]: "Demandeur : Utilisateur Test"
+                - generic [ref=f5e605]: Oran, Algérie • 01/05/2026 → 04/05/2026
+                - generic [ref=f5e606]: "Budget : 215 000,00 DA"
+              - generic [ref=f5e607]:
+                - button "Approuver" [ref=f5e608] [cursor=pointer]
+                - button "Demander modifications" [ref=f5e612] [cursor=pointer]
+                - button "Rejeter" [ref=f5e615] [cursor=pointer]
+            - generic [ref=f5e620]:
+              - button "Ouvrir mission" [disabled] [ref=f5e621]
+              - generic [ref=f5e625]: "En attente : Il y a 104 jour(s)"
+          - generic [ref=f5e626]:
+            - button "← Précédent" [disabled] [ref=f5e627]
+            - generic [ref=f5e628]: Page 1 / 25
+            - button "Suivant →" [ref=f5e629] [cursor=pointer]

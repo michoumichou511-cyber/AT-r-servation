@@ -1,0 +1,92 @@
+- generic [ref=e2]:
+  - button "Passer en mode sombre" [ref=e7] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e13]:
+        - img "Algérie Télécom" [ref=e14]
+        - generic [ref=e15]:
+          - generic [ref=e16]: AT Réservations
+          - generic [ref=e17]: Algérie Télécom
+      - generic [ref=e19]:
+        - generic [ref=e20]: Direction des Systèmes d'Information
+        - generic [ref=e25]:
+          - generic [ref=e26]: B
+          - generic [ref=e27]: i
+          - generic [ref=e28]: e
+          - generic [ref=e29]: "n"
+          - generic [ref=e30]: v
+          - generic [ref=e31]: e
+          - generic [ref=e32]: "n"
+          - generic [ref=e33]: u
+          - generic [ref=e34]: e
+        - generic [ref=e36]:
+          - text: sur
+          - strong [ref=e37]: AT Réservations
+        - paragraph [ref=e40]: Votre plateforme de gestion des missions et déplacements professionnels au sein d'Algérie Télécom
+        - generic [ref=e41]:
+          - generic [ref=e96]:
+            - generic [ref=e97]: 🚀
+            - generic [ref=e98]:
+              - generic [ref=e99]: Gestion des missions
+              - generic [ref=e100]: Ordres de mission en quelques clics
+          - generic:
+            - generic: 📊
+            - generic:
+              - generic: Suivi en temps réel
+              - generic: Tableaux de bord interactifs
+          - generic:
+            - generic: ✅
+            - generic:
+              - generic: Validation simplifiée
+              - generic: Circuit de validation rapide
+          - generic:
+            - generic: 🔐
+            - generic:
+              - generic: Espace sécurisé
+              - generic: Réservé aux agents AT
+        - generic [ref=e47]:
+          - button "Fonctionnalité 1" [ref=e48] [cursor=pointer]
+          - button "Fonctionnalité 2" [ref=e49] [cursor=pointer]
+          - button "Fonctionnalité 3" [ref=e50] [cursor=pointer]
+          - button "Fonctionnalité 4" [ref=e51] [cursor=pointer]
+      - generic [ref=e53]:
+        - paragraph [ref=e54]: Accès sécurisé
+        - generic [ref=e55]:
+          - generic [ref=e56]: 🔐
+          - generic [ref=e57]: Connexion avec votre email @at.dz
+        - generic [ref=e58]:
+          - generic [ref=e59]: 🏢
+          - generic [ref=e60]: Réservé aux agents Algérie Télécom
+        - generic [ref=e61]:
+          - generic [ref=e62]: 📞
+          - generic [ref=e63]: "Support IT : it-support@at.dz"
+    - generic [ref=e65]:
+      - heading "Connexion" [level=1] [ref=e66]
+      - paragraph [ref=e67]: Entrez vos identifiants Algérie Télécom
+      - generic [ref=e68]:
+        - generic [ref=e69]: Adresse e-mail professionnelle
+        - generic [ref=e70]:
+          - generic [ref=e71]: ✉️
+          - textbox "Adresse e-mail professionnelle" [ref=e72]:
+            - /placeholder: prenom.nom@at.dz
+            - text: admin@at.dz
+        - generic [ref=e73]: Mot de passe
+        - generic [ref=e74]:
+          - generic [ref=e75]: 🔒
+          - textbox "Mot de passe" [ref=e76]: Password@123
+          - button "Afficher le mot de passe" [ref=e77] [cursor=pointer]
+        - button "Connexion..." [disabled] [ref=e102]
+      - generic [ref=e82]: Comptes de démonstration
+      - generic [ref=e86]:
+        - button "Remplir avec le compte démo Administrateur" [ref=e87] [cursor=pointer]: Administrateur
+        - button "Remplir avec le compte démo Validateur" [ref=e88] [cursor=pointer]: Validateur
+        - button "Remplir avec le compte démo Utilisateur" [ref=e89] [cursor=pointer]: Utilisateur
+        - button "Remplir avec le compte démo Demandeur" [ref=e90] [cursor=pointer]: Demandeur
+      - paragraph [ref=e91]:
+        - text: "Mot de passe démo (tous les comptes) :"
+        - strong [ref=e92]: Password@123
+        - text: Cliquez un rôle ci-dessus pour remplir email + mot de passe.
+      - paragraph [ref=e93]:
+        - text: Problème de connexion ?
+        - link "Contacter le support IT" [ref=e94] [cursor=pointer]:
+          - /url: mailto:it-support@at.dz

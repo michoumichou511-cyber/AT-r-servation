@@ -4,7 +4,7 @@ import {
 import { motion, useInView, useReducedMotion, AnimatePresence, useSpring, useTransform } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import { dashboardAPI, notificationsAPI, validationsAPI } from '../../services/api'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import {
   Briefcase, Plane, CheckCircle, Percent,
   Wallet, Clock, AlertTriangle,
@@ -699,6 +699,10 @@ export default function Dashboard() {
   const isUtilisateur = hasRole('utilisateur')
   const isDemandeur   = hasRole('demandeur')
   const isAgentDml    = hasRole('agent_dml')
+
+  if (isAgentDml) {
+    return <Navigate to="/dml" replace />
+  }
 
   const prenom = user?.prenom ?? user?.nom ?? 'Utilisateur'
   const displayName = user?.prenom ?? (typeof user?.nom === 'string' ? user.nom.split(' ')[0] : null) ?? 'Utilisateur'

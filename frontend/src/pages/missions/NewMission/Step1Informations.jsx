@@ -103,6 +103,8 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
       transport_type: data?.transport_type ?? '',
       priorite: data?.priorite ?? '',
       budget_mode: data?.budget_mode ?? '',
+      demande_avance: data?.demande_avance ?? false,
+      montant_avance: data?.montant_avance ?? '',
       description: data?.description ?? '',
     }
     // Restaurer le brouillon local uniquement pour une nouvelle mission vierge
@@ -183,7 +185,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
     reset({
       titre: '', objet_mission: '', destination_ville: '', destination_pays: '',
       date_depart: '', date_retour: '', type_mission: '', transport_type: '',
-      priorite: '', budget_mode: '', description: '',
+      priorite: '', budget_mode: '', demande_avance: false, montant_avance: '', description: '',
     })
   }
 
@@ -201,6 +203,10 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
       transport_type: formData.transport_type,
       ...(formData.priorite ? { priorite: formData.priorite } : {}),
       budget_mode: formData.budget_mode,
+      demande_avance: !!formData.demande_avance,
+      ...(formData.demande_avance && formData.montant_avance
+        ? { montant_avance: Number(formData.montant_avance) }
+        : {}),
       ...(String(formData.description ?? '').trim()
         ? { description: formData.description.trim() }
         : {}),
@@ -228,14 +234,14 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
     >
       <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Informations générales</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">
+          <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0] mb-2">Informations générales</h3>
+          <p className="text-sm text-[#9AA0AE]">
             {missionId ? 'Mise à jour de la mission (brouillon)' : 'Créez votre mission (brouillon)'}.
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {savedAt && !missionId && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F4F6FA] dark:bg-[#252840] text-[#5A6070] dark:text-[#9AA0AE] text-xs">
               <Save size={12} /> Brouillon sauvegardé à {savedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
@@ -261,14 +267,14 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
       {/* Barre de progression du formulaire */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-gray-400 dark:text-gray-500">
+          <span className="text-xs text-[#9AA0AE] dark:text-[#5A6070]">
             {filledCount}/{REQUIRED_FIELDS.length} champs requis remplis
           </span>
-          <span className={`text-xs font-semibold ${progressPct === 100 ? 'text-at-green' : 'text-gray-400'}`}>
+          <span className={`text-xs font-semibold ${progressPct === 100 ? 'text-at-green' : 'text-[#9AA0AE]'}`}>
             {progressPct}%
           </span>
         </div>
-        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-[#F4F6FA] dark:bg-[#252840] overflow-hidden">
           <div
             className="h-full rounded-full bg-at-green transition-[width] duration-500 ease-out will-change-[width]"
             style={{ width: `${progressPct}%` }}
@@ -284,7 +290,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           <button
             type="button"
             onClick={resetDraft}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-red-500 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5A6070] hover:text-red-500 transition-colors"
           >
             <RotateCcw size={12} /> Recommencer à zéro
           </button>
@@ -299,30 +305,75 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <Controller name="titre" control={control} render={({ field }) => (
-              <Input label="Titre" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
-                     placeholder="Ex: OM-2026 — Formation Laravel"
-                     error={!!formErrors.titre} errorMessage={formErrors.titre?.message}
-                     success={isValid('titre')} />
-            )} />
+        {/* ── Section 1 : Identification de la mission ── */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-at-green/10 border border-at-green/20 flex items-center justify-center text-at-green text-xs font-bold">1</div>
+            <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Identification de la mission</span>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Controller name="titre" control={control} render={({ field }) => (
+                <Input label="Titre" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
+                       placeholder="Ex: Formation Laravel avancée — Oran"
+                       error={!!formErrors.titre} errorMessage={formErrors.titre?.message}
+                       success={isValid('titre')} />
+              )} />
+              <p className="mt-1 text-[11px] text-[#9AA0AE] dark:text-[#5A6070]">Donnez un titre clair et descriptif pour identifier facilement votre mission.</p>
+            </div>
 
-          <div className="md:col-span-2">
-            <Controller name="objet_mission" control={control} render={({ field }) => (
-              <Input label="Objet de la mission" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
-                     placeholder="Objectif / contenu"
-                     error={!!formErrors.objet_mission} errorMessage={formErrors.objet_mission?.message}
-                     success={isValid('objet_mission')} />
-            )} />
+            <div className="md:col-span-2">
+              <Controller name="objet_mission" control={control} render={({ field }) => (
+                <Input label="Objet de la mission" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
+                       placeholder="Ex: Participer à la formation Laravel pour renforcer les compétences de l'équipe"
+                       error={!!formErrors.objet_mission} errorMessage={formErrors.objet_mission?.message}
+                       success={isValid('objet_mission')} />
+              )} />
+            </div>
+
+            <div>
+              <Controller name="type_mission" control={control} render={({ field }) => (
+                <Select
+                  label="Type de mission"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  options={TYPE_MISSION_OPTIONS}
+                  error={!!formErrors.type_mission}
+                  errorMessage={formErrors.type_mission?.message}
+                  required
+                />
+              )} />
+            </div>
+
+            <div>
+              <Controller name="priorite" control={control} render={({ field }) => (
+                <Select
+                  label="Priorité (optionnel)"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  options={PRIORITE_OPTIONS}
+                  placeholder="Non définie"
+                />
+              )} />
+            </div>
           </div>
+        </div>
+
+        {/* ── Section 2 : Destination & Dates ── */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-at-blue/10 border border-at-blue/20 flex items-center justify-center text-at-blue text-xs font-bold">2</div>
+            <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Destination & dates</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <div>
             <Controller name="destination_ville" control={control} render={({ field }) => (
               <>
                 <Input label="Ville de destination" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
-                       placeholder="Alger"
+                       placeholder="Tapez pour rechercher une wilaya..."
                        list="at-wilayas"
                        error={!!formErrors.destination_ville} errorMessage={formErrors.destination_ville?.message}
                        success={isValid('destination_ville')} />
@@ -336,7 +387,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
             <Controller name="destination_pays" control={control} render={({ field }) => (
               <>
                 <Input label="Pays de destination" value={field.value} onChange={field.onChange} onBlur={field.onBlur}
-                       placeholder="Algérie"
+                       placeholder="Tapez pour rechercher un pays..."
                        list="at-pays"
                        error={!!formErrors.destination_pays} errorMessage={formErrors.destination_pays?.message}
                        success={isValid('destination_pays')} />
@@ -350,7 +401,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           <div>
             <Controller name="date_depart" control={control} render={({ field }) => (
               <>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de départ</label>
+                <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">Date de départ</label>
                 <input
                   type="date"
                   value={field.value}
@@ -363,10 +414,10 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                     }
                   }}
                   onBlur={field.onBlur}
-                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                              transition-all duration-200
                              focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green
-                             ${formErrors.date_depart ? 'border-red-400' : isValid('date_depart') ? 'border-at-green/60' : 'border-gray-200'}`}
+                             ${formErrors.date_depart ? 'border-red-400' : isValid('date_depart') ? 'border-at-green/60' : 'border-[#EAECF0]'}`}
                 />
                 {formErrors.date_depart && (
                   <p className="mt-1 text-xs text-red-500">{formErrors.date_depart.message}</p>
@@ -377,17 +428,17 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
           <div>
             <Controller name="date_retour" control={control} render={({ field }) => (
               <>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Date de retour</label>
+                <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">Date de retour</label>
                 <input
                   type="date"
                   value={field.value}
                   min={values.date_depart || todayStr}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
-                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                  className={`w-full px-3 py-3 rounded-lg border bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                              transition-all duration-200
                              focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green
-                             ${formErrors.date_retour ? 'border-red-400' : isValid('date_retour') ? 'border-at-green/60' : 'border-gray-200'}`}
+                             ${formErrors.date_retour ? 'border-red-400' : isValid('date_retour') ? 'border-at-green/60' : 'border-[#EAECF0]'}`}
                 />
                 {formErrors.date_retour && (
                   <p className="mt-1 text-xs text-red-500">{formErrors.date_retour.message}</p>
@@ -396,7 +447,6 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
             )} />
           </div>
 
-          {/* Durée calculée en direct */}
           {dureeJours !== null && (
             <motion.div
               className="md:col-span-2"
@@ -410,36 +460,17 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
               </div>
             </motion.div>
           )}
-
-          <div>
-            <Controller name="type_mission" control={control} render={({ field }) => (
-              <Select
-                label="Type de mission"
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                options={TYPE_MISSION_OPTIONS}
-                error={!!formErrors.type_mission}
-                errorMessage={formErrors.type_mission?.message}
-                required
-              />
-            )} />
           </div>
+        </div>
 
-          <div>
-            <Controller name="priorite" control={control} render={({ field }) => (
-              <Select
-                label="Priorité (optionnel)"
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                options={PRIORITE_OPTIONS}
-                placeholder="Non définie"
-              />
-            )} />
+        {/* ── Section 3 : Transport & Budget ── */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs font-bold">3</div>
+            <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Transport & budget</span>
           </div>
-
-          <div className="md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
             <Controller name="transport_type" control={control} render={({ field }) => (
               <Select
                 label="Type de transport"
@@ -447,8 +478,10 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 options={[
+                  { value: 'terrestre', label: 'Véhicule de service' },
+                  { value: 'train', label: 'Train (SNTF)' },
                   { value: 'avion', label: 'Par avion (convention AT / Air Algérie)' },
-                  { value: 'terrestre', label: 'Par voie terrestre' },
+                  { value: 'autre', label: 'Autre (taxi, bus...)' },
                 ]}
                 error={!!formErrors.transport_type}
                 errorMessage={formErrors.transport_type?.message}
@@ -457,7 +490,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
             )} />
           </div>
 
-          <div className="md:col-span-2">
+          <div>
             <Controller name="budget_mode" control={control} render={({ field }) => (
               <Select
                 label="Mode de budget"
@@ -465,8 +498,8 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 options={[
-                  { value: 'avance', label: "Avance — montant versé avant la mission par l'entreprise" },
-                  { value: 'remboursement', label: "Remboursement — l'employé paye et ramène les justificatifs" },
+                  { value: 'avance', label: "Avance — montant avancé par l'entreprise" },
+                  { value: 'remboursement', label: "Remboursement — frais remboursés sur justificatifs" },
                 ]}
                 error={!!formErrors.budget_mode}
                 errorMessage={formErrors.budget_mode?.message}
@@ -475,13 +508,50 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
             )} />
           </div>
 
+          {values.budget_mode === 'avance' && (
+            <div className="md:col-span-2 rounded-2xl border border-[#00A650]/20 bg-[#00A650]/5 dark:bg-[#00A650]/10 p-4 space-y-3">
+              <Controller name="demande_avance" control={control} render={({ field }) => (
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={!!field.value}
+                    onChange={e => field.onChange(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-[#00A650] focus:ring-[#00A650]/30 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">
+                      Demande d'avance sur frais de mission
+                    </span>
+                    <p className="text-xs text-[#5A6070] dark:text-[#9AA0AE] mt-0.5">
+                      Cochez si vous souhaitez recevoir une avance avant le départ
+                    </p>
+                  </div>
+                </label>
+              )} />
+
+              {values.demande_avance && (
+                <Controller name="montant_avance" control={control} render={({ field }) => (
+                  <Input
+                    label="Montant de l'avance demandée (DZD)"
+                    type="number"
+                    placeholder="Ex: 50000"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    min={0}
+                  />
+                )} />
+              )}
+            </div>
+          )}
+
           <div className="md:col-span-2">
             <Controller name="description" control={control} render={({ field }) => (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">Description (optionnel)</label>
+                  <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE]">Description (optionnel)</label>
                   <span className={`text-[10px] tabular-nums ${
-                    (field.value?.length ?? 0) > DESCRIPTION_MAX ? 'text-red-500 font-semibold' : 'text-gray-400'
+                    (field.value?.length ?? 0) > DESCRIPTION_MAX ? 'text-red-500 font-semibold' : 'text-[#9AA0AE]'
                   }`}>
                     {field.value?.length ?? 0}/{DESCRIPTION_MAX}
                   </span>
@@ -491,20 +561,21 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   maxLength={DESCRIPTION_MAX}
-                  placeholder="Détails complémentaires"
-                  rows={4}
-                  className="w-full px-3 py-3 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                  placeholder="Ajoutez des informations utiles pour le validateur (contexte, participants, etc.)"
+                  rows={3}
+                  className="w-full px-3 py-3 rounded-lg border border-[#EAECF0] bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                              transition-all duration-200
                              focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
                 />
               </>
             )} />
           </div>
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-3 mt-6 flex-wrap">
-          <span className="text-[11px] text-gray-400 dark:text-gray-500 hidden sm:inline">
-            Astuce : <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[10px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[10px]">Entrée</kbd> pour valider
+          <span className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] hidden sm:inline">
+            Astuce : <kbd className="px-1.5 py-0.5 rounded bg-[#F4F6FA] dark:bg-[#252840] border border-[#EAECF0] dark:border-gray-700 text-[10px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-[#F4F6FA] dark:bg-[#252840] border border-[#EAECF0] dark:border-gray-700 text-[10px]">Entrée</kbd> pour valider
           </span>
           <Button type="submit" loading={loading} disabled={loading} className="min-w-[180px]">
             {loading ? 'Enregistrement...' : 'Suivant →'}
@@ -530,9 +601,9 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-                  <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">Choisir un template</h3>
+                  <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Choisir un template</h3>
                   <button onClick={() => setTemplateModalOpen(false)} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <X size={18} className="text-gray-400" />
+                    <X size={18} className="text-[#9AA0AE]" />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -542,7 +613,7 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                     </div>
                   )}
                   {!templatesLoading && templates.length === 0 && (
-                    <div className="text-center py-10 text-sm text-gray-400 dark:text-gray-500">
+                    <div className="text-center py-10 text-sm text-[#9AA0AE] dark:text-[#5A6070]">
                       Aucun template disponible.
                     </div>
                   )}
@@ -555,16 +626,16 @@ export default function Step1Informations({ onNext, data, missionId, loading, er
                                  hover:border-at-green/40 hover:bg-at-green/5 dark:hover:bg-at-green/10
                                  transition-all"
                     >
-                      <div className="font-semibold text-sm text-gray-800 dark:text-gray-100">{tpl.nom_template}</div>
+                      <div className="font-semibold text-sm text-[#1A1D26] dark:text-[#E8EAF0]">{tpl.nom_template}</div>
                       <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                         {tpl.mission_data?.destination_ville && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">
                             {tpl.mission_data.destination_ville}{tpl.mission_data.destination_pays ? `, ${tpl.mission_data.destination_pays}` : ''}
                           </span>
                         )}
                         {tpl.mission_data?.transport_type && (
                           <span className="inline-block px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-[10px] font-semibold">
-                            {tpl.mission_data.transport_type === 'avion' ? 'Avion' : 'Terrestre'}
+                            {{ avion: 'Avion', terrestre: 'Véhicule', train: 'Train', autre: 'Autre' }[tpl.mission_data.transport_type] || tpl.mission_data.transport_type}
                           </span>
                         )}
                         {tpl.mission_data?.budget_mode && (

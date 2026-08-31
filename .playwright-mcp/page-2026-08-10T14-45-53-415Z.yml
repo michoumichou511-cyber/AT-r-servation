@@ -1,0 +1,92 @@
+- generic [ref=f10e2]:
+  - button "Passer en mode sombre" [ref=f10e340] [cursor=pointer]
+  - generic [ref=f10e343]:
+    - generic [ref=f10e344]:
+      - generic [ref=f10e346]:
+        - img "Algérie Télécom" [ref=f10e347]
+        - generic [ref=f10e348]:
+          - generic [ref=f10e349]: AT Réservations
+          - generic [ref=f10e350]: Algérie Télécom
+      - generic [ref=f10e352]:
+        - generic [ref=f10e353]: Direction des Systèmes d'Information
+        - generic [ref=f10e358]:
+          - generic [ref=f10e359]: B
+          - generic [ref=f10e360]: i
+          - generic [ref=f10e361]: e
+          - generic [ref=f10e362]: "n"
+          - generic [ref=f10e363]: v
+          - generic [ref=f10e364]: e
+          - generic [ref=f10e365]: "n"
+          - generic [ref=f10e366]: u
+          - generic [ref=f10e367]: e
+        - generic [ref=f10e369]:
+          - text: sur
+          - strong [ref=f10e370]: AT Réservations
+        - paragraph [ref=f10e372]: Votre plateforme de gestion des missions et déplacements professionnels au sein d'Algérie Télécom
+        - generic [ref=f10e373]:
+          - generic [ref=f10e374]:
+            - generic [ref=f10e375]: 🚀
+            - generic [ref=f10e376]:
+              - generic [ref=f10e377]: Gestion des missions
+              - generic [ref=f10e378]: Ordres de mission en quelques clics
+          - generic:
+            - generic: 📊
+            - generic:
+              - generic: Suivi en temps réel
+              - generic: Tableaux de bord interactifs
+          - generic:
+            - generic: ✅
+            - generic:
+              - generic: Validation simplifiée
+              - generic: Circuit de validation rapide
+          - generic:
+            - generic: 🔐
+            - generic:
+              - generic: Espace sécurisé
+              - generic: Réservé aux agents AT
+        - generic [ref=f10e379]:
+          - button "Fonctionnalité 1" [ref=f10e380] [cursor=pointer]
+          - button "Fonctionnalité 2" [ref=f10e382] [cursor=pointer]
+          - button "Fonctionnalité 3" [ref=f10e383] [cursor=pointer]
+          - button "Fonctionnalité 4" [ref=f10e384] [cursor=pointer]
+      - generic [ref=f10e385]:
+        - paragraph [ref=f10e386]: Accès sécurisé
+        - generic [ref=f10e387]:
+          - generic [ref=f10e388]: 🔐
+          - generic [ref=f10e389]: Connexion avec votre email @at.dz
+        - generic [ref=f10e390]:
+          - generic [ref=f10e391]: 🏢
+          - generic [ref=f10e392]: Réservé aux agents Algérie Télécom
+        - generic [ref=f10e393]:
+          - generic [ref=f10e394]: 📞
+          - generic [ref=f10e395]: "Support IT : it-support@at.dz"
+    - generic [ref=f10e397]:
+      - heading "Connexion" [level=1] [ref=f10e398]
+      - paragraph [ref=f10e399]: Entrez vos identifiants Algérie Télécom
+      - generic [ref=f10e400]:
+        - generic [ref=f10e401]: Adresse e-mail professionnelle
+        - generic [ref=f10e402]:
+          - generic [ref=f10e403]: ✉️
+          - textbox "Adresse e-mail professionnelle" [ref=f10e404]:
+            - /placeholder: prenom.nom@at.dz
+            - text: validateur@at.dz
+        - generic [ref=f10e405]: Mot de passe
+        - generic [ref=f10e406]:
+          - generic [ref=f10e407]: 🔒
+          - textbox "Mot de passe" [ref=f10e408]: Password@123
+          - button "Afficher le mot de passe" [ref=f10e409] [cursor=pointer]
+        - button "Se connecter →" [ref=f10e413] [cursor=pointer]
+      - generic [ref=f10e414]: Comptes de démonstration
+      - generic [ref=f10e418]:
+        - button "Remplir avec le compte démo Administrateur" [ref=f10e419] [cursor=pointer]: Administrateur
+        - button "Remplir avec le compte démo Validateur" [ref=f10e420] [cursor=pointer]: Validateur
+        - button "Remplir avec le compte démo Utilisateur" [ref=f10e421] [cursor=pointer]: Utilisateur
+        - button "Remplir avec le compte démo Demandeur" [ref=f10e422] [cursor=pointer]: Demandeur
+      - paragraph [ref=f10e423]:
+        - text: "Mot de passe démo (tous les comptes) :"
+        - strong [ref=f10e424]: Password@123
+        - text: Cliquez un rôle ci-dessus pour remplir email + mot de passe.
+      - paragraph [ref=f10e425]:
+        - text: Problème de connexion ?
+        - link "Contacter le support IT" [ref=f10e426] [cursor=pointer]:
+          - /url: mailto:it-support@at.dz

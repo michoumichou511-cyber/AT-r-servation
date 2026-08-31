@@ -1,0 +1,146 @@
+- generic [ref=f11e7]:
+  - link "Aller au contenu principal" [ref=f11e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f11e10]:
+    - generic [ref=f11e11]:
+      - generic [ref=f11e13]:
+        - img "Algérie Télécom" [ref=f11e15]
+        - generic [ref=f11e16]:
+          - generic [ref=f11e17]: Réservations AT
+          - generic [ref=f11e18]: Algérie Télécom
+      - generic [ref=f11e19]:
+        - generic [ref=f11e20]: AS
+        - generic [ref=f11e21]:
+          - generic [ref=f11e22]: Admin Système
+          - generic [ref=f11e23]: admin
+      - textbox "Rechercher..." [ref=f11e29]
+      - navigation [ref=f11e30]:
+        - link "Tableau de bord" [ref=f11e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f11e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f11e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f11e49] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f11e54] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f11e59] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f11e63] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f11e68] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f11e73] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f11e77] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f11e82]:
+          - button "Administration" [ref=f11e83] [cursor=pointer]
+          - generic [ref=f11e87]:
+            - link "Utilisateurs" [ref=f11e88] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f11e95] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f11e101] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f11e106] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f11e111] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f11e115] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f11e119] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f11e125] [cursor=pointer]
+  - generic [ref=f11e130]:
+    - banner [ref=f11e131]:
+      - heading "AT Réservations" [level=1] [ref=f11e133]
+      - generic [ref=f11e134]:
+        - textbox "Rechercher..." [ref=f11e140]
+        - button [ref=f11e141] [cursor=pointer]
+        - button [ref=f11e144] [cursor=pointer]
+        - button "AS Admin" [ref=f11e149] [cursor=pointer]:
+          - generic [ref=f11e150]: AS
+          - generic [ref=f11e151]: Admin
+    - main [ref=f11e152]:
+      - generic [ref=f11e154]:
+        - generic [ref=f11e157]:
+          - heading "Calendrier des missions" [level=1] [ref=f11e158]
+          - paragraph [ref=f11e159]: Août 2026
+        - generic [ref=f11e160]:
+          - generic [ref=f11e161]:
+            - button [ref=f11e162] [cursor=pointer]
+            - generic [ref=f11e165]: Août 2026
+            - button [ref=f11e166] [cursor=pointer]
+          - generic [ref=f11e169]:
+            - button "Tous" [ref=f11e170] [cursor=pointer]
+            - button "Brouillon" [ref=f11e171] [cursor=pointer]
+            - button "Soumise" [ref=f11e172] [cursor=pointer]
+            - button "Approuvée" [ref=f11e173] [cursor=pointer]
+            - button "Rejetée" [ref=f11e174] [cursor=pointer]
+            - button "En cours" [ref=f11e175] [cursor=pointer]
+            - button "Terminée" [ref=f11e176] [cursor=pointer]
+            - button "Annulée" [ref=f11e177] [cursor=pointer]
+        - generic [ref=f11e178]:
+          - generic [ref=f11e179]:
+            - generic [ref=f11e180]: Lun
+            - generic [ref=f11e181]: Mar
+            - generic [ref=f11e182]: Mer
+            - generic [ref=f11e183]: Jeu
+            - generic [ref=f11e184]: Ven
+            - generic [ref=f11e185]: Sam
+            - generic [ref=f11e186]: Dim
+          - generic [ref=f11e187]:
+            - generic [ref=f11e188]: "27"
+            - generic [ref=f11e190]: "28"
+            - generic [ref=f11e192]: "29"
+            - generic [ref=f11e194]: "30"
+            - generic [ref=f11e196]: "31"
+            - generic [ref=f11e198]:
+              - generic [ref=f11e199]: "1"
+              - button "OM-2026-00054 - Alger" [ref=f11e201] [cursor=pointer]
+            - generic [ref=f11e202]:
+              - generic [ref=f11e203]: "2"
+              - button "OM-2026-00054 - Alger" [ref=f11e205] [cursor=pointer]
+            - generic [ref=f11e206]:
+              - generic [ref=f11e207]: "3"
+              - button "OM-2026-00054 - Alger" [ref=f11e209] [cursor=pointer]
+            - generic [ref=f11e210]:
+              - generic [ref=f11e211]: "4"
+              - button "OM-2026-00054 - Alger" [ref=f11e213] [cursor=pointer]
+            - generic [ref=f11e214]:
+              - generic [ref=f11e215]: "5"
+              - button "OM-2026-00054 - Alger" [ref=f11e217] [cursor=pointer]
+            - generic [ref=f11e218]: "6"
+            - generic [ref=f11e220]: "7"
+            - generic [ref=f11e222]: "8"
+            - generic [ref=f11e224]: "9"
+            - generic [ref=f11e226]: "10"
+            - generic [ref=f11e228]: "11"
+            - generic [ref=f11e230]: "12"
+            - generic [ref=f11e232]: "13"
+            - generic [ref=f11e234]: "14"
+            - generic [ref=f11e236]: "15"
+            - generic [ref=f11e238]: "16"
+            - generic [ref=f11e240]: "17"
+            - generic [ref=f11e242]: "18"
+            - generic [ref=f11e244]: "19"
+            - generic [ref=f11e246]: "20"
+            - generic [ref=f11e248]: "21"
+            - generic [ref=f11e250]: "22"
+            - generic [ref=f11e252]: "23"
+            - generic [ref=f11e254]: "24"
+            - generic [ref=f11e256]: "25"
+            - generic [ref=f11e258]: "26"
+            - generic [ref=f11e260]: "27"
+            - generic [ref=f11e262]: "28"
+            - generic [ref=f11e264]: "29"
+            - generic [ref=f11e266]: "30"
+            - generic [ref=f11e268]: "31"
+            - generic [ref=f11e270]: "1"
+            - generic [ref=f11e272]: "2"
+            - generic [ref=f11e274]: "3"
+            - generic [ref=f11e276]: "4"
+            - generic [ref=f11e278]: "5"
+            - generic [ref=f11e280]: "6"

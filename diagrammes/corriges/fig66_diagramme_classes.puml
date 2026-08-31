@@ -1,0 +1,346 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam classFontStyle bold
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 25
+skinparam dpi 200
+scale max 8000 width
+scale max 6000 height
+
+' ====== CORE ======
+class User <<core>> {
+  +id: int
+  +nom: string
+  +prenom: string
+  +email: string
+  +password: string
+  +role_id: int <<FK>>
+  +direction: string
+  +service: string
+  +telephone: string
+  +matricule: string
+  +is_active: boolean
+  +avatar: string
+  ..
+  +sAuthentifier(): bool
+  +seDeconnecter(): void
+  +modifierProfil(): void
+  +recevoirNotification(n: Notification): void
+  +envoyerMessage(m: Message): void
+}
+
+class Role <<core>> {
+  +id: int
+  +name: enum
+  +description: string
+  +permissions: json
+}
+
+class Mission <<core>> {
+  +id: int
+  +user_id: int <<FK>>
+  +titre: string
+  +objet_mission: string
+  +description: text
+  +destination_ville: string
+  +destination_pays: string
+  +date_depart: date
+  +date_retour: date
+  +type_mission: string
+  +transport_type: enum
+  +budget_mode: enum
+  +statut: enum
+  +priorite: string
+  +numero_unique: string
+  ..
+  +creer(): void
+  +modifier(): void
+  +supprimer(): void
+  +soumettre(): void
+  +annuler(): void
+  +valider(): void
+  +refuser(motif: string): void
+  +calculerCoutTotal(): decimal
+  +genererPDF(): PDF
+}
+
+class Demandeur <<core>> {
+  ..
+  +creerMission(m: Mission): void
+  +modifierMission(m: Mission): void
+  +supprimerMission(id: int): void
+  +dupliquerMission(id: int): Mission
+  +consulterHistorique(): List<Mission>
+  +consulterTableauBord(): Dashboard
+  +exporterMissionPDF(id: int): PDF
+  +suivreEtatMission(id: int): Statut
+}
+
+class Directeur <<core>> {
+  ..
+  +approuverDemande(id: int): void
+  +refuserDemande(id: int, motif: string): void
+  +demanderModification(id: int, comm: string): void
+  +consulterHistoriqueService(): List<Mission>
+  +consulterTableauBord(): Dashboard
+  +exporterMissionPDF(id: int): PDF
+}
+
+class "Agent DML" as AgentDML <<core>> {
+  ..
+  +consulterMissionsValidees(): List<Mission>
+  +affecterHotel(m: Mission, h: HotelConvention): void
+  +affecterVehicule(m: Mission, v: Vehicule): void
+  +libererVehicule(id: int): void
+  +verifierDisponibilite(v: Vehicule): bool
+  +genererBonCommande(m: Mission): BonCommande
+  +marquerLogistiqueOK(m: Mission): void
+}
+
+class Administrateur <<core>> {
+  ..
+  +genererUtilisateurs(): void
+  +genererRolesPermissions(): void
+  +genererHotelConvention(): void
+  +genererParcVehicules(): void
+  +genererBudgets(): void
+  +consulterStatistiques(): Stats
+  +consulterAuditLog(): List<AuditLog>
+  +exporterRapports(): PDF
+}
+
+' ====== VALIDATION ======
+class Validation <<validation>> {
+  +id: int
+  +mission_id: int <<FK>>
+  +validateur_id: int <<FK>>
+  +ordre_validation: int
+  +statut: enum
+  +commentaire: text
+  +date_validation: datetime
+  ..
+  +approuver(): void
+  +refuser(motif: string): void
+  +demanderModification(comm: string): void
+}
+
+' ====== RESERVATIONS ======
+class Reservation <<reservation>> {
+  +id: int
+  +mission_id: int <<FK>>
+  +prestataire_id: int <<FK>>
+  +type: enum
+  +statut: enum
+  +montant_estime: decimal
+  +montant_reel: decimal
+  +notes: text
+  ..
+  +creer(): void
+  +confirmer(): void
+  +annuler(): void
+}
+
+class Billet <<reservation>> {
+  +id: int
+  +reservation_id: int <<FK>>
+  +compagnie: string
+  +numero_vol: string
+  +date_vol: date
+  +classe: string
+  +numero_billet: string
+  +prix: decimal
+  +statut: enum
+}
+
+class Hebergement <<reservation>> {
+  +id: int
+  +reservation_id: int <<FK>>
+  +nom_etablissement: string
+  +date_checkin: date
+  +date_checkout: date
+  +nombre_nuits: int
+  +prix_nuit: decimal
+  +prix_total: decimal
+  +statut: enum
+}
+
+class Restauration <<reservation>> {
+  +id: int
+  +reservation_id: int <<FK>>
+  +nom_restaurant: string
+  +date_repas: date
+  +type_repas: string
+  +prix_par_personne: decimal
+  +prix_total: decimal
+  +statut: enum
+}
+
+' ====== FINANCE ======
+class Budget <<finance>> {
+  +id: int
+  +direction: string
+  +annee: int
+  +trimestre: int
+  +type_depense: string
+  +montant_alloue: decimal
+  +montant_consomme: decimal
+  +alerte_seuil: int
+  ..
+  +allouer(): void
+  +consommer(montant: decimal): void
+  +alerter(): void
+}
+
+class Prestataire <<finance>> {
+  +id: int
+  +nom: string
+  +type: string
+  +email: string
+  +telephone: string
+  +ville: string
+  +type_repas: string
+  +prix_par_personne: decimal
+  +note_performance: decimal
+  +is_active: boolean
+  ..
+  +ajouter(): void
+  +modifier(): void
+  +evaluer(note: decimal): void
+}
+
+' ====== LOGISTIQUE ======
+class HotelConvention <<logistique>> {
+  +id: int
+  +nom: string
+  +ville: string
+  +wilaya: string
+  +telephone: string
+  +tarif_chambre_simple: decimal
+  +tarif_chambre_double: decimal
+  +statut: enum
+  ..
+  +ajouter(): void
+  +modifier(): void
+  +suspendre(): void
+}
+
+class Vehicule <<logistique>> {
+  +id: int
+  +marque: string
+  +modele: string
+  +immatriculation: string
+  +statut: enum
+  +capacite: int
+  ..
+  +ajouter(): void
+  +modifier(): void
+  +mettreEnMaintenance(): void
+  +verifierDisponibilite(): bool
+}
+
+class MissionTraitementDml <<logistique>> {
+  +mission_id: int <<FK>>
+  +agent_dml_id: int <<FK>>
+  +hotel_convention_id: int <<FK>>
+  +vehicule_id: int <<FK>>
+  +type_transport: string
+  +numero_bon: string
+  +statut: enum
+  +traite_le: datetime
+  ..
+  +affecterHotel(): void
+  +affecterVehicule(): void
+  +genererBon(): BonCommande
+  +marquerOK(): void
+}
+
+' ====== ASSOCIATION ======
+class Convention <<association>> {
+  +date_debut_convention: date
+  +date_fin_convention: date
+  +montant_total: decimal
+  +tarif_negocie: decimal
+  +conditions: text
+  ..
+  +generer(): void
+  +signer(): void
+}
+
+' ====== COMMUNICATION ======
+class Notification <<communication>> {
+  +id: int
+  +user_id: int <<FK>>
+  +titre: string
+  +message: text
+  +type: string
+  +is_read: boolean
+  ..
+  +envoyer(): void
+  +marquerLue(): void
+}
+
+' ====== SYSTEM ======
+class Document <<system>> {
+  +id: int
+  +mission_id: int <<FK>>
+  +nom_fichier: string
+  +chemin: string
+  +type_document: string
+  +taille: int
+  ..
+  +uploader(): void
+  +telecharger(): void
+}
+
+class AuditLog <<system>> {
+  +id: int
+  +user_id: int <<FK>>
+  +action: string
+  +module: string
+  +description: text
+  +ip_address: string
+  +created_at: datetime
+  ..
+  +ajouter(): void
+  +modifier(): void
+  +supprimer(): void
+}
+
+' ====== RELATIONS ======
+User <|-- Demandeur
+User <|-- Directeur
+User <|-- AgentDML
+User <|-- Administrateur
+User "1" --> "1" Role : possede >
+
+Demandeur "1" -- "0..*" Mission : cree >
+Administrateur "1" -- "0..*" Budget : gere >
+
+Mission "1" -- "0..*" Reservation : possede >
+Mission "1" -- "0..*" Validation : effectue >
+Mission "1" -- "0..*" Document : possede >
+Mission "1" -- "0..1" MissionTraitementDml : affecte >
+
+Reservation "1" -- "0..1" Billet
+Reservation "1" -- "0..1" Hebergement
+Reservation "1" -- "0..1" Restauration
+Reservation "0..*" -- "0..1" Prestataire : fourni par >
+
+Directeur "1" -- "0..*" Validation : valide >
+
+AgentDML "1" -- "0..*" MissionTraitementDml : traite par >
+
+MissionTraitementDml "0..*" -- "0..1" HotelConvention
+MissionTraitementDml "0..*" -- "0..1" Vehicule
+
+' Classe d'association Convention entre Mission et HotelConvention
+(Mission, HotelConvention) .. Convention
+
+User "1" -- "0..*" Notification : recoit >
+User "1" -- "0..*" AuditLog : genere >
+Mission "1" -- "0..*" Budget : impute sur >
+
+@enduml

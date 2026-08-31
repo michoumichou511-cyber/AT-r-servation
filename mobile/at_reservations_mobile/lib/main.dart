@@ -95,8 +95,8 @@ class _AppWithRouterState extends State<_AppWithRouter>
         theme: buildATTheme(),
         darkTheme: buildATThemeDark(),
         themeMode: themeProv.themeMode,
-        locale: prefs.locale,
-        supportedLocales: const [Locale('fr'), Locale('ar')],
+        locale: const Locale('fr'),
+        supportedLocales: const [Locale('fr')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

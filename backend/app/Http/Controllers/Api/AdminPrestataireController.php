@@ -248,8 +248,9 @@ class AdminPrestataireController extends Controller
 
         $request->validate([
             'nom' => 'required|string|max:255',
-            'type' => 'required|in:hotel,restaurant,compagnie_aerienne,transport,autre',
+            'type' => 'required|in:hotel,catering,compagnie_aerienne,agence_voyage',
             'ville' => 'required|string|max:255',
+            'pays' => 'nullable|string|max:255',
             'adresse' => 'nullable|string',
             'telephone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
@@ -257,7 +258,7 @@ class AdminPrestataireController extends Controller
             'note_performance' => 'nullable|numeric|min:0|max:5',
         ]);
 
-        $prestataire = Prestataire::create($request->all());
+        $prestataire = Prestataire::create($request->validated());
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -283,8 +284,9 @@ class AdminPrestataireController extends Controller
 
         $request->validate([
             'nom' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|in:hotel,restaurant,compagnie_aerienne,transport,autre',
+            'type' => 'sometimes|required|in:hotel,catering,compagnie_aerienne,agence_voyage',
             'ville' => 'sometimes|required|string|max:255',
+            'pays' => 'nullable|string|max:255',
             'adresse' => 'nullable|string',
             'telephone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
@@ -293,7 +295,7 @@ class AdminPrestataireController extends Controller
             'is_active' => 'sometimes|boolean',
         ]);
 
-        $prestataire->update($request->all());
+        $prestataire->update($request->validated());
 
         AuditLog::create([
             'user_id' => $user->id,

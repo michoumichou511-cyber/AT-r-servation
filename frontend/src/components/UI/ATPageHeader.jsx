@@ -14,20 +14,20 @@ export default function ATPageHeader({
     <motion.div
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className={`mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between ${className}`}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+      className={`mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${className}`}
     >
       <div>
-        <h1 className="at-gradient-title m-0 text-2xl font-bold tracking-tight sm:text-[28px]">
+        <h1 className="at-gradient-title m-0 text-2xl font-bold tracking-tight sm:text-[28px] leading-tight">
           {title}
           {emoji ? (
-            <span className="ml-1 inline-block" aria-hidden>
+            <span className="ml-1.5 inline-block" aria-hidden>
               {emoji}
             </span>
           ) : null}
         </h1>
         {subtitle ? (
-          <p className="mt-1 text-[13px] text-[#9AA0AE] dark:text-[#8B92A8]">
+          <p className="mt-1.5 text-[13px] text-[#5A6070] dark:text-[#9AA0AE] font-medium">
             {subtitle}
           </p>
         ) : null}

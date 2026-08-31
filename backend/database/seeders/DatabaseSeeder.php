@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
             MissionsSeeder::class,
             BudgetsSeeder::class,
             ATUsersSeeder::class,
+            PrestatairesSeeder::class,
+            HotelConventionSeeder::class,
+            VehiculeSeeder::class,
         ]);
     }
 }

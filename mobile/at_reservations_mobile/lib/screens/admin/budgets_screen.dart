@@ -89,8 +89,8 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 6,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, __) => Container(height: 90, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemBuilder: (_, _) => Container(height: 90, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
       ),
     );
   }
@@ -171,9 +171,9 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
               SliverFillRemaining(
                 child: Center(
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.account_balance_wallet_outlined, size: 64, color: ATColors.textSecondary.withValues(alpha: 0.4)),
+                    Icon(Icons.account_balance_wallet_outlined, size: 64, color: context.textSecondary.withValues(alpha: 0.4)),
                     const SizedBox(height: 12),
-                    const Text('Aucun budget disponible pour cette période', style: TextStyle(color: ATColors.textSecondary), textAlign: TextAlign.center),
+                    Text('Aucun budget disponible pour cette période', style: TextStyle(color: context.textSecondary), textAlign: TextAlign.center),
                   ]),
                 ),
               )
@@ -214,11 +214,11 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                           const SizedBox(height: 8),
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              const Text('Alloué', style: TextStyle(fontSize: 11, color: ATColors.textSecondary)),
+                              Text('Alloué', style: TextStyle(fontSize: 11, color: context.textSecondary)),
                               Text(_formatAmount(alloue), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                             ]),
                             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                              const Text('Consommé', style: TextStyle(fontSize: 11, color: ATColors.textSecondary)),
+                              Text('Consommé', style: TextStyle(fontSize: 11, color: context.textSecondary)),
                               Text(_formatAmount(consomme), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: color)),
                             ]),
                           ]),

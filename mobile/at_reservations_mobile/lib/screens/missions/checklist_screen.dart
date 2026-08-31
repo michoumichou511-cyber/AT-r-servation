@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../utils/haptics.dart';
 
 class ChecklistItem {
@@ -254,7 +254,7 @@ class _ChecklistTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 14),
                 Icon(item.icon, size: 20,
-                    color: item.checked ? DS.primary : DS.textMuted),
+                    color: item.checked ? DS.primary : context.textMuted),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -264,7 +264,7 @@ class _ChecklistTile extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: item.checked
                           ? DS.primary
-                          : dark ? Colors.white : DS.textPrimary,
+                          : context.textPrimary,
                       decoration: item.checked
                           ? TextDecoration.lineThrough
                           : null,

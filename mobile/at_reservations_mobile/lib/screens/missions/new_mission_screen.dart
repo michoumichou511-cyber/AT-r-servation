@@ -58,62 +58,75 @@ class _NewMissionScreenState extends State<NewMissionScreen> {
       'titre': _draft.objetMission.isNotEmpty ? _draft.objetMission : 'Mission',
       'objet_mission': _draft.objetMission,
       'type_mission': _draft.typeMission,
+      'transport_type': _draft.moyenTransport == 'vehicule_service' ? 'terrestre' : _draft.moyenTransport,
       'destination_ville': _draft.wilayaArrivee.isNotEmpty ? _draft.wilayaArrivee : (_draft.villeArrivee.isNotEmpty ? _draft.villeArrivee : 'Non précisé'),
       'destination_pays': 'Algérie',
+      'ville_depart': _draft.villeDepart.isNotEmpty ? _draft.villeDepart : (_draft.wilayaDepart.isNotEmpty ? _draft.wilayaDepart : null),
       'date_depart': _fmtDate(_draft.dateDepart),
       'date_retour': _fmtDate(_draft.dateRetour),
-      'description': _draft.commentaire,
+      'budget_mode': _draft.budgetMode,
+      'demande_avance': _draft.demandeAvance,
+      if (_draft.demandeAvance && _draft.montantAvance != null)
+        'montant_avance': _draft.montantAvance,
+      'description': _draft.description.isNotEmpty ? _draft.description : _draft.commentaire,
+      if (_draft.priorite != 'normale') 'priorite': _draft.priorite,
     };
     if (statut != null) body['statut'] = statut;
     return body;
   }
 
+  int? _createdMissionId;
+
   // ── Flux complet : mission → réservations → documents → submit ──────────
   Future<void> _submitMission({bool asDraft = false}) async {
-    if (_submitted && !asDraft) return;   // anti-double-submit
-    if (!asDraft) _submitted = true;
+    if (_isLoading) return;
+    if (_submitted && !asDraft) return;
     setState(() => _isLoading = true);
     try {
-      // 1. Créer la mission en brouillon (toujours, même si on soumet ensuite)
-      final body = _buildBody(statut: 'brouillon');
-      final created = await ApiService().post('/missions', body);
-      final missionId = (created['data']?['id']
-          ?? created['id']
-          ?? created['data']?['mission']?['id']) as int?;
-
-      if (missionId == null) throw Exception('ID mission introuvable');
-
-      // 2. Créer les réservations demandées
       final api = ApiService();
-      if (_draft.hebergementRequis) {
-        await api.post('/missions/$missionId/reservations', {
-          'type': 'hebergement',
-          if (_draft.nomHotel?.isNotEmpty == true)
-            'notes': _draft.nomHotel,
-          'montant_estime': 0,
-        });
-      }
-      if (_draft.restaurationRequise) {
-        await api.post('/missions/$missionId/reservations', {
-          'type': 'restauration',
-          'notes': '${_draft.nombreRepas} repas/jour'
-              '${_draft.budgetRestauration != null ? " — budget ${_draft.budgetRestauration} DZD" : ""}',
-          'montant_estime': _draft.budgetRestauration ?? 0,
-        });
-      }
-      if (_draft.billetRequis) {
-        await api.post('/missions/$missionId/reservations', {
-          'type': 'billet',
-          'notes': [
-            if (_draft.compagnie?.isNotEmpty == true) _draft.compagnie,
-            if (_draft.numeroBillet?.isNotEmpty == true) 'N° ${_draft.numeroBillet}',
-          ].join(' — '),
-          'montant_estime': 0,
-        });
+      int missionId;
+
+      if (_createdMissionId != null) {
+        missionId = _createdMissionId!;
+      } else {
+        final body = _buildBody(statut: 'brouillon');
+        final created = await api.post('/missions', body);
+        missionId = (created['data']?['id']
+            ?? created['id']
+            ?? created['data']?['mission']?['id']) as int?
+            ?? (throw Exception('ID mission introuvable'));
+        _createdMissionId = missionId;
+
+        if (_draft.hebergementRequis) {
+          await api.post('/missions/$missionId/reservations', {
+            'type': 'hebergement',
+            if (_draft.nomHotel?.isNotEmpty == true)
+              'notes': _draft.nomHotel,
+            'montant_estime': 0,
+          });
+        }
+        if (_draft.restaurationRequise) {
+          await api.post('/missions/$missionId/reservations', {
+            'type': 'restauration',
+            'notes': '${_draft.nombreRepas} repas/jour'
+                '${_draft.budgetRestauration != null ? " — budget ${_draft.budgetRestauration} DZD" : ""}',
+            'montant_estime': _draft.budgetRestauration ?? 0,
+          });
+        }
+        if (_draft.billetRequis) {
+          await api.post('/missions/$missionId/reservations', {
+            'type': 'billet',
+            'notes': [
+              if (_draft.compagnie?.isNotEmpty == true) _draft.compagnie,
+              if (_draft.numeroBillet?.isNotEmpty == true) 'N° ${_draft.numeroBillet}',
+            ].join(' — '),
+            'montant_estime': 0,
+          });
+        }
       }
 
-      // 3. Uploader les documents (multipart)
       for (final doc in _draft.documents) {
+        if (doc['_uploaded'] == true) continue;
         final bytes = doc['bytes'] as List<int>?;
         if (bytes == null || bytes.isEmpty) continue;
         await api.postMultipart(
@@ -123,11 +136,12 @@ class _NewMissionScreenState extends State<NewMissionScreen> {
           fileName: doc['name'] as String,
           fileField: 'fichier',
         );
+        doc['_uploaded'] = true;
       }
 
-      // 4. Soumettre si pas brouillon
       if (!asDraft) {
         await api.post('/missions/$missionId/submit');
+        _submitted = true;
       }
 
       if (!mounted) return;
@@ -158,7 +172,7 @@ class _NewMissionScreenState extends State<NewMissionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
         backgroundColor: ATColors.secondary,
         foregroundColor: Colors.white,

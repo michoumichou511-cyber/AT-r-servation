@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../services/api_service.dart';
 
 class GeolocationScreen extends StatefulWidget {
@@ -121,7 +121,7 @@ class _GeolocationScreenState extends State<GeolocationScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: dark ? Colors.white : DS.textPrimary,
+                  color: context.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(duration: 400.ms),
@@ -137,7 +137,7 @@ class _GeolocationScreenState extends State<GeolocationScreen> {
                       child: Text(
                         _address!,
                         style: GoogleFonts.inter(
-                          fontSize: 13, color: DS.textMuted),
+                          fontSize: 13, color: context.textMuted),
                         textAlign: TextAlign.center,
                       ),
                     ),

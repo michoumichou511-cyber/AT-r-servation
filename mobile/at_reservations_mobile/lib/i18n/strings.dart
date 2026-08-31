@@ -1,5 +1,6 @@
 /// Traductions FR/AR minimales pour l'app AT Reservations.
 /// Usage : t(context, 'home') -> 'Accueil' ou 'الرئيسية' selon la locale.
+library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_preferences.dart';

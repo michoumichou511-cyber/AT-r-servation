@@ -30,7 +30,7 @@ if (is_string($fromEnv) && $fromEnv !== '') {
 
 return [
     'paths' => ['api/*'],
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     'allowed_origins' => array_values(array_unique(array_merge(
         $localOrigins,
         $extraOrigins,

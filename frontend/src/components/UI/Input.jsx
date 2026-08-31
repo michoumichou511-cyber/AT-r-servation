@@ -29,7 +29,7 @@ export default function Input({
     <div className={`relative ${className}`}>
       <div className="relative">
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" aria-hidden>
+          <div className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors duration-200 ${focused ? 'text-[#00A650]' : 'text-[#9AA0AE]'}`} aria-hidden>
             <Icon size={16} />
           </div>
         )}
@@ -45,17 +45,17 @@ export default function Input({
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={errorMessage ? errorId : undefined}
           className={[
-            'w-full px-3 pt-5 pb-2 rounded-lg border text-sm text-gray-800 bg-white',
+            'w-full px-3 pt-5 pb-2 rounded-xl border-2 text-sm text-[#1A1D26] bg-white',
             'transition-all duration-200 outline-none peer',
-            'focus-visible:ring-2 focus-visible:ring-at-green/35 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
-            'dark:bg-gray-800 dark:text-white',
+            'focus-visible:ring-2 focus-visible:ring-at-green/30 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#141727]',
+            'dark:bg-[#1E2235] dark:text-white',
             Icon ? 'pl-9' : '',
             error
-              ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
+              ? 'border-red-400 focus:border-red-500'
               : success
-              ? 'border-at-green/60 focus:border-at-green focus:ring-1 focus:ring-at-green/30'
-              : 'border-gray-200 focus:border-at-green focus:ring-1 focus:ring-at-green/30',
-            disabled ? 'bg-gray-50 cursor-not-allowed opacity-70' : '',
+              ? 'border-[#00A650]/60 focus:border-[#00A650]'
+              : 'border-[#EAECF0] dark:border-[#2A2D3E] focus:border-[#00A650]',
+            disabled ? 'bg-[#F8FAFB] dark:bg-[#252840] cursor-not-allowed opacity-70' : '',
           ].join(' ')}
           {...props}
         />
@@ -74,11 +74,11 @@ export default function Input({
               'absolute left-3 transition-all duration-200 pointer-events-none',
               Icon ? 'left-9' : 'left-3',
               floatLabel
-                ? 'top-1.5 text-[10px] font-semibold'
-                : 'top-1/2 -translate-y-1/2 text-sm text-gray-400',
+                ? 'top-1.5 text-[10px] font-semibold tracking-wide'
+                : 'top-1/2 -translate-y-1/2 text-sm text-[#9AA0AE]',
               error
-                ? (floatLabel ? 'text-red-500' : 'text-gray-400')
-                : (floatLabel ? 'text-at-green' : 'text-gray-400'),
+                ? (floatLabel ? 'text-red-500' : 'text-[#9AA0AE]')
+                : (floatLabel ? 'text-[#00A650]' : 'text-[#9AA0AE]'),
             ].join(' ')}
           >
             {label}{required && ' *'}

@@ -1,0 +1,85 @@
+@startuml
+left to right direction
+skinparam dpi 300
+skinparam usecaseFontSize 14
+skinparam actorFontSize 15
+
+actor "Administrateur" as A
+
+rectangle "Espace Administrateur" {
+  usecase "S'authentifier" as UC_AUTH
+  usecase "Consulter toutes\nles demandes" as UC_DEMANDES
+  usecase "Tableau de\nbord global" as UC_DASH
+  usecase "Exporter rapports\n(PDF / Excel)" as UC_EXPORT
+  usecase "Consulter le\njournal d'audit" as UC_AUDIT
+  usecase "Envoyer des\nmessages internes" as UC_MSG
+  usecase "Consulter\nstatistiques" as UC_STATS
+  usecase "Recevoir\nnotifications" as UC_NOTIF
+
+  usecase "Gerer les\nutilisateurs" as UC_USERS
+  usecase "Creer\n(utilisateur)" as UC_UCREATE
+  usecase "Modifier\n(utilisateur)" as UC_UMODIF
+  usecase "Activer /\nDesactiver" as UC_TOGGLE
+
+  usecase "Gerer les roles\net permissions" as UC_ROLES
+  usecase "Ajouter\n(role)" as UC_RADD
+  usecase "Modifier\n(role)" as UC_RMODIF
+  usecase "Supprimer\n(role)" as UC_RDEL
+
+  usecase "Gerer les hotels\nen convention" as UC_HOTEL
+  usecase "Creer (hotel)" as UC_HCREATE
+  usecase "Modifier\n(hotel)" as UC_HMODIF
+  usecase "Suspendre" as UC_HSUSP
+
+  usecase "Gerer le parc\nvehicules" as UC_VEH
+  usecase "Ajouter\n(vehicule)" as UC_VADD
+  usecase "Modifier\n(vehicule)" as UC_VMODIF
+  usecase "Mettre en\nmaintenance" as UC_VMAINT
+
+  usecase "Gerer les budgets\npar direction" as UC_BUDGET
+  usecase "Simulateur\nde budget" as UC_SIMUL
+  usecase "Gerer les\nprestataires" as UC_PRESTA
+  usecase "Dashboard\nexecutif" as UC_EXEC
+}
+
+A --> UC_DEMANDES
+A --> UC_DASH
+A --> UC_EXPORT
+A --> UC_AUDIT
+A --> UC_MSG
+A --> UC_STATS
+A --> UC_NOTIF
+A --> UC_USERS
+A --> UC_ROLES
+A --> UC_HOTEL
+A --> UC_VEH
+A --> UC_BUDGET
+A --> UC_SIMUL
+A --> UC_PRESTA
+A --> UC_EXEC
+
+UC_USERS <.. UC_UCREATE : <<extend>>
+UC_USERS <.. UC_UMODIF : <<extend>>
+UC_USERS <.. UC_TOGGLE : <<extend>>
+
+UC_ROLES <.. UC_RADD : <<extend>>
+UC_ROLES <.. UC_RMODIF : <<extend>>
+UC_ROLES <.. UC_RDEL : <<extend>>
+
+UC_HOTEL <.. UC_HCREATE : <<extend>>
+UC_HOTEL <.. UC_HMODIF : <<extend>>
+UC_HOTEL <.. UC_HSUSP : <<extend>>
+
+UC_VEH <.. UC_VADD : <<extend>>
+UC_VEH <.. UC_VMODIF : <<extend>>
+UC_VEH <.. UC_VMAINT : <<extend>>
+
+UC_DEMANDES ..> UC_AUTH : <<include>>
+UC_DASH ..> UC_AUTH : <<include>>
+UC_USERS ..> UC_AUTH : <<include>>
+UC_ROLES ..> UC_AUTH : <<include>>
+UC_HOTEL ..> UC_AUTH : <<include>>
+UC_VEH ..> UC_AUTH : <<include>>
+UC_BUDGET ..> UC_AUTH : <<include>>
+
+@enduml

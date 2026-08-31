@@ -1,14 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, FileText, CheckSquare, MessageCircle,
   Bell, User, Users, Building2, Wallet, ClipboardList,
   BarChart3, FileBarChart, LogOut, ChevronDown,
-  X, Search, CalendarDays, Info,
+  X, CalendarDays,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { messagesAPI, notificationsAPI, searchAPI } from '../../services/api'
+import { messagesAPI, notificationsAPI } from '../../services/api'
 import { usePolling } from '../../hooks/usePolling'
 import './Sidebar.css'
 
@@ -17,6 +17,7 @@ const roleCouleurs = {
   validateur: 'bg-gradient-to-br from-blue-500 to-blue-700',
   utilisateur: 'bg-gradient-to-br from-green-500 to-emerald-700',
   demandeur: 'bg-gradient-to-br from-orange-500 to-amber-700',
+  agent_dml: 'bg-gradient-to-br from-[#003DA5] to-[#00A650]',
 }
 
 const roleBadgeClass = {
@@ -81,117 +82,6 @@ function NavItem({
   )
 }
 
-const CATEGORY_META = {
-  mission:     { label: 'Missions',      icon: FileText, color: '#00A650', route: (r) => `/missions/${r.id}` },
-  prestataire: { label: 'Prestataires',  icon: Building2, color: '#003DA5', route: () => '/admin/prestataires' },
-  user:        { label: 'Utilisateurs',  icon: Users, color: '#8B5CF6', route: () => '/admin/utilisateurs' },
-}
-
-function SidebarSearch({ darkMode, onNavigate }) {
-  const navigate = useNavigate()
-  const wrapRef = useRef(null)
-  const debounceRef = useRef(null)
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState([])
-  const [open, setOpen] = useState(false)
-
-  const doSearch = useCallback((q) => {
-    setQuery(q)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (q.trim().length < 2) { setResults([]); setOpen(false); return }
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const res = await searchAPI.global(q)
-        const data = res.data?.data ?? res.data ?? []
-        setResults(Array.isArray(data) ? data : [])
-        setOpen(true)
-      } catch { setResults([]) }
-    }, 300)
-  }, [])
-
-  useEffect(() => {
-    const onClickOut = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
-    const onEsc = (e) => { if (e.key === 'Escape') setOpen(false) }
-    document.addEventListener('mousedown', onClickOut)
-    document.addEventListener('keydown', onEsc)
-    return () => { document.removeEventListener('mousedown', onClickOut); document.removeEventListener('keydown', onEsc) }
-  }, [])
-
-  const grouped = {}
-  for (const r of results) {
-    const cat = r.type ?? 'mission'
-    if (!grouped[cat]) grouped[cat] = []
-    if (grouped[cat].length < 5) grouped[cat].push(r)
-  }
-
-  return (
-    <div ref={wrapRef} className="relative px-3 mb-2">
-      <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-        darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'
-      }`}>
-        <Search size={14} className="shrink-0 opacity-60" />
-        <input
-          type="text"
-          placeholder="Rechercher..."
-          value={query}
-          onChange={(e) => doSearch(e.target.value)}
-          className="bg-transparent outline-none w-full placeholder-current/50"
-        />
-        {query && (
-          <button type="button" onClick={() => { setQuery(''); setResults([]); setOpen(false) }}>
-            <X size={14} className="opacity-60 hover:opacity-100" />
-          </button>
-        )}
-      </div>
-
-      <AnimatePresence>
-        {open && Object.keys(grouped).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className={`absolute left-3 right-3 top-full mt-1 rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto py-1 ${
-              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-            }`}
-          >
-            {Object.entries(grouped).map(([cat, items]) => {
-              const meta = CATEGORY_META[cat] || CATEGORY_META.mission
-              const CatIcon = meta.icon
-              return (
-                <div key={cat}>
-                  <div className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider ${
-                    darkMode ? 'text-gray-500' : 'text-gray-400'
-                  }`}>
-                    {meta.label}
-                  </div>
-                  {items.map((r, i) => (
-                    <button
-                      key={`${cat}-${r.id ?? i}`}
-                      type="button"
-                      onClick={() => {
-                        navigate(meta.route(r))
-                        setOpen(false); setQuery(''); setResults([])
-                        onNavigate?.()
-                      }}
-                      className={`flex items-center gap-2.5 w-full px-3 py-2 text-left text-sm transition-colors ${
-                        darkMode ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <CatIcon size={14} style={{ color: meta.color }} />
-                      <span className="truncate">{r.titre ?? r.nom ?? r.name ?? '—'}</span>
-                    </button>
-                  ))}
-                </div>
-              )
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
 export default function Sidebar({ onClose }) {
   const { user, hasRole, logout, darkMode } = useAuth()
   const navigate = useNavigate()
@@ -215,7 +105,7 @@ export default function Sidebar({ onClose }) {
     } catch {
       /* ignore */
     }
-  }, 60000, !!user)
+  }, 20000, !!user)
 
   usePolling(async () => {
     try {
@@ -233,6 +123,7 @@ export default function Sidebar({ onClose }) {
 
   const isAdmin = hasRole('admin')
   const isValidateur = hasRole('validateur', 'admin')
+  const isAgentDml = hasRole('agent_dml')
 
   return (
     <aside
@@ -299,15 +190,56 @@ export default function Sidebar({ onClose }) {
                 {user.prenom} {user.nom}
               </div>
               <span className={`sb-profile-badge ${badgeModifier}`}>
-                {role}
+                {role === 'agent_dml' ? 'Agent DML' : role}
               </span>
             </div>
           </div>
         )}
 
-        <SidebarSearch darkMode={darkMode} onNavigate={onClose} />
-
         <nav className="sb-nav">
+          {isAgentDml ? (
+            <>
+              <NavItem
+                to="/dml"
+                icon={LayoutDashboard}
+                label="Espace DML"
+                end
+                onClick={onClose}
+                animDelay={0.1}
+              />
+              <NavItem
+                to="/dml/missions"
+                icon={FileText}
+                label="Missions"
+                onClick={onClose}
+                animDelay={0.12}
+              />
+              <NavItem
+                to="/messagerie"
+                icon={MessageCircle}
+                label="Messagerie"
+                badge={msgCount}
+                onClick={onClose}
+                animDelay={0.14}
+              />
+              <NavItem
+                to="/notifications"
+                icon={Bell}
+                label="Notifications"
+                badge={notifCount}
+                onClick={onClose}
+                animDelay={0.18}
+              />
+              <NavItem
+                to="/profil"
+                icon={User}
+                label="Mon profil"
+                onClick={onClose}
+                animDelay={0.22}
+              />
+            </>
+          ) : (
+          <>
           <NavItem
             to="/"
             icon={LayoutDashboard}
@@ -316,27 +248,24 @@ export default function Sidebar({ onClose }) {
             onClick={onClose}
             animDelay={0.1}
           />
-          <NavItem
-            to="/organigramme"
-            icon={ClipboardList}
-            label="Organigramme"
-            onClick={onClose}
-            animDelay={0.12}
-          />
-          <NavItem
-            to="/missions"
-            icon={FileText}
-            label="Mes missions"
-            onClick={onClose}
-            animDelay={0.14}
-          />
-          <NavItem
-            to="/missions/calendrier"
-            icon={CalendarDays}
-            label="Calendrier"
-            onClick={onClose}
-            animDelay={0.16}
-          />
+          {!isAdmin && (
+            <NavItem
+              to="/missions"
+              icon={FileText}
+              label="Mes missions"
+              onClick={onClose}
+              animDelay={0.14}
+            />
+          )}
+          {!isAdmin && (
+            <NavItem
+              to="/missions/calendrier"
+              icon={CalendarDays}
+              label="Calendrier"
+              onClick={onClose}
+              animDelay={0.16}
+            />
+          )}
 
           {isValidateur && (
             <NavItem
@@ -371,14 +300,6 @@ export default function Sidebar({ onClose }) {
             onClick={onClose}
             animDelay={0.3}
           />
-          <NavItem
-            to="/about"
-            icon={Info}
-            label="A propos"
-            onClick={onClose}
-            animDelay={0.32}
-          />
-
           {(isValidateur || isAdmin) && (
             <NavItem
               to="/rapports"
@@ -447,28 +368,23 @@ export default function Sidebar({ onClose }) {
                       onClick={onClose}
                       animDelay={0.54}
                     />
-                    <NavItem
-                      to="/admin/dashboard-executif"
-                      icon={BarChart3}
-                      label="Dashboard DSI"
-                      onClick={onClose}
-                      animDelay={0.58}
-                    />
-                    <NavItem
-                      to="/admin/simulateur-budget"
-                      icon={Wallet}
-                      label="Simulateur Budget"
-                      onClick={onClose}
-                      animDelay={0.62}
-                    />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           )}
+          </>
+          )}
         </nav>
 
         <div className="sb-logout-wrap">
+          <NavLink
+            to="/about"
+            onClick={onClose}
+            className="block text-center text-[10px] text-[#9AA0AE]/60 hover:text-[#5A6070] dark:text-[#9AA0AE]/40 dark:hover:text-[#9AA0AE] py-0.5 transition-colors"
+          >
+            À propos
+          </NavLink>
           <button
             type="button"
             onClick={(e) => {

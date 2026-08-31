@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/user.dart';
-import '../services/api_service.dart';
+import '../services/api_service.dart' show ApiService, ApiException;
 import '../services/auth_service.dart';
 import '../services/presence_service.dart';
 
@@ -42,10 +42,18 @@ class AuthProvider extends ChangeNotifier {
           _token = null;
         }
       }
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        await _auth.clear();
+        _token = null;
+        _user  = null;
+      } else {
+        final saved = await _auth.getSavedUser();
+        if (saved != null) _user = saved;
+      }
     } catch (_) {
-      await _auth.clear();
-      _token = null;
-      _user  = null;
+      final saved = await _auth.getSavedUser();
+      if (saved != null) _user = saved;
     } finally {
       _loading = false;
       notifyListeners();
@@ -82,15 +90,30 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _loading = true;          // bloque le redirect GoRouter pendant le logout
+    _loading = true;
     notifyListeners();
     await PresenceService().stopHeartbeat();
-    try { await _api.post('/auth/logout'); } catch (_) {}
+    try {
+      await _api.post('/auth/logout');
+    } catch (_) {}
     _token = null;
     _user  = null;
     await _auth.clear();
     _loading = false;
-    notifyListeners();        // GoRouter redirige maintenant vers /login
+    notifyListeners();
+  }
+
+  Future<void> refreshUser() async {
+    try {
+      final res  = await _api.get('/auth/me');
+      final data = res['data'] as Map<String, dynamic>?;
+      final uMap = data?['user'] as Map<String, dynamic>? ?? data;
+      if (uMap != null) {
+        _user = UserModel.fromJson(uMap);
+        await _auth.saveUser(_user!);
+        notifyListeners();
+      }
+    } catch (_) {}
   }
 
   void _onSessionExpired() {

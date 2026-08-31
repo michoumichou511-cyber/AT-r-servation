@@ -137,7 +137,7 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -203,6 +203,7 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: context.cardBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -220,12 +221,13 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
             ),
             const SizedBox(height: 12),
             Text(node.displayName,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w700)),
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w700,
+                    color: context.textPrimary)),
             const SizedBox(height: 4),
             Text(node.poste,
-                style: const TextStyle(
-                    color: ATColors.textSecondary, fontSize: 14)),
+                style: TextStyle(
+                    color: context.textSecondary, fontSize: 14)),
             const SizedBox(height: 8),
             if (node.direction.isNotEmpty)
               Container(
@@ -253,8 +255,8 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: context.shimmerBase,
+      highlightColor: context.shimmerHighlight,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -290,7 +292,7 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
         width: w,
         height: h,
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(10)),
+            color: context.cardBg, borderRadius: BorderRadius.circular(10)),
       );
 
   Widget _buildEmptyState() {
@@ -300,19 +302,19 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
         children: [
           Icon(Icons.account_tree_outlined,
               size: 80,
-              color: ATColors.textSecondary.withValues(alpha: 0.35)),
+              color: context.textSecondary.withValues(alpha: 0.35)),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Organigramme non disponible',
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: ATColors.textSecondary),
+                color: context.textSecondary),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Aucune donnée d\'organigramme n\'a été trouvée.',
-            style: TextStyle(color: ATColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: context.textSecondary, fontSize: 13),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -334,8 +336,8 @@ class _OrganigrammeScreenState extends State<OrganigrammeScreen> {
           const Icon(Icons.cloud_off_outlined,
               size: 64, color: ATColors.error),
           const SizedBox(height: 16),
-          const Text('Impossible de charger l\'organigramme.',
-              style: TextStyle(color: ATColors.textSecondary)),
+          Text('Impossible de charger l\'organigramme.',
+              style: TextStyle(color: context.textSecondary)),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _load,
@@ -385,11 +387,11 @@ class _OrgNodeWidget extends StatelessWidget {
         width: 140,
         height: 80,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: context.shadowColor,
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -420,18 +422,18 @@ class _OrgNodeWidget extends StatelessWidget {
                   children: [
                     Text(
                       node.displayName,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: ATColors.textPrimary),
+                          color: context.textPrimary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       node.poste,
-                      style: const TextStyle(
-                          fontSize: 10, color: ATColors.textSecondary),
+                      style: TextStyle(
+                          fontSize: 10, color: context.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -464,7 +466,7 @@ class _OrgTreeWidget extends StatelessWidget {
           // Ligne verticale vers le bas
           CustomPaint(
             size: const Size(2, 20),
-            painter: _VerticalLinePainter(),
+            painter: _VerticalLinePainter(lineColor: context.textSecondary.withValues(alpha: 0.4)),
           ),
           // Ligne horizontale + sous-arbres
           _ChildrenRow(children: node.children, onTap: onTap),
@@ -486,7 +488,7 @@ class _ChildrenRow extends StatelessWidget {
       return _OrgTreeWidget(node: children.first, onTap: onTap);
     }
     return CustomPaint(
-      painter: _HorizontalBridgePainter(count: children.length),
+      painter: _HorizontalBridgePainter(count: children.length, lineColor: context.textSecondary.withValues(alpha: 0.4)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,7 +500,7 @@ class _ChildrenRow extends StatelessWidget {
               children: [
                 CustomPaint(
                   size: const Size(2, 20),
-                  painter: _VerticalLinePainter(),
+                  painter: _VerticalLinePainter(lineColor: context.textSecondary.withValues(alpha: 0.4)),
                 ),
                 _OrgTreeWidget(node: child, onTap: onTap),
               ],
@@ -511,10 +513,13 @@ class _ChildrenRow extends StatelessWidget {
 }
 
 class _VerticalLinePainter extends CustomPainter {
+  final Color lineColor;
+  const _VerticalLinePainter({required this.lineColor});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = ATColors.textSecondary.withValues(alpha: 0.4)
+      ..color = lineColor
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     canvas.drawLine(
@@ -527,13 +532,14 @@ class _VerticalLinePainter extends CustomPainter {
 
 class _HorizontalBridgePainter extends CustomPainter {
   final int count;
-  const _HorizontalBridgePainter({required this.count});
+  final Color lineColor;
+  const _HorizontalBridgePainter({required this.count, required this.lineColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (count < 2) return;
     final paint = Paint()
-      ..color = ATColors.textSecondary.withValues(alpha: 0.4)
+      ..color = lineColor
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     // Horizontal line connecting children at top

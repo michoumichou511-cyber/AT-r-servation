@@ -69,8 +69,8 @@ export default function DashboardExecutif() {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       months.push({
         mois: d.toLocaleDateString('fr-FR', { month: 'short' }),
-        soumises: Math.floor(Math.random() * 20) + 5,
-        approuvees: Math.floor(Math.random() * 15) + 3,
+        soumises: 0,
+        approuvees: 0,
       })
     }
     return months

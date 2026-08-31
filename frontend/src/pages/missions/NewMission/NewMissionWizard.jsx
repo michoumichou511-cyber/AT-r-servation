@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Stepper } from '../../../components/UI'
 import PageHeader from '../../../components/Common/PageHeader'
@@ -25,6 +25,7 @@ export default function NewMissionWizard() {
   const [missionDraft, setMissionDraft] = useState({})
   const [step1Loading, setStep1Loading] = useState(false)
   const [step1Error, setStep1Error] = useState('')
+  const creatingRef = useRef(false)
 
   const next = useCallback(() => {
     setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1))
@@ -49,6 +50,8 @@ export default function NewMissionWizard() {
         if (cleaned.priorite === '') delete cleaned.priorite
 
         if (!missionId) {
+          if (creatingRef.current) return
+          creatingRef.current = true
           const res = await missionsAPI.create(cleaned)
           const data = res?.data?.data ?? res?.data ?? null
           const id = data?.id ?? data?.mission?.id ?? null
@@ -107,7 +110,7 @@ export default function NewMissionWizard() {
               />
             )}
             {currentStep === 1 && (
-              <Step2Reservations missionId={missionId} onNext={next} onPrev={prev} />
+              <Step2Reservations missionId={missionId} transportType={missionDraft.transport_type} destinationVille={missionDraft.destination_ville} onNext={next} onPrev={prev} />
             )}
             {currentStep === 2 && (
               <Step3Documents missionId={missionId} onNext={next} onPrev={prev} />

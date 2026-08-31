@@ -1,0 +1,487 @@
+- generic [ref=f9e7]:
+  - link "Aller au contenu principal" [ref=f9e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f9e10]:
+    - generic [ref=f9e11]:
+      - generic [ref=f9e13]:
+        - img "Algérie Télécom" [ref=f9e15]
+        - generic [ref=f9e16]:
+          - generic [ref=f9e17]: Réservations AT
+          - generic [ref=f9e18]: Algérie Télécom
+      - generic [ref=f9e19]:
+        - generic [ref=f9e20]: AS
+        - generic [ref=f9e21]:
+          - generic [ref=f9e22]: Admin Système
+          - generic [ref=f9e23]: admin
+      - textbox "Rechercher..." [ref=f9e29]
+      - navigation [ref=f9e30]:
+        - link "Tableau de bord" [ref=f9e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f9e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f9e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f9e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f9e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f9e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f9e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f9e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f9e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f9e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f9e80]:
+          - button "Administration" [ref=f9e81] [cursor=pointer]
+          - generic [ref=f9e85]:
+            - link "Utilisateurs" [ref=f9e86] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f9e93] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f9e99] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f9e104] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f9e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f9e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f9e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f9e124] [cursor=pointer]
+  - generic [ref=f9e129]:
+    - banner [ref=f9e130]:
+      - heading "Audit Logs" [level=1] [ref=f9e132]
+      - generic [ref=f9e133]:
+        - textbox "Rechercher..." [ref=f9e139]
+        - button [ref=f9e140] [cursor=pointer]
+        - button [ref=f9e143] [cursor=pointer]
+        - button "AS Admin" [ref=f9e148] [cursor=pointer]:
+          - generic [ref=f9e149]: AS
+          - generic [ref=f9e150]: Admin
+    - main [ref=f9e151]:
+      - generic [ref=f9e153]:
+        - generic [ref=f9e154]:
+          - button "← Retour" [ref=f9e155] [cursor=pointer]
+          - generic [ref=f9e156]:
+            - generic [ref=f9e157]:
+              - heading "Audit Logs" [level=1] [ref=f9e158]
+              - paragraph [ref=f9e159]: Journal des actions
+            - generic [ref=f9e161]:
+              - button "CSV" [ref=f9e162] [cursor=pointer]
+              - button "Reset" [ref=f9e166] [cursor=pointer]
+        - generic [ref=f9e170]:
+          - generic [ref=f9e171]:
+            - generic [ref=f9e172]:
+              - generic [ref=f9e173]: Module
+              - combobox [ref=f9e174]:
+                - option "Tous" [selected]
+                - option "Mission"
+                - option "Réservation"
+                - option "Validation"
+                - option "Utilisateur"
+                - option "Budget"
+            - generic [ref=f9e175]:
+              - generic [ref=f9e176]: Action
+              - combobox [ref=f9e177]:
+                - option "Toutes" [selected]
+                - option "login"
+                - option "create"
+                - option "update"
+                - option "delete"
+                - option "approve"
+                - option "reject"
+                - option "export"
+            - generic [ref=f9e178]:
+              - generic [ref=f9e179]: Utilisateur
+              - combobox [ref=f9e180]:
+                - option "Tous" [selected]
+                - option "Admin Système"
+                - option "Agent DML"
+                - option "Demandeur Test"
+                - option "Validateur Test"
+            - generic [ref=f9e181]:
+              - generic [ref=f9e182]: Date debut
+              - textbox [ref=f9e183]
+            - generic [ref=f9e184]:
+              - generic [ref=f9e185]: Date fin
+              - textbox [ref=f9e186]
+          - generic [ref=f9e187]:
+            - generic [ref=f9e188]:
+              - generic [ref=f9e189]: "Par page :"
+              - combobox [ref=f9e190]:
+                - option "10"
+                - option "25" [selected]
+                - option "50"
+                - option "100"
+            - generic [ref=f9e191]:
+              - button "Recharger" [ref=f9e192] [cursor=pointer]
+              - button "Appliquer" [ref=f9e196] [cursor=pointer]
+        - table [ref=f9e202]:
+          - rowgroup [ref=f9e203]:
+            - row [ref=f9e204]:
+              - columnheader "Date/Heure" [ref=f9e205]
+              - columnheader "Utilisateur" [ref=f9e206]
+              - columnheader "Action" [ref=f9e207]
+              - columnheader "Module" [ref=f9e208]
+              - columnheader "Description" [ref=f9e209]
+              - columnheader "IP" [ref=f9e210]
+          - rowgroup [ref=f9e211]:
+            - row [ref=f9e212]:
+              - cell "10/08/2026 15:51" [ref=f9e213]
+              - cell "Demandeur Test" [ref=f9e214]
+              - cell "login" [ref=f9e220]
+              - cell "user" [ref=f9e222]
+              - cell "Déconnexion" [ref=f9e223]
+              - cell "127.0.0.1" [ref=f9e225]
+            - row [ref=f9e226]:
+              - cell "10/08/2026 15:44" [ref=f9e227]
+              - cell "Validateur Test" [ref=f9e228]
+              - cell "login" [ref=f9e234]
+              - cell "user" [ref=f9e236]
+              - cell "Déconnexion" [ref=f9e237]
+              - cell "127.0.0.1" [ref=f9e239]
+            - row [ref=f9e240]:
+              - cell "10/08/2026 15:34" [ref=f9e241]
+              - cell "Admin Système" [ref=f9e242]
+              - cell "login" [ref=f9e248]
+              - cell "user" [ref=f9e250]
+              - cell "Déconnexion" [ref=f9e251]
+              - cell "127.0.0.1" [ref=f9e253]
+            - row [ref=f9e254]:
+              - cell "05/08/2026 12:07" [ref=f9e255]
+              - cell "Admin Système" [ref=f9e256]
+              - cell "create" [ref=f9e262]
+              - cell "budget" [ref=f9e264]
+              - cell "Budget créé pour Ressources Humaines - Formation (2026)" [ref=f9e265]
+              - cell "127.0.0.1" [ref=f9e267]
+            - row [ref=f9e268]:
+              - cell "05/08/2026 12:07" [ref=f9e269]
+              - cell "Admin Système" [ref=f9e270]
+              - cell "create" [ref=f9e276]
+              - cell "budget" [ref=f9e278]
+              - cell "Budget créé pour Technique - DSI (2026)" [ref=f9e279]
+              - cell "127.0.0.1" [ref=f9e281]
+            - row [ref=f9e282]:
+              - cell "05/08/2026 12:07" [ref=f9e283]
+              - cell "Admin Système" [ref=f9e284]
+              - cell "create" [ref=f9e290]
+              - cell "budget" [ref=f9e292]
+              - cell "Budget créé pour DG - Direction Générale (2026)" [ref=f9e293]
+              - cell "127.0.0.1" [ref=f9e295]
+            - row [ref=f9e296]:
+              - cell "05/08/2026 12:06" [ref=f9e297]
+              - cell "Admin Système" [ref=f9e298]
+              - cell "create" [ref=f9e304]
+              - cell "budget" [ref=f9e306]
+              - cell "Budget créé pour Ressources Humaines - Formation (2026)" [ref=f9e307]
+              - cell "127.0.0.1" [ref=f9e309]
+            - row [ref=f9e310]:
+              - cell "05/08/2026 12:06" [ref=f9e311]
+              - cell "Admin Système" [ref=f9e312]
+              - cell "create" [ref=f9e318]
+              - cell "budget" [ref=f9e320]
+              - cell "Budget créé pour Technique - DSI (2026)" [ref=f9e321]
+              - cell "127.0.0.1" [ref=f9e323]
+            - row [ref=f9e324]:
+              - cell "05/08/2026 12:06" [ref=f9e325]
+              - cell "Admin Système" [ref=f9e326]
+              - cell "create" [ref=f9e332]
+              - cell "budget" [ref=f9e334]
+              - cell "Budget créé pour DG - Direction Générale (2026)" [ref=f9e335]
+              - cell "127.0.0.1" [ref=f9e337]
+            - row [ref=f9e338]:
+              - cell "04/08/2026 11:37" [ref=f9e339]
+              - cell "Admin Système" [ref=f9e340]
+              - cell "login" [ref=f9e346]
+              - cell "user" [ref=f9e348]
+              - cell "Déconnexion" [ref=f9e349]
+              - cell "127.0.0.1" [ref=f9e351]
+            - row [ref=f9e352]:
+              - cell "04/08/2026 10:51" [ref=f9e353]
+              - cell "Validateur Test" [ref=f9e354]
+              - cell "login" [ref=f9e360]
+              - cell "user" [ref=f9e362]
+              - cell "Déconnexion" [ref=f9e363]
+              - cell "127.0.0.1" [ref=f9e365]
+            - row [ref=f9e366]:
+              - cell "04/08/2026 10:49" [ref=f9e367]
+              - cell "Demandeur Test" [ref=f9e368]
+              - cell "login" [ref=f9e374]
+              - cell "user" [ref=f9e376]
+              - cell "Déconnexion" [ref=f9e377]
+              - cell "127.0.0.1" [ref=f9e379]
+            - row [ref=f9e380]:
+              - cell "03/08/2026 10:09" [ref=f9e381]
+              - cell "Admin Système" [ref=f9e382]
+              - cell "login" [ref=f9e388]
+              - cell "user" [ref=f9e390]
+              - cell "Déconnexion" [ref=f9e391]
+              - cell "127.0.0.1" [ref=f9e393]
+            - row [ref=f9e394]:
+              - cell "03/08/2026 10:08" [ref=f9e395]
+              - cell "Admin Système" [ref=f9e396]
+              - cell "login" [ref=f9e402]
+              - cell "user" [ref=f9e404]
+              - cell "Déconnexion" [ref=f9e405]
+              - cell "127.0.0.1" [ref=f9e407]
+            - row [ref=f9e408]:
+              - cell "26/07/2026 12:55" [ref=f9e409]
+              - cell "Admin Système" [ref=f9e410]
+              - cell "update" [ref=f9e416]
+              - cell "user" [ref=f9e418]
+              - cell "Utilisateur Role Test activé" [ref=f9e419]
+              - cell "127.0.0.1" [ref=f9e421]
+            - row [ref=f9e422]:
+              - cell "26/07/2026 12:55" [ref=f9e423]
+              - cell "Admin Système" [ref=f9e424]
+              - cell "update" [ref=f9e430]
+              - cell "user" [ref=f9e432]
+              - 'cell "User #40 modifié" [ref=f9e433]'
+              - cell "127.0.0.1" [ref=f9e435]
+            - row [ref=f9e436]:
+              - cell "26/07/2026 12:55" [ref=f9e437]
+              - cell "Admin Système" [ref=f9e438]
+              - cell "update" [ref=f9e444]
+              - cell "user" [ref=f9e446]
+              - cell "Utilisateur Audit Test activé" [ref=f9e447]
+              - cell "127.0.0.1" [ref=f9e449]
+            - row [ref=f9e450]:
+              - cell "26/07/2026 12:55" [ref=f9e451]
+              - cell "Admin Système" [ref=f9e452]
+              - cell "update" [ref=f9e458]
+              - cell "user" [ref=f9e460]
+              - 'cell "User #41 modifié" [ref=f9e461]'
+              - cell "127.0.0.1" [ref=f9e463]
+            - row [ref=f9e464]:
+              - cell "26/07/2026 12:54" [ref=f9e465]
+              - cell "Admin Système" [ref=f9e466]
+              - cell "update" [ref=f9e472]
+              - cell "user" [ref=f9e474]
+              - cell "Rôle de Audit Test changé de demandeur vers admin" [ref=f9e475]
+              - cell "127.0.0.1" [ref=f9e477]
+            - row [ref=f9e478]:
+              - cell "26/07/2026 12:54" [ref=f9e479]
+              - cell "Admin Système" [ref=f9e480]
+              - cell "update" [ref=f9e486]
+              - cell "user" [ref=f9e488]
+              - 'cell "User #41 modifié" [ref=f9e489]'
+              - cell "127.0.0.1" [ref=f9e491]
+            - row [ref=f9e492]:
+              - cell "26/07/2026 12:54" [ref=f9e493]
+              - cell "Admin Système" [ref=f9e494]
+              - cell "update" [ref=f9e500]
+              - cell "user" [ref=f9e502]
+              - cell "Rôle de Audit Test changé de utilisateur vers demandeur" [ref=f9e503]
+              - cell "127.0.0.1" [ref=f9e505]
+            - row [ref=f9e506]:
+              - cell "26/07/2026 12:54" [ref=f9e507]
+              - cell "Admin Système" [ref=f9e508]
+              - cell "update" [ref=f9e514]
+              - cell "user" [ref=f9e516]
+              - 'cell "User #41 modifié" [ref=f9e517]'
+              - cell "127.0.0.1" [ref=f9e519]
+            - row [ref=f9e520]:
+              - cell "26/07/2026 12:54" [ref=f9e521]
+              - cell "Admin Système" [ref=f9e522]
+              - cell "update" [ref=f9e528]
+              - cell "user" [ref=f9e530]
+              - cell "Rôle de Audit Test changé de validateur vers utilisateur" [ref=f9e531]
+              - cell "127.0.0.1" [ref=f9e533]
+            - row [ref=f9e534]:
+              - cell "26/07/2026 12:54" [ref=f9e535]
+              - cell "Admin Système" [ref=f9e536]
+              - cell "update" [ref=f9e542]
+              - cell "user" [ref=f9e544]
+              - 'cell "User #41 modifié" [ref=f9e545]'
+              - cell "127.0.0.1" [ref=f9e547]
+            - row [ref=f9e548]:
+              - cell "26/07/2026 12:54" [ref=f9e549]
+              - cell "Admin Système" [ref=f9e550]
+              - cell "update" [ref=f9e556]
+              - cell "user" [ref=f9e558]
+              - cell "Rôle de Audit Test changé de agent_dml vers validateur" [ref=f9e559]
+              - cell "127.0.0.1" [ref=f9e561]
+            - row [ref=f9e562]:
+              - cell "26/07/2026 12:54" [ref=f9e563]
+              - cell "Admin Système" [ref=f9e564]
+              - cell "update" [ref=f9e570]
+              - cell "user" [ref=f9e572]
+              - 'cell "User #41 modifié" [ref=f9e573]'
+              - cell "127.0.0.1" [ref=f9e575]
+            - row [ref=f9e576]:
+              - cell "26/07/2026 12:54" [ref=f9e577]
+              - cell "Admin Système" [ref=f9e578]
+              - cell "update" [ref=f9e584]
+              - cell "user" [ref=f9e586]
+              - cell "Utilisateur Role Test désactivé" [ref=f9e587]
+              - cell "127.0.0.1" [ref=f9e589]
+            - row [ref=f9e590]:
+              - cell "26/07/2026 12:54" [ref=f9e591]
+              - cell "Admin Système" [ref=f9e592]
+              - cell "update" [ref=f9e598]
+              - cell "user" [ref=f9e600]
+              - 'cell "User #40 modifié" [ref=f9e601]'
+              - cell "127.0.0.1" [ref=f9e603]
+            - row [ref=f9e604]:
+              - cell "26/07/2026 12:54" [ref=f9e605]
+              - cell "Admin Système" [ref=f9e606]
+              - cell "update" [ref=f9e612]
+              - cell "user" [ref=f9e614]
+              - cell "Utilisateur Audit Test désactivé" [ref=f9e615]
+              - cell "127.0.0.1" [ref=f9e617]
+            - row [ref=f9e618]:
+              - cell "26/07/2026 12:54" [ref=f9e619]
+              - cell "Admin Système" [ref=f9e620]
+              - cell "update" [ref=f9e626]
+              - cell "user" [ref=f9e628]
+              - 'cell "User #41 modifié" [ref=f9e629]'
+              - cell "127.0.0.1" [ref=f9e631]
+            - row [ref=f9e632]:
+              - cell "26/07/2026 12:52" [ref=f9e633]
+              - cell "Admin Système" [ref=f9e634]
+              - cell "export" [ref=f9e640]
+              - cell "depense" [ref=f9e642]
+              - cell "Export Excel dépenses par direction" [ref=f9e643]
+              - cell "127.0.0.1" [ref=f9e645]
+            - row [ref=f9e646]:
+              - cell "26/07/2026 12:52" [ref=f9e647]
+              - cell "Admin Système" [ref=f9e648]
+              - cell "export" [ref=f9e654]
+              - cell "mission" [ref=f9e656]
+              - cell "Export PDF missions - 55 enregistrements" [ref=f9e657]
+              - cell "127.0.0.1" [ref=f9e659]
+            - row [ref=f9e660]:
+              - cell "26/07/2026 12:52" [ref=f9e661]
+              - cell "Admin Système" [ref=f9e662]
+              - cell "export" [ref=f9e668]
+              - cell "mission" [ref=f9e670]
+              - cell "Export Excel missions - 55 enregistrements" [ref=f9e671]
+              - cell "127.0.0.1" [ref=f9e673]
+            - row [ref=f9e674]:
+              - cell "26/07/2026 12:51" [ref=f9e675]
+              - cell "Agent DML" [ref=f9e676]
+              - cell "login" [ref=f9e682]
+              - cell "user" [ref=f9e684]
+              - cell "Déconnexion" [ref=f9e685]
+              - cell "127.0.0.1" [ref=f9e687]
+            - row [ref=f9e688]:
+              - cell "26/07/2026 12:36" [ref=f9e689]
+              - cell "Agent DML" [ref=f9e690]
+              - cell "update" [ref=f9e696]
+              - cell "mission" [ref=f9e698]
+              - 'cell "Statut de la mission #54 changé de approuve à en_traitement_logistique" [ref=f9e699]'
+              - cell "127.0.0.1" [ref=f9e701]
+            - row [ref=f9e702]:
+              - cell "26/07/2026 12:34" [ref=f9e703]
+              - cell "Agent DML" [ref=f9e704]
+              - cell "login" [ref=f9e710]
+              - cell "user" [ref=f9e712]
+              - cell "Déconnexion" [ref=f9e713]
+              - cell "127.0.0.1" [ref=f9e715]
+            - row [ref=f9e716]:
+              - cell "26/07/2026 12:29" [ref=f9e717]
+              - cell "Validateur Test" [ref=f9e718]
+              - cell "login" [ref=f9e724]
+              - cell "user" [ref=f9e726]
+              - cell "Déconnexion" [ref=f9e727]
+              - cell "127.0.0.1" [ref=f9e729]
+            - row [ref=f9e730]:
+              - cell "26/07/2026 12:29" [ref=f9e731]
+              - cell "Validateur Test" [ref=f9e732]
+              - cell "approve" [ref=f9e738]
+              - cell "validation" [ref=f9e740]
+              - cell "Validation approuvée pour mission OM-2026-00020" [ref=f9e741]
+              - cell "—" [ref=f9e743]
+            - row [ref=f9e744]:
+              - cell "26/07/2026 12:29" [ref=f9e745]
+              - cell "Validateur Test" [ref=f9e746]
+              - cell "approve" [ref=f9e752]
+              - cell "validation" [ref=f9e754]
+              - cell "Validation approuvée pour mission OM-2026-00009" [ref=f9e755]
+              - cell "—" [ref=f9e757]
+            - row [ref=f9e758]:
+              - cell "26/07/2026 12:29" [ref=f9e759]
+              - cell "Validateur Test" [ref=f9e760]
+              - cell "update" [ref=f9e766]
+              - cell "mission" [ref=f9e768]
+              - 'cell "Statut de la mission #9 changé de brouillon à en_validation" [ref=f9e769]'
+              - cell "127.0.0.1" [ref=f9e771]
+            - row [ref=f9e772]:
+              - cell "26/07/2026 12:27" [ref=f9e773]
+              - cell "Demandeur Test" [ref=f9e774]
+              - cell "login" [ref=f9e780]
+              - cell "user" [ref=f9e782]
+              - cell "Déconnexion" [ref=f9e783]
+              - cell "127.0.0.1" [ref=f9e785]
+            - row [ref=f9e786]:
+              - cell "26/07/2026 12:27" [ref=f9e787]
+              - cell "Demandeur Test" [ref=f9e788]
+              - cell "update" [ref=f9e794]
+              - cell "mission" [ref=f9e796]
+              - 'cell "Statut de la mission #64 changé de brouillon à soumis" [ref=f9e797]'
+              - cell "127.0.0.1" [ref=f9e799]
+            - row [ref=f9e800]:
+              - cell "26/07/2026 12:27" [ref=f9e801]
+              - cell "Demandeur Test" [ref=f9e802]
+              - cell "create" [ref=f9e808]
+              - cell "reservation" [ref=f9e810]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f9e811]
+              - cell "—" [ref=f9e813]
+            - row [ref=f9e814]:
+              - cell "26/07/2026 12:27" [ref=f9e815]
+              - cell "Demandeur Test" [ref=f9e816]
+              - cell "create" [ref=f9e822]
+              - cell "reservation" [ref=f9e824]
+              - 'cell "Nouvelle réservation #69 (restauration) pour la mission #64" [ref=f9e825]'
+              - cell "127.0.0.1" [ref=f9e827]
+            - row [ref=f9e828]:
+              - cell "26/07/2026 12:26" [ref=f9e829]
+              - cell "Demandeur Test" [ref=f9e830]
+              - cell "create" [ref=f9e836]
+              - cell "reservation" [ref=f9e838]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f9e839]
+              - cell "—" [ref=f9e841]
+            - row [ref=f9e842]:
+              - cell "26/07/2026 12:26" [ref=f9e843]
+              - cell "Demandeur Test" [ref=f9e844]
+              - cell "create" [ref=f9e850]
+              - cell "reservation" [ref=f9e852]
+              - 'cell "Nouvelle réservation #68 (hebergement) pour la mission #64" [ref=f9e853]'
+              - cell "127.0.0.1" [ref=f9e855]
+            - row [ref=f9e856]:
+              - cell "26/07/2026 12:26" [ref=f9e857]
+              - cell "Demandeur Test" [ref=f9e858]
+              - cell "create" [ref=f9e864]
+              - cell "reservation" [ref=f9e866]
+              - cell "Réservation créée pour mission OM-2026-00055" [ref=f9e867]
+              - cell "—" [ref=f9e869]
+            - row [ref=f9e870]:
+              - cell "26/07/2026 12:26" [ref=f9e871]
+              - cell "Demandeur Test" [ref=f9e872]
+              - cell "create" [ref=f9e878]
+              - cell "reservation" [ref=f9e880]
+              - 'cell "Nouvelle réservation #67 (billet) pour la mission #64" [ref=f9e881]'
+              - cell "127.0.0.1" [ref=f9e883]
+            - row [ref=f9e884]:
+              - cell "26/07/2026 12:26" [ref=f9e885]
+              - cell "Demandeur Test" [ref=f9e886]
+              - cell "delete" [ref=f9e892]
+              - cell "reservation" [ref=f9e894]
+              - 'cell "Réservation #66 de type billet supprimée" [ref=f9e895]'
+              - cell "127.0.0.1" [ref=f9e897]
+            - row [ref=f9e898]:
+              - cell "26/07/2026 12:26" [ref=f9e899]
+              - cell "Demandeur Test" [ref=f9e900]
+              - cell "delete" [ref=f9e906]
+              - cell "reservation" [ref=f9e908]
+              - cell "Réservation supprimée pour mission OM-2026-00055" [ref=f9e909]
+              - cell "—" [ref=f9e911]
+        - generic [ref=f9e912]:
+          - button "Precedent" [disabled] [ref=f9e913]
+          - generic [ref=f9e914]: Page 1 / 100
+          - button "Suivant" [ref=f9e915] [cursor=pointer]

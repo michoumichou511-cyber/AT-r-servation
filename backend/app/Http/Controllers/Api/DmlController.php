@@ -82,8 +82,16 @@ class DmlController extends Controller
      */
     public function hotelsConventions(Request $request)
     {
-        $hotels = HotelConvention::actives()
-            ->orderBy('ville')
+        $query = HotelConvention::actives();
+
+        if ($ville = $request->get('ville')) {
+            $query->where(function ($q) use ($ville) {
+                $q->where('ville', 'like', "%{$ville}%")
+                  ->orWhere('wilaya', 'like', "%{$ville}%");
+            });
+        }
+
+        $hotels = $query->orderBy('ville')
             ->orderBy('nom')
             ->get([
                 'id', 'nom', 'ville', 'wilaya', 'adresse', 'telephone',
@@ -250,6 +258,43 @@ class DmlController extends Controller
                 'traitement' => $traitement->load(['agentDml', 'hotel', 'vehicule']),
             ],
             'Logistique marquée OK'
+        );
+    }
+
+    /**
+     * POST /api/dml/missions/{id}/cloturer
+     * Clôture la mission (retour du demandeur) et libère le véhicule de service.
+     */
+    public function cloturerMission(Request $request, int $missionId)
+    {
+        $mission = Mission::whereIn('statut', ['en_traitement_logistique', 'approuve'])
+            ->findOrFail($missionId);
+
+        $mission->update(['statut' => 'termine']);
+
+        $traitement = MissionTraitementDml::where('mission_id', $mission->id)->first();
+        if ($traitement && $traitement->vehicule_id) {
+            Vehicule::where('id', $traitement->vehicule_id)
+                ->where('statut', 'en_mission')
+                ->update(['statut' => 'disponible']);
+        }
+
+        try {
+            \App\Models\NotificationCustom::create([
+                'user_id'    => $mission->user_id,
+                'titre'      => 'Mission terminee',
+                'message'    => "Votre mission '{$mission->titre}' est cloturee. Le vehicule de service a ete libere.",
+                'type'       => 'info',
+                'categorie'  => 'mission',
+                'action_url' => "/missions/{$mission->id}",
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Notification cloture failed: '.$e->getMessage());
+        }
+
+        return \App\Helpers\ApiResponse::success(
+            new MissionResource($mission->load('user')),
+            'Mission cloturee — vehicule libere'
         );
     }
 

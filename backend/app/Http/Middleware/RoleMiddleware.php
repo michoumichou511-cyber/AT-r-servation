@@ -8,11 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
-        if (! $user || $user->role?->name !== $role) {
+        if (! $user || ! in_array($user->role?->name, $roles)) {
             abort(403, 'Accès refusé.');
         }
 

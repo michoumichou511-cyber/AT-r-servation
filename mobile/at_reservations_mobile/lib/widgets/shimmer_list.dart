@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import '../config/theme.dart';
 import '../design/design_system.dart';
 
 class ShimmerList extends StatelessWidget {
@@ -26,7 +27,7 @@ class ShimmerList extends StatelessWidget {
           height: itemHeight,
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBg,
             borderRadius: DS.radiusMd,
           ),
           child: Padding(
@@ -36,7 +37,7 @@ class ShimmerList extends StatelessWidget {
                 Container(
                   width: 48, height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -50,7 +51,7 @@ class ShimmerList extends StatelessWidget {
                         height: 14,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.cardBg,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -59,7 +60,7 @@ class ShimmerList extends StatelessWidget {
                         height: 10,
                         width: 120,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.cardBg,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -98,12 +99,12 @@ class ShimmerGrid extends StatelessWidget {
         childAspectRatio: childAspectRatio,
       ),
       itemCount: count,
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: base,
         highlightColor: highlight,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBg,
             borderRadius: DS.radiusMd,
           ),
         ),

@@ -1,0 +1,7 @@
+[   83768ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   83770ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[   83770ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  104802ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_TIMED_OUT @ http://10.0.2.2:8000/api/auth/login:0
+[  104812ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  104814ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683
+[  104814ms] [LOG] animate: true @ http://localhost:8888/main.dart.js:40683

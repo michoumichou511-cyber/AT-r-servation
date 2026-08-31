@@ -132,7 +132,7 @@ class AdminUserController extends Controller
         ]);
 
         return ApiResponse::success(
-            ['user' => $targetUser],
+            ['user' => $targetUser->load('role')],
             'Statut utilisateur modifié avec succès'
         );
     }

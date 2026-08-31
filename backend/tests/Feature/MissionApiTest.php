@@ -52,6 +52,8 @@ class MissionApiTest extends TestCase
             'date_depart' => now()->addDay()->toDateString(),
             'date_retour' => now()->addDays(2)->toDateString(),
             'type_mission' => 'formation',
+            'transport_type' => 'avion',
+            'budget_mode' => 'avance',
             'budget_previsionnel' => 1000,
         ];
 

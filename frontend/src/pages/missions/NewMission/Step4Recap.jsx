@@ -148,13 +148,27 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Récapitulatif</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">Vérifiez les informations avant soumission.</p>
+          <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0] mb-2">Récapitulatif</h3>
+          <p className="text-sm text-[#9AA0AE]">Vérifiez les informations avant soumission.</p>
         </div>
         {mission?.statut && <Badge status={mission.statut} label={`Statut: ${mission.statut}`} />}
       </div>
+
+      {!loading && mission && (
+        <div className="flex flex-wrap gap-3 mb-5">
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${mission.titre ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200/60 dark:border-green-700/40' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200/60 dark:border-red-700/40'}`}>
+            {mission.titre ? '✓' : '✗'} Informations
+          </div>
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${reservations.length > 0 ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200/60 dark:border-green-700/40' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200/60 dark:border-red-700/40'}`}>
+            {reservations.length > 0 ? '✓' : '✗'} {reservations.length} réservation(s)
+          </div>
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${documents.length > 0 ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200/60 dark:border-green-700/40' : 'bg-[#F4F6FA] dark:bg-[#252840] text-[#5A6070] dark:text-[#9AA0AE] border border-gray-200/60 dark:border-gray-700/40'}`}>
+            {documents.length > 0 ? '✓' : '—'} {documents.length} document(s)
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-900/50 rounded-2xl p-4 mb-4">
@@ -177,26 +191,31 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div className="min-w-0">
                 <div className="flex items-center gap-3 mb-1">
-                  <div className="font-mono text-gray-500 dark:text-gray-400 text-xs">
+                  <div className="font-mono text-[#5A6070] dark:text-[#9AA0AE] text-xs">
                     {mission.numero_unique ?? `OM-${missionId}`}
                   </div>
                   <EditLink onClick={onEditStep ? () => onEditStep(0) : undefined} />
                 </div>
-                <div className="text-gray-900 dark:text-gray-100 font-bold text-lg mb-2 truncate">{mission.titre ?? 'Sans titre'}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                <div className="text-[#1A1D26] dark:text-[#E8EAF0] font-bold text-lg mb-2 truncate">{mission.titre ?? 'Sans titre'}</div>
+                <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mb-1">
                   Destination: <span className="font-semibold">{mission.destination ?? '—'}</span>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mb-1">
                   Dates: <span className="font-semibold">{mission.dates?.depart ?? '—'} → {mission.dates?.retour ?? '—'}</span>
                 </div>
                 {mission.transport_type && (
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Transport: <span className="font-semibold">{mission.transport_type === 'avion' ? 'Par avion' : 'Par voie terrestre'}</span>
+                  <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+                    Transport: <span className="font-semibold">{{ avion: 'Par avion', terrestre: 'Véhicule de service', train: 'Train (SNTF)', autre: 'Autre (taxi, bus...)' }[mission.transport_type] || mission.transport_type}</span>
                   </div>
                 )}
                 {mission.budget_mode && (
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE]">
                     Mode budget: <span className="font-semibold">{mission.budget_mode === 'avance' ? 'Avance' : 'Remboursement'}</span>
+                  </div>
+                )}
+                {mission.demande_avance && (
+                  <div className="text-sm text-[#00A650] font-semibold">
+                    Demande d'avance: {mission.montant_avance ? `${Number(mission.montant_avance).toLocaleString('fr-FR')} DZD` : 'Oui'}
                   </div>
                 )}
               </div>
@@ -204,7 +223,7 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
               <div className="min-w-[220px]">
                 <div className="bg-at-green/10 border border-at-green/20 rounded-xl p-3">
                   <div className="text-xs font-semibold text-at-green mb-1">Réservations</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-300">{reservations.length} élément(s)</div>
+                  <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">{reservations.length} élément(s)</div>
                 </div>
               </div>
             </div>
@@ -213,9 +232,9 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Réservations</div>
+                <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Réservations</div>
                 <div className="flex items-center gap-3">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{reservations.length} au total</div>
+                  <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">{reservations.length} au total</div>
                   <EditLink onClick={onEditStep ? () => onEditStep(1) : undefined} />
                 </div>
               </div>
@@ -237,15 +256,15 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
                             <Badge status="actif" label={r.type_label ?? r.type} />
                           </div>
                           {r.prestataire?.nom ? (
-                            <div className="text-sm text-gray-700 dark:text-gray-200">
+                            <div className="text-sm text-[#1A1D26] dark:text-[#E8EAF0]">
                               Prestataire: <span className="font-semibold">{r.prestataire.nom}</span>
                             </div>
                           ) : (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                            <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] italic">
                               Prestataire: aucun selectionne
                             </div>
                           )}
-                          {r.notes && <div className="text-sm text-gray-700 dark:text-gray-200 mt-2">Notes: {r.notes}</div>}
+                          {r.notes && <div className="text-sm text-[#1A1D26] dark:text-[#E8EAF0] mt-2">Notes: {r.notes}</div>}
                         </div>
                         <div className="flex flex-col items-end gap-2">
                           <Badge status={r.statut ?? 'brouillon'} label={r.statut_label ?? r.statut} />
@@ -259,9 +278,9 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
 
             <div className="at-card-surface p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Documents</div>
+                <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Documents</div>
                 <div className="flex items-center gap-3">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{documents.length} au total</div>
+                  <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">{documents.length} au total</div>
                   <EditLink onClick={onEditStep ? () => onEditStep(2) : undefined} />
                 </div>
               </div>
@@ -279,8 +298,8 @@ export default function Step4Recap({ missionId, onPrev, onEditStep }) {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{d.nom_fichier ?? '—'}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{d.type_document ?? 'document'}</div>
+                          <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0] truncate">{d.nom_fichier ?? '—'}</div>
+                          <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE] mt-1">{d.type_document ?? 'document'}</div>
                         </div>
                         <Button size="sm" variant="outline" onClick={() => handleDownload(d.id, d.nom_fichier)}>
                           <Download size={14} /> Télécharger

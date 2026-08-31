@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+skinparam dpi 300
+skinparam usecaseFontSize 14
+skinparam actorFontSize 15
+
+actor "Directeur" as D
+
+rectangle "Espace Directeur" {
+  usecase "S'authentifier" as UC_AUTH
+  usecase "Traiter les demandes\nen attente" as UC_TRAITER
+  usecase "Approuver" as UC_APPR
+  usecase "Refuser\n(avec motif)" as UC_REF
+  usecase "Demander une\nmodification" as UC_MODIF
+
+  usecase "Consulter l'historique\ndes missions" as UC_HIST
+  usecase "Consulter son tableau\nde bord personnel" as UC_DASH
+  usecase "Exporter une\nmission en PDF" as UC_PDF
+  usecase "Envoyer des\nmessages internes" as UC_MSG
+  usecase "Recevoir des\nnotifications" as UC_NOTIF
+}
+
+D --> UC_TRAITER
+D --> UC_HIST
+D --> UC_DASH
+D --> UC_PDF
+D --> UC_MSG
+D --> UC_NOTIF
+
+UC_TRAITER <|-- UC_APPR
+UC_TRAITER <|-- UC_REF
+UC_TRAITER <|-- UC_MODIF
+
+UC_TRAITER ..> UC_AUTH : <<include>>
+UC_HIST ..> UC_AUTH : <<include>>
+UC_DASH ..> UC_AUTH : <<include>>
+UC_PDF ..> UC_AUTH : <<include>>
+UC_MSG ..> UC_AUTH : <<include>>
+
+@enduml

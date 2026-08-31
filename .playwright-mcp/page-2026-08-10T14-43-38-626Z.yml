@@ -1,0 +1,324 @@
+- generic [ref=f8e7]:
+  - link "Aller au contenu principal" [ref=f8e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f8e10]:
+    - generic [ref=f8e11]:
+      - generic [ref=f8e13]:
+        - img "Algérie Télécom" [ref=f8e15]
+        - generic [ref=f8e16]:
+          - generic [ref=f8e17]: Réservations AT
+          - generic [ref=f8e18]: Algérie Télécom
+      - generic [ref=f8e19]:
+        - generic [ref=f8e20]: AS
+        - generic [ref=f8e21]:
+          - generic [ref=f8e22]: Admin Système
+          - generic [ref=f8e23]: admin
+      - textbox "Rechercher..." [ref=f8e29]
+      - navigation [ref=f8e30]:
+        - link "Tableau de bord" [ref=f8e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f8e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f8e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f8e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f8e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f8e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f8e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f8e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f8e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f8e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f8e80]:
+          - button "Administration" [ref=f8e81] [cursor=pointer]
+          - generic [ref=f8e85]:
+            - link "Utilisateurs" [ref=f8e86] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f8e93] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f8e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f8e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f8e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f8e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f8e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f8e124] [cursor=pointer]
+  - generic [ref=f8e129]:
+    - banner [ref=f8e130]:
+      - heading "Prestataires" [level=1] [ref=f8e132]
+      - generic [ref=f8e133]:
+        - textbox "Rechercher..." [ref=f8e139]
+        - button [ref=f8e140] [cursor=pointer]
+        - button [ref=f8e143] [cursor=pointer]
+        - button "AS Admin" [ref=f8e148] [cursor=pointer]:
+          - generic [ref=f8e149]: AS
+          - generic [ref=f8e150]: Admin
+    - main [ref=f8e151]:
+      - generic [ref=f8e153]:
+        - generic [ref=f8e154]:
+          - button "← Retour" [ref=f8e155] [cursor=pointer]
+          - generic [ref=f8e156]:
+            - generic [ref=f8e157]:
+              - heading "Prestataires" [level=1] [ref=f8e158]
+              - paragraph [ref=f8e159]: Gestion des prestataires
+            - button "+ Nouveau" [ref=f8e161] [cursor=pointer]
+        - generic [ref=f8e163]:
+          - generic [ref=f8e164]:
+            - generic [ref=f8e165]: catering
+            - generic [ref=f8e166]:
+              - generic [ref=f8e167]:
+                - generic [ref=f8e168]:
+                  - generic [ref=f8e169]: Restaurant Le Sahel
+                  - generic [ref=f8e170]: Actif
+                - generic [ref=f8e172]: catering
+                - generic [ref=f8e173]: Alger
+                - generic [ref=f8e174]:
+                  - generic [ref=f8e175]:
+                    - generic [ref=f8e176]:
+                      - button [disabled] [ref=f8e177]
+                      - button [disabled] [ref=f8e180]
+                      - button [disabled] [ref=f8e183]
+                      - button [disabled] [ref=f8e186]
+                      - button [disabled] [ref=f8e189]
+                    - generic [ref=f8e192]: 0.0/5
+                  - generic [ref=f8e193]: 0 évaluation(s)
+                - generic [ref=f8e194]:
+                  - generic [ref=f8e195]: contact@sahel.dz
+                  - generic [ref=f8e199]: +213 21 50 60 70
+              - button "Favori" [ref=f8e203] [cursor=pointer]
+            - generic [ref=f8e209]:
+              - button "Évaluer" [ref=f8e210] [cursor=pointer]
+              - button "Modifier" [ref=f8e213] [cursor=pointer]
+              - button "Supprimer" [ref=f8e217] [cursor=pointer]
+          - generic [ref=f8e221]:
+            - generic [ref=f8e222]: catering
+            - generic [ref=f8e223]:
+              - generic [ref=f8e224]:
+                - generic [ref=f8e225]:
+                  - generic [ref=f8e226]: Restaurant La Mediterranee
+                  - generic [ref=f8e227]: Actif
+                - generic [ref=f8e229]: catering
+                - generic [ref=f8e230]: Oran
+                - generic [ref=f8e231]:
+                  - generic [ref=f8e232]:
+                    - generic [ref=f8e233]:
+                      - button [disabled] [ref=f8e234]
+                      - button [disabled] [ref=f8e237]
+                      - button [disabled] [ref=f8e240]
+                      - button [disabled] [ref=f8e243]
+                      - button [disabled] [ref=f8e246]
+                    - generic [ref=f8e249]: 0.0/5
+                  - generic [ref=f8e250]: 0 évaluation(s)
+                - generic [ref=f8e251]:
+                  - generic [ref=f8e252]: info@mediterranee.dz
+                  - generic [ref=f8e256]: +213 41 20 30 40
+              - button "Favori" [ref=f8e260] [cursor=pointer]
+            - generic [ref=f8e266]:
+              - button "Évaluer" [ref=f8e267] [cursor=pointer]
+              - button "Modifier" [ref=f8e270] [cursor=pointer]
+              - button "Supprimer" [ref=f8e274] [cursor=pointer]
+          - generic [ref=f8e278]:
+            - generic [ref=f8e279]: Compagnie aérienne
+            - generic [ref=f8e280]:
+              - generic [ref=f8e281]:
+                - generic [ref=f8e282]:
+                  - generic [ref=f8e283]: Air France
+                  - generic [ref=f8e284]: Actif
+                - generic [ref=f8e286]: Compagnie aérienne
+                - generic [ref=f8e287]: Alger
+                - generic [ref=f8e288]:
+                  - generic [ref=f8e289]:
+                    - generic [ref=f8e290]:
+                      - button [disabled] [ref=f8e291]
+                      - button [disabled] [ref=f8e294]
+                      - button [disabled] [ref=f8e297]
+                      - button [disabled] [ref=f8e300]
+                      - button [disabled] [ref=f8e303]
+                    - generic [ref=f8e306]: 0.0/5
+                  - generic [ref=f8e307]: 0 évaluation(s)
+                - generic [ref=f8e308]:
+                  - generic [ref=f8e309]: agence@airfrance.dz
+                  - generic [ref=f8e313]: +213 21 64 64 64
+              - button "Favori" [ref=f8e317] [cursor=pointer]
+            - generic [ref=f8e323]:
+              - button "Évaluer" [ref=f8e324] [cursor=pointer]
+              - button "Modifier" [ref=f8e327] [cursor=pointer]
+              - button "Supprimer" [ref=f8e331] [cursor=pointer]
+          - generic [ref=f8e335]:
+            - generic [ref=f8e336]: Compagnie aérienne
+            - generic [ref=f8e337]:
+              - generic [ref=f8e338]:
+                - generic [ref=f8e339]:
+                  - generic [ref=f8e340]: Air Algerie
+                  - generic [ref=f8e341]: Actif
+                - generic [ref=f8e343]: Compagnie aérienne
+                - generic [ref=f8e344]: Alger
+                - generic [ref=f8e345]:
+                  - generic [ref=f8e346]:
+                    - generic [ref=f8e347]:
+                      - button [disabled] [ref=f8e348]
+                      - button [disabled] [ref=f8e351]
+                      - button [disabled] [ref=f8e354]
+                      - button [disabled] [ref=f8e357]
+                      - button [disabled] [ref=f8e360]
+                    - generic [ref=f8e363]: 0.0/5
+                  - generic [ref=f8e364]: 0 évaluation(s)
+              - button "Favori" [ref=f8e366] [cursor=pointer]
+            - generic [ref=f8e372]:
+              - button "Évaluer" [ref=f8e373] [cursor=pointer]
+              - button "Modifier" [ref=f8e376] [cursor=pointer]
+              - button "Supprimer" [ref=f8e380] [cursor=pointer]
+          - generic [ref=f8e384]:
+            - generic [ref=f8e385]: Compagnie aérienne
+            - generic [ref=f8e386]:
+              - generic [ref=f8e387]:
+                - generic [ref=f8e388]:
+                  - generic [ref=f8e389]: Tassili Airlines
+                  - generic [ref=f8e390]: Actif
+                - generic [ref=f8e392]: Compagnie aérienne
+                - generic [ref=f8e393]: Alger
+                - generic [ref=f8e394]:
+                  - generic [ref=f8e395]:
+                    - generic [ref=f8e396]:
+                      - button [disabled] [ref=f8e397]
+                      - button [disabled] [ref=f8e400]
+                      - button [disabled] [ref=f8e403]
+                      - button [disabled] [ref=f8e406]
+                      - button [disabled] [ref=f8e409]
+                    - generic [ref=f8e412]: 0.0/5
+                  - generic [ref=f8e413]: 0 évaluation(s)
+              - button "Favori" [ref=f8e415] [cursor=pointer]
+            - generic [ref=f8e421]:
+              - button "Évaluer" [ref=f8e422] [cursor=pointer]
+              - button "Modifier" [ref=f8e425] [cursor=pointer]
+              - button "Supprimer" [ref=f8e429] [cursor=pointer]
+          - generic [ref=f8e433]:
+            - generic [ref=f8e434]: Hôtel
+            - generic [ref=f8e435]:
+              - generic [ref=f8e436]:
+                - generic [ref=f8e437]:
+                  - generic [ref=f8e438]: Hotel El Aurassi Alger
+                  - generic [ref=f8e439]: Actif
+                - generic [ref=f8e441]: Hôtel
+                - generic [ref=f8e442]: Alger
+                - generic [ref=f8e443]:
+                  - generic [ref=f8e444]:
+                    - generic [ref=f8e445]:
+                      - button [disabled] [ref=f8e446]
+                      - button [disabled] [ref=f8e449]
+                      - button [disabled] [ref=f8e452]
+                      - button [disabled] [ref=f8e455]
+                      - button [disabled] [ref=f8e458]
+                    - generic [ref=f8e461]: 0.0/5
+                  - generic [ref=f8e462]: 0 évaluation(s)
+              - button "Favori" [ref=f8e464] [cursor=pointer]
+            - generic [ref=f8e470]:
+              - button "Évaluer" [ref=f8e471] [cursor=pointer]
+              - button "Modifier" [ref=f8e474] [cursor=pointer]
+              - button "Supprimer" [ref=f8e478] [cursor=pointer]
+          - generic [ref=f8e482]:
+            - generic [ref=f8e483]: Hôtel
+            - generic [ref=f8e484]:
+              - generic [ref=f8e485]:
+                - generic [ref=f8e486]:
+                  - generic [ref=f8e487]: Sofitel Alger
+                  - generic [ref=f8e488]: Actif
+                - generic [ref=f8e490]: Hôtel
+                - generic [ref=f8e491]: Alger
+                - generic [ref=f8e492]:
+                  - generic [ref=f8e493]:
+                    - generic [ref=f8e494]:
+                      - button [disabled] [ref=f8e495]
+                      - button [disabled] [ref=f8e498]
+                      - button [disabled] [ref=f8e501]
+                      - button [disabled] [ref=f8e504]
+                      - button [disabled] [ref=f8e507]
+                    - generic [ref=f8e510]: 0.0/5
+                  - generic [ref=f8e511]: 0 évaluation(s)
+              - button "Favori" [ref=f8e513] [cursor=pointer]
+            - generic [ref=f8e519]:
+              - button "Évaluer" [ref=f8e520] [cursor=pointer]
+              - button "Modifier" [ref=f8e523] [cursor=pointer]
+              - button "Supprimer" [ref=f8e527] [cursor=pointer]
+          - generic [ref=f8e531]:
+            - generic [ref=f8e532]: Hôtel
+            - generic [ref=f8e533]:
+              - generic [ref=f8e534]:
+                - generic [ref=f8e535]:
+                  - generic [ref=f8e536]: Hotel Sheraton Oran
+                  - generic [ref=f8e537]: Actif
+                - generic [ref=f8e539]: Hôtel
+                - generic [ref=f8e540]: Oran
+                - generic [ref=f8e541]:
+                  - generic [ref=f8e542]:
+                    - generic [ref=f8e543]:
+                      - button [disabled] [ref=f8e544]
+                      - button [disabled] [ref=f8e547]
+                      - button [disabled] [ref=f8e550]
+                      - button [disabled] [ref=f8e553]
+                      - button [disabled] [ref=f8e556]
+                    - generic [ref=f8e559]: 0.0/5
+                  - generic [ref=f8e560]: 0 évaluation(s)
+              - button "Favori" [ref=f8e562] [cursor=pointer]
+            - generic [ref=f8e568]:
+              - button "Évaluer" [ref=f8e569] [cursor=pointer]
+              - button "Modifier" [ref=f8e572] [cursor=pointer]
+              - button "Supprimer" [ref=f8e576] [cursor=pointer]
+          - generic [ref=f8e580]:
+            - generic [ref=f8e581]: Hôtel
+            - generic [ref=f8e582]:
+              - generic [ref=f8e583]:
+                - generic [ref=f8e584]:
+                  - generic [ref=f8e585]: Hotel Cirta Constantine
+                  - generic [ref=f8e586]: Actif
+                - generic [ref=f8e588]: Hôtel
+                - generic [ref=f8e589]: Constantine
+                - generic [ref=f8e590]:
+                  - generic [ref=f8e591]:
+                    - generic [ref=f8e592]:
+                      - button [disabled] [ref=f8e593]
+                      - button [disabled] [ref=f8e596]
+                      - button [disabled] [ref=f8e599]
+                      - button [disabled] [ref=f8e602]
+                      - button [disabled] [ref=f8e605]
+                    - generic [ref=f8e608]: 0.0/5
+                  - generic [ref=f8e609]: 0 évaluation(s)
+              - button "Favori" [ref=f8e611] [cursor=pointer]
+            - generic [ref=f8e617]:
+              - button "Évaluer" [ref=f8e618] [cursor=pointer]
+              - button "Modifier" [ref=f8e621] [cursor=pointer]
+              - button "Supprimer" [ref=f8e625] [cursor=pointer]
+          - generic [ref=f8e629]:
+            - generic [ref=f8e630]: Hôtel
+            - generic [ref=f8e631]:
+              - generic [ref=f8e632]:
+                - generic [ref=f8e633]:
+                  - generic [ref=f8e634]: Hotel Test Alpha
+                  - generic [ref=f8e635]: Actif
+                - generic [ref=f8e637]: Hôtel
+                - generic [ref=f8e638]: Alger
+                - generic [ref=f8e639]:
+                  - generic [ref=f8e640]:
+                    - generic [ref=f8e641]:
+                      - button [disabled] [ref=f8e642]
+                      - button [disabled] [ref=f8e645]
+                      - button [disabled] [ref=f8e648]
+                      - button [disabled] [ref=f8e651]
+                      - button [disabled] [ref=f8e654]
+                    - generic [ref=f8e657]: 5.0/5
+                  - generic [ref=f8e658]: 0 évaluation(s)
+              - button "Favori" [ref=f8e660] [cursor=pointer]
+            - generic [ref=f8e666]:
+              - button "Évaluer" [ref=f8e667] [cursor=pointer]
+              - button "Modifier" [ref=f8e670] [cursor=pointer]
+              - button "Supprimer" [ref=f8e674] [cursor=pointer]

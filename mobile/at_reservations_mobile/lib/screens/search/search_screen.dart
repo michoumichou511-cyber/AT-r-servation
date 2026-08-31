@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:iconly/iconly.dart';
 import '../../config/theme.dart';
 import '../../models/mission.dart';
 import '../../services/api_service.dart';
@@ -186,7 +185,7 @@ class _SearchScreenState extends State<SearchScreen>
       canPop: false,
       onPopInvokedWithResult: (didPop, _) { if (!didPop) _goBack(); },
       child: Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
         backgroundColor: ATColors.secondary,
         foregroundColor: Colors.white,
@@ -215,7 +214,7 @@ class _SearchScreenState extends State<SearchScreen>
                 hintText: 'Titre, destination, numéro, statut…',
                 hintStyle:
                     TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-                prefixIcon: const Icon(IconlyLight.search,
+                prefixIcon: const Icon(Icons.search_rounded,
                     color: Colors.white70, size: 20),
                 suffixIcon: _ctrl.text.isNotEmpty
                     ? IconButton(
@@ -252,17 +251,17 @@ class _SearchScreenState extends State<SearchScreen>
     padding: const EdgeInsets.all(24),
     child: Column(children: [
       const SizedBox(height: 32),
-      Icon(IconlyLight.search, size: 64,
-          color: ATColors.textSecondary.withValues(alpha: 0.3)),
+      Icon(Icons.search_rounded, size: 64,
+          color: context.textSecondary.withValues(alpha: 0.3)),
       const SizedBox(height: 16),
-      const Text('Rechercher dans vos missions',
+      Text('Rechercher dans vos missions',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
-            color: ATColors.textPrimary)),
+            color: context.textPrimary)),
       const SizedBox(height: 8),
-      const Text('Tapez un titre, une destination, un numéro ou un statut',
+      Text('Tapez un titre, une destination, un numéro ou un statut',
         textAlign: TextAlign.center,
-        style: TextStyle(color: ATColors.textSecondary, fontSize: 14)),
+        style: TextStyle(color: context.textSecondary, fontSize: 14)),
       const SizedBox(height: 32),
       // Chips de filtre rapide (valeur brute en logique, label FR affiché)
       Wrap(spacing: 8, runSpacing: 8, children: [
@@ -291,8 +290,8 @@ class _SearchScreenState extends State<SearchScreen>
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Text(
               '${_results.length} résultat${_results.length > 1 ? "s" : ""}',
-              style: const TextStyle(
-                  color: ATColors.textSecondary,
+              style: TextStyle(
+                  color: context.textSecondary,
                   fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ),
@@ -310,14 +309,14 @@ class _SearchScreenState extends State<SearchScreen>
   // ── Corps : aucun résultat ────────────────────────────────────────────────
   Widget _buildNoResult() => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(IconlyLight.search, size: 64,
-          color: ATColors.textSecondary.withValues(alpha: 0.3)),
+      Icon(Icons.search_rounded, size: 64,
+          color: context.textSecondary.withValues(alpha: 0.3)),
       const SizedBox(height: 16),
       const Text('Aucun résultat',
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
       const SizedBox(height: 8),
       Text('Aucune mission pour « ${_ctrl.text} »',
-        style: const TextStyle(color: ATColors.textSecondary)),
+        style: TextStyle(color: context.textSecondary)),
       const SizedBox(height: 24),
       TextButton.icon(
         onPressed: () {

@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam dpi 300
+skinparam usecaseFontSize 14
+skinparam actorFontSize 15
+
+actor "Agent DML" as A
+
+rectangle "Espace Agent DML" {
+  usecase "S'authentifier" as UC_AUTH
+  usecase "Consulter les missions\nvalidees a traiter" as UC_CONSULT
+  usecase "Consulter la liste\ndes hotels" as UC_HOTELS
+  usecase "Affecter un\nhotel" as UC_HOTEL
+  usecase "Gerer les vehicules" as UC_GV
+  usecase "Affecter un\nvehicule" as UC_AFF
+  usecase "Liberer un\nvehicule" as UC_LIB
+  usecase "Verifier la\ndisponibilite" as UC_DISPO
+  usecase "Recevoir des\nnotifications" as UC_NOTIF
+  usecase "Marquer\nlogistique OK" as UC_OK
+  usecase "Generer un\nbon de commande" as UC_BON
+  usecase "Scanner un\nticket transport" as UC_SCAN
+}
+
+A --> UC_CONSULT
+A --> UC_HOTELS
+A --> UC_HOTEL
+A --> UC_GV
+A --> UC_NOTIF
+A --> UC_OK
+A --> UC_BON
+A --> UC_SCAN
+
+UC_GV <|-- UC_AFF
+UC_GV <|-- UC_LIB
+UC_GV ..> UC_DISPO : <<include>>
+
+UC_CONSULT ..> UC_AUTH : <<include>>
+UC_HOTELS ..> UC_AUTH : <<include>>
+UC_HOTEL ..> UC_AUTH : <<include>>
+UC_GV ..> UC_AUTH : <<include>>
+UC_NOTIF ..> UC_AUTH : <<include>>
+UC_OK ..> UC_AUTH : <<include>>
+UC_BON ..> UC_AUTH : <<include>>
+UC_SCAN ..> UC_AUTH : <<include>>
+
+@enduml

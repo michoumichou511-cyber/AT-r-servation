@@ -190,7 +190,7 @@ export default function AuditLogs() {
               <Download size={16} /> CSV
             </Button>
             <Button size="sm" variant="outline" onClick={resetFilters}>
-              <RotateCcw size={16} /> Reset
+              <RotateCcw size={16} /> Réinitialiser
             </Button>
           </div>
         }

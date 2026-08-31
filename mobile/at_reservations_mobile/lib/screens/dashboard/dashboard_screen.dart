@@ -6,7 +6,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../config/theme.dart';
@@ -69,7 +68,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
     final refusees = ((_stats['refusees'] ?? _stats['rejete'] ?? 0) as num).toInt();
 
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       body: RefreshIndicator(
         onRefresh: _load,
         child: CustomScrollView(
@@ -118,9 +117,9 @@ class _AdminDashboardState extends State<_AdminDashboard> {
                   : Padding(
                       padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4, bottom: 12),
-                          child: Text('Vue globale', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: ATColors.textPrimary)),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 12),
+                          child: Text('Vue globale', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.textPrimary)),
                         ),
                         GridView.count(
                           crossAxisCount: 2, shrinkWrap: true,
@@ -128,10 +127,10 @@ class _AdminDashboardState extends State<_AdminDashboard> {
                           crossAxisSpacing: 10, mainAxisSpacing: 10,
                           childAspectRatio: 1.6,
                           children: [
-                            _AdminStatCard('Total missions', total, ATColors.secondary, Icons.assignment_outlined),
-                            _AdminStatCard('En attente', enAttente, ATColors.warning, Icons.hourglass_empty_outlined),
-                            _AdminStatCard('Approuvées', approuvees, ATColors.success, Icons.check_circle_outline),
-                            _AdminStatCard('Refusées', refusees, ATColors.error, Icons.cancel_outlined),
+                            _AdminStatCard(context, 'Total missions', total, ATColors.secondary, Icons.assignment_outlined),
+                            _AdminStatCard(context, 'En attente', enAttente, ATColors.warning, Icons.hourglass_empty_outlined),
+                            _AdminStatCard(context, 'Approuvées', approuvees, ATColors.success, Icons.check_circle_outline),
+                            _AdminStatCard(context, 'Refusées', refusees, ATColors.error, Icons.cancel_outlined),
                           ],
                         ),
                       ]),
@@ -143,7 +142,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Accès rapides', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: ATColors.textPrimary)),
+                  Text('Accès rapides', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.textPrimary)),
                   const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: 2, shrinkWrap: true,
@@ -170,12 +169,12 @@ class _AdminDashboardState extends State<_AdminDashboard> {
   }
 }
 
-Widget _AdminStatCard(String label, int value, Color color, IconData icon) {
+Widget _AdminStatCard(BuildContext context, String label, int value, Color color, IconData icon) {
   return Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: context.cardBg,
       borderRadius: BorderRadius.circular(14),
-      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+      boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 8, offset: const Offset(0, 2))],
     ),
     padding: const EdgeInsets.all(14),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -189,7 +188,7 @@ Widget _AdminStatCard(String label, int value, Color color, IconData icon) {
         Text('$value', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
       ]),
       const SizedBox(height: 6),
-      Text(label, style: const TextStyle(fontSize: 12, color: ATColors.textSecondary, fontWeight: FontWeight.w500)),
+      Text(label, style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w500)),
     ]),
   );
 }
@@ -269,7 +268,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
     final enAttente = _counts['en_attente'] ?? 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       floatingActionButton: _PulseFab(
         onPressed: () => context.push('/new-mission'),
       ),
@@ -289,7 +288,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
               foregroundColor: Colors.white,
               actions: [
                 IconButton(
-                  icon: const Icon(IconlyLight.search, size: 22),
+                  icon: const Icon(Icons.search_rounded, size: 22),
                   onPressed: () => context.push('/search'),
                 ),
                 GestureDetector(
@@ -365,13 +364,13 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                     children: [
                       _ActionChip('Nouvelle mission', Icons.add_circle_outline,
                           DS.primary,   () => context.push('/new-mission')),
-                      _ActionChip('Mes missions',  IconlyLight.document,
+                      _ActionChip('Mes missions',  Icons.description_outlined,
                           DS.secondary, () => context.go('/missions')),
-                      _ActionChip('Messagerie',    IconlyLight.chat,
+                      _ActionChip('Messagerie',    Icons.chat_bubble_outline_rounded,
                           const Color(0xFF0891B2), () => context.go('/messagerie')),
-                      _ActionChip('Recherche',     IconlyLight.search,
+                      _ActionChip('Recherche',     Icons.search_rounded,
                           const Color(0xFF7C3AED), () => context.push('/search')),
-                      _ActionChip('Notifications', IconlyLight.notification,
+                      _ActionChip('Notifications', Icons.notifications_outlined,
                           ATColors.warning, () => context.go('/notifications')),
                     ],
                   ),
@@ -739,7 +738,7 @@ class _BentoCardWide extends StatelessWidget {
                   tween: Tween(begin: 0, end: pct),
                   duration: const Duration(milliseconds: 800),
                   curve: Curves.easeOutCubic,
-                  builder: (_, v, __) => LinearProgressIndicator(
+                  builder: (_, v, _) => LinearProgressIndicator(
                     value: v,
                     backgroundColor: color.withValues(alpha: 0.1),
                     valueColor: AlwaysStoppedAnimation(color),
@@ -771,7 +770,7 @@ class _AnimCounter extends StatelessWidget {
     tween: IntTween(begin: 0, end: value),
     duration: const Duration(milliseconds: 900),
     curve: Curves.easeOutCubic,
-    builder: (_, v, __) => Text('$v', style: style),
+    builder: (_, v, _) => Text('$v', style: style),
   );
 }
 
@@ -779,24 +778,24 @@ class _AnimCounter extends StatelessWidget {
 class _BentoSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE2E8F0),
-    highlightColor: const Color(0xFFF8FAFC),
+    baseColor: context.shimmerBase,
+    highlightColor: context.shimmerHighlight,
     child: Column(children: [
       Row(children: [
         Expanded(flex: 3, child: Container(height: 150,
-            decoration: BoxDecoration(color: Colors.white,
+            decoration: BoxDecoration(color: context.cardBg,
                 borderRadius: BorderRadius.circular(20)))),
         const SizedBox(width: 10),
         Expanded(flex: 2, child: Column(children: [
-          Container(height: 76, decoration: BoxDecoration(color: Colors.white,
+          Container(height: 76, decoration: BoxDecoration(color: context.cardBg,
               borderRadius: BorderRadius.circular(20))),
           const SizedBox(height: 10),
-          Container(height: 76, decoration: BoxDecoration(color: Colors.white,
+          Container(height: 76, decoration: BoxDecoration(color: context.cardBg,
               borderRadius: BorderRadius.circular(20))),
         ])),
       ]),
       const SizedBox(height: 10),
-      Container(height: 70, decoration: BoxDecoration(color: Colors.white,
+      Container(height: 70, decoration: BoxDecoration(color: context.cardBg,
           borderRadius: BorderRadius.circular(20))),
     ]),
   );
@@ -833,9 +832,9 @@ class _ChartCard extends StatelessWidget {
       Container(
         height: 160,
         decoration: BoxDecoration(
-          color: DS.surface,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: DS.shadowMd,
+          boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 16, offset: const Offset(0, 4))],
         ),
         padding: const EdgeInsets.fromLTRB(12, 16, 16, 8),
         child: loading
@@ -881,7 +880,7 @@ class _ActionChip extends StatelessWidget {
           const SizedBox(height: 6),
           Text(label, style: GoogleFonts.inter(
             fontSize: 10, fontWeight: FontWeight.w600,
-            color: DS.textSecondary,
+            color: context.textSecondary,
           ), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
@@ -930,7 +929,7 @@ class _EmptyMissionsCard extends StatelessWidget {
                 style: DS.caption),
           ]),
         ),
-        const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: DS.textMuted),
+        Icon(Icons.arrow_forward_ios_rounded, size: 16, color: context.textMuted),
       ]),
     ),
   );
@@ -1054,7 +1053,7 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
   Widget build(BuildContext context) {
     final prenom = context.watch<AuthProvider>().user?.prenom ?? 'vous';
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       body: RefreshIndicator(
         onRefresh: _load,
         color: ATColors.primary,
@@ -1122,10 +1121,10 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                   height: 200,
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.cardBg,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: context.shadowColor,
                       blurRadius: 12, offset: const Offset(0, 4))],
                   ),
                   child: _loading || _counts.isEmpty
@@ -1150,8 +1149,8 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 6),
                                   child: Text(labels[i],
-                                    style: const TextStyle(fontSize: 9,
-                                        color: ATColors.textSecondary,
+                                    style: TextStyle(fontSize: 9,
+                                        color: context.textSecondary,
                                         fontWeight: FontWeight.w600)),
                                 );
                               },
@@ -1237,7 +1236,7 @@ class _DmlDashboardState extends State<_DmlDashboard> {
     final terminees = _missions.where((m) => m.statut == 'termine').length;
 
     return Scaffold(
-      backgroundColor: ATColors.background,
+      backgroundColor: context.scaffoldBg,
       body: RefreshIndicator(
         onRefresh: _load,
         color: ATColors.primary,
@@ -1371,14 +1370,14 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: widget.color.withValues(alpha: 0.15),
             blurRadius: 14, offset: const Offset(0, 5)),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: context.shadowColor,
             blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
@@ -1394,13 +1393,13 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
         const SizedBox(height: 8),
         AnimatedBuilder(
           animation: _countAnim,
-          builder: (_, __) => Text('${_countAnim.value}',
+          builder: (_, _) => Text('${_countAnim.value}',
             style: TextStyle(color: widget.color, fontSize: 24,
                 fontWeight: FontWeight.w900)),
         ),
         const SizedBox(height: 2),
         Text(widget.label, textAlign: TextAlign.center,
-          style: const TextStyle(color: ATColors.textSecondary,
+          style: TextStyle(color: context.textSecondary,
               fontSize: 10, fontWeight: FontWeight.w600)),
       ]),
     ),
@@ -1411,14 +1410,14 @@ class _AnimatedStatCardState extends State<_AnimatedStatCard>
 class _SkeletonStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE5E7EB),
-    highlightColor: const Color(0xFFF9FAFB),
+    baseColor: context.shimmerBase,
+    highlightColor: context.shimmerHighlight,
     child: Row(children: List.generate(3, (i) => Expanded(
       child: Container(
         margin: EdgeInsets.only(right: i < 2 ? 10 : 0),
         height: 100,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(20),
         ),
       ),
@@ -1436,8 +1435,8 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(children: [
     Text(title,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800,
-          color: ATColors.textPrimary)),
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800,
+          color: context.textPrimary)),
     const Spacer(),
     if (onMore != null)
       TextButton(
@@ -1461,16 +1460,15 @@ class _MiniLineChart extends StatelessWidget {
   const _MiniLineChart({required this.missions, required this.loading});
 
   List<FlSpot> _spots() {
-    // Use placeholder distribution since we don't have per-month data
-    // Return mock spots based on total count distribution
     final total = missions.length;
+    double _r(double v) => double.parse(v.toStringAsFixed(1));
     return [
-      FlSpot(0, (total * 0.1).clamp(0, 20).toDouble()),
-      FlSpot(1, (total * 0.25).clamp(0, 20).toDouble()),
-      FlSpot(2, (total * 0.4).clamp(0, 20).toDouble()),
-      FlSpot(3, (total * 0.6).clamp(0, 20).toDouble()),
-      FlSpot(4, (total * 0.8).clamp(0, 20).toDouble()),
-      FlSpot(5, total.clamp(0, 20).toDouble()),
+      FlSpot(0, _r((total * 0.1).clamp(0, 20).toDouble())),
+      FlSpot(1, _r((total * 0.25).clamp(0, 20).toDouble())),
+      FlSpot(2, _r((total * 0.4).clamp(0, 20).toDouble())),
+      FlSpot(3, _r((total * 0.6).clamp(0, 20).toDouble())),
+      FlSpot(4, _r((total * 0.8).clamp(0, 20).toDouble())),
+      FlSpot(5, _r(total.clamp(0, 20).toDouble())),
     ];
   }
 
@@ -1478,10 +1476,10 @@ class _MiniLineChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loading) {
       return Shimmer.fromColors(
-        baseColor: const Color(0xFFE5E7EB),
-        highlightColor: const Color(0xFFF9FAFB),
+        baseColor: context.shimmerBase,
+        highlightColor: context.shimmerHighlight,
         child: Container(height: 160,
-          decoration: BoxDecoration(color: Colors.white,
+          decoration: BoxDecoration(color: context.cardBg,
               borderRadius: BorderRadius.circular(20))),
       );
     }
@@ -1497,10 +1495,10 @@ class _MiniLineChart extends StatelessWidget {
       height: 160,
       padding: const EdgeInsets.fromLTRB(12, 16, 16, 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
+          color: context.shadowColor,
           blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: LineChart(
@@ -1511,7 +1509,7 @@ class _MiniLineChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (_) => FlLine(
-              color: const Color(0xFFF3F4F6), strokeWidth: 1),
+              color: context.dividerColor, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             leftTitles: const AxisTitles(
@@ -1531,8 +1529,8 @@ class _MiniLineChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(displayMonths[i],
-                    style: const TextStyle(fontSize: 10,
-                        color: ATColors.textSecondary,
+                    style: TextStyle(fontSize: 10,
+                        color: context.textSecondary,
                         fontWeight: FontWeight.w600)),
                 );
               },
@@ -1548,10 +1546,10 @@ class _MiniLineChart extends StatelessWidget {
               isStrokeCapRound: true,
               dotData: FlDotData(
                 show: true,
-                getDotPainter: (spot, _, __, ___) =>
+                getDotPainter: (spot, _, _, _) =>
                     FlDotCirclePainter(radius: 3.5,
                         color: ATColors.primary,
-                        strokeColor: Colors.white,
+                        strokeColor: context.cardBg,
                         strokeWidth: 1.5),
               ),
               belowBarData: BarAreaData(
@@ -1581,12 +1579,12 @@ class _EmptyHint extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-      color: ATColors.background,
+      color: context.surfaceVariant,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: const Color(0xFFE5E7EB)),
+      border: Border.all(color: context.borderColor),
     ),
     child: Center(child: Text(text,
-      style: const TextStyle(color: ATColors.textSecondary,
+      style: TextStyle(color: context.textSecondary,
           fontStyle: FontStyle.italic))),
   );
 }

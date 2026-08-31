@@ -1,0 +1,465 @@
+- generic [ref=f28e7]:
+  - link "Aller au contenu principal" [ref=f28e8] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=f28e10]:
+    - generic [ref=f28e11]:
+      - generic [ref=f28e13]:
+        - img "Algérie Télécom" [ref=f28e15]
+        - generic [ref=f28e16]:
+          - generic [ref=f28e17]: Réservations AT
+          - generic [ref=f28e18]: Algérie Télécom
+      - generic [ref=f28e19]:
+        - generic [ref=f28e20]: AS
+        - generic [ref=f28e21]:
+          - generic [ref=f28e22]: Admin Système
+          - generic [ref=f28e23]: admin
+      - textbox "Rechercher..." [ref=f28e29]
+      - navigation [ref=f28e30]:
+        - link "Tableau de bord" [ref=f28e31] [cursor=pointer]:
+          - /url: /
+        - link "Organigramme" [ref=f28e38] [cursor=pointer]:
+          - /url: /organigramme
+        - link "Mes missions" [ref=f28e43] [cursor=pointer]:
+          - /url: /missions
+        - link "Calendrier" [ref=f28e48] [cursor=pointer]:
+          - /url: /missions/calendrier
+        - link "Validations" [ref=f28e52] [cursor=pointer]:
+          - /url: /validations
+        - link "Messagerie" [ref=f28e57] [cursor=pointer]:
+          - /url: /messagerie
+        - link "Notifications" [ref=f28e61] [cursor=pointer]:
+          - /url: /notifications
+        - link "Mon profil" [ref=f28e66] [cursor=pointer]:
+          - /url: /profil
+        - link "A propos" [ref=f28e71] [cursor=pointer]:
+          - /url: /about
+        - link "Rapports" [ref=f28e75] [cursor=pointer]:
+          - /url: /rapports
+        - generic [ref=f28e80]:
+          - button "Administration" [ref=f28e81] [cursor=pointer]
+          - generic [ref=f28e85]:
+            - link "Utilisateurs" [ref=f28e86] [cursor=pointer]:
+              - /url: /admin/utilisateurs
+            - link "Prestataires" [ref=f28e94] [cursor=pointer]:
+              - /url: /admin/prestataires
+            - link "Budgets" [ref=f28e100] [cursor=pointer]:
+              - /url: /admin/budgets
+            - link "Audit Logs" [ref=f28e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+            - link "Statistiques" [ref=f28e110] [cursor=pointer]:
+              - /url: /admin/statistiques
+            - link "Dashboard DSI" [ref=f28e114] [cursor=pointer]:
+              - /url: /admin/dashboard-executif
+            - link "Simulateur Budget" [ref=f28e118] [cursor=pointer]:
+              - /url: /admin/simulateur-budget
+      - button "Déconnexion" [ref=f28e124] [cursor=pointer]
+  - generic [ref=f28e129]:
+    - banner [ref=f28e130]:
+      - heading "Utilisateurs" [level=1] [ref=f28e132]
+      - generic [ref=f28e133]:
+        - textbox "Rechercher..." [ref=f28e139]
+        - button [ref=f28e140] [cursor=pointer]
+        - button [ref=f28e143] [cursor=pointer]
+        - button "AS Admin" [ref=f28e148] [cursor=pointer]:
+          - generic [ref=f28e149]: AS
+          - generic [ref=f28e150]: Admin
+    - main [ref=f28e151]:
+      - generic [ref=f28e153]:
+        - generic [ref=f28e154]:
+          - button "← Retour" [ref=f28e155] [cursor=pointer]
+          - generic [ref=f28e156]:
+            - generic [ref=f28e157]:
+              - heading "Utilisateurs" [level=1] [ref=f28e158]
+              - paragraph [ref=f28e159]: Gestion des utilisateurs
+            - button "+ Nouvel utilisateur" [ref=f28e161] [cursor=pointer]
+        - generic [ref=f28e164]:
+          - generic [ref=f28e165]:
+            - generic [ref=f28e166]: Rôle
+            - combobox [ref=f28e167]:
+              - option "Tous" [selected]
+              - option "Admin"
+              - option "Validateur"
+              - option "Utilisateur"
+              - option "Demandeur"
+          - generic [ref=f28e168]:
+            - generic [ref=f28e169]: Direction
+            - 'textbox "Ex: Direction X" [ref=f28e170]'
+          - generic [ref=f28e171]:
+            - generic [ref=f28e172]: Statut
+            - combobox [ref=f28e173]:
+              - option "Tous" [selected]
+              - option "Actif"
+              - option "Inactif"
+        - generic [ref=f28e174]:
+          - table [ref=f28e176]:
+            - rowgroup [ref=f28e177]:
+              - row [ref=f28e178]:
+                - columnheader "Utilisateur" [ref=f28e179]
+                - columnheader "Direction" [ref=f28e180]
+                - columnheader "Rôle" [ref=f28e181]
+                - columnheader "Statut" [ref=f28e182]
+                - columnheader "Actions" [ref=f28e183]
+            - rowgroup [ref=f28e184]:
+              - row [ref=f28e185]:
+                - cell "AT Audit Test test.role.audit@at.dz" [ref=f28e186]:
+                  - generic [ref=f28e187]:
+                    - generic [ref=f28e188]: AT
+                    - generic [ref=f28e190]:
+                      - generic [ref=f28e191]: Audit Test
+                      - generic [ref=f28e192]: test.role.audit@at.dz
+                - cell "—" [ref=f28e193]
+                - cell "Admin" [ref=f28e194]:
+                  - combobox [ref=f28e195]:
+                    - option "Admin" [selected]
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e196]
+                - cell [ref=f28e199]:
+                  - button "Désactiver" [ref=f28e201] [cursor=pointer]
+              - row [ref=f28e205]:
+                - cell "RT Role Test test.role@at.dz" [ref=f28e206]:
+                  - generic [ref=f28e207]:
+                    - generic [ref=f28e208]: RT
+                    - generic [ref=f28e210]:
+                      - generic [ref=f28e211]: Role Test
+                      - generic [ref=f28e212]: test.role@at.dz
+                - cell "—" [ref=f28e213]
+                - cell "Admin" [ref=f28e214]:
+                  - combobox [ref=f28e215]:
+                    - option "Admin" [selected]
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e216]
+                - cell [ref=f28e219]:
+                  - button "Désactiver" [ref=f28e221] [cursor=pointer]
+              - row [ref=f28e225]:
+                - cell "AD Agent DML agent.dml@at.dz DML001" [ref=f28e226]:
+                  - generic [ref=f28e227]:
+                    - generic [ref=f28e228]: AD
+                    - generic [ref=f28e230]:
+                      - generic [ref=f28e231]: Agent DML
+                      - generic [ref=f28e232]: agent.dml@at.dz
+                      - generic [ref=f28e233]: DML001
+                - cell "DML" [ref=f28e234]
+                - cell "Admin" [ref=f28e235]:
+                  - combobox [ref=f28e236]:
+                    - option "Admin" [selected]
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e237]
+                - cell [ref=f28e240]:
+                  - button "Désactiver" [ref=f28e242] [cursor=pointer]
+              - row [ref=f28e246]:
+                - cell "KL kamal loulou kamaloulou2008@gmail.com 0215898523" [ref=f28e247]:
+                  - generic [ref=f28e248]:
+                    - generic [ref=f28e249]: KL
+                    - generic [ref=f28e251]:
+                      - generic [ref=f28e252]: kamal loulou
+                      - generic [ref=f28e253]: kamaloulou2008@gmail.com
+                      - generic [ref=f28e254]: "0215898523"
+                - cell "Direction Generale" [ref=f28e255]
+                - cell "Admin" [ref=f28e256]:
+                  - combobox [ref=f28e257]:
+                    - option "Admin" [selected]
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e258]
+                - cell [ref=f28e261]:
+                  - button "Désactiver" [ref=f28e263] [cursor=pointer]
+              - row [ref=f28e267]:
+                - cell "SL Sofiane Laib sofiane.laib@at.dz MAT029" [ref=f28e268]:
+                  - generic [ref=f28e269]:
+                    - generic [ref=f28e270]: SL
+                    - generic [ref=f28e272]:
+                      - generic [ref=f28e273]: Sofiane Laib
+                      - generic [ref=f28e274]: sofiane.laib@at.dz
+                      - generic [ref=f28e275]: MAT029
+                - cell "dir-juridique" [ref=f28e276]
+                - cell "Demandeur" [ref=f28e277]:
+                  - combobox [ref=f28e278]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e279]
+                - cell [ref=f28e282]:
+                  - button "Désactiver" [ref=f28e284] [cursor=pointer]
+              - row [ref=f28e288]:
+                - cell "TM Tarek Mahiout tarek.mahiout@at.dz MAT030" [ref=f28e289]:
+                  - generic [ref=f28e290]:
+                    - generic [ref=f28e291]: TM
+                    - generic [ref=f28e293]:
+                      - generic [ref=f28e294]: Tarek Mahiout
+                      - generic [ref=f28e295]: tarek.mahiout@at.dz
+                      - generic [ref=f28e296]: MAT030
+                - cell "Commercial" [ref=f28e297]
+                - cell "Demandeur" [ref=f28e298]:
+                  - combobox [ref=f28e299]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e300]
+                - cell [ref=f28e303]:
+                  - button "Désactiver" [ref=f28e305] [cursor=pointer]
+              - row [ref=f28e309]:
+                - cell "IB Imane Bensaid imane.bensaid@at.dz MAT031" [ref=f28e310]:
+                  - generic [ref=f28e311]:
+                    - generic [ref=f28e312]: IB
+                    - generic [ref=f28e314]:
+                      - generic [ref=f28e315]: Imane Bensaid
+                      - generic [ref=f28e316]: imane.bensaid@at.dz
+                      - generic [ref=f28e317]: MAT031
+                - cell "Technique" [ref=f28e318]
+                - cell "Demandeur" [ref=f28e319]:
+                  - combobox [ref=f28e320]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e321]
+                - cell [ref=f28e324]:
+                  - button "Désactiver" [ref=f28e326] [cursor=pointer]
+              - row [ref=f28e330]:
+                - cell "CK Chaabane Khelil chaabane.khelil@at.dz MAT032" [ref=f28e331]:
+                  - generic [ref=f28e332]:
+                    - generic [ref=f28e333]: CK
+                    - generic [ref=f28e335]:
+                      - generic [ref=f28e336]: Chaabane Khelil
+                      - generic [ref=f28e337]: chaabane.khelil@at.dz
+                      - generic [ref=f28e338]: MAT032
+                - cell "Achats" [ref=f28e339]
+                - cell "Demandeur" [ref=f28e340]:
+                  - combobox [ref=f28e341]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e342]
+                - cell [ref=f28e345]:
+                  - button "Désactiver" [ref=f28e347] [cursor=pointer]
+              - row [ref=f28e351]:
+                - cell "NB Nassira Belmahi nassira.belmahi@at.dz MAT033" [ref=f28e352]:
+                  - generic [ref=f28e353]:
+                    - generic [ref=f28e354]: NB
+                    - generic [ref=f28e356]:
+                      - generic [ref=f28e357]: Nassira Belmahi
+                      - generic [ref=f28e358]: nassira.belmahi@at.dz
+                      - generic [ref=f28e359]: MAT033
+                - cell "Marketing" [ref=f28e360]
+                - cell "Demandeur" [ref=f28e361]:
+                  - combobox [ref=f28e362]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e363]
+                - cell [ref=f28e366]:
+                  - button "Désactiver" [ref=f28e368] [cursor=pointer]
+              - row [ref=f28e372]:
+                - cell "OB Omar Brahimi omar.brahimi@at.dz MAT034" [ref=f28e373]:
+                  - generic [ref=f28e374]:
+                    - generic [ref=f28e375]: OB
+                    - generic [ref=f28e377]:
+                      - generic [ref=f28e378]: Omar Brahimi
+                      - generic [ref=f28e379]: omar.brahimi@at.dz
+                      - generic [ref=f28e380]: MAT034
+                - cell "Juridique" [ref=f28e381]
+                - cell "Demandeur" [ref=f28e382]:
+                  - combobox [ref=f28e383]:
+                    - option "Admin"
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur" [selected]
+                - cell "Actif" [ref=f28e384]
+                - cell [ref=f28e387]:
+                  - button "Désactiver" [ref=f28e389] [cursor=pointer]
+              - row [ref=f28e393]:
+                - cell "KB Karim Bensalem karim.bensalem@at.dz MAT001" [ref=f28e394]:
+                  - generic [ref=f28e395]:
+                    - generic [ref=f28e396]: KB
+                    - generic [ref=f28e398]:
+                      - generic [ref=f28e399]: Karim Bensalem
+                      - generic [ref=f28e400]: karim.bensalem@at.dz
+                      - generic [ref=f28e401]: MAT001
+                - cell "Achats" [ref=f28e402]
+                - cell "Admin" [ref=f28e403]:
+                  - combobox [ref=f28e404]:
+                    - option "Admin" [selected]
+                    - option "Validateur"
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e405]
+                - cell [ref=f28e408]:
+                  - button "Désactiver" [ref=f28e410] [cursor=pointer]
+              - row [ref=f28e414]:
+                - cell "NK Nadia Khelifi nadia.khelifi@at.dz MAT003" [ref=f28e415]:
+                  - generic [ref=f28e416]:
+                    - generic [ref=f28e417]: NK
+                    - generic [ref=f28e419]:
+                      - generic [ref=f28e420]: Nadia Khelifi
+                      - generic [ref=f28e421]: nadia.khelifi@at.dz
+                      - generic [ref=f28e422]: MAT003
+                - cell "Marketing" [ref=f28e423]
+                - cell "Validateur" [ref=f28e424]:
+                  - combobox [ref=f28e425]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e426]
+                - cell [ref=f28e429]:
+                  - button "Désactiver" [ref=f28e431] [cursor=pointer]
+              - row [ref=f28e435]:
+                - cell "MT Mourad Tebbal mourad.tebbal@at.dz MAT004" [ref=f28e436]:
+                  - generic [ref=f28e437]:
+                    - generic [ref=f28e438]: MT
+                    - generic [ref=f28e440]:
+                      - generic [ref=f28e441]: Mourad Tebbal
+                      - generic [ref=f28e442]: mourad.tebbal@at.dz
+                      - generic [ref=f28e443]: MAT004
+                - cell "Juridique" [ref=f28e444]
+                - cell "Validateur" [ref=f28e445]:
+                  - combobox [ref=f28e446]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e447]
+                - cell [ref=f28e450]:
+                  - button "Désactiver" [ref=f28e452] [cursor=pointer]
+              - row [ref=f28e456]:
+                - cell "YB Yacine Boudiaf yacine.boudiaf@at.dz MAT005" [ref=f28e457]:
+                  - generic [ref=f28e458]:
+                    - generic [ref=f28e459]: YB
+                    - generic [ref=f28e461]:
+                      - generic [ref=f28e462]: Yacine Boudiaf
+                      - generic [ref=f28e463]: yacine.boudiaf@at.dz
+                      - generic [ref=f28e464]: MAT005
+                - cell "Logistique" [ref=f28e465]
+                - cell "Validateur" [ref=f28e466]:
+                  - combobox [ref=f28e467]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e468]
+                - cell [ref=f28e471]:
+                  - button "Désactiver" [ref=f28e473] [cursor=pointer]
+              - row [ref=f28e477]:
+                - cell "LM Leila Mebarki leila.mebarki@at.dz MAT006" [ref=f28e478]:
+                  - generic [ref=f28e479]:
+                    - generic [ref=f28e480]: LM
+                    - generic [ref=f28e482]:
+                      - generic [ref=f28e483]: Leila Mebarki
+                      - generic [ref=f28e484]: leila.mebarki@at.dz
+                      - generic [ref=f28e485]: MAT006
+                - cell "Communication" [ref=f28e486]
+                - cell "Validateur" [ref=f28e487]:
+                  - combobox [ref=f28e488]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e489]
+                - cell [ref=f28e492]:
+                  - button "Désactiver" [ref=f28e494] [cursor=pointer]
+              - row [ref=f28e498]:
+                - cell "BH Bilal Hadidi bilal.hadidi@at.dz MAT007" [ref=f28e499]:
+                  - generic [ref=f28e500]:
+                    - generic [ref=f28e501]: BH
+                    - generic [ref=f28e503]:
+                      - generic [ref=f28e504]: Bilal Hadidi
+                      - generic [ref=f28e505]: bilal.hadidi@at.dz
+                      - generic [ref=f28e506]: MAT007
+                - cell "DSI" [ref=f28e507]
+                - cell "Validateur" [ref=f28e508]:
+                  - combobox [ref=f28e509]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e510]
+                - cell [ref=f28e513]:
+                  - button "Désactiver" [ref=f28e515] [cursor=pointer]
+              - row [ref=f28e519]:
+                - cell "KB Karima Bouziane karima.bouziane@at.dz MAT008" [ref=f28e520]:
+                  - generic [ref=f28e521]:
+                    - generic [ref=f28e522]: KB
+                    - generic [ref=f28e524]:
+                      - generic [ref=f28e525]: Karima Bouziane
+                      - generic [ref=f28e526]: karima.bouziane@at.dz
+                      - generic [ref=f28e527]: MAT008
+                - cell "DRH" [ref=f28e528]
+                - cell "Validateur" [ref=f28e529]:
+                  - combobox [ref=f28e530]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e531]
+                - cell [ref=f28e534]:
+                  - button "Désactiver" [ref=f28e536] [cursor=pointer]
+              - row [ref=f28e540]:
+                - cell "AB Adel Boukhobza adel.boukhobza@at.dz MAT009" [ref=f28e541]:
+                  - generic [ref=f28e542]:
+                    - generic [ref=f28e543]: AB
+                    - generic [ref=f28e545]:
+                      - generic [ref=f28e546]: Adel Boukhobza
+                      - generic [ref=f28e547]: adel.boukhobza@at.dz
+                      - generic [ref=f28e548]: MAT009
+                - cell "DAF" [ref=f28e549]
+                - cell "Validateur" [ref=f28e550]:
+                  - combobox [ref=f28e551]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Actif" [ref=f28e552]
+                - cell [ref=f28e555]:
+                  - button "Désactiver" [ref=f28e557] [cursor=pointer]
+              - row [ref=f28e561]:
+                - cell "DR Djamila Rekik djamila.rekik@at.dz MAT010" [ref=f28e562]:
+                  - generic [ref=f28e563]:
+                    - generic [ref=f28e564]: DR
+                    - generic [ref=f28e566]:
+                      - generic [ref=f28e567]: Djamila Rekik
+                      - generic [ref=f28e568]: djamila.rekik@at.dz
+                      - generic [ref=f28e569]: MAT010
+                - cell "Commercial" [ref=f28e570]
+                - cell "Validateur" [ref=f28e571]:
+                  - combobox [ref=f28e572]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Inactif" [ref=f28e573]
+                - cell [ref=f28e576]:
+                  - button "Activer" [ref=f28e578] [cursor=pointer]
+              - row [ref=f28e582]:
+                - cell "AG Abdelaziz Guerroudj abdelaziz.guerroudj@at.dz MAT011" [ref=f28e583]:
+                  - generic [ref=f28e584]:
+                    - generic [ref=f28e585]: AG
+                    - generic [ref=f28e587]:
+                      - generic [ref=f28e588]: Abdelaziz Guerroudj
+                      - generic [ref=f28e589]: abdelaziz.guerroudj@at.dz
+                      - generic [ref=f28e590]: MAT011
+                - cell "Technique" [ref=f28e591]
+                - cell "Validateur" [ref=f28e592]:
+                  - combobox [ref=f28e593]:
+                    - option "Admin"
+                    - option "Validateur" [selected]
+                    - option "Utilisateur"
+                    - option "Demandeur"
+                - cell "Inactif" [ref=f28e594]
+                - cell [ref=f28e597]:
+                  - button "Activer" [ref=f28e599] [cursor=pointer]
+          - generic [ref=f28e603]:
+            - generic [ref=f28e604]: Page 1 / 3
+            - generic [ref=f28e605]:
+              - button "← Précédent" [disabled] [ref=f28e606]
+              - button "Suivant →" [ref=f28e607] [cursor=pointer]

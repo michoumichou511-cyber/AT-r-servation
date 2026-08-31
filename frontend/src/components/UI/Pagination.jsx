@@ -55,17 +55,17 @@ export default function Pagination({
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-center justify-between gap-3 ${className}`}
+      className={`at-card-surface p-3 flex flex-col sm:flex-row items-center justify-between gap-3 ${className}`}
     >
       <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          {startItem}-{endItem} sur {totalItems}
+        <span className="text-[13px] font-medium text-[#5A6070] dark:text-[#9AA0AE]">
+          <span className="at-number">{startItem}</span>-<span className="at-number">{endItem}</span> sur <span className="at-number">{totalItems}</span>
         </span>
         {onPerPageChange && (
           <select
             value={perPage}
             onChange={(e) => onPerPageChange(Number(e.target.value))}
-            className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-[#00A650]/30"
+            className="rounded-xl border border-[#EAECF0] dark:border-[#2A2D3E] bg-white dark:bg-[#1E2235] px-2.5 py-1.5 text-xs font-medium text-[#5A6070] dark:text-[#9AA0AE] focus:outline-none focus:ring-2 focus:ring-[#00A650]/20 transition-all"
           >
             {PER_PAGE_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -81,7 +81,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
-          className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-xl text-[#5A6070] dark:text-[#9AA0AE] hover:bg-[#F4F6FA] dark:hover:bg-[#252840] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           aria-label="Premiere page"
         >
           <ChevronsLeft size={16} />
@@ -90,7 +90,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-xl text-[#5A6070] dark:text-[#9AA0AE] hover:bg-[#F4F6FA] dark:hover:bg-[#252840] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           aria-label="Page precedente"
         >
           <ChevronLeft size={16} />
@@ -101,7 +101,7 @@ export default function Pagination({
             p === '...' ? (
               <span
                 key={`ellipsis-${i}`}
-                className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500"
+                className="w-9 h-9 flex items-center justify-center text-xs text-[#9AA0AE]"
               >
                 ...
               </span>
@@ -110,10 +110,10 @@ export default function Pagination({
                 key={p}
                 type="button"
                 onClick={() => onPageChange(p)}
-                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                className={`w-9 h-9 rounded-xl text-xs font-semibold transition-all duration-200 ${
                   p === currentPage
-                    ? 'bg-[#00A650] text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-gradient-to-br from-[#003DA5] to-[#00A650] text-white shadow-sm'
+                    : 'text-[#5A6070] dark:text-[#9AA0AE] hover:bg-[#F4F6FA] dark:hover:bg-[#252840]'
                 }`}
               >
                 {p}
@@ -122,7 +122,7 @@ export default function Pagination({
           )}
         </div>
 
-        <span className="sm:hidden text-xs text-gray-500 dark:text-gray-400 px-2">
+        <span className="sm:hidden text-xs font-medium text-[#5A6070] dark:text-[#9AA0AE] px-2">
           {currentPage} / {totalPages}
         </span>
 
@@ -130,7 +130,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-xl text-[#5A6070] dark:text-[#9AA0AE] hover:bg-[#F4F6FA] dark:hover:bg-[#252840] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           aria-label="Page suivante"
         >
           <ChevronRight size={16} />
@@ -139,7 +139,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
-          className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-xl text-[#5A6070] dark:text-[#9AA0AE] hover:bg-[#F4F6FA] dark:hover:bg-[#252840] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
           aria-label="Derniere page"
         >
           <ChevronsRight size={16} />

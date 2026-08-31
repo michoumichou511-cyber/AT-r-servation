@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../design/design_system.dart';
+import '../../config/theme.dart';
 import '../../models/notification.dart';
 import '../../services/api_service.dart';
 
@@ -131,7 +130,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final unread = _notifs.where((n) => !n.lu).length;
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: context.scaffoldBg,
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -191,15 +190,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             color: Colors.white.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(IconlyBold.notification,
+                          child: const Icon(Icons.notifications_rounded,
                               color: Colors.white, size: 18),
                         ),
                         const SizedBox(width: 12),
-                        Text('Notifications',
+                        Flexible(child: Text('Notifications',
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
                             color: Colors.white, fontSize: 24,
                             fontWeight: FontWeight.w800,
-                          )),
+                          ))),
                         if (unread > 0) ...[
                           const SizedBox(width: 10),
                           Container(
@@ -252,9 +252,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ]),
             ),
             title: Row(children: [
-              Text('Notifications',
+              Flexible(child: Text('Notifications',
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
+                  fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white))),
               if (unread > 0) ...[
                 const SizedBox(width: 8),
                 Container(
@@ -288,10 +289,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Icon(Icons.swipe_left_rounded,
                       size: 16, color: DS.info.withValues(alpha: 0.8)),
                   const SizedBox(width: 8),
-                  Text('Glissez pour supprimer · Appuyez pour marquer lu',
+                  Expanded(child: Text('Glissez pour supprimer · Appuyez pour marquer lu',
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
                       fontSize: 11, fontWeight: FontWeight.w600,
-                      color: DS.info.withValues(alpha: 0.8))),
+                      color: DS.info.withValues(alpha: 0.8)))),
                 ]),
               ),
             ),
@@ -359,11 +361,11 @@ class _EmptyState extends StatelessWidget {
         const SizedBox(height: 24),
         Text('Tout est lu !',
           style: GoogleFonts.inter(
-            fontSize: 22, fontWeight: FontWeight.w800, color: DS.textPrimary))
+            fontSize: 22, fontWeight: FontWeight.w800, color: context.textPrimary))
             .animate().fadeIn(delay: 100.ms),
         const SizedBox(height: 8),
         Text('Aucune notification pour le moment',
-          style: GoogleFonts.inter(color: DS.textSecondary, fontSize: 14))
+          style: GoogleFonts.inter(color: context.textSecondary, fontSize: 14))
             .animate().fadeIn(delay: 200.ms),
       ]),
     ),
@@ -374,13 +376,13 @@ class _EmptyState extends StatelessWidget {
 class _NotifSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE5E7EB),
-    highlightColor: const Color(0xFFF9FAFB),
+    baseColor: context.shimmerBase,
+    highlightColor: context.shimmerHighlight,
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       height: 88,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(16),
       ),
     ),
@@ -466,9 +468,9 @@ class _NotifCard extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(18),
-            boxShadow: DS.shadowSm,
+            boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 4, offset: const Offset(0, 2))],
             border: Border(
               left: BorderSide(
                 color: notif.lu
@@ -506,7 +508,7 @@ class _NotifCard extends StatelessWidget {
                     Expanded(child: Text(notif.titre ?? 'Notification',
                       style: GoogleFonts.inter(
                         fontWeight: notif.lu ? FontWeight.w600 : FontWeight.w800,
-                        fontSize: 14, color: DS.textPrimary,
+                        fontSize: 14, color: context.textPrimary,
                       ))),
                     if (!notif.lu) ...[
                       const SizedBox(width: 6),
@@ -527,7 +529,7 @@ class _NotifCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(notif.message!,
                       style: GoogleFonts.inter(
-                        color: DS.textMuted.withValues(
+                        color: context.textMuted.withValues(
                             alpha: notif.lu ? 0.7 : 1.0),
                         fontSize: 12, height: 1.4),
                       maxLines: 2, overflow: TextOverflow.ellipsis),

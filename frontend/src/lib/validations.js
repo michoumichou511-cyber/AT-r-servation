@@ -104,7 +104,7 @@ export const missionStep1Schema = z.object({
   type_mission: z
     .string()
     .min(1, 'Type de mission requis'),
-  transport_type: z.enum(['avion', 'terrestre'], { required_error: 'Choisissez le type de transport' }),
+  transport_type: z.enum(['avion', 'terrestre', 'train', 'autre'], { required_error: 'Choisissez le type de transport' }),
   priorite: z
     .string()
     .optional(),

@@ -7,8 +7,13 @@ import toast from 'react-hot-toast'
 import { adminAPI, reservationsAPI } from '../../../services/api'
 import { Badge, Button, EmptyState, Input, Modal, SkeletonCard } from '../../../components/UI'
 
-const TYPE_OPTIONS = [
-  { value: 'billet', label: 'Billet d’avion', icon: Plane },
+function billetLabel(transportType) {
+  if (transportType === 'train') return 'Billet de train'
+  if (transportType === 'autre') return 'Billet de transport'
+  return 'Billet d\'avion'
+}
+
+const ALL_TYPE_OPTIONS_BASE = [
   { value: 'hebergement', label: 'Hébergement', icon: Building2 },
   { value: 'restauration', label: 'Restauration', icon: BookOpen },
 ]
@@ -18,11 +23,32 @@ function getPayloadValue(v) {
   return s === '' ? undefined : s
 }
 
+const TYPE_TO_PREST_TYPES = {
+  billet: ['compagnie_aerienne', 'agence_voyage'],
+  hebergement: ['hotel'],
+  restauration: ['catering'],
+}
+
+function prestataireLabel(p) {
+  const loc = p.ville || p.adresse || ''
+  return loc ? `${p.nom} — ${loc}` : p.nom
+}
+
 function extractPrestataireIdFromReservation(r) {
   return r?.prestataire?.id ?? ''
 }
 
-export default function Step2Reservations({ missionId, onNext, onPrev }) {
+export default function Step2Reservations({ missionId, transportType, destinationVille, onNext, onPrev }) {
+  const TYPE_OPTIONS = useMemo(() => {
+    if (transportType === 'terrestre') {
+      return ALL_TYPE_OPTIONS_BASE
+    }
+    return [
+      { value: 'billet', label: billetLabel(transportType), icon: Plane },
+      ...ALL_TYPE_OPTIONS_BASE,
+    ]
+  }, [transportType])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [reservations, setReservations] = useState([])
@@ -30,7 +56,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
   const [prestLoading, setPrestLoading] = useState(false)
   const [prestError, setPrestError] = useState('')
 
-  const [formType, setFormType] = useState('billet')
+  const [formType, setFormType] = useState(transportType === 'terrestre' ? 'hebergement' : 'billet')
   const [formPrestId, setFormPrestId] = useState('')
   const [formNotes, setFormNotes] = useState('')
   const [saving, setSaving] = useState(false)
@@ -43,6 +69,30 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
   const [editSaving, setEditSaving] = useState(false)
 
   const reservationsCount = reservations.length
+
+  const filteredPrestataires = useMemo(() => {
+    const allowedTypes = TYPE_TO_PREST_TYPES[formType] ?? []
+    if (!allowedTypes.length) return prestataires
+    let list = prestataires.filter((p) => allowedTypes.includes(p.type))
+    if (formType === 'hebergement' && destinationVille) {
+      const dest = destinationVille.toLowerCase()
+      const byCity = list.filter((p) => (p.ville || p.adresse || '').toLowerCase().includes(dest))
+      if (byCity.length) list = byCity
+    }
+    return list
+  }, [prestataires, formType, destinationVille])
+
+  const editFilteredPrestataires = useMemo(() => {
+    const allowedTypes = TYPE_TO_PREST_TYPES[editType] ?? []
+    if (!allowedTypes.length) return prestataires
+    let list = prestataires.filter((p) => allowedTypes.includes(p.type))
+    if (editType === 'hebergement' && destinationVille) {
+      const dest = destinationVille.toLowerCase()
+      const byCity = list.filter((p) => (p.ville || p.adresse || '').toLowerCase().includes(dest))
+      if (byCity.length) list = byCity
+    }
+    return list
+  }, [prestataires, editType, destinationVille])
 
   const loadPrestataires = useCallback(async () => {
     setPrestLoading(true)
@@ -91,12 +141,15 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
   }, [loadReservations])
 
   useEffect(() => {
-    // Chargement prestataires en arrière-plan (si ça échoue, la réservation reste possible sans prestataire)
     if (!prestataires.length && !prestLoading) loadPrestataires()
   }, [prestataires.length, prestLoading, loadPrestataires])
 
+  useEffect(() => {
+    setFormPrestId('')
+  }, [formType])
+
   const resetForm = () => {
-    setFormType('billet')
+    setFormType(transportType === 'terrestre' ? 'hebergement' : 'billet')
     setFormPrestId('')
     setFormNotes('')
   }
@@ -123,7 +176,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
         err?.response?.data?.message ||
           err?.response?.data?.error ||
           err?.message ||
-          'Erreur lors de l’ajout de la réservation'
+          'Erreur lors de l\'ajout de la réservation'
       )
     } finally {
       setSaving(false)
@@ -209,8 +262,8 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
     return (
       <div className="at-card-surface p-6">
         <div className="text-sm font-semibold text-red-700 mb-2">Mission introuvable</div>
-        <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          Créez d’abord la mission à l’étape 1.
+        <div className="text-sm text-[#5A6070] dark:text-[#9AA0AE] mb-4">
+          Créez d'abord la mission à l'étape 1.
         </div>
         <Button variant="outline" onClick={onPrev}>
           ← Précédent
@@ -221,14 +274,22 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
         <div>
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-2">Réservations</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">Billets, hébergements et restauration pour la mission.</p>
+          <h3 className="text-base font-semibold text-[#1A1D26] dark:text-[#E8EAF0] mb-2">Réservations</h3>
+          <p className="text-sm text-[#9AA0AE]">Billets, hébergements et restauration pour la mission.</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge status="actif" label={`${reservationsCount} réservation(s)`} />
         </div>
+      </div>
+
+      <div className="flex items-start gap-2 px-4 py-2.5 rounded-xl bg-at-blue/5 dark:bg-at-blue/10 border border-at-blue/15 text-sm text-at-blue dark:text-blue-300 mb-5">
+        <span className="shrink-0 text-base mt-0.5">&#128161;</span>
+        <span>
+          Ajoutez au moins <strong>une réservation</strong> pour continuer.
+          {transportType === 'avion' ? ' Pour un déplacement en avion, pensez au billet + hébergement.' : ' Pour un déplacement terrestre, pensez à l\'hébergement et/ou la restauration.'}
+        </span>
       </div>
 
       {error && (
@@ -242,7 +303,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
         <div className="lg:col-span-2">
           <div className="at-card-surface p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Ajouter</div>
+              <div className="text-sm font-semibold text-[#1A1D26] dark:text-[#E8EAF0]">Ajouter</div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -255,11 +316,11 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Type</label>
+              <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">Type</label>
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
-                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
               >
                 {TYPE_OPTIONS.map((o) => (
@@ -269,32 +330,35 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                 ))}
               </select>
 
-              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Prestataire (optionnel)</label>
+              <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">Prestataire (optionnel)</label>
               <select
                 value={formPrestId}
                 onChange={(e) => setFormPrestId(e.target.value)}
                 disabled={prestLoading}
-                className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                            focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green disabled:opacity-60"
               >
                 <option value="">Aucun</option>
-                {prestataires.map((p) => (
+                {filteredPrestataires.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nom} ({p.ville})
+                    {prestataireLabel(p)}
                   </option>
                 ))}
               </select>
+              {filteredPrestataires.length === 0 && !prestLoading && (
+                <div className="text-xs text-amber-500 dark:text-amber-400">Aucun prestataire pour ce type</div>
+              )}
 
-              {prestError && <div className="text-xs text-gray-500 dark:text-gray-400">Prestataires: {prestError}</div>}
+              {prestError && <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">Prestataires: {prestError}</div>}
 
               <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Notes (optionnel)</label>
+                <label className="block text-xs font-semibold text-[#5A6070] dark:text-[#9AA0AE] mb-2">Notes (optionnel)</label>
                 <textarea
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="Détails / justification"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
+                  className="w-full px-3 py-2 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26] dark:bg-[#1E2235] dark:text-[#E8EAF0] dark:border-[#2A2D3E]
                              focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
                 />
               </div>
@@ -317,7 +381,7 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
             <EmptyState
               icon={Plus}
               title="Aucune réservation"
-              subtitle="Ajoutez au moins un billet, un hébergement ou une restauration."
+              subtitle="Utilisez le formulaire à gauche pour ajouter un billet, un hébergement ou une restauration."
             />
           ) : (
             <div className="space-y-3">
@@ -339,16 +403,16 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
                             <div className="w-9 h-9 rounded-xl bg-at-green/10 border border-at-green/20 flex items-center justify-center text-at-green">
                               <Icon size={16} />
                             </div>
-                            <div className="font-semibold text-gray-800 truncate">
+                            <div className="font-semibold text-[#1A1D26] truncate">
                               {r.type_label ?? r.type}
                             </div>
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-[#5A6070]">
                             Prestataire: <span className="font-semibold">{r.prestataire?.nom ?? 'Aucun'}</span>
                           </div>
                           {r.notes && (
-                            <div className="text-sm text-gray-600 mt-2">
-                              Notes: <span className="text-gray-800">{r.notes}</span>
+                            <div className="text-sm text-[#5A6070] mt-2">
+                              Notes: <span className="text-[#1A1D26]">{r.notes}</span>
                             </div>
                           )}
                         </div>
@@ -399,11 +463,11 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
         title="Modifier la réservation"
       >
         <div className="space-y-3">
-          <label className="block text-xs font-semibold text-gray-500 mb-2">Type</label>
+          <label className="block text-xs font-semibold text-[#5A6070] mb-2">Type</label>
           <select
             value={editType}
             onChange={(e) => setEditType(e.target.value)}
-            className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+            className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
                        focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green"
           >
             {TYPE_OPTIONS.map((o) => (
@@ -413,30 +477,30 @@ export default function Step2Reservations({ missionId, onNext, onPrev }) {
             ))}
           </select>
 
-          <label className="block text-xs font-semibold text-gray-500 mb-2">Prestataire</label>
+          <label className="block text-xs font-semibold text-[#5A6070] mb-2">Prestataire</label>
           <select
             value={editPrestId}
             onChange={(e) => setEditPrestId(e.target.value)}
             disabled={prestLoading}
-            className="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+            className="w-full px-3 py-3 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
                        focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green disabled:opacity-60"
           >
             <option value="">Aucun</option>
-            {prestataires.map((p) => (
+            {editFilteredPrestataires.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.nom} ({p.ville})
+                {prestataireLabel(p)}
               </option>
             ))}
           </select>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-2">Notes</label>
+            <label className="block text-xs font-semibold text-[#5A6070] mb-2">Notes</label>
             <textarea
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
               placeholder="Détails"
               rows={3}
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800
+              className="w-full px-3 py-2 rounded-xl border border-[#EAECF0] bg-white text-sm text-[#1A1D26]
                          focus:outline-none focus:ring-1 focus:ring-at-green/30 focus:border-at-green resize-none"
             />
           </div>

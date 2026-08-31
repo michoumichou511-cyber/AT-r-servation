@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Menu, Bell, Moon, Sun, Search, User,
-  LogOut, X, FileText, Building2, Users,
+  Menu, Bell, Moon, Sun, User,
+  LogOut, X,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { searchAPI, notificationsAPI } from '../../services/api'
+import { notificationsAPI } from '../../services/api'
 
 const titresRoutes = {
   '/':                    'Tableau de bord',
@@ -29,14 +29,7 @@ export default function Navbar({ onMenuClick }) {
   const location  = useLocation()
 
   const [dropdownOpen, setDropdownOpen]   = useState(false)
-  const [searchQuery, setSearchQuery]     = useState('')
-  const [searchResults, setSearchResults] = useState([])
-  const [searchOpen, setSearchOpen]       = useState(false)
   const [notifCount, setNotifCount]       = useState(0)
-  const [_searching, setSearching]         = useState(false)
-
-  const searchRef   = useRef(null)
-  const debounceRef = useRef(null)
 
   const titre = titresRoutes[location.pathname] ?? 'AT Réservations'
 
@@ -73,81 +66,31 @@ export default function Navbar({ onMenuClick }) {
     return () => { document.title = 'AT Réservations' }
   }, [notifCount])
 
-  // Recherche avec debounce
-  const handleSearch = useCallback((q) => {
-    setSearchQuery(q)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (q.trim().length < 3) {
-      setSearchResults([])
-      setSearchOpen(false)
-      return
-    }
-    debounceRef.current = setTimeout(async () => {
-      setSearching(true)
-      try {
-        const res = await searchAPI.global(q)
-        const data = res.data?.data ?? []
-        setSearchResults(Array.isArray(data) ? data : [])
-        setSearchOpen(true)
-      } catch {
-        setSearchResults([])
-      } finally {
-        setSearching(false)
-      }
-    }, 500)
-  }, [])
-
-  // Fermer search au clic extérieur
-  useEffect(() => {
-    const handler = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setSearchOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
   const handleLogout = async () => {
     setDropdownOpen(false)
     await logout()
     navigate('/login')
   }
 
-  const getResultIcon = (type) => {
-    if (type === 'mission')     return <FileText size={14} className="text-[#00A650]" />
-    if (type === 'prestataire') return <Building2 size={14} className="text-[#003DA5]" />
-    if (type === 'user')        return <Users size={14} className="text-purple-500" />
-    return <FileText size={14} />
-  }
-
-  const getResultLink = (result) => {
-    if (result.type === 'mission')     return `/missions/${result.id}`
-    if (result.type === 'prestataire') return `/admin/prestataires`
-    if (result.type === 'user')        return `/admin/utilisateurs`
-    return '/'
-  }
-
   const initiales = [user?.prenom?.[0], user?.nom?.[0]].filter(Boolean).join('').toUpperCase()
 
   return (
     <header
-      className="h-16 border-b border-gray-100 shadow-sm
-                       dark:border-[#2A2D3E]
-                       flex items-center justify-between px-4 md:px-6
-                       flex-shrink-0"
+      className="h-16 border-b flex items-center justify-between px-4 md:px-6 flex-shrink-0"
       style={{
         position: 'sticky',
         top: 0,
         zIndex: 9999,
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         ...(darkMode
           ? {
-              background: 'rgba(10, 15, 30, 0.85)',
-              borderBottom: '1px solid #2A2D3E',
+              background: 'rgba(10, 15, 30, 0.8)',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
             }
           : {
-              background: 'rgba(255,255,255,0.9)',
-              borderBottom: '1px solid #e5e7eb',
+              background: 'rgba(248, 250, 251, 0.85)',
+              borderBottom: '1px solid #EAECF0',
             }),
       }}
     >
@@ -156,7 +99,7 @@ export default function Navbar({ onMenuClick }) {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <Menu size={20} />
         </button>
@@ -165,58 +108,6 @@ export default function Navbar({ onMenuClick }) {
 
       {/* DROITE */}
       <div className="flex items-center gap-2">
-
-        {/* Barre de recherche (md+) */}
-        <div ref={searchRef} className="relative hidden md:block">
-          <div
-            aria-busy={_searching}
-            className={`flex items-center gap-2 px-3 py-2 rounded-full border transition-all duration-200 ${
-            searchQuery ? 'border-[#00A650] bg-white dark:bg-gray-800 w-64' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 w-48'
-          }`}>
-            <Search size={15} className="text-gray-400 flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
-              className="bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 w-full"
-            />
-            {searchQuery && (
-              <button onClick={() => { setSearchQuery(''); setSearchResults([]); setSearchOpen(false) }}>
-                <X size={14} className="text-gray-400 hover:text-gray-600" />
-              </button>
-            )}
-          </div>
-
-          {/* Résultats */}
-          <AnimatePresence>
-            {searchOpen && searchResults.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.15 }}
-                className="absolute top-full mt-2 left-0 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl
-                           border border-gray-100 dark:border-gray-700 py-2 z-50 max-h-64 overflow-y-auto"
-              >
-                {searchResults.map((result, i) => (
-                  <Link
-                    key={i}
-                    to={getResultLink(result)}
-                    onClick={() => { setSearchOpen(false); setSearchQuery('') }}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    {getResultIcon(result.type)}
-                    <div className="min-w-0">
-                      <p className="text-sm text-gray-700 dark:text-gray-200 font-medium truncate">{result.titre ?? result.nom}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">{result.type}</p>
-                    </div>
-                  </Link>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
         {/* Dark mode */}
         <motion.button
@@ -235,8 +126,8 @@ export default function Navbar({ onMenuClick }) {
         >
           <Bell size={18} />
           {notifCount > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px]
-                             font-bold rounded-full flex items-center justify-center leading-none">
+            <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] bg-gradient-to-br from-red-500 to-red-600 text-white text-[9px]
+                             font-bold rounded-full flex items-center justify-center leading-none px-1 shadow-[0_2px_8px_rgba(239,68,68,0.4)] animate-at-scale-in">
               {notifCount > 99 ? '99+' : notifCount}
             </span>
           )}
@@ -276,8 +167,8 @@ export default function Navbar({ onMenuClick }) {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -8 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl
-                             border border-gray-100 dark:border-gray-700 z-20 py-1.5 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#1E2235] rounded-[18px] shadow-at-card-lg
+                             border border-[#EAECF0] dark:border-[#2A2D3E] z-20 py-2 overflow-hidden"
                   style={{ position: 'absolute', zIndex: 10000, isolation: 'isolate' }}
                 >
                   {/* Infos utilisateur */}

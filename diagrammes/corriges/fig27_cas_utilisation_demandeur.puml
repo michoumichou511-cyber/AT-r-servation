@@ -1,0 +1,52 @@
+@startuml
+left to right direction
+skinparam dpi 300
+skinparam usecaseFontSize 14
+skinparam actorFontSize 15
+
+actor "Demandeur" as D
+
+rectangle "Espace Demandeur" {
+  usecase "S'authentifier" as UC_AUTH
+  usecase "Gerer ses missions" as UC_GERER
+  usecase "Creer une demande\nde mission" as UC_CREER
+  usecase "Modifier\nune demande" as UC_MODIF
+  usecase "Supprimer\nune demande" as UC_SUPP
+  usecase "Dupliquer\nune mission" as UC_DUPLI
+  usecase "Annuler\nune mission" as UC_ANNUL
+  usecase "Suivre l'etat\nde ses missions" as UC_SUIV
+  usecase "Consulter son historique\nde missions" as UC_HIST
+  usecase "Joindre des\ndocuments" as UC_DOC
+  usecase "Recevoir des\nnotifications" as UC_NOTIF
+  usecase "Consulter son tableau\nde bord personnel" as UC_DASH
+  usecase "Exporter une\nmission en PDF" as UC_PDF
+  usecase "Envoyer des\nmessages internes" as UC_MSG
+  usecase "Consulter le\ncalendrier" as UC_CAL
+}
+
+D --> UC_GERER
+D --> UC_SUIV
+D --> UC_HIST
+D --> UC_NOTIF
+D --> UC_DASH
+D --> UC_PDF
+D --> UC_MSG
+D --> UC_CAL
+
+UC_GERER <.. UC_CREER : <<extend>>
+UC_GERER <.. UC_MODIF : <<extend>>
+UC_GERER <.. UC_SUPP : <<extend>>
+UC_GERER <.. UC_DUPLI : <<extend>>
+UC_GERER <.. UC_ANNUL : <<extend>>
+UC_CREER <.. UC_DOC : <<extend>>
+
+UC_GERER ..> UC_AUTH : <<include>>
+UC_SUIV ..> UC_AUTH : <<include>>
+UC_HIST ..> UC_AUTH : <<include>>
+UC_NOTIF ..> UC_AUTH : <<include>>
+UC_DASH ..> UC_AUTH : <<include>>
+UC_PDF ..> UC_AUTH : <<include>>
+UC_MSG ..> UC_AUTH : <<include>>
+UC_CAL ..> UC_AUTH : <<include>>
+
+@enduml

@@ -2,9 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
 import 'package:shimmer/shimmer.dart';
-import '../design/design_system.dart';
+import '../config/theme.dart';
 import '../models/mission.dart';
 
 // ─── Badge statut ──────────────────────────────────────────────
@@ -60,13 +59,13 @@ class MissionCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    baseColor: const Color(0xFFE2E8F0),
-    highlightColor: const Color(0xFFF8FAFC),
+    baseColor: context.shimmerBase,
+    highlightColor: context.shimmerHighlight,
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       height: 116,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
     ),
@@ -264,7 +263,7 @@ class _MissionCardState extends State<MissionCard>
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.cardBg,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -272,10 +271,10 @@ class _MissionCardState extends State<MissionCard>
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
-                  const BoxShadow(
-                    color: Color(0x08000000),
+                  BoxShadow(
+                    color: context.shadowColor,
                     blurRadius: 4,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -309,7 +308,7 @@ class _MissionCardState extends State<MissionCard>
                                 Text(
                                   widget.mission.numeroUnique ?? 'OM-????',
                                   style: GoogleFonts.inter(
-                                    color: DS.textMuted,
+                                    color: context.textMuted,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 0.4,
@@ -323,13 +322,13 @@ class _MissionCardState extends State<MissionCard>
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF0F4FF),
+                                      color: context.subtleBg,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.flip_camera_android_rounded,
                                       size: 12,
-                                      color: Color(0xFF64748B),
+                                      color: context.textMuted,
                                     ),
                                   ),
                                 ),
@@ -343,7 +342,7 @@ class _MissionCardState extends State<MissionCard>
                               style: GoogleFonts.inter(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: DS.textPrimary,
+                                color: context.textPrimary,
                                 height: 1.3,
                               ),
                               maxLines: 2,
@@ -354,7 +353,7 @@ class _MissionCardState extends State<MissionCard>
                             if (widget.showUser && widget.mission.user != null) ...[
                               const SizedBox(height: 4),
                               Row(children: [
-                                Icon(IconlyLight.profile,
+                                Icon(Icons.person_outline_rounded,
                                     size: 12,
                                     color: DS.secondary.withValues(alpha: 0.7)),
                                 const SizedBox(width: 4),
@@ -370,20 +369,20 @@ class _MissionCardState extends State<MissionCard>
                             ],
 
                             const SizedBox(height: 10),
-                            Container(height: 1, color: const Color(0xFFF1F5F9)),
+                            Container(height: 1, color: context.dividerColor),
                             const SizedBox(height: 10),
 
                             // Destination + Dates
                             Row(children: [
                               Expanded(
                                 child: Row(children: [
-                                  Icon(IconlyLight.location,
+                                  Icon(Icons.location_on_outlined,
                                       size: 13, color: DS.primary),
                                   const SizedBox(width: 5),
                                   Expanded(
                                     child: Text(
                                       widget.mission.displayDest,
-                                      style: DS.caption,
+                                      style: DS.caption.copyWith(color: context.textMuted),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -391,12 +390,12 @@ class _MissionCardState extends State<MissionCard>
                               ),
                               const SizedBox(width: 8),
                               Row(children: [
-                                Icon(IconlyLight.calendar,
+                                Icon(Icons.calendar_today_outlined,
                                     size: 13, color: DS.secondary),
                                 const SizedBox(width: 4),
                                 Text(
                                   widget.mission.displayDates,
-                                  style: DS.caption,
+                                  style: DS.caption.copyWith(color: context.textMuted),
                                 ),
                               ]),
                             ]),
@@ -411,7 +410,7 @@ class _MissionCardState extends State<MissionCard>
                         padding: const EdgeInsets.only(right: 10),
                         child: Icon(
                           Icons.chevron_right_rounded,
-                          color: DS.textPlaceholder,
+                          color: context.textMuted,
                           size: 20,
                         ),
                       ),

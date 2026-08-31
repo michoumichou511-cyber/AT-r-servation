@@ -235,7 +235,7 @@ export default function Rapports() {
               setStatut('')
             }}
           >
-            <RotateCcw size={16} /> Reset
+            <RotateCcw size={16} /> Réinitialiser
           </Button>
         </div>
       </motion.div>

@@ -106,7 +106,7 @@ GoRouter buildRouter(AuthProvider auth) {
         pageBuilder: (ctx, state) => CustomTransitionPage<void>(
           key: state.pageKey,
           child: const SplashScreen(),
-          transitionsBuilder: (_, a, __, child) =>
+          transitionsBuilder: (_, a, _, child) =>
               FadeTransition(opacity: a, child: child),
         ),
       ),
@@ -115,7 +115,7 @@ GoRouter buildRouter(AuthProvider auth) {
         pageBuilder: (ctx, state) => CustomTransitionPage<void>(
           key: state.pageKey,
           child: const OnboardingScreen(),
-          transitionsBuilder: (_, a, __, child) =>
+          transitionsBuilder: (_, a, _, child) =>
               FadeTransition(opacity: a, child: child),
         ),
       ),
@@ -171,7 +171,7 @@ GoRouter buildRouter(AuthProvider auth) {
                   : role == 'agent_dml'
                       ? tabsDml
                       : tabsDemandeur;
-          return _ShellScaffold(child: child, tabs: tabs);
+          return _ShellScaffold(tabs: tabs, child: child);
         },
         routes: [
           // Dashboard (page d'accueil)

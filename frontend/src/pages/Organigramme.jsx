@@ -190,7 +190,7 @@ function OrgCard({ node, depth, onSelect, selected, usersByStructure }) {
       >
         <span className={isSelected ? '' : 'text-gray-800 dark:text-gray-100'}>{node.title}</span>
       </div>
-      <div className={`italic text-gray-500 dark:text-gray-400 ${isRoot ? 'text-[11px]' : 'text-[9px]'}`}>
+      <div className={`italic text-[#5A6070] dark:text-[#9AA0AE] ${isRoot ? 'text-[11px]' : 'text-[9px]'}`}>
         {node.name}
       </div>
       <div
@@ -295,24 +295,24 @@ function DetailPanel({ node, onClose, usersByStructure }) {
 
       <div className="p-5 flex-1 overflow-y-auto">
         <div className="flex gap-3 py-3 border-b border-gray-100 dark:border-gray-700">
-          <Mail size={18} className="text-gray-400 dark:text-gray-500 mt-0.5" />
+          <Mail size={18} className="text-[#9AA0AE] dark:text-[#5A6070] mt-0.5" />
           <div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mb-0.5">Email</div>
+            <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] font-semibold mb-0.5">Email</div>
             <div className="text-[13px] text-gray-800 dark:text-gray-200">{node.email}</div>
           </div>
         </div>
         <div className="flex gap-3 py-3 border-b border-gray-100 dark:border-gray-700">
-          <Phone size={18} className="text-gray-400 dark:text-gray-500 mt-0.5" />
+          <Phone size={18} className="text-[#9AA0AE] dark:text-[#5A6070] mt-0.5" />
           <div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mb-0.5">Telephone</div>
+            <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] font-semibold mb-0.5">Telephone</div>
             <div className="text-[13px] text-gray-800 dark:text-gray-200">{node.phone}</div>
           </div>
         </div>
         {node.children && node.children.length > 0 && (
           <div className="flex gap-3 py-3 border-b border-gray-100 dark:border-gray-700">
-            <Users size={18} className="text-gray-400 dark:text-gray-500 mt-0.5" />
+            <Users size={18} className="text-[#9AA0AE] dark:text-[#5A6070] mt-0.5" />
             <div>
-              <div className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mb-0.5">Sous-structures</div>
+              <div className="text-[11px] text-[#9AA0AE] dark:text-[#5A6070] font-semibold mb-0.5">Sous-structures</div>
               <div className="text-[13px] text-gray-800 dark:text-gray-200">{node.children.length} unite(s)</div>
             </div>
           </div>
@@ -330,19 +330,19 @@ function DetailPanel({ node, onClose, usersByStructure }) {
                       {u.role || "—"}
                     </span>
                   </div>
-                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{u.email}</div>
+                  <div className="mt-1 text-xs text-[#5A6070] dark:text-[#9AA0AE]">{u.email}</div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-dashed border-gray-300 dark:border-gray-600">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Aucun utilisateur affecte a cette structure.</div>
+              <div className="text-xs text-[#5A6070] dark:text-[#9AA0AE]">Aucun utilisateur affecte a cette structure.</div>
             </div>
           )}
         </div>
 
         <div className="mt-5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-          <div className="text-[11px] text-gray-500 dark:text-gray-400 mb-1.5 font-semibold">NOTE</div>
+          <div className="text-[11px] text-[#5A6070] dark:text-[#9AA0AE] mb-1.5 font-semibold">NOTE</div>
           <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
             Les informations de contact sont fictives conformement aux exigences de confidentialite d'Algerie Telecom. La structure hierarchique est officielle.
           </div>
@@ -440,7 +440,7 @@ export default function Organigramme() {
 
       {/* Description + Legende */}
       <div className="px-4 sm:px-6 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 leading-relaxed">
+        <p className="text-xs text-[#5A6070] dark:text-[#9AA0AE] mb-2 leading-relaxed">
           Organigramme de la Direction Generale d'Algerie Telecom.
           Structure officielle extraite des documents internes (memoire ISIL E-014). Les noms du personnel sont fictifs.
         </p>
@@ -448,7 +448,7 @@ export default function Organigramme() {
           <LegendItem color="#003DA5" label="Direction / Division Centrale" />
           <LegendItem color="#00A650" label="Division Technique / Commerciale" />
           <LegendItem color="#4b5563" label="Direction Support / Operationnelle" />
-          <div className="ml-auto text-[11px] text-gray-400 dark:text-gray-500">* Noms fictifs</div>
+          <div className="ml-auto text-[11px] text-[#9AA0AE] dark:text-[#5A6070]">* Noms fictifs</div>
         </div>
       </div>
 
@@ -486,7 +486,7 @@ export default function Organigramme() {
                     className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-md cursor-pointer text-xs border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
                     <span className="font-semibold text-gray-900 dark:text-white">{r.name}</span>
-                    <span className="text-gray-500 dark:text-gray-400"> &mdash; {r.title}</span>
+                    <span className="text-[#5A6070] dark:text-[#9AA0AE]"> &mdash; {r.title}</span>
                   </div>
                 ))}
               </div>

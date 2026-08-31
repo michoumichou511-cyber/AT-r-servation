@@ -1,0 +1,64 @@
+MODELE LOGIQUE DE DONNEES RELATIONNEL (MLDR) - CORRIGE
+=====================================================
+
+Les tables principales du systeme sont les suivantes :
+
+User (id, nom, prenom, email, password, matricule, #role_id, direction, service, poste, telephone, avatar, is_active, last_login_at, created_at, updated_at)
+
+Role (id, name, description, permissions, created_at, updated_at)
+
+Mission (id, #user_id, titre, objet_mission, description, destination_ville, destination_pays, date_depart, date_retour, type_mission, transport_type, budget_mode, statut, priorite, budget_previsionnel, numero_unique, #approuve_par, approuve_le, soumis_le, created_at, updated_at)
+
+Reservation (id, #mission_id, #prestataire_id, type, statut, date_reservation, montant_estime, montant_reel, devise, numero_confirmation, notes, created_at, updated_at)
+
+Billet (id, #reservation_id, compagnie, numero_vol, aeroport_depart, aeroport_arrivee, date_vol, heure_depart, heure_arrivee, classe, numero_billet, prix, statut, created_at, updated_at)
+
+Hebergement (id, #reservation_id, nom_etablissement, type_etablissement, adresse, ville, date_checkin, date_checkout, nombre_nuits, nombre_chambres, type_chambre, prix_nuit, prix_total, numero_reservation, statut, created_at, updated_at)
+
+Restauration (id, #reservation_id, #prestataire_id, nom_restaurant, adresse, ville, date_repas, type_repas, nombre_personnes, prix_par_personne, prix_total, statut, created_at, updated_at)
+
+HotelConvention (id, nom, ville, wilaya, adresse, telephone, email_contact, date_debut_convention, date_fin_convention, tarif_chambre_simple, tarif_chambre_double, statut, notes, #created_by, created_at, updated_at)
+
+Vehicule (id, type, marque, modele, immatriculation, annee, statut, capacite, notes, created_at, updated_at)
+
+MissionTraitementDml (id, #mission_id, #agent_dml_id, #hotel_convention_id, #vehicule_id, type_transport, numero_bon, observations, statut, traite_le, ticket_number, ticket_scan_path, transport_company, montant_transport, created_at, updated_at)
+
+Validation (id, #mission_id, #validateur_id, ordre_validation, statut, commentaire, date_validation, created_at, updated_at)
+
+DelegationValidation (id, #delegant_id, #delegue_id, date_debut, date_fin, motif, active, created_at, updated_at)
+
+Budget (id, direction, service, annee, trimestre, type_depense, montant_alloue, montant_engage, montant_consomme, pourcentage_consomme, alerte_seuil, created_at, updated_at)
+
+BonCommande (id, numero, #mission_id, type, prestataire_nom, montant_total, statut, pdf_path, #genere_par, created_at, updated_at)
+
+Prestataire (id, nom, type, email, telephone, adresse, ville, pays, site_web, note_performance, nombre_evaluations, is_active, is_favori, #created_by, created_at, updated_at)
+
+EvaluationPrestataire (id, #prestataire_id, #user_id, #reservation_id, ponctualite, qualite_service, rapport_qualite_prix, communication, note_globale, commentaire, created_at, updated_at)
+
+Document (id, documentable_type, documentable_id, nom_fichier, chemin, type_document, taille, #uploaded_by, uploaded_at, created_at, updated_at)
+
+Notification (id, #user_id, titre, message, type, is_read, read_at, action_url, categorie, created_at, updated_at)
+
+Conversation (id, #participant_1_id, #participant_2_id, #mission_id, dernier_message, dernier_message_at, created_at, updated_at)
+
+Message (id, #conversation_id, #sender_id, contenu, lu, lu_at, created_at, updated_at)
+
+AuditLog (id, #user_id, action, module, description, ip_address, user_agent, old_values, new_values, created_at)
+
+MissionTemplate (id, #user_id, nom_template, mission_data, is_public, created_at, updated_at)
+
+MissionCommentaire (id, #mission_id, #user_id, contenu, created_at, updated_at)
+
+-----
+Les cles etrangeres sont prefixees par le symbole « # ». Les cles primaires sont soulignees (id).
+
+NOTES DE CONCEPTION :
+- La table Role remplace l'ENUM role de l'ancien schema : elle permet une gestion dynamique des permissions (RBAC) avec un champ JSON permissions.
+- La table Reservation est la table pivot entre Mission et les types de prestations (Billet, Hebergement, Restauration). Elle centralise le suivi financier (montant_estime vs montant_reel).
+- MissionTraitementDml joue le role de classe d'association entre Mission, HotelConvention et Vehicule : elle materialise l'affectation logistique effectuee par l'agent DML.
+- La table Document utilise le polymorphisme Eloquent (documentable_type/documentable_id) pour attacher des fichiers a differentes entites.
+- BonCommande (et non BonTransport) genere les bons de commande PDF pour les missions validees.
+- DelegationValidation permet a un directeur de deleguer temporairement ses droits de validation.
+- MissionTemplate permet de sauvegarder des modeles de mission reutilisables.
+
+Total : 23 tables principales.
