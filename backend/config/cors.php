@@ -28,22 +28,25 @@ if (is_string($fromEnv) && $fromEnv !== '') {
     }
 }
 
+$isProduction = env('APP_ENV') === 'production';
+
 return [
     'paths' => ['api/*'],
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    // Production : uniquement le frontend officiel + FRONTEND_URL (liste séparée par des virgules).
+    // Local : ports Vite/localhost en plus.
     'allowed_origins' => array_values(array_unique(array_merge(
-        $localOrigins,
+        $isProduction ? [] : $localOrigins,
         $extraOrigins,
         [
             // Production : frontend deploye sur Vercel
-            'https://at-reservations.vercel.app',
+            'https://at-reservation.vercel.app',
         ]
     ))),
-    /** Vite peut prendre n’importe quel port libre (5173+) +
-     *  toutes les previews Vercel (*.vercel.app) + tunnels ngrok */
-    'allowed_origins_patterns' => [
+    /** Hors production seulement : n'importe quel port local + tunnels ngrok.
+     *  (Plus de joker *.vercel.app : n'importe qui peut héberger un site sur ce domaine.) */
+    'allowed_origins_patterns' => $isProduction ? [] : [
         '#^https?://(localhost|127\.0\.0\.1)(:\d+)?$#',
-        '#^https://[a-z0-9-]+\.vercel\.app$#',
         '#^https://[a-z0-9-]+\.ngrok(-free)?\.(app|dev|io)$#',
     ],
     'allowed_headers' => [
