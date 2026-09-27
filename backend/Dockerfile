@@ -28,7 +28,16 @@ RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/fra
   && chmod -R ug+rwX storage bootstrap/cache
 
 # Démarrage (Render / hébergeur Docker) :
-# 1. MYSQL_CA_CERT (contenu du certificat CA Aiven) -> fichier + MYSQL_ATTR_SSL_CA
+# 1. MYSQL_CA_CERT (contenu du certificat CA Aiven) -> fichier PEM + MYSQL_ATTR_SSL_CA
+#    Le contenu est normalisé (retours à la ligne perdus au copier-coller, "\n" littéraux)
+#    puis réécrit en lignes de 64 caractères.
 # 2. migrations (sans seeders : pas de réinitialisation des mots de passe)
 # 3. serveur PHP sur le port imposé par l'hébergeur ($PORT)
-CMD ["sh", "-c", "if [ -n \"$MYSQL_CA_CERT\" ]; then printf '%s\\n' \"$MYSQL_CA_CERT\" > /tmp/mysql-ca.pem && export MYSQL_ATTR_SSL_CA=/tmp/mysql-ca.pem; fi; php artisan config:clear; php artisan migrate --force || echo 'ATTENTION: migrations en echec'; exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php"]
+CMD if [ -n "$MYSQL_CA_CERT" ]; then \
+      body=$(printf '%s' "$MYSQL_CA_CERT" | sed -e 's/\\n//g' -e 's/-----BEGIN CERTIFICATE-----//g' -e 's/-----END CERTIFICATE-----//g' | tr -d ' \r\n\t'); \
+      { echo '-----BEGIN CERTIFICATE-----'; printf '%s' "$body" | fold -w 64; echo; echo '-----END CERTIFICATE-----'; } > /tmp/mysql-ca.pem; \
+      export MYSQL_ATTR_SSL_CA=/tmp/mysql-ca.pem; \
+    fi; \
+    php artisan config:clear; \
+    php artisan migrate --force || echo 'ATTENTION: migrations en echec'; \
+    exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php
