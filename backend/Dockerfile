@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libzip-dev \
   libpq-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j"$(nproc)" gd pdo pdo_pgsql zip \
+  && docker-php-ext-install -j"$(nproc)" gd pdo pdo_mysql pdo_pgsql zip \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -27,5 +27,8 @@ RUN composer dump-autoload --optimize \
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
   && chmod -R ug+rwX storage bootstrap/cache
 
-# Démarrage simple (à adapter selon le serveur / reverse-proxy de soutenance)
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "public/index.php"]
+# Démarrage (Render / hébergeur Docker) :
+# 1. MYSQL_CA_CERT (contenu du certificat CA Aiven) -> fichier + MYSQL_ATTR_SSL_CA
+# 2. migrations (sans seeders : pas de réinitialisation des mots de passe)
+# 3. serveur PHP sur le port imposé par l'hébergeur ($PORT)
+CMD ["sh", "-c", "if [ -n \"$MYSQL_CA_CERT\" ]; then printf '%s\\n' \"$MYSQL_CA_CERT\" > /tmp/mysql-ca.pem && export MYSQL_ATTR_SSL_CA=/tmp/mysql-ca.pem; fi; php artisan config:clear; php artisan migrate --force || echo 'ATTENTION: migrations en echec'; exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php"]
