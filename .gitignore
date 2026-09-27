@@ -11,14 +11,13 @@ frontend/dist/
 # ====== Backend (Laravel/PHP) ======
 backend/vendor/
 backend/storage/logs/
-backend/storage/framework/
+# storage/framework : dossiers versionnés via leurs .gitignore internes (contenu ignoré)
 backend/storage/debugbar/
 
 # ====== Laravel / tooling (chemins usuels) ======
 vendor/
 node_modules/
 storage/logs/
-storage/framework/
 public/hot
 public/storage
 bootstrap/cache/
