@@ -5,9 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AT Réservations</title>
+    <!-- Application installable (PWA) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#003DA5" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="AT Réservations" />
   </head>
   <body style="margin:0;min-height:100vh;background-color:#F4F6FA;">
     <div id="root" style="min-height:100vh;background-color:transparent;position:relative;z-index:1;"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}))
+      }
+    </script>
   </body>
 </html>
