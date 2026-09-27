@@ -1,0 +1,24 @@
+# Build de l'APK Android (application Flutter) sur Codemagic — https://codemagic.io
+# L'APK est relié par défaut à l'API en ligne (https://at-r-servation.onrender.com/api).
+workflows:
+  android-apk:
+    name: APK Android (Flutter)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      java: 17
+    scripts:
+      - name: Retirer le chemin JDK propre au PC Windows
+        script: |
+          sed -i.bak '/org.gradle.java.home/d' mobile/at_reservations_mobile/android/gradle.properties
+      - name: Dépendances Flutter
+        script: |
+          cd mobile/at_reservations_mobile
+          flutter pub get
+      - name: Build APK
+        script: |
+          cd mobile/at_reservations_mobile
+          flutter build apk --release
+    artifacts:
+      - mobile/at_reservations_mobile/build/app/outputs/flutter-apk/app-release.apk
