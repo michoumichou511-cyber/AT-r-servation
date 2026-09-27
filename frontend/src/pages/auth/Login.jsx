@@ -8,6 +8,9 @@ import { FormParticlesCanvas } from '../../components/ParticlesBackground'
 
 const MOBILE_MQ = '(max-width: 767px)'
 
+/** Comptes de démo visibles uniquement en développement local (jamais sur le site en ligne). */
+const SHOW_DEMO_ACCOUNTS = import.meta.env.DEV
+
 const LoginDecor3D = lazy(() => import('../../components/auth/LoginDecor3D'))
 
 function usePrefersReducedMotion() {
@@ -556,6 +559,7 @@ function LoginMobileAnimated({
           </button>
         </form>
 
+        {SHOW_DEMO_ACCOUNTS && (<>
         <div
           style={{
             display: 'flex',
@@ -621,6 +625,7 @@ function LoginMobileAnimated({
           <br />
           <span style={{ fontSize: 10, color: mt.footerSmall }}>Cliquez un rôle ci-dessus pour remplir email + mot de passe.</span>
         </p>
+        </>)}
         <p style={{ textAlign: 'center', fontSize: 12, color: mt.footerSmall }}>
           Problème de connexion ?
           {' '}
@@ -1203,12 +1208,14 @@ export default function Login() {
   const { login, darkMode, toggleDarkMode } = useAuth()
   const navigate = useNavigate()
 
-  const comptes = {
-    admin: { email: 'admin@at.dz', password: 'Password@123' },
-    validateur: { email: 'validateur@at.dz', password: 'Password@123' },
-    utilisateur: { email: 'user@at.dz', password: 'Password@123' },
-    demandeur: { email: 'demandeur@at.dz', password: 'Password@123' },
-  }
+  const comptes = SHOW_DEMO_ACCOUNTS
+    ? {
+        admin: { email: 'admin@at.dz', password: 'Password@123' },
+        validateur: { email: 'validateur@at.dz', password: 'Password@123' },
+        utilisateur: { email: 'user@at.dz', password: 'Password@123' },
+        demandeur: { email: 'demandeur@at.dz', password: 'Password@123' },
+      }
+    : {}
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -1679,6 +1686,7 @@ export default function Login() {
           </m.button>
         </form>
 
+        {SHOW_DEMO_ACCOUNTS && (<>
         {/* Séparateur */}
         <div
           style={{
@@ -1767,6 +1775,7 @@ export default function Login() {
             Cliquez un rôle ci-dessus pour remplir email + mot de passe.
           </span>
         </p>
+        </>)}
 
         <p
           className={`text-center text-xs ${darkMode ? 'text-gray-500' : 'text-[#C0C5D0]'}`}
