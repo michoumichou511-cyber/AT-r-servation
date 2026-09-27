@@ -32,7 +32,12 @@ Route::get('/health', [HealthController::class, 'check']);
 
 Route::middleware('throttle:5,1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/register', [AuthController::class, 'register']);
+
+    // Inscription publique : fermée en production (comptes créés par l'admin),
+    // sauf si ALLOW_PUBLIC_REGISTRATION=true. Ouverte en local et en tests.
+    if (filter_var(env('ALLOW_PUBLIC_REGISTRATION', ! app()->isProduction()), FILTER_VALIDATE_BOOL)) {
+        Route::post('/auth/register', [AuthController::class, 'register']);
+    }
 });
 
 // GROUPE PRINCIPAL auth:sanctum + active + throttle:120,1
