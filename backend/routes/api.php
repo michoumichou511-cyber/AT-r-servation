@@ -33,10 +33,15 @@ Route::get('/health', [HealthController::class, 'check']);
 Route::middleware('throttle:5,1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
 
-    // Inscription publique : fermée en production (comptes créés par l'admin),
-    // sauf si ALLOW_PUBLIC_REGISTRATION=true. Ouverte en local et en tests.
+    // Inscription publique : fermée en production, sauf si ALLOW_PUBLIC_REGISTRATION=true.
+    // Ouverte en local et en tests.
     if (filter_var(env('ALLOW_PUBLIC_REGISTRATION', ! app()->isProduction()), FILTER_VALIDATE_BOOL)) {
         Route::post('/auth/register', [AuthController::class, 'register']);
+    } else {
+        // Production : seul un admin connecté peut créer un compte
+        // (écran Admin > Utilisateurs, qui passe par cette route).
+        Route::middleware(['auth:sanctum', 'active', 'role:admin'])
+            ->post('/auth/register', [AuthController::class, 'register']);
     }
 });
 
