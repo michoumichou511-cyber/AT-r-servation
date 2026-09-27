@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.at_reservation.twa",
+      "sha256_cert_fingerprints": ["A5:1D:6B:A2:05:E6:BB:B1:2E:D4:81:E4:3A:C2:37:AD:85:1C:6A:20:D4:F5:5C:7C:77:CF:4F:11:BF:68:F7:D6"]
+    }
+  }
+]
