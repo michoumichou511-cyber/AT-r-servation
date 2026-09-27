@@ -29,15 +29,14 @@ RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/fra
 
 # Démarrage (Render / hébergeur Docker) :
 # 1. MYSQL_CA_CERT (contenu du certificat CA Aiven) -> fichier PEM + MYSQL_ATTR_SSL_CA
-#    Le contenu est normalisé (retours à la ligne perdus au copier-coller, "\n" littéraux)
-#    puis réécrit en lignes de 64 caractères.
+#    Le contenu est normalisé (retours à la ligne perdus au copier-coller, "\n" littéraux,
+#    espaces insécables...) : seuls les caractères base64 entre BEGIN/END sont conservés,
+#    puis réécrits en lignes de 64 caractères.
 # 2. migrations (sans seeders : pas de réinitialisation des mots de passe)
 # 3. serveur PHP sur le port imposé par l'hébergeur ($PORT)
 CMD if [ -n "$MYSQL_CA_CERT" ]; then \
-      body=$(printf '%s' "$MYSQL_CA_CERT" | sed -e 's/\\n//g' -e 's/-----BEGIN CERTIFICATE-----//g' -e 's/-----END CERTIFICATE-----//g' | tr -d ' \r\n\t'); \
-      { echo '-----BEGIN CERTIFICATE-----'; printf '%s' "$body" | fold -w 64; echo; echo '-----END CERTIFICATE-----'; } > /tmp/mysql-ca.pem; \
+      php -r '$r=str_replace(["\\r\\n","\\n","\\r"],"\n",(string)getenv("MYSQL_CA_CERT")); $r=preg_replace("/[^\x20-\x7E\n]/","",$r); $bs=preg_match_all("/BEGIN CERTIFICATE(.*?)END CERTIFICATE/s",$r,$m)?$m[1]:[$r]; $pem=""; foreach($bs as $b){$b=preg_replace("/[^A-Za-z0-9+\/=]/","",$b); $pem.="-----BEGIN CERTIFICATE-----\n".chunk_split($b,64,"\n")."-----END CERTIFICATE-----\n";} file_put_contents("/tmp/mysql-ca.pem",$pem); $c=@openssl_x509_parse($pem); echo $c ? "DIAG CA MySQL OK: ".$c["name"]." (expire ".date("Y-m-d",$c["validTo_time_t"]).")\n" : "DIAG CA MySQL ILLISIBLE: ".strlen($r)." car., debut=".json_encode(substr($r,0,40))." fin=".json_encode(substr($r,-40))."\n";'; \
       export MYSQL_ATTR_SSL_CA=/tmp/mysql-ca.pem; \
-      php -r '$c=@openssl_x509_parse(file_get_contents("/tmp/mysql-ca.pem")); echo $c ? "DIAG CA MySQL OK: ".$c["name"]." (expire ".date("Y-m-d",$c["validTo_time_t"]).")\n" : "DIAG CA MySQL ILLISIBLE: ".strlen(getenv("MYSQL_CA_CERT"))." caracteres recus\n";'; \
     else \
       echo 'DIAG CA MySQL ABSENT: variable MYSQL_CA_CERT vide'; \
     fi; \
