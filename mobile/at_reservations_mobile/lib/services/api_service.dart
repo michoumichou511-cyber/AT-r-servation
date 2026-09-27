@@ -11,6 +11,10 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+/// Serveur gratuit (Render) : jusqu'à ~1 min de réveil après inactivité.
+const Duration kRequestTimeout = Duration(seconds: 60);
+const Duration kUploadTimeout = Duration(seconds: 90);
+
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -132,8 +136,9 @@ class ApiService {
 
       throw ApiException(
         0,
-        "Connexion impossible au serveur backend.\n"
-        "Vérifiez que le serveur Laravel tourne et que votre téléphone et votre PC sont sur le même réseau Wi-Fi (IP: 192.168.1.7).",
+        "Connexion impossible au serveur.\n"
+        "Vérifiez votre connexion Internet. Si le serveur était en veille, "
+        "il peut mettre jusqu'à une minute à redémarrer : réessayez.",
       );
     }
   }
@@ -143,7 +148,7 @@ class ApiService {
       final res = await http.get(
         Uri.parse('$baseUrl$path'),
         headers: await _headers(path),
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(kRequestTimeout);
       _handleStatus(res.statusCode, res.body, path);
       return jsonDecode(res.body);
     });
@@ -155,7 +160,7 @@ class ApiService {
         Uri.parse('$baseUrl$path'),
         headers: await _headers(path),
         body: body != null ? jsonEncode(body) : null,
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(kRequestTimeout);
       _handleStatus(res.statusCode, res.body, path);
       if (res.body.isEmpty) return {};
       return jsonDecode(res.body);
@@ -168,7 +173,7 @@ class ApiService {
         Uri.parse('$baseUrl$path'),
         headers: await _headers(path),
         body: body != null ? jsonEncode(body) : null,
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(kRequestTimeout);
       _handleStatus(res.statusCode, res.body, path);
       if (res.body.isEmpty) return {};
       return jsonDecode(res.body);
@@ -181,7 +186,7 @@ class ApiService {
         Uri.parse('$baseUrl$path'),
         headers: await _headers(path),
         body: body != null ? jsonEncode(body) : null,
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(kRequestTimeout);
       _handleStatus(res.statusCode, res.body, path);
       if (res.body.isEmpty) return {};
       return jsonDecode(res.body);
@@ -205,7 +210,7 @@ class ApiService {
       if (fields != null) req.fields.addAll(fields);
       req.files.add(http.MultipartFile.fromBytes(
         fileField, fileBytes, filename: fileName));
-      final streamed = await req.send().timeout(const Duration(seconds: 45));
+      final streamed = await req.send().timeout(kUploadTimeout);
       final body = await streamed.stream.bytesToString();
       _handleStatus(streamed.statusCode, body, path);
       if (body.isEmpty) return {};
@@ -218,7 +223,7 @@ class ApiService {
       final res = await http.delete(
         Uri.parse('$baseUrl$path'),
         headers: await _headers(path),
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(kRequestTimeout);
       _handleStatus(res.statusCode, res.body, path);
       if (res.body.isEmpty) return {};
       return jsonDecode(res.body);
