@@ -37,7 +37,11 @@ CMD if [ -n "$MYSQL_CA_CERT" ]; then \
       body=$(printf '%s' "$MYSQL_CA_CERT" | sed -e 's/\\n//g' -e 's/-----BEGIN CERTIFICATE-----//g' -e 's/-----END CERTIFICATE-----//g' | tr -d ' \r\n\t'); \
       { echo '-----BEGIN CERTIFICATE-----'; printf '%s' "$body" | fold -w 64; echo; echo '-----END CERTIFICATE-----'; } > /tmp/mysql-ca.pem; \
       export MYSQL_ATTR_SSL_CA=/tmp/mysql-ca.pem; \
+      php -r '$c=@openssl_x509_parse(file_get_contents("/tmp/mysql-ca.pem")); echo $c ? "DIAG CA MySQL OK: ".$c["name"]." (expire ".date("Y-m-d",$c["validTo_time_t"]).")\n" : "DIAG CA MySQL ILLISIBLE: ".strlen(getenv("MYSQL_CA_CERT"))." caracteres recus\n";'; \
+    else \
+      echo 'DIAG CA MySQL ABSENT: variable MYSQL_CA_CERT vide'; \
     fi; \
+    php -r '$h=getenv("DB_HOST"); $p=(int)getenv("DB_PORT"); $s=@fsockopen($h,$p,$e,$m,5); echo $s ? "DIAG reseau MySQL OK: $h:$p joignable\n" : "DIAG reseau MySQL ECHEC: $h:$p ($m)\n";'; \
     php artisan config:clear; \
     php artisan migrate --force || echo 'ATTENTION: migrations en echec'; \
     exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php
