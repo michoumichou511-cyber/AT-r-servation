@@ -44,4 +44,8 @@ CMD if [ -n "$MYSQL_CA_CERT" ]; then \
     php -r '$h=getenv("DB_HOST"); $p=(int)getenv("DB_PORT"); $s=@fsockopen($h,$p,$e,$m,5); echo $s ? "DIAG reseau MySQL OK: $h:$p joignable\n" : "DIAG reseau MySQL ECHEC: $h:$p ($m)\n";'; \
     php artisan config:clear; \
     php artisan migrate --force || echo 'ATTENTION: migrations en echec'; \
+    php artisan db:seed --class=RoleSeeder --force || echo 'ATTENTION: roles en echec'; \
+    if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then \
+      php artisan tinker --execute='$u = App\Models\User::firstOrCreate(["email" => getenv("ADMIN_EMAIL")], ["password" => Illuminate\Support\Facades\Hash::make(getenv("ADMIN_PASSWORD")), "nom" => "Admin", "prenom" => "Systeme", "role_id" => App\Models\Role::where("name", "admin")->value("id"), "is_active" => true]); echo "DIAG admin ".$u->email.($u->wasRecentlyCreated ? " cree" : " existe deja (inchange)").PHP_EOL;' || echo 'ATTENTION: creation admin en echec'; \
+    fi; \
     exec php -S 0.0.0.0:${PORT:-8000} -t public public/index.php
