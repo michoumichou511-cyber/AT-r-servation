@@ -55,3 +55,19 @@ unpacked/
 *_bon.js
 *_bon.jsx
 inject_images.py
+
+# ====== Artefacts de tests ======
+test-results/
+playwright-report/
+.playwright-mcp/
+phpunit-report*.xml
+*.log
+
+# ====== IDE / fichiers temporaires Office ======
+.idea/
+~$*
+
+# ====== Documents personnels (mémoire, soutenance) : hors dépôt ======
+*.docx
+*.pptx
+*.pdf
