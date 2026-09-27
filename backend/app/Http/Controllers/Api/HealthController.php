@@ -29,7 +29,8 @@ class HealthController extends Controller
         } catch (\Exception $e) {
         }
         try {
-            $checks['storage'] = Storage::exists('public') ? 'ok' : 'error';
+            // Disque "public" (storage/app/public) : doit exister et être accessible en écriture
+            $checks['storage'] = is_writable(Storage::disk('public')->path('')) ? 'ok' : 'error';
         } catch (\Exception $e) {
         }
         try {
@@ -43,7 +44,9 @@ class HealthController extends Controller
             'total_missions' => null,
             'total_reservations' => null,
         ];
-        if ($checks['database'] === 'ok') {
+        // Statistiques métier : réservées à un admin authentifié (route publique sinon)
+        $viewer = auth('sanctum')->user();
+        if ($checks['database'] === 'ok' && $viewer?->isAdmin()) {
             try {
                 $stats['total_users'] = User::count();
                 $stats['total_missions'] = Mission::count();
