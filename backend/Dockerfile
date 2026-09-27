@@ -55,6 +55,10 @@ CMD if [ -n "$MYSQL_CA_CERT" ]; then \
     php artisan config:clear; \
     php artisan migrate --force || echo 'ATTENTION: migrations en echec'; \
     php artisan db:seed --class=RoleSeeder --force || echo 'ATTENTION: roles en echec'; \
+    php artisan db:seed --class=ATUsersSeeder --force || echo 'ATTENTION: users en echec'; \
+    php artisan db:seed --class=PrestatairesSeeder --force || echo 'ATTENTION: prestataires en echec'; \
+    php artisan db:seed --class=HotelConventionSeeder --force || echo 'ATTENTION: hotels en echec'; \
+    php artisan db:seed --class=VehiculeSeeder --force || echo 'ATTENTION: vehicules en echec'; \
     if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then \
       php artisan tinker --execute='$u = App\Models\User::firstOrCreate(["email" => getenv("ADMIN_EMAIL")], ["password" => Illuminate\Support\Facades\Hash::make(getenv("ADMIN_PASSWORD")), "nom" => "Admin", "prenom" => "Systeme", "role_id" => App\Models\Role::where("name", "admin")->value("id"), "is_active" => true]); echo "DIAG admin ".$u->email.($u->wasRecentlyCreated ? " cree" : " existe deja (inchange)").PHP_EOL;' || echo 'ATTENTION: creation admin en echec'; \
     fi; \
