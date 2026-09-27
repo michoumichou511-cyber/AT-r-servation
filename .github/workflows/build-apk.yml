@@ -1,0 +1,73 @@
+name: Build APK Android
+
+# Construit l'APK de l'application mobile, relié au backend en ligne,
+# et le publie dans une Release GitHub (téléchargeable depuis le téléphone).
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "URL de l'API (se termine par /api)"
+        required: false
+        default: "https://at-r-servation.onrender.com/api"
+  push:
+    branches: [main]
+    paths:
+      - "mobile/at_reservations_mobile/**"
+      - ".github/workflows/build-apk.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build APK (release)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile/at_reservations_mobile
+    env:
+      API_BASE_URL: ${{ github.event.inputs.api_base_url || 'https://at-r-servation.onrender.com/api' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --dart-define=API_BASE_URL=$API_BASE_URL
+
+      - name: Renommer l'APK
+        run: |
+          mkdir -p ../../dist-apk
+          cp build/app/outputs/flutter-apk/app-release.apk ../../dist-apk/AT-Reservations.apk
+          ls -lh ../../dist-apk
+
+      - name: Artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AT-Reservations-apk
+          path: dist-apk/AT-Reservations.apk
+
+      - name: Publier la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: AT Réservations mobile (build ${{ github.run_number }})
+          body: |
+            APK Android relié à l'API : ${{ env.API_BASE_URL }}
+            Installer : télécharger AT-Reservations.apk sur le téléphone, puis l'ouvrir
+            (autoriser l'installation depuis des sources inconnues).
+          files: dist-apk/AT-Reservations.apk
+          make_latest: true
