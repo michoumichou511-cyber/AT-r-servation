@@ -6,6 +6,7 @@ import FloatingBubbles from '../Common/FloatingBubbles'
 import Sidebar from './Sidebar'
 import Navbar  from './Navbar'
 import CommandPalette from '../Common/CommandPalette'
+import SessionTimeout from '../Common/SessionTimeout'
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -14,6 +15,7 @@ export default function MainLayout() {
   return (
     <div className="flex h-screen bg-transparent overflow-hidden relative z-[1]">
       <CommandPalette />
+      <SessionTimeout />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#003DA5] focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold"
