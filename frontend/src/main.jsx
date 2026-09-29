@@ -2,6 +2,8 @@ import { MotionConfig } from 'framer-motion'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import './i18n'
+
 // CSS de base
 import './index.css'
 import 'aos/dist/aos.css'

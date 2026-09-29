@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { notificationsAPI } from '../../services/api'
+import LanguageSwitcher from '../Common/LanguageSwitcher'
 
 const titresRoutes = {
   '/':                    'Tableau de bord',
@@ -108,6 +109,9 @@ export default function Navbar({ onMenuClick }) {
 
       {/* DROITE */}
       <div className="flex items-center gap-2">
+
+        {/* Langue */}
+        <LanguageSwitcher compact />
 
         {/* Dark mode */}
         <motion.button
