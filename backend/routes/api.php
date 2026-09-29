@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 // ROUTES PUBLIQUES (sans auth) + THROTTLE ANTI-BRUTE FORCE
 Route::get('/health', [HealthController::class, 'check']);
+Route::get('/verification/{numero}', [MissionController::class, 'verifier']);
 
 // Route test-email SUPPRIMÉE — faille de sécurité (envoi d'emails sans auth)
 

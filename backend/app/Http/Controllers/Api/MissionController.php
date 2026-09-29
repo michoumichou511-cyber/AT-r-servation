@@ -340,12 +340,40 @@ class MissionController extends Controller
 
         $budgetConsomme = $mission->reservations->sum('montant_reel');
 
+        $verificationUrl = rtrim(config('app.frontend_url', config('app.url')), '/').'/verification/'.$mission->numero_unique;
+        $qrCode = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(120)->errorCorrection('H')->generate($verificationUrl));
+
         $pdf = Pdf::loadView('pdf.ordre_mission', [
             'mission' => $mission,
             'budgetConsomme' => $budgetConsomme,
+            'qrCode' => $qrCode,
+            'verificationUrl' => $verificationUrl,
         ]);
 
         return $pdf->download('ordre_mission_'.$mission->numero_unique.'.pdf');
+    }
+
+    public function verifier(string $numero)
+    {
+        $mission = Mission::with(['user'])->where('numero_unique', $numero)->first();
+
+        if (! $mission) {
+            return response()->json(['success' => false, 'message' => 'Ordre de mission introuvable'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'numero' => $mission->numero_unique,
+                'titre' => $mission->titre,
+                'demandeur' => ($mission->user->prenom ?? '').' '.($mission->user->nom ?? ''),
+                'destination' => $mission->destination_ville.', '.$mission->destination_pays,
+                'date_depart' => $mission->date_depart?->format('d/m/Y'),
+                'date_retour' => $mission->date_retour?->format('d/m/Y'),
+                'statut' => $mission->statut,
+                'cree_le' => $mission->created_at?->format('d/m/Y'),
+            ],
+        ]);
     }
 
     public function export(Request $request)

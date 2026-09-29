@@ -166,6 +166,14 @@
         </div>
     </div>
 
+    <div class="qr-verification" style="margin-top: 30px; text-align: center; page-break-inside: avoid;">
+        <div style="display: inline-block; border: 2px solid #003DA5; padding: 12px; border-radius: 8px; background: #f8fafc;">
+            <img src="data:image/svg+xml;base64,{{ $qrCode }}" alt="QR Verification" style="width: 120px; height: 120px;">
+            <div style="font-size: 9px; color: #003DA5; font-weight: bold; margin-top: 6px;">Scannez pour verifier l'authenticite</div>
+            <div style="font-size: 8px; color: #888; margin-top: 2px;">{{ $verificationUrl }}</div>
+        </div>
+    </div>
+
     <div class="footer">
         <p>Document genere le {{ now()->format('d/m/Y') }} &mdash; <strong>AT Reservations v2.0</strong></p>
         <p>&copy; {{ date('Y') }} Algerie Telecom &mdash; Direction des Systemes d'Information</p>
