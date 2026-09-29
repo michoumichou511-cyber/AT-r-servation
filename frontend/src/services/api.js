@@ -105,6 +105,8 @@ export const missionsAPI = {
   /** PDF ordre de mission pour une mission (GET /api/missions/{id}/export/pdf) */
   exportOrdreMissionPdf: (id) =>
     api.get(`/missions/${id}/export/pdf`, { responseType: 'blob' }),
+  exportIcal: (id) =>
+    api.get(`/missions/${id}/export/ical`, { responseType: 'blob' }),
   uploadDocument:(id, data) =>
     api.post(`/missions/${id}/documents`, data, {
       headers: { 'Content-Type': 'multipart/form-data' }

@@ -328,6 +328,24 @@ export default function MissionDetail() {
     }
   }
 
+  const telechargerIcal = async () => {
+    try {
+      const res = await missionsAPI.exportIcal(missionId)
+      const blob = res.data
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `mission_${mission?.numero_unique ?? missionId}.ics`
+      a.click()
+      window.URL.revokeObjectURL(url)
+      toast.success('Fichier calendrier (.ics) exporté')
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'Erreur export calendrier'
+      )
+    }
+  }
+
   const ouvrirBonsModal = async () => {
     setShowBonsModal(true)
     setLoadingBons(true)
@@ -538,6 +556,9 @@ export default function MissionDetail() {
               <>
                 <Button variant="outline" size="sm" onClick={telechargerPDF}>
                   <Download size={16} /> Télécharger PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={telechargerIcal}>
+                  <CalendarDays size={16} /> Exporter iCal
                 </Button>
                 <Button size="sm" onClick={ouvrirBonsModal}>
                   <FileArchive size={16} /> Bons de commande
