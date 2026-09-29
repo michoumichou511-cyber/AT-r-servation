@@ -324,6 +324,36 @@ class MissionController extends Controller
         }
     }
 
+    public function exportIcal(Request $request, $id)
+    {
+        $mission = Mission::with('user')->findOrFail($id);
+
+        $user = $request->user();
+        if ($user->role->name === 'demandeur' && $mission->user_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
+        }
+
+        $dtStart = $mission->date_depart->format('Ymd\THis\Z');
+        $dtEnd = $mission->date_retour->format('Ymd\THis\Z');
+        $stamp = now()->format('Ymd\THis\Z');
+        $uid = $mission->numero_unique.'@at-reservation.vercel.app';
+        $summary = $this->escapeIcal($mission->titre);
+        $location = $this->escapeIcal($mission->destination_ville.', '.$mission->destination_pays);
+        $description = $this->escapeIcal('Mission: '.$mission->objet_mission.' | Ref: '.$mission->numero_unique);
+
+        $ical = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//AT Reservations//Mission//FR\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:{$uid}\r\nDTSTAMP:{$stamp}\r\nDTSTART:{$dtStart}\r\nDTEND:{$dtEnd}\r\nSUMMARY:{$summary}\r\nLOCATION:{$location}\r\nDESCRIPTION:{$description}\r\nSTATUS:CONFIRMED\r\nEND:VEVENT\r\nEND:VCALENDAR";
+
+        return response($ical, 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="mission_'.$mission->numero_unique.'.ics"',
+        ]);
+    }
+
+    private function escapeIcal(string $text): string
+    {
+        return str_replace(["\r\n", "\n", ',', ';', '\\'], ['\\n', '\\n', '\\,', '\\;', '\\\\'], $text);
+    }
+
     public function exportPdf(Request $request, $id)
     {
         $mission = Mission::with([

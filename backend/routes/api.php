@@ -73,6 +73,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/missions/{id}/cancel', [MissionController::class, 'cancel']);
     Route::post('/missions/{id}/duplicate', [MissionController::class, 'duplicate']);
     Route::get('/missions/{id}/export/pdf', [MissionController::class, 'exportPdf']);
+    Route::get('/missions/{id}/export/ical', [MissionController::class, 'exportIcal']);
     Route::get('/missions/{id}/historique', [MissionController::class, 'historique']);
     Route::post('/missions/{id}/save-template', [MissionController::class, 'saveAsTemplate']);
     Route::get('/missions/{id}/commentaires', [MissionController::class, 'commentaires']);
