@@ -253,6 +253,49 @@ class ValidationController extends Controller
         return response()->json(['message' => 'Validation approuvée']);
     }
 
+    public function approuverEnLot(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1|max:50',
+            'ids.*' => 'integer|exists:circuit_validations,id',
+            'commentaire' => 'sometimes|nullable|string|max:65535',
+        ]);
+
+        $user = Auth::user();
+        $resultats = ['approuvees' => 0, 'erreurs' => []];
+
+        foreach ($request->ids as $id) {
+            try {
+                $validation = CircuitValidation::with('mission')->findOrFail($id);
+
+                $isAssigned = $validation->validateur_id === $user->id;
+                $isAdmin = $user->role->name === 'admin';
+
+                if (!$isAssigned && !$isAdmin) {
+                    $resultats['erreurs'][] = ['id' => $id, 'message' => 'Non autorisé'];
+                    continue;
+                }
+
+                if ($validation->statut !== 'en_attente') {
+                    $resultats['erreurs'][] = ['id' => $id, 'message' => 'Pas en attente'];
+                    continue;
+                }
+
+                $fakeRequest = new Request(['commentaire' => $request->commentaire]);
+                $fakeRequest->setUserResolver(fn () => $user);
+                $this->approuver($fakeRequest, $id);
+                $resultats['approuvees']++;
+            } catch (\Exception $e) {
+                $resultats['erreurs'][] = ['id' => $id, 'message' => $e->getMessage()];
+            }
+        }
+
+        return response()->json([
+            'message' => "{$resultats['approuvees']} validation(s) approuvée(s)",
+            'resultats' => $resultats,
+        ]);
+    }
+
     public function rejeter(Request $request, $id)
     {
         $validation = CircuitValidation::with('mission')->findOrFail($id);

@@ -113,6 +113,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function 
     Route::post('/validations/deleguer', [ValidationController::class, 'deleguer']);
     Route::get('/validations/{id}', [ValidationController::class, 'show']);
     Route::post('/validations/{id}/approuver', [ValidationController::class, 'approuver']);
+    Route::post('/validations/approuver-en-lot', [ValidationController::class, 'approuverEnLot']);
     Route::post('/validations/{id}/rejeter', [ValidationController::class, 'rejeter']);
     Route::post('/validations/{id}/modifier', [ValidationController::class, 'demanderModification']);
 
