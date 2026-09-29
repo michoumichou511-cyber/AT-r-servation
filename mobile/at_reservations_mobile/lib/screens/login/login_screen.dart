@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await context.read<AuthProvider>().login(email, pass);
-      await _saveBioCredentials(email, pass);
+      if (mounted) await _offerBiometricSetup(email, pass);
     } catch (e) {
       if (mounted) {
         HapticFeedback.vibrate();
@@ -119,6 +119,70 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _offerBiometricSetup(String email, String pass) async {
+    final existingEmail = await _storage.read(key: 'bio_email');
+    if (existingEmail != null && existingEmail.isNotEmpty) {
+      await _saveBioCredentials(email, pass);
+      return;
+    }
+
+    bool canCheck = false;
+    try {
+      canCheck = await _localAuth.canCheckBiometrics || await _localAuth.isDeviceSupported();
+    } catch (_) {}
+    if (!canCheck || !mounted) return;
+
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: const Icon(Icons.fingerprint, size: 48, color: Color(0xFF003DA5)),
+        title: Text('Connexion biométrique',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 18)),
+        content: Text(
+          'Voulez-vous activer la connexion par empreinte digitale pour vous connecter plus rapidement ?',
+          style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF64748B)),
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Plus tard', style: GoogleFonts.inter(color: const Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF003DA5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Activer', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (accepted == true) {
+      await _saveBioCredentials(email, pass);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Text('Empreinte digitale activée !', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+            ]),
+            backgroundColor: const Color(0xFF00A650),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
