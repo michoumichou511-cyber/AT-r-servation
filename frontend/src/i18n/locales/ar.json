@@ -55,7 +55,9 @@
     "providers": "مقدمو الخدمات",
     "messaging": "المراسلة",
     "calendar": "التقويم",
-    "dml": "لوجستيك DML"
+    "dml": "لوجستيك DML",
+    "reports": "التقارير",
+    "about": "حول"
   },
   "dashboard": {
     "greeting_morning": "صباح الخير",

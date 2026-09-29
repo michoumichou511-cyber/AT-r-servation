@@ -55,7 +55,9 @@
     "providers": "Prestataires",
     "messaging": "Messagerie",
     "calendar": "Calendrier",
-    "dml": "Logistique DML"
+    "dml": "Logistique DML",
+    "reports": "Rapports",
+    "about": "À propos"
   },
   "dashboard": {
     "greeting_morning": "Bonjour",

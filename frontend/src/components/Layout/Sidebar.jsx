@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, FileText, CheckSquare, MessageCircle,
@@ -84,6 +85,7 @@ function NavItem({
 
 export default function Sidebar({ onClose }) {
   const { user, hasRole, logout, darkMode } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [msgCount, setMsgCount] = useState(0)
   const [notifCount, setNotifCount] = useState(0)
@@ -164,7 +166,7 @@ export default function Sidebar({ onClose }) {
             type="button"
             onClick={onClose}
             className="sb-close-mobile md:hidden"
-            aria-label="Fermer le menu"
+            aria-label={t('common.close')}
           >
             <X size={18} />
           </button>
@@ -202,7 +204,7 @@ export default function Sidebar({ onClose }) {
               <NavItem
                 to="/dml"
                 icon={LayoutDashboard}
-                label="Espace DML"
+                label={t('nav.dml')}
                 end
                 onClick={onClose}
                 animDelay={0.1}
@@ -210,14 +212,14 @@ export default function Sidebar({ onClose }) {
               <NavItem
                 to="/dml/missions"
                 icon={FileText}
-                label="Missions"
+                label={t('nav.missions')}
                 onClick={onClose}
                 animDelay={0.12}
               />
               <NavItem
                 to="/messagerie"
                 icon={MessageCircle}
-                label="Messagerie"
+                label={t('nav.messaging')}
                 badge={msgCount}
                 onClick={onClose}
                 animDelay={0.14}
@@ -225,7 +227,7 @@ export default function Sidebar({ onClose }) {
               <NavItem
                 to="/notifications"
                 icon={Bell}
-                label="Notifications"
+                label={t('nav.notifications')}
                 badge={notifCount}
                 onClick={onClose}
                 animDelay={0.18}
@@ -233,7 +235,7 @@ export default function Sidebar({ onClose }) {
               <NavItem
                 to="/profil"
                 icon={User}
-                label="Mon profil"
+                label={t('nav.profile')}
                 onClick={onClose}
                 animDelay={0.22}
               />
@@ -243,7 +245,7 @@ export default function Sidebar({ onClose }) {
           <NavItem
             to="/"
             icon={LayoutDashboard}
-            label="Tableau de bord"
+            label={t('nav.dashboard')}
             end
             onClick={onClose}
             animDelay={0.1}
@@ -252,7 +254,7 @@ export default function Sidebar({ onClose }) {
             <NavItem
               to="/missions"
               icon={FileText}
-              label="Mes missions"
+              label={t('dashboard.my_missions')}
               onClick={onClose}
               animDelay={0.14}
             />
@@ -261,7 +263,7 @@ export default function Sidebar({ onClose }) {
             <NavItem
               to="/missions/calendrier"
               icon={CalendarDays}
-              label="Calendrier"
+              label={t('nav.calendar')}
               onClick={onClose}
               animDelay={0.16}
             />
@@ -271,7 +273,7 @@ export default function Sidebar({ onClose }) {
             <NavItem
               to="/validations"
               icon={CheckSquare}
-              label="Validations"
+              label={t('nav.validations')}
               onClick={onClose}
               animDelay={0.18}
             />
@@ -280,7 +282,7 @@ export default function Sidebar({ onClose }) {
           <NavItem
             to="/messagerie"
             icon={MessageCircle}
-            label="Messagerie"
+            label={t('nav.messaging')}
             badge={msgCount}
             onClick={onClose}
             animDelay={0.22}
@@ -288,7 +290,7 @@ export default function Sidebar({ onClose }) {
           <NavItem
             to="/notifications"
             icon={Bell}
-            label="Notifications"
+            label={t('nav.notifications')}
             badge={notifCount}
             onClick={onClose}
             animDelay={0.26}
@@ -296,7 +298,7 @@ export default function Sidebar({ onClose }) {
           <NavItem
             to="/profil"
             icon={User}
-            label="Mon profil"
+            label={t('nav.profile')}
             onClick={onClose}
             animDelay={0.3}
           />
@@ -304,7 +306,7 @@ export default function Sidebar({ onClose }) {
             <NavItem
               to="/rapports"
               icon={FileBarChart}
-              label="Rapports"
+              label={t('nav.reports')}
               onClick={onClose}
               animDelay={0.34}
             />
@@ -320,7 +322,7 @@ export default function Sidebar({ onClose }) {
                   !adminOpen ? 'sb-section-header--collapsed' : '',
                 ].join(' ')}
               >
-                <span className="sb-section-title">Administration</span>
+                <span className="sb-section-title">{t('nav.admin')}</span>
                 <ChevronDown className="sb-section-arrow" size={16} strokeWidth={2} />
               </button>
 
@@ -336,35 +338,35 @@ export default function Sidebar({ onClose }) {
                     <NavItem
                       to="/admin/utilisateurs"
                       icon={Users}
-                      label="Utilisateurs"
+                      label={t('nav.users')}
                       onClick={onClose}
                       animDelay={0.38}
                     />
                     <NavItem
                       to="/admin/prestataires"
                       icon={Building2}
-                      label="Prestataires"
+                      label={t('nav.providers')}
                       onClick={onClose}
                       animDelay={0.42}
                     />
                     <NavItem
                       to="/admin/budgets"
                       icon={Wallet}
-                      label="Budgets"
+                      label={t('nav.budgets')}
                       onClick={onClose}
                       animDelay={0.46}
                     />
                     <NavItem
                       to="/admin/audit-logs"
                       icon={ClipboardList}
-                      label="Audit Logs"
+                      label={t('nav.audit_logs')}
                       onClick={onClose}
                       animDelay={0.5}
                     />
                     <NavItem
                       to="/admin/statistiques"
                       icon={BarChart3}
-                      label="Statistiques"
+                      label={t('nav.statistics')}
                       onClick={onClose}
                       animDelay={0.54}
                     />
@@ -394,7 +396,7 @@ export default function Sidebar({ onClose }) {
             className="sb-logout-btn"
           >
             <LogOut className="sb-logout-icon" strokeWidth={2} />
-            <span className="sb-logout-text">Déconnexion</span>
+            <span className="sb-logout-text">{t('auth.logout')}</span>
           </button>
         </div>
       </div>
