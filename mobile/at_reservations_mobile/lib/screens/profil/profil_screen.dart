@@ -336,104 +336,100 @@ class _ProfilHeaderState extends State<_ProfilHeader> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Color(0xFF001A5E), Color(0xFF003DA5), Color(0xFF0052CC)],
+          colors: [Color(0xFF001F6B), Color(0xFF003DA5), Color(0xFF0052CC)],
         ),
       ),
       child: Stack(children: [
-        Positioned(top: -50, right: -50, child: _Circle(180, Colors.white.withValues(alpha: 0.05))),
-        Positioned(bottom: 10, left: -70, child: _Circle(140, Colors.white.withValues(alpha: 0.04))),
-        Positioned(top: 30, left: 30, child: _Circle(60, Colors.white.withValues(alpha: 0.03))),
+        Positioned(right: -40, top: -20,
+          child: Container(width: 160, height: 160,
+            decoration: BoxDecoration(shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.04)))),
+        Positioned(left: -30, bottom: 10,
+          child: Container(width: 100, height: 100,
+            decoration: BoxDecoration(shape: BoxShape.circle,
+              color: DS.primary.withValues(alpha: 0.06)))),
         SafeArea(child: Center(child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             const SizedBox(height: 48),
             GestureDetector(
               onTap: _uploading ? null : _pickAndUploadPhoto,
-              child: Stack(alignment: Alignment.center, children: [
-                Container(
-                  width: 108, height: 108,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: roleCol, width: 3),
-                    boxShadow: [BoxShadow(color: roleCol.withValues(alpha: 0.45), blurRadius: 20)],
+              child: SizedBox(
+                width: 96, height: 96,
+                child: Stack(children: [
+                  Container(
+                    width: 96, height: 96,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [roleCol.withValues(alpha: 0.3), roleCol.withValues(alpha: 0.1)],
+                        begin: Alignment.topLeft, end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 2.5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: ClipOval(
+                        child: _uploading
+                            ? const Center(child: SizedBox(width: 28, height: 28,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                            : _avatarUrl != null
+                                ? Image.network(_avatarUrl!, fit: BoxFit.cover, width: 86, height: 86,
+                                    errorBuilder: (_, __, ___) => Center(child: Text(user.initiales,
+                                        style: GoogleFonts.inter(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800))))
+                                : Center(child: Text(user.initiales,
+                                    style: GoogleFonts.inter(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800))),
+                      ),
+                    ),
                   ),
-                ),
-                Container(
-                  width: 94, height: 94,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.15),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-                  ),
-                  child: ClipOval(
-                    child: _uploading
-                        ? const Center(child: SizedBox(width: 30, height: 30,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
-                        : _avatarUrl != null
-                            ? Image.network(_avatarUrl!, fit: BoxFit.cover, width: 94, height: 94,
-                                errorBuilder: (_, __, ___) => Center(child: Text(user.initiales,
-                                    style: GoogleFonts.inter(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800))))
-                            : Center(child: Text(user.initiales,
-                                style: GoogleFonts.inter(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800))),
-                  ),
-                ),
-                Positioned(bottom: 0, right: 0, child: Container(
-                  width: 30, height: 30,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00A650),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 4, offset: Offset(0, 2))],
-                  ),
-                  child: const Icon(Icons.camera_alt_rounded, size: 15, color: Colors.white),
-                )),
-              ]),
+                  Positioned(bottom: 2, right: 2, child: Container(
+                    width: 28, height: 28,
+                    decoration: BoxDecoration(
+                      gradient: DS.gradientGreen,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(Icons.camera_alt_rounded, size: 13, color: Colors.white),
+                  )),
+                ]),
+              ),
             ),
             const SizedBox(height: 14),
             Text(user.nomComplet, textAlign: TextAlign.center,
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700)),
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-              decoration: BoxDecoration(
-                color: roleCol.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: roleCol.withValues(alpha: 0.5)),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: roleCol.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: roleCol.withValues(alpha: 0.35)),
+                ),
+                child: Text(roleLbl, style: GoogleFonts.inter(
+                    color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
               ),
-              child: Text(roleLbl, style: GoogleFonts.inter(
-                  color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-            ),
+              if (isLdap) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text('Active Directory',
+                      style: GoogleFonts.inter(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500)),
+                ),
+              ],
+            ]),
             const SizedBox(height: 8),
             Text(user.email, textAlign: TextAlign.center,
-                style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
-            if (isLdap) ...[
-              const SizedBox(height: 7),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text('🏢 Active Directory',
-                    style: GoogleFonts.inter(color: Colors.white70, fontSize: 11)),
-              ),
-            ],
+                style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.65), fontSize: 13)),
           ]),
         ))),
       ]),
     );
   }
-}
-
-class _Circle extends StatelessWidget {
-  final double size;
-  final Color color;
-  const _Circle(this.size, this.color);
-  @override
-  Widget build(BuildContext context) => Container(
-    width: size, height: size,
-    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
