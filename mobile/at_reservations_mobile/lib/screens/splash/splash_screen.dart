@@ -121,7 +121,11 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF003DA5), Color(0xFF00A650)],
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: DS.primary.withValues(alpha: 0.4),
@@ -130,17 +134,18 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ],
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(60),
-                      child: Image.asset(
-                        'assets/images/logo_at.jpg',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const Icon(
-                          Icons.flight_takeoff,
-                          size: 56,
-                          color: DS.secondary,
+                    child: Center(
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo_at.jpg',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Icon(
+                            Icons.flight_takeoff,
+                            size: 56,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
