@@ -12,6 +12,7 @@ import {
   Calendar,
 } from 'lucide-react'
 import GlassCard from '../../components/Dashboard/GlassCard'
+import CarteMissions from '../../components/Dashboard/CarteMissions'
 import {
   DashboardSkeleton,
   DashboardAdmin,
@@ -855,6 +856,9 @@ export default function Dashboard() {
             MissionsRecentes={MissionsRecentes}
             springSoft={springSoft}
           />
+          <div className="mt-6">
+            <CarteMissions />
+          </div>
         </motion.div>
       </AnimatePresence>
     )
