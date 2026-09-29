@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Clock, AlertTriangle, CheckCircle2, XCircle, Edit3 } from 'lucide-react'
+import { FileText, Clock, AlertTriangle, CheckCircle2, XCircle, Edit3, CheckSquare } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import { validationsAPI } from '../../services/api'
@@ -77,6 +77,9 @@ export default function Validations() {
   const [validations, setValidations] = useState([])
   const [pagination, setPagination] = useState(null)
   const [page, setPage] = useState(1)
+
+  const [selected, setSelected] = useState(new Set())
+  const [batchLoading, setBatchLoading] = useState(false)
 
   const [modal, setModal] = useState({ open: false, type: null, validationId: null })
   const [commentaire, setCommentaire] = useState('')
@@ -167,6 +170,45 @@ export default function Validations() {
     }
   }
 
+  const enAttenteIds = useMemo(
+    () => validations.filter(v => v.statut === 'en_attente').map(v => v.id),
+    [validations]
+  )
+
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selected.size === enAttenteIds.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(enAttenteIds))
+    }
+  }
+
+  const approuverEnLot = async () => {
+    if (selected.size === 0) return
+    setBatchLoading(true)
+    try {
+      const res = await validationsAPI.approuverEnLot([...selected])
+      const data = res.data
+      const ok = data?.resultats?.filter(r => r.statut === 'approuve')?.length ?? selected.size
+      toast.success(`${ok} validation(s) approuvée(s) en lot`)
+      setSelected(new Set())
+      fetchValidations(page)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Erreur approbation en lot')
+    } finally {
+      setBatchLoading(false)
+    }
+  }
+
   const canPaginate = useMemo(() => (pagination?.total ?? 0) > 0, [pagination])
 
   return (
@@ -176,6 +218,31 @@ export default function Validations() {
       transition={{ duration: 0.3 }}
     >
       <PageHeader title="Validations" subtitle="Gérez les demandes de validation" backTo="/" />
+
+      {!loading && !error && enAttenteIds.length > 1 && (
+        <div className="mb-4 flex items-center gap-3 at-card-surface p-3 rounded-xl">
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-[#5A6070] dark:text-[#9AA0AE]">
+            <input
+              type="checkbox"
+              checked={selected.size === enAttenteIds.length && enAttenteIds.length > 0}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded border-gray-300 text-[#00A650] focus:ring-[#00A650]"
+            />
+            Tout sélectionner ({enAttenteIds.length})
+          </label>
+          {selected.size > 0 && (
+            <Button
+              variant="gradient"
+              size="sm"
+              onClick={approuverEnLot}
+              disabled={batchLoading}
+            >
+              <CheckSquare size={16} />
+              {batchLoading ? 'Approbation...' : `Approuver ${selected.size} en lot`}
+            </Button>
+          )}
+        </div>
+      )}
 
       {loading && (
         <div className="space-y-3">
@@ -232,6 +299,15 @@ export default function Validations() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
+                        {v.statut === 'en_attente' && enAttenteIds.length > 1 && (
+                          <input
+                            type="checkbox"
+                            checked={selected.has(v.id)}
+                            onChange={() => toggleSelect(v.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 rounded border-gray-300 text-[#00A650] focus:ring-[#00A650]"
+                          />
+                        )}
                         <div className="bg-[#F4F6FA] dark:bg-[#252840] px-2 py-0.5 rounded-md font-mono text-[#5A6070] dark:text-[#9AA0AE] text-xs">
                           {mission.numero_unique ?? 'OM-—'}
                         </div>

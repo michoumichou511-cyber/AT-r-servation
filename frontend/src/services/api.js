@@ -159,6 +159,8 @@ export const validationsAPI = {
     api.post(`/validations/${id}/modifier`, data),
   modifier: (id, data) =>
     api.post(`/validations/${id}/modifier`, data),
+  approuverEnLot: (ids, commentaire) =>
+    api.post('/validations/approuver-en-lot', { ids, commentaire }),
 }
 
 // ── Notifications ─────────────────────
