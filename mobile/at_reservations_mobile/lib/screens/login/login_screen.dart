@@ -267,10 +267,14 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (ctx, value, child) {
               final glow = 0.3 + 0.5 * sin(value * 2 * pi);
               return Container(
-                width: 90, height: 90,
+                width: 96, height: 96,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF003DA5), Color(0xFF00A650)],
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF00A650).withAlpha((glow * 140).round()),
@@ -287,30 +291,42 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: child,
               );
             },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(45),
-              child: Image.asset(
-                'assets/images/logo_at.jpg',
-                width: 90,
-                height: 90,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('AT',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF003DA5),
-                          fontSize: 28, fontWeight: FontWeight.w900,
-                        )),
-                    Container(
-                      width: 32, height: 2.5,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                            colors: [Color(0xFF00A650), Color(0xFF003DA5)]),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+            child: Container(
+              width: 96, height: 96,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF003DA5), Color(0xFF00A650)],
+                ),
+              ),
+              child: Center(
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo_at.jpg',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('AT',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 28, fontWeight: FontWeight.w900,
+                            )),
+                        Container(
+                          width: 32, height: 2.5,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                                colors: [Color(0xFF00A650), Color(0xFFFFFFFF)]),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
