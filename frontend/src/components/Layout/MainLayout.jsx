@@ -7,6 +7,7 @@ import Sidebar from './Sidebar'
 import Navbar  from './Navbar'
 import CommandPalette from '../Common/CommandPalette'
 import SessionTimeout from '../Common/SessionTimeout'
+import Breadcrumb from '../Common/Breadcrumb'
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -54,6 +55,7 @@ export default function MainLayout() {
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
         <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6 bg-transparent relative z-[1]">
+          <Breadcrumb />
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={location.pathname}
