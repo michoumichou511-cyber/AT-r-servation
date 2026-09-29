@@ -11,6 +11,7 @@ import '../../config/theme.dart';
 import '../../config/constants.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/responsive.dart';
 import '../../widgets/constellation_background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -188,8 +189,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     final size   = MediaQuery.of(context).size;
+    final isShort = size.height < 700;
+    final headerFraction = bottom > 0 ? 0.25 : (isShort ? 0.35 : 0.45);
+    final hPad = Responsive.w(28).clamp(16.0, 36.0);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -201,19 +206,19 @@ class _LoginScreenState extends State<LoginScreen> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOut,
-                height: bottom > 0 ? size.height * 0.28 : size.height * 0.45,
+                height: size.height * headerFraction,
                 child: _buildHeader(),
               ),
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
-                      topLeft:  Radius.circular(36),
-                      topRight: Radius.circular(36),
+                      topLeft:  Radius.circular(Responsive.r(36)),
+                      topRight: Radius.circular(Responsive.r(36)),
                     ),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Color(0x30000000),
                         blurRadius: 40,
@@ -223,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: SingleChildScrollView(
                     padding: EdgeInsets.fromLTRB(
-                        28, 24, 28, bottom > 0 ? bottom + 16 : 24),
+                        hPad, Responsive.h(24), hPad, bottom > 0 ? bottom + 16 : Responsive.h(24)),
                     child: _buildForm(),
                   ),
                 ),
@@ -232,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
-            right: 16,
+            right: Responsive.w(16),
             child: IconButton(
               icon: const Icon(Icons.dns_outlined, color: Colors.white70),
               tooltip: 'Configuration Serveur API',
@@ -319,6 +324,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildHeader() {
+    final logoSize = Responsive.r(96).clamp(72.0, 120.0);
+    final innerLogo = logoSize * 0.83;
+    final titleSize = Responsive.sp(26).clamp(20.0, 32.0);
+    final subSize = Responsive.sp(13).clamp(11.0, 15.0);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -331,7 +341,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (ctx, value, child) {
               final glow = 0.3 + 0.5 * sin(value * 2 * pi);
               return Container(
-                width: 96, height: 96,
+                width: logoSize, height: logoSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
@@ -356,7 +366,7 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             },
             child: Container(
-              width: 96, height: 96,
+              width: logoSize, height: logoSize,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
@@ -369,8 +379,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ClipOval(
                   child: Image.asset(
                     'assets/images/logo_at.jpg',
-                    width: 80,
-                    height: 80,
+                    width: innerLogo,
+                    height: innerLogo,
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -378,10 +388,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text('AT',
                             style: GoogleFonts.inter(
                               color: Colors.white,
-                              fontSize: 28, fontWeight: FontWeight.w900,
+                              fontSize: Responsive.sp(28), fontWeight: FontWeight.w900,
                             )),
                         Container(
-                          width: 32, height: 2.5,
+                          width: Responsive.w(32), height: 2.5,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                                 colors: [Color(0xFF00A650), Color(0xFFFFFFFF)]),
@@ -396,7 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: Responsive.h(16)),
         FadeIn(
           delay: const Duration(milliseconds: 400),
           child: RichText(
@@ -405,22 +415,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   text: 'AT ',
                   style: GoogleFonts.inter(
                       color: const Color(0xFF00A650),
-                      fontSize: 26, fontWeight: FontWeight.w800)),
+                      fontSize: titleSize, fontWeight: FontWeight.w800)),
               TextSpan(
                   text: 'Réservations',
                   style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 26, fontWeight: FontWeight.w800)),
+                      fontSize: titleSize, fontWeight: FontWeight.w800)),
             ]),
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: Responsive.h(6)),
         FadeIn(
           delay: const Duration(milliseconds: 600),
           child: Text('Espace Personnel',
               style: GoogleFonts.inter(
                 color: Colors.white.withAlpha(160),
-                fontSize: 13, letterSpacing: 2.0,
+                fontSize: subSize, letterSpacing: 2.0,
               )),
         ),
       ],
@@ -428,33 +438,37 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildForm() {
+    final formTitleSize = Responsive.sp(24).clamp(18.0, 28.0);
+    final formSubSize = Responsive.sp(13).clamp(11.0, 15.0);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(
           child: Container(
-            width: 50, height: 4,
+            width: Responsive.w(50), height: 4,
             decoration: BoxDecoration(
               color: const Color(0xFF003DA5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: Responsive.h(20)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Connexion',
                   style: GoogleFonts.inter(
-                      fontSize: 24, fontWeight: FontWeight.w800,
+                      fontSize: formTitleSize, fontWeight: FontWeight.w800,
                       color: const Color(0xFF0F172A))),
               Text('Identifiants Algérie Télécom',
                   style: GoogleFonts.inter(
-                      fontSize: 13, color: const Color(0xFF64748B))),
-            ]),
+                      fontSize: formSubSize, color: const Color(0xFF64748B)),
+                  overflow: TextOverflow.ellipsis),
+            ])),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.w(12), vertical: Responsive.h(7)),
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F8F0),
                 borderRadius: BorderRadius.circular(20),
@@ -464,16 +478,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Row(children: [
                 const Icon(Icons.security_outlined,
                     size: 14, color: Color(0xFF00A650)),
-                const SizedBox(width: 4),
+                SizedBox(width: Responsive.w(4)),
                 Text('Sécurisé',
                     style: GoogleFonts.inter(
-                        fontSize: 12, color: const Color(0xFF00A650),
+                        fontSize: Responsive.sp(12).clamp(10.0, 14.0), color: const Color(0xFF00A650),
                         fontWeight: FontWeight.w600)),
               ]),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: Responsive.h(20)),
         if (_error != null) ...[
           Container(
             padding: const EdgeInsets.all(12),
@@ -491,22 +505,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: const Color(0xFFDC2626), fontSize: 13))),
             ]),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: Responsive.h(14)),
         ],
         TextField(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
-          style: GoogleFonts.inter(fontSize: 15, color: const Color(0xFF1F2937)),
+          style: GoogleFonts.inter(fontSize: Responsive.sp(15).clamp(13.0, 17.0), color: const Color(0xFF1F2937)),
           decoration: _inputDeco('Adresse e-mail', Icons.alternate_email_rounded),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: Responsive.h(14)),
         TextField(
           controller: _passCtrl,
           obscureText: !_showPass,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _login(),
-          style: GoogleFonts.inter(fontSize: 15, color: const Color(0xFF1F2937)),
+          style: GoogleFonts.inter(fontSize: Responsive.sp(15).clamp(13.0, 17.0), color: const Color(0xFF1F2937)),
           decoration: _inputDeco(
             'Mot de passe', Icons.lock_outline_rounded,
             suffix: IconButton(
@@ -520,10 +534,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: Responsive.h(24)),
         SizedBox(
           width: double.infinity,
-          height: 56,
+          height: Responsive.h(56).clamp(48.0, 64.0),
           child: Material(
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
@@ -553,7 +567,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text('Se connecter',
                                 style: GoogleFonts.inter(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: Responsive.sp(16).clamp(14.0, 18.0),
                                     fontWeight: FontWeight.w700)),
                             const SizedBox(width: 8),
                             const Icon(Icons.arrow_forward_rounded,
@@ -566,7 +580,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         if (_biometricAvailable) ...[
-          const SizedBox(height: 20),
+          SizedBox(height: Responsive.h(20)),
           Center(
             child: FadeIn(
               delay: const Duration(milliseconds: 200),
@@ -578,8 +592,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     duration: const Duration(milliseconds: 2000),
                     builder: (ctx, value, child) {
                       final pulse = 0.6 + 0.4 * sin(value * 2 * pi);
+                      final bioSize = Responsive.r(64).clamp(52.0, 80.0);
                       return Container(
-                        width: 64, height: 64,
+                        width: bioSize, height: bioSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: const Color(0xFF003DA5).withAlpha(12),
@@ -598,50 +613,54 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: child,
                       );
                     },
-                    child: const Icon(Icons.fingerprint, size: 32, color: Color(0xFF003DA5)),
+                    child: Icon(Icons.fingerprint, size: Responsive.r(32).clamp(24.0, 40.0), color: const Color(0xFF003DA5)),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.h(8)),
                   Text('Connexion biométrique',
                       style: GoogleFonts.inter(
-                          color: const Color(0xFF003DA5), fontSize: 13,
+                          color: const Color(0xFF003DA5), fontSize: Responsive.sp(13).clamp(11.0, 15.0),
                           fontWeight: FontWeight.w600)),
                 ]),
               ),
             ),
           ),
         ],
-        const SizedBox(height: 20),
+        SizedBox(height: Responsive.h(20)),
         Center(
           child: Text('© 2026 Algérie Télécom',
               style: GoogleFonts.inter(
-                  fontSize: 11, color: const Color(0xFF94A3B8))),
+                  fontSize: Responsive.sp(11).clamp(9.0, 13.0), color: const Color(0xFF94A3B8))),
         ),
       ],
     );
   }
 
   InputDecoration _inputDeco(String label, IconData icon, {Widget? suffix}) {
+    final radius = Responsive.r(14).clamp(10.0, 18.0);
     return InputDecoration(
       labelText: label,
       labelStyle: GoogleFonts.inter(
-          color: const Color(0xFF64748B), fontSize: 14),
-      prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
+          color: const Color(0xFF64748B), fontSize: Responsive.sp(14).clamp(12.0, 16.0)),
+      prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: Responsive.r(20).clamp(16.0, 24.0)),
       suffixIcon: suffix,
       filled: true,
       fillColor: const Color(0xFFF8FAFC),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(radius),
         borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(radius),
         borderSide: const BorderSide(color: Color(0xFF00A650), width: 2),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(radius),
         borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: Responsive.w(16).clamp(12.0, 20.0),
+        vertical: Responsive.h(16).clamp(12.0, 20.0),
+      ),
     );
   }
 }
