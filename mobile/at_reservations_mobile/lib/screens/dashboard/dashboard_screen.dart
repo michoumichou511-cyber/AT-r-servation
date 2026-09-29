@@ -11,6 +11,7 @@ import '../../config/theme.dart';
 import '../../models/mission.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../utils/responsive.dart';
 import '../../widgets/mission_card.dart';
 
 // ─── Dashboard Screen (route → rôle) ──────────────────────────────────────
@@ -58,6 +59,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final user = context.watch<AuthProvider>().user;
     final name = user?.nomComplet ?? '';
     final initiales = user?.initiales ?? '?';
@@ -65,6 +67,10 @@ class _AdminDashboardState extends State<_AdminDashboard> {
     final enAttente = ((_stats['en_attente'] ?? _stats['soumis'] ?? 0) as num).toInt();
     final approuvees = ((_stats['approuvees'] ?? _stats['approuve'] ?? 0) as num).toInt();
     final refusees = ((_stats['refusees'] ?? _stats['rejete'] ?? 0) as num).toInt();
+
+    final hPad = Responsive.w(20).clamp(14.0, 28.0);
+    final avatarSize = Responsive.r(48).clamp(38.0, 56.0);
+    final expandedH = Responsive.h(180).clamp(140.0, 220.0);
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
@@ -76,7 +82,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
           slivers: [
             // ── Header ──────────────────────────────────────────
             SliverAppBar(
-              expandedHeight: 180,
+              expandedHeight: expandedH,
               pinned: true,
               backgroundColor: const Color(0xFF1A0050),
               foregroundColor: Colors.white,
@@ -90,34 +96,34 @@ class _AdminDashboardState extends State<_AdminDashboard> {
                     ),
                   ),
                   child: SafeArea(child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    padding: EdgeInsets.fromLTRB(hPad, Responsive.h(16), hPad, Responsive.h(24)),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(children: [
                           Container(
-                            width: 48, height: 48,
+                            width: avatarSize, height: avatarSize,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [Colors.white.withValues(alpha: 0.25), Colors.white.withValues(alpha: 0.1)],
                               ),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(Responsive.r(14).clamp(10.0, 18.0)),
                             ),
                             child: Center(child: Text(initiales, style: GoogleFonts.inter(
-                              color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16,
+                              color: Colors.white, fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(13.0, 20.0),
                             ))),
                           ),
-                          const SizedBox(width: 14),
+                          SizedBox(width: Responsive.w(14)),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text('Bonjour, ${name.isNotEmpty ? name : "Admin"}',
-                                style: GoogleFonts.inter(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                                style: GoogleFonts.inter(color: Colors.white70, fontSize: Responsive.sp(13).clamp(11.0, 16.0), fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
                             Text('Panneau d\'administration',
-                                style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                                style: GoogleFonts.inter(color: Colors.white, fontSize: Responsive.sp(20).clamp(16.0, 24.0), fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                           ])),
                         ]),
-                        const SizedBox(height: 16),
+                        SizedBox(height: Responsive.h(16)),
                         Row(children: [
                           _HeaderPill('$total missions', Icons.assignment_rounded),
                           const SizedBox(width: 8),
@@ -128,7 +134,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
                   )),
                 ),
               ),
-              title: Text('Administration', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16)),
+              title: Text('Administration', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: Responsive.sp(16).clamp(14.0, 18.0))),
               actions: [
                 IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () => context.go('/notifications')),
               ],
@@ -139,19 +145,19 @@ class _AdminDashboardState extends State<_AdminDashboard> {
               child: _loading
                   ? const Padding(padding: EdgeInsets.all(40), child: Center(child: SpinKitWave(color: DS.primary, size: 30)))
                   : Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                      padding: EdgeInsets.fromLTRB(hPad, Responsive.h(20), hPad, 0),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         _SectionTitle('Vue globale'),
-                        const SizedBox(height: 12),
+                        SizedBox(height: Responsive.h(12)),
                         Row(children: [
                           _StatTile('Total', total, ATColors.secondary, Icons.assignment_outlined),
-                          const SizedBox(width: 10),
+                          SizedBox(width: Responsive.w(10)),
                           _StatTile('En attente', enAttente, ATColors.warning, Icons.hourglass_empty_rounded),
                         ]).animate().fadeIn(duration: 400.ms).slideY(begin: 0.15),
-                        const SizedBox(height: 10),
+                        SizedBox(height: Responsive.h(10)),
                         Row(children: [
                           _StatTile('Approuvées', approuvees, ATColors.success, Icons.check_circle_outline_rounded),
-                          const SizedBox(width: 10),
+                          SizedBox(width: Responsive.w(10)),
                           _StatTile('Refusées', refusees, ATColors.error, Icons.cancel_outlined),
                         ]).animate(delay: 100.ms).fadeIn(duration: 400.ms).slideY(begin: 0.15),
                       ]),
@@ -161,10 +167,10 @@ class _AdminDashboardState extends State<_AdminDashboard> {
             // ── Raccourcis ──────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                padding: EdgeInsets.fromLTRB(hPad, Responsive.h(24), hPad, Responsive.h(8)),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _SectionTitle('Accès rapides'),
-                  const SizedBox(height: 12),
+                  SizedBox(height: Responsive.h(12)),
                   _QuickLink('Utilisateurs', Icons.people_outline_rounded, ATColors.secondary, () => context.go('/admin/utilisateurs')),
                   _QuickLink('Statistiques', Icons.bar_chart_rounded, const Color(0xFF7C3AED), () => context.go('/admin/statistiques')),
                   _QuickLink('Audit Logs', Icons.security_rounded, ATColors.info, () => context.go('/admin/audit-logs')),
@@ -229,6 +235,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final auth     = context.watch<AuthProvider>();
     final prenom   = auth.user?.prenom ?? 'vous';
     final initiales = auth.user?.initiales ?? '?';
@@ -240,6 +247,11 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
     final now = DateTime.now();
     final greet = now.hour < 12 ? 'Bonjour' :
                   now.hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+
+    final hPad = Responsive.w(20).clamp(14.0, 28.0);
+    final expandedH = Responsive.h(200).clamp(160.0, 240.0);
+    final avatarSize = Responsive.r(36).clamp(30.0, 44.0);
+    final gapW = Responsive.w(10).clamp(6.0, 14.0);
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
@@ -255,7 +267,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
 
             // ── Header ───────────────────────────────────────────
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: expandedH,
               pinned: true,
               stretch: true,
               backgroundColor: DS.secondary,
@@ -268,18 +280,18 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                 GestureDetector(
                   onTap: () => context.go('/profil'),
                   child: Container(
-                    margin: const EdgeInsets.only(right: 16),
-                    width: 36, height: 36,
+                    margin: EdgeInsets.only(right: Responsive.w(16)),
+                    width: avatarSize, height: avatarSize,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [DS.primary, DS.primaryDark],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Responsive.r(12).clamp(8.0, 16.0)),
                     ),
                     child: Center(
                       child: Text(initiales, style: GoogleFonts.inter(
                         color: Colors.white, fontWeight: FontWeight.w800,
-                        fontSize: 13,
+                        fontSize: Responsive.sp(13).clamp(11.0, 16.0),
                       )),
                     ),
                   ),
@@ -297,7 +309,6 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                   ),
                   child: Stack(
                     children: [
-                      // Subtle decorative circles
                       Positioned(
                         right: -40, top: -30,
                         child: Container(
@@ -320,7 +331,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                       ),
                       SafeArea(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
+                          padding: EdgeInsets.fromLTRB(hPad, Responsive.h(60), hPad, Responsive.h(24)),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -328,15 +339,15 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                               Text('$greet, $prenom',
                                 style: GoogleFonts.inter(
                                   color: Colors.white.withValues(alpha: 0.7),
-                                  fontSize: 14, fontWeight: FontWeight.w500,
+                                  fontSize: Responsive.sp(14).clamp(12.0, 17.0), fontWeight: FontWeight.w500,
                                 )),
-                              const SizedBox(height: 4),
+                              SizedBox(height: Responsive.h(4)),
                               Text('Tableau de bord',
                                 style: GoogleFonts.inter(
-                                  color: Colors.white, fontSize: 26,
+                                  color: Colors.white, fontSize: Responsive.sp(26).clamp(20.0, 32.0),
                                   fontWeight: FontWeight.w900, letterSpacing: -0.8,
                                 )),
-                              const SizedBox(height: 14),
+                              SizedBox(height: Responsive.h(14)),
                               if (!_loading)
                                 Row(children: [
                                   _HeaderPill('$total missions', Icons.assignment_rounded),
@@ -353,50 +364,50 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
                 ),
               ),
               title: Text('Accueil', style: GoogleFonts.inter(
-                fontWeight: FontWeight.w800, fontSize: 16, color: Colors.white,
+                fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(14.0, 18.0), color: Colors.white,
               )),
             ),
 
             // ── Body ──────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: hPad),
                 child: Column(children: [
 
                   // ── Stats row ─────────────────────────────────
-                  const SizedBox(height: 20),
+                  SizedBox(height: Responsive.h(20)),
                   _loading
                     ? _ShimmerStatsRow()
                     : Row(children: [
                         _StatTile('Total', total, ATColors.secondary, Icons.assignment_rounded),
-                        const SizedBox(width: 10),
+                        SizedBox(width: gapW),
                         _StatTile('En attente', enAttente, ATColors.warning, Icons.schedule_rounded),
                       ]).animate().fadeIn(duration: 400.ms).slideY(begin: 0.15),
-                  const SizedBox(height: 10),
+                  SizedBox(height: Responsive.h(10)),
                   if (!_loading)
                     Row(children: [
                       _StatTile('Approuvées', approuv, ATColors.success, Icons.check_circle_outline_rounded),
-                      const SizedBox(width: 10),
+                      SizedBox(width: gapW),
                       _StatTile('Refusées', refusees, ATColors.error, Icons.cancel_outlined),
                     ]).animate(delay: 80.ms).fadeIn(duration: 400.ms).slideY(begin: 0.15),
 
                   // ── Chart ─────────────────────────────────────
-                  const SizedBox(height: 24),
+                  SizedBox(height: Responsive.h(24)),
                   _ChartCard(missions: _missions, loading: _loading),
 
                   // ── Actions rapides ───────────────────────────
-                  const SizedBox(height: 24),
+                  SizedBox(height: Responsive.h(24)),
                   const _SectionTitle('Actions rapides'),
-                  const SizedBox(height: 12),
+                  SizedBox(height: Responsive.h(12)),
                 ]),
               ),
             ),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 88,
+                height: Responsive.h(88).clamp(76.0, 100.0),
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: hPad),
                   children: [
                     _ActionChip('Nouvelle\nmission', Icons.add_circle_outline_rounded,
                         DS.primary,   () => context.push('/new-mission')),
@@ -416,7 +427,7 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
             // ── Missions récentes ──────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                padding: EdgeInsets.fromLTRB(hPad, Responsive.h(20), hPad, 0),
                 child: _SectionHeader(
                   title: 'Missions récentes',
                   onMore: () => context.go('/missions'),
@@ -425,9 +436,9 @@ class _DemandeurDashboardState extends State<_DemandeurDashboard> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: hPad),
                 child: Column(children: [
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.h(8)),
                   if (_loading)
                     ...List.generate(3, (_) => const MissionCardSkeleton())
                   else if (_missions.isEmpty)
@@ -517,8 +528,15 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final prenom = context.watch<AuthProvider>().user?.prenom ?? 'vous';
     final initiales = context.watch<AuthProvider>().user?.initiales ?? '?';
+
+    final hPad = Responsive.w(20).clamp(14.0, 28.0);
+    final expandedH = Responsive.h(180).clamp(140.0, 220.0);
+    final avatarSize = Responsive.r(48).clamp(38.0, 56.0);
+    final gapW = Responsive.w(10).clamp(6.0, 14.0);
+
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       body: RefreshIndicator(
@@ -528,7 +546,7 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
-              expandedHeight: 180,
+              expandedHeight: expandedH,
               pinned: true,
               backgroundColor: ATColors.secondary,
               foregroundColor: Colors.white,
@@ -555,34 +573,34 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                         ),
                       ),
                       SafeArea(child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        padding: EdgeInsets.fromLTRB(hPad, Responsive.h(16), hPad, Responsive.h(24)),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(children: [
                               Container(
-                                width: 48, height: 48,
+                                width: avatarSize, height: avatarSize,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [Colors.white.withValues(alpha: 0.25), Colors.white.withValues(alpha: 0.1)],
                                   ),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(Responsive.r(14).clamp(10.0, 18.0)),
                                 ),
                                 child: Center(child: Text(initiales, style: GoogleFonts.inter(
-                                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16,
+                                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(13.0, 20.0),
                                 ))),
                               ),
-                              const SizedBox(width: 14),
+                              SizedBox(width: Responsive.w(14)),
                               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Text('Bonjour, $prenom',
-                                    style: GoogleFonts.inter(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                                    style: GoogleFonts.inter(color: Colors.white70, fontSize: Responsive.sp(13).clamp(11.0, 16.0), fontWeight: FontWeight.w500)),
                                 const SizedBox(height: 2),
                                 Text('Tableau Directeur',
-                                    style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                                    style: GoogleFonts.inter(color: Colors.white, fontSize: Responsive.sp(22).clamp(18.0, 26.0), fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                               ])),
                             ]),
-                            const SizedBox(height: 14),
+                            SizedBox(height: Responsive.h(14)),
                             Row(children: [
                               _HeaderPill('${_validations.length} à valider', Icons.task_alt_rounded, color: ATColors.warning),
                             ]),
@@ -593,11 +611,11 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                   ),
                 ),
               ),
-              title: Text('Accueil', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16)),
+              title: Text('Accueil', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(14.0, 18.0))),
             ),
 
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(hPad),
               sliver: SliverList(delegate: SliverChildListDelegate([
                 if (_loading)
                   _ShimmerStatsRow()
@@ -605,23 +623,23 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                   Row(children: [
                     _StatTile('À valider', _validations.length,
                         ATColors.error, Icons.task_alt_rounded),
-                    const SizedBox(width: 10),
+                    SizedBox(width: gapW),
                     _StatTile('Approuvées', _counts['approuve'] ?? 0,
                         ATColors.success, Icons.check_circle_outline_rounded),
-                    const SizedBox(width: 10),
+                    SizedBox(width: gapW),
                     _StatTile('Rejetées', _counts['rejete'] ?? 0,
                         ATColors.warning, Icons.cancel_outlined),
                   ]).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, curve: Curves.easeOutBack),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.h(24)),
 
                 _SectionHeader(title: 'Répartition des missions', onMore: null),
-                const SizedBox(height: 12),
+                SizedBox(height: Responsive.h(12)),
                 Container(
-                  height: 200,
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  height: Responsive.h(200).clamp(160.0, 240.0),
+                  padding: EdgeInsets.fromLTRB(hPad, Responsive.h(16), hPad, Responsive.h(8)),
                   decoration: BoxDecoration(
                     color: context.cardBg,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(Responsive.r(20).clamp(14.0, 24.0)),
                     boxShadow: [BoxShadow(
                       color: context.shadowColor,
                       blurRadius: 12, offset: const Offset(0, 4))],
@@ -648,7 +666,7 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 6),
                                   child: Text(labels[i],
-                                    style: TextStyle(fontSize: 9,
+                                    style: TextStyle(fontSize: Responsive.sp(9).clamp(8.0, 11.0),
                                         color: context.textSecondary,
                                         fontWeight: FontWeight.w600)),
                                 );
@@ -660,13 +678,13 @@ class _DirecteurDashboardState extends State<_DirecteurDashboard> {
                           barTouchData: BarTouchData(enabled: true),
                         )),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.h(24)),
 
                 _SectionHeader(
                   title: 'Validations en attente',
                   onMore: () => context.go('/validations'),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.h(8)),
                 if (_loading)
                   const MissionCardSkeleton()
                 else if (_validations.isEmpty)
@@ -728,12 +746,18 @@ class _DmlDashboardState extends State<_DmlDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final prenom    = context.watch<AuthProvider>().user?.prenom ?? 'vous';
     final initiales = context.watch<AuthProvider>().user?.initiales ?? '?';
     final aTraiter  = _missions.where((m) => m.statut == 'approuve').length;
     final enCours   = _missions.where((m) =>
         m.statut == 'en_traitement_logistique').length;
     final terminees = _missions.where((m) => m.statut == 'termine').length;
+
+    final hPad = Responsive.w(20).clamp(14.0, 28.0);
+    final expandedH = Responsive.h(180).clamp(140.0, 220.0);
+    final avatarSize = Responsive.r(48).clamp(38.0, 56.0);
+    final gapW = Responsive.w(10).clamp(6.0, 14.0);
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
@@ -744,7 +768,7 @@ class _DmlDashboardState extends State<_DmlDashboard> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
-              expandedHeight: 180,
+              expandedHeight: expandedH,
               pinned: true,
               backgroundColor: ATColors.secondary,
               foregroundColor: Colors.white,
@@ -770,34 +794,34 @@ class _DmlDashboardState extends State<_DmlDashboard> {
                         ),
                       ),
                       SafeArea(child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        padding: EdgeInsets.fromLTRB(hPad, Responsive.h(16), hPad, Responsive.h(24)),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(children: [
                               Container(
-                                width: 48, height: 48,
+                                width: avatarSize, height: avatarSize,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [Colors.white.withValues(alpha: 0.25), Colors.white.withValues(alpha: 0.1)],
                                   ),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(Responsive.r(14).clamp(10.0, 18.0)),
                                 ),
                                 child: Center(child: Text(initiales, style: GoogleFonts.inter(
-                                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16,
+                                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(13.0, 20.0),
                                 ))),
                               ),
-                              const SizedBox(width: 14),
+                              SizedBox(width: Responsive.w(14)),
                               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Text('Bonjour, $prenom',
-                                    style: GoogleFonts.inter(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                                    style: GoogleFonts.inter(color: Colors.white70, fontSize: Responsive.sp(13).clamp(11.0, 16.0), fontWeight: FontWeight.w500)),
                                 const SizedBox(height: 2),
                                 Text('Tableau DML',
-                                    style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                                    style: GoogleFonts.inter(color: Colors.white, fontSize: Responsive.sp(22).clamp(18.0, 26.0), fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                               ])),
                             ]),
-                            const SizedBox(height: 14),
+                            SizedBox(height: Responsive.h(14)),
                             Row(children: [
                               _HeaderPill('$aTraiter à traiter', Icons.local_shipping_rounded, color: ATColors.warning),
                               const SizedBox(width: 8),
@@ -810,11 +834,11 @@ class _DmlDashboardState extends State<_DmlDashboard> {
                   ),
                 ),
               ),
-              title: Text('Accueil', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16)),
+              title: Text('Accueil', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: Responsive.sp(16).clamp(14.0, 18.0))),
             ),
 
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(hPad),
               sliver: SliverList(delegate: SliverChildListDelegate([
                 if (_loading)
                   _ShimmerStatsRow()
@@ -822,20 +846,20 @@ class _DmlDashboardState extends State<_DmlDashboard> {
                   Row(children: [
                     _StatTile('À traiter', aTraiter,
                         ATColors.error, Icons.local_shipping_outlined),
-                    const SizedBox(width: 10),
+                    SizedBox(width: gapW),
                     _StatTile('En cours', enCours,
                         ATColors.warning, Icons.hourglass_empty_rounded),
-                    const SizedBox(width: 10),
+                    SizedBox(width: gapW),
                     _StatTile('Terminées', terminees,
                         ATColors.success, Icons.check_circle_outline_rounded),
                   ]).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, curve: Curves.easeOutBack),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.h(24)),
 
                 _SectionHeader(
                   title: 'Missions à traiter',
                   onMore: () => context.go('/dml'),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.h(8)),
                 if (_loading)
                   ...List.generate(2, (_) => const MissionCardSkeleton())
                 else if (_missions.isEmpty)
@@ -876,18 +900,21 @@ class _HeaderPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = color ?? Colors.white;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.w(12).clamp(8.0, 16.0),
+        vertical: Responsive.h(7).clamp(5.0, 9.0),
+      ),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: c.withValues(alpha: 0.2)),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, color: c, size: 14),
-        const SizedBox(width: 6),
-        Text(text, style: GoogleFonts.inter(
-          color: c, fontSize: 12, fontWeight: FontWeight.w600,
-        )),
+        Icon(icon, color: c, size: Responsive.r(14).clamp(12.0, 16.0)),
+        SizedBox(width: Responsive.w(6)),
+        Flexible(child: Text(text, style: GoogleFonts.inter(
+          color: c, fontSize: Responsive.sp(12).clamp(10.0, 14.0), fontWeight: FontWeight.w600,
+        ), overflow: TextOverflow.ellipsis)),
       ]),
     );
   }
@@ -902,47 +929,50 @@ class _StatTile extends StatelessWidget {
   const _StatTile(this.label, this.value, this.color, this.icon);
 
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.12)),
-        boxShadow: [BoxShadow(
-          color: context.shadowColor,
-          blurRadius: 8, offset: const Offset(0, 2),
-        )],
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(
-            width: 34, height: 34,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+  Widget build(BuildContext context) {
+    final iconBoxSize = Responsive.r(34).clamp(28.0, 42.0);
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(Responsive.r(14).clamp(10.0, 18.0)),
+        decoration: BoxDecoration(
+          color: context.cardBg,
+          borderRadius: BorderRadius.circular(Responsive.r(16).clamp(12.0, 20.0)),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
+          boxShadow: [BoxShadow(
+            color: context.shadowColor,
+            blurRadius: 8, offset: const Offset(0, 2),
+          )],
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(
+              width: iconBoxSize, height: iconBoxSize,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(Responsive.r(10).clamp(8.0, 14.0)),
+              ),
+              child: Icon(icon, color: color, size: Responsive.r(18).clamp(14.0, 22.0)),
             ),
-            child: Icon(icon, color: color, size: 18),
-          ),
-          const Spacer(),
-          TweenAnimationBuilder<int>(
-            tween: IntTween(begin: 0, end: value),
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeOutCubic,
-            builder: (_, v, _) => Text('$v', style: GoogleFonts.inter(
-              fontSize: 24, fontWeight: FontWeight.w900, color: color,
-              letterSpacing: -0.5,
-            )),
-          ),
+            const Spacer(),
+            TweenAnimationBuilder<int>(
+              tween: IntTween(begin: 0, end: value),
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, _) => Text('$v', style: GoogleFonts.inter(
+                fontSize: Responsive.sp(24).clamp(18.0, 30.0), fontWeight: FontWeight.w900, color: color,
+                letterSpacing: -0.5,
+              )),
+            ),
+          ]),
+          SizedBox(height: Responsive.h(8)),
+          Text(label, style: GoogleFonts.inter(
+            fontSize: Responsive.sp(11).clamp(9.0, 13.0), color: context.textSecondary,
+            fontWeight: FontWeight.w600,
+          )),
         ]),
-        const SizedBox(height: 8),
-        Text(label, style: GoogleFonts.inter(
-          fontSize: 11, color: context.textSecondary,
-          fontWeight: FontWeight.w600,
-        )),
-      ]),
-    ),
-  );
+      ),
+    );
+  }
 }
 
 // ─── Quick link (admin list item) ─────────────────────────────
@@ -954,39 +984,47 @@ class _QuickLink extends StatelessWidget {
   const _QuickLink(this.label, this.icon, this.color, this.onTap);
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Material(
-      color: context.cardBg,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: context.borderColor),
-          ),
-          child: Row(children: [
-            Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
+  Widget build(BuildContext context) {
+    final iconBoxSize = Responsive.r(38).clamp(32.0, 46.0);
+    final radius = Responsive.r(14).clamp(10.0, 18.0);
+    return Padding(
+      padding: EdgeInsets.only(bottom: Responsive.h(8)),
+      child: Material(
+        color: context.cardBg,
+        borderRadius: BorderRadius.circular(radius),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(radius),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.w(14).clamp(10.0, 18.0),
+              vertical: Responsive.h(14).clamp(10.0, 18.0),
             ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(label, style: GoogleFonts.inter(
-              color: context.textPrimary, fontWeight: FontWeight.w600, fontSize: 14,
-            ))),
-            Icon(Icons.chevron_right_rounded, color: context.textMuted, size: 20),
-          ]),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: context.borderColor),
+            ),
+            child: Row(children: [
+              Container(
+                width: iconBoxSize, height: iconBoxSize,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(Responsive.r(10).clamp(8.0, 14.0)),
+                ),
+                child: Icon(icon, color: color, size: Responsive.r(20).clamp(16.0, 24.0)),
+              ),
+              SizedBox(width: Responsive.w(12)),
+              Expanded(child: Text(label, style: GoogleFonts.inter(
+                color: context.textPrimary, fontWeight: FontWeight.w600,
+                fontSize: Responsive.sp(14).clamp(12.0, 16.0),
+              ))),
+              Icon(Icons.chevron_right_rounded, color: context.textMuted, size: Responsive.r(20).clamp(16.0, 24.0)),
+            ]),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 // ─── Section title ────────────────────────────────────────────
@@ -996,7 +1034,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(title,
-    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: context.textPrimary));
+    style: GoogleFonts.inter(fontSize: Responsive.sp(16).clamp(14.0, 19.0), fontWeight: FontWeight.w800, color: context.textPrimary));
 }
 
 // ─── Section header with "Voir tout" ──────────────────────────
@@ -1007,10 +1045,9 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
-    Text(title,
-      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800,
-          color: context.textPrimary)),
-    const Spacer(),
+    Expanded(child: Text(title,
+      style: GoogleFonts.inter(fontSize: Responsive.sp(16).clamp(14.0, 19.0), fontWeight: FontWeight.w800,
+          color: context.textPrimary))),
     if (onMore != null)
       TextButton(
         onPressed: onMore,
@@ -1021,7 +1058,7 @@ class _SectionHeader extends StatelessWidget {
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
         child: Text('Voir tout', style: GoogleFonts.inter(
-            fontSize: 13, fontWeight: FontWeight.w700)),
+            fontSize: Responsive.sp(13).clamp(11.0, 15.0), fontWeight: FontWeight.w700)),
       ),
   ]);
 }
@@ -1037,31 +1074,34 @@ class _ChartCard extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         Text('Évolution', style: GoogleFonts.inter(
-          fontSize: 16, fontWeight: FontWeight.w800, color: context.textPrimary)),
-        const SizedBox(width: 8),
+          fontSize: Responsive.sp(16).clamp(14.0, 19.0), fontWeight: FontWeight.w800, color: context.textPrimary)),
+        SizedBox(width: Responsive.w(8)),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.w(8).clamp(6.0, 10.0),
+            vertical: Responsive.h(3).clamp(2.0, 5.0),
+          ),
           decoration: BoxDecoration(
             color: DS.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text('6 mois', style: GoogleFonts.inter(
-            fontSize: 11, color: DS.primary, fontWeight: FontWeight.w600,
+            fontSize: Responsive.sp(11).clamp(9.0, 13.0), color: DS.primary, fontWeight: FontWeight.w600,
           )),
         ),
         const Spacer(),
-        Icon(Icons.trending_up_rounded, color: DS.primary, size: 18),
+        Icon(Icons.trending_up_rounded, color: DS.primary, size: Responsive.r(18).clamp(14.0, 22.0)),
       ]),
-      const SizedBox(height: 12),
+      SizedBox(height: Responsive.h(12)),
       Container(
-        height: 160,
+        height: Responsive.h(160).clamp(130.0, 200.0),
         decoration: BoxDecoration(
           color: context.cardBg,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(Responsive.r(20).clamp(14.0, 24.0)),
           border: Border.all(color: context.borderColor),
           boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 12, offset: const Offset(0, 4))],
         ),
-        padding: const EdgeInsets.fromLTRB(12, 16, 16, 8),
+        padding: EdgeInsets.fromLTRB(Responsive.w(12), Responsive.h(16), Responsive.w(16), Responsive.h(8)),
         child: loading
           ? const Center(child: SpinKitFadingCircle(color: DS.primary, size: 32))
           : _MiniLineChart(missions: missions),
@@ -1079,32 +1119,36 @@ class _ActionChip extends StatelessWidget {
   const _ActionChip(this.label, this.icon, this.color, this.onTap);
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      margin: const EdgeInsets.only(right: 10),
-      width: 78,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 50, height: 50,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.15)),
+  Widget build(BuildContext context) {
+    final chipWidth = Responsive.w(78).clamp(64.0, 92.0);
+    final iconBoxSize = Responsive.r(50).clamp(40.0, 58.0);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(right: Responsive.w(10).clamp(6.0, 14.0)),
+        width: chipWidth,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: iconBoxSize, height: iconBoxSize,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(Responsive.r(14).clamp(10.0, 18.0)),
+                border: Border.all(color: color.withValues(alpha: 0.15)),
+              ),
+              child: Icon(icon, color: color, size: Responsive.r(22).clamp(18.0, 26.0)),
             ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(height: 6),
-          Text(label, style: GoogleFonts.inter(
-            fontSize: 10, fontWeight: FontWeight.w600,
-            color: context.textSecondary,
-          ), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
-        ],
+            SizedBox(height: Responsive.h(6)),
+            Text(label, style: GoogleFonts.inter(
+              fontSize: Responsive.sp(10).clamp(9.0, 12.0), fontWeight: FontWeight.w600,
+              color: context.textSecondary,
+            ), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 // ─── Empty missions card ──────────────────────────────────────
@@ -1113,40 +1157,43 @@ class _EmptyMissionsCard extends StatelessWidget {
   const _EmptyMissionsCard({required this.onTap});
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: context.cardBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: DS.primary.withValues(alpha: 0.15)),
-        boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(children: [
-        Container(
-          width: 52, height: 52,
-          decoration: BoxDecoration(
-            gradient: DS.gradientGreen,
-            borderRadius: BorderRadius.circular(14),
+  Widget build(BuildContext context) {
+    final iconBoxSize = Responsive.r(52).clamp(42.0, 60.0);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: Responsive.h(8)),
+        padding: EdgeInsets.all(Responsive.r(20).clamp(14.0, 24.0)),
+        decoration: BoxDecoration(
+          color: context.cardBg,
+          borderRadius: BorderRadius.circular(Responsive.r(20).clamp(14.0, 24.0)),
+          border: Border.all(color: DS.primary.withValues(alpha: 0.15)),
+          boxShadow: [BoxShadow(color: context.shadowColor, blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(children: [
+          Container(
+            width: iconBoxSize, height: iconBoxSize,
+            decoration: BoxDecoration(
+              gradient: DS.gradientGreen,
+              borderRadius: BorderRadius.circular(Responsive.r(14).clamp(10.0, 18.0)),
+            ),
+            child: Icon(Icons.add_rounded, color: Colors.white, size: Responsive.r(26).clamp(20.0, 30.0)),
           ),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 26),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Créer votre première mission', style: GoogleFonts.inter(
-              fontSize: 15, fontWeight: FontWeight.w700, color: context.textPrimary)),
-            const SizedBox(height: 4),
-            Text('Commencez par soumettre une demande.',
-                style: GoogleFonts.inter(fontSize: 12, color: context.textSecondary)),
-          ]),
-        ),
-        Icon(Icons.arrow_forward_ios_rounded, size: 14, color: context.textMuted),
-      ]),
-    ),
-  );
+          SizedBox(width: Responsive.w(14)),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Créer votre première mission', style: GoogleFonts.inter(
+                fontSize: Responsive.sp(15).clamp(13.0, 18.0), fontWeight: FontWeight.w700, color: context.textPrimary)),
+              SizedBox(height: Responsive.h(4)),
+              Text('Commencez par soumettre une demande.',
+                  style: GoogleFonts.inter(fontSize: Responsive.sp(12).clamp(10.0, 14.0), color: context.textSecondary)),
+            ]),
+          ),
+          Icon(Icons.arrow_forward_ios_rounded, size: Responsive.r(14).clamp(12.0, 16.0), color: context.textMuted),
+        ]),
+      ),
+    );
+  }
 }
 
 // ─── Pulse FAB ────────────────────────────────────────────────
