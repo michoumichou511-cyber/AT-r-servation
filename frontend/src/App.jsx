@@ -66,8 +66,9 @@ const About              = lazyRetry(() => import('./pages/About'), 'la page A p
 const CalendrierMissions = lazyRetry(() => import('./pages/missions/CalendrierMissions'), 'le calendrier');
 const DashboardExecutif = lazyRetry(() => import('./pages/admin/DashboardExecutif'), 'le dashboard DSI');
 const SimulateurBudget  = lazyRetry(() => import('./pages/admin/SimulateurBudget'), 'le simulateur budget');
-const Page404          = lazyRetry(() => import('./pages/errors/Page404'), 'la page');
-const Page403          = lazyRetry(() => import('./pages/errors/Page403'), 'la page');
+const Page404              = lazyRetry(() => import('./pages/errors/Page404'), 'la page');
+const Page403              = lazyRetry(() => import('./pages/errors/Page403'), 'la page');
+const VerificationMission  = lazyRetry(() => import('./pages/VerificationMission'), 'la vérification');
 
 /** 401 : déconnexion SPA sans rechargement complet (évite flash blanc). */
 function SessionExpiredNav() {
@@ -114,6 +115,7 @@ function AppRoutes() {
         <Route path="/login"    element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to={user?.role?.name === 'agent_dml' ? '/dml' : '/'} /> : <Register />} />
         <Route path="/403"      element={<Page403 />} />
+        <Route path="/verification/:numero" element={<VerificationMission />} />
 
         <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
           <Route path="/"                    element={<Dashboard />} />
