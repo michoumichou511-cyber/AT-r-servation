@@ -6,33 +6,36 @@ import {
   LogOut, X,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
 import { notificationsAPI } from '../../services/api'
 import LanguageSwitcher from '../Common/LanguageSwitcher'
 
-const titresRoutes = {
-  '/':                    'Tableau de bord',
-  '/missions':            'Mes missions',
-  '/validations':         'Validations',
-  '/messagerie':          'Messagerie',
-  '/notifications':       'Notifications',
-  '/profil':              'Mon profil',
-  '/rapports':            'Rapports',
-  '/admin/utilisateurs':  'Utilisateurs',
-  '/admin/prestataires':  'Prestataires',
-  '/admin/budgets':       'Budgets',
-  '/admin/audit-logs':    'Audit Logs',
-  '/admin/statistiques':  'Statistiques',
+const routeKeys = {
+  '/':                    'nav.dashboard',
+  '/missions':            'dashboard.my_missions',
+  '/validations':         'nav.validations',
+  '/messagerie':          'nav.messaging',
+  '/notifications':       'nav.notifications',
+  '/profil':              'nav.profile',
+  '/rapports':            'nav.reports',
+  '/admin/utilisateurs':  'nav.users',
+  '/admin/prestataires':  'nav.providers',
+  '/admin/budgets':       'nav.budgets',
+  '/admin/audit-logs':    'nav.audit_logs',
+  '/admin/statistiques':  'nav.statistics',
 }
 
 export default function Navbar({ onMenuClick }) {
   const { user, logout, darkMode, toggleDarkMode } = useAuth()
+  const { t } = useTranslation()
   const navigate  = useNavigate()
   const location  = useLocation()
 
   const [dropdownOpen, setDropdownOpen]   = useState(false)
   const [notifCount, setNotifCount]       = useState(0)
 
-  const titre = titresRoutes[location.pathname] ?? 'AT Réservations'
+  const routeKey = routeKeys[location.pathname]
+  const titre = routeKey ? t(routeKey) : 'AT Réservations'
 
   // Notifications : polling 60s, en pause quand l'onglet est caché (perf)
   useEffect(() => {
@@ -190,7 +193,7 @@ export default function Navbar({ onMenuClick }) {
                                hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <User size={15} />
-                    Mon profil
+                    {t('nav.profile')}
                   </Link>
 
                   <hr className="my-1 border-gray-100 dark:border-gray-700" />
@@ -201,7 +204,7 @@ export default function Navbar({ onMenuClick }) {
                                text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <LogOut size={15} />
-                    Déconnexion
+                    {t('auth.logout')}
                   </button>
                 </motion.div>
               </>
