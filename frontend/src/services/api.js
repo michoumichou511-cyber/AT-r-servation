@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-/** Base API : en dev → proxy Vite (/api), en prod → Railway si VITE_API_URL absent. */
+/** Base API : en dev → proxy Vite (/api), en prod → Render si VITE_API_URL absent. */
 const defaultBaseURL = import.meta.env.VITE_API_URL
-  ?? (import.meta.env.DEV ? '/api' : 'https://backend-production-170c.up.railway.app/api')
+  ?? (import.meta.env.DEV ? '/api' : 'https://at-r-servation.onrender.com/api')
 
 const api = axios.create({
   baseURL: defaultBaseURL,
@@ -219,6 +219,8 @@ export const adminAPI = {
     toggleActive: (id) =>
       api.put(`/admin/utilisateurs/${id}/toggle-active`),
   },
+  mesPrestatairesIds: () =>
+    api.get('/prestataires/mes-ids'),
   prestatairesCrud: {
     list:   (params) =>
       api.get('/prestataires', { params }),
@@ -287,21 +289,8 @@ export const adminAPI = {
   auditLogs: (params) => api.get('/admin/audit-logs', { params }),
 }
 
-// ── Rapports / Export (routes backend réelles sous /export/...) ─────────────────
+// ── Export (routes backend sous /export/...) ─────────────────
 export const exportAPI = {
-  // TODO: pas de routes GET /api/rapports/* dans le backend — préférer missionsExcel / missionsPdf / depensesExcel / prestatairesExcel
-  missions: (params) =>
-    api.get('/rapports/missions', {
-      params, responseType: 'blob' }),
-  budgets: (params) =>
-    api.get('/rapports/budgets', {
-      params, responseType: 'blob' }),
-  prestataires: (params) =>
-    api.get('/rapports/prestataires', {
-      params, responseType: 'blob' }),
-  auditLogs: (params) =>
-    api.get('/rapports/audit-logs', {
-      params, responseType: 'blob' }),
   missionsExcel: (params) =>
     api.get('/export/missions/excel', { params, responseType: 'blob' }),
   missionsPdf: (params) =>
@@ -312,7 +301,7 @@ export const exportAPI = {
     api.get('/export/prestataires/excel', { params, responseType: 'blob' }),
 }
 
-/** Alias rapports — mêmes routes que exportAPI (missions via ExportController ou MissionController selon cas) */
+/** Alias rapports — mêmes routes que exportAPI */
 export const rapportsAPI = {
   exportMissionsExcel: (params) =>
     api.get('/export/missions/excel', { params, responseType: 'blob' }),
@@ -327,17 +316,11 @@ export const rapportsAPI = {
 }
 
 // ── Bons de commande ──────────────────
-// TODO: les routes /api/bons-commande et /api/missions/{id}/generer-bon ne sont pas définies dans api.php — utiliser missionsAPI.bonsCommande(missionId) si besoin
 export const bonCommandeAPI = {
-  list:    (params) =>
-    api.get('/bons-commande', { params }),
-  get:     (id) =>
-    api.get(`/bons-commande/${id}`),
-  generer: (missionId) =>
-    api.post(`/missions/${missionId}/generer-bon`),
-  telecharger: (id) =>
-    api.get(`/bons-commande/${id}/telecharger`, {
-      responseType: 'blob' }),
+  parMission: (missionId, params) =>
+    api.get(`/missions/${missionId}/bons-commande`, { params }),
+  marquerEnvoye: (id) =>
+    api.put(`/bons-commande/${id}/envoyer`),
 }
 
 // ── Recherche ─────────────────────────
@@ -363,8 +346,12 @@ export const dmlAPI = {
   getVehiculesDisponibles:(params)           => api.get('/dml/vehicules-disponibles', { params }),
   adminHotels:            (params)           => api.get('/admin/dml/hotels', { params }),
   adminCreateHotel:       (data)             => api.post('/admin/dml/hotels', data),
+  adminUpdateHotel:       (id, data)         => api.put(`/admin/dml/hotels/${id}`, data),
+  adminDeleteHotel:       (id)               => api.delete(`/admin/dml/hotels/${id}`),
   adminVehicules:         (params)           => api.get('/admin/dml/vehicules', { params }),
   adminCreateVehicule:    (data)             => api.post('/admin/dml/vehicules', data),
+  adminUpdateVehicule:    (id, data)         => api.put(`/admin/dml/vehicules/${id}`, data),
+  adminDeleteVehicule:    (id)               => api.delete(`/admin/dml/vehicules/${id}`),
 }
 
 // ── Utilitaire téléchargement ─────────
