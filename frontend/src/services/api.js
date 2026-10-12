@@ -16,6 +16,9 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// TEMPORAIRE : bypass auth pour scanners IA — remettre à false après test
+const BYPASS_AUTH = true
+
 let unauthorizedHandler = () => {}
 export const setUnauthorizedHandler = (fn) => {
   unauthorizedHandler = fn
@@ -43,7 +46,7 @@ api.interceptors.response.use(
       await delay(350 * n)
       return api(cfg)
     }
-    if (status === 401) {
+    if (status === 401 && !BYPASS_AUTH) {
       try { unauthorizedHandler() } catch { /* ignore */ }
     }
     return Promise.reject(error)
