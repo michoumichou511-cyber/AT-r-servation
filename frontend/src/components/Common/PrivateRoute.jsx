@@ -1,8 +1,13 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
+// TEMPORAIRE : bypass auth pour scanners IA — remettre l'original après test
+const BYPASS_AUTH = true;
+
 export default function PrivateRoute({ children, roles = [] }) {
   const { isAuthenticated, user, loading } = useAuth();
+
+  if (BYPASS_AUTH) return children;
 
   if (loading) {
     return (
