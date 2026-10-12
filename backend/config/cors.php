@@ -40,6 +40,7 @@ return [
         $extraOrigins,
         [
             // Production : frontend deploye sur Vercel
+            'https://at-reservations.vercel.app',
             'https://at-reservation.vercel.app',
         ]
     ))),
