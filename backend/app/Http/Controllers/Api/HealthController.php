@@ -23,10 +23,12 @@ class HealthController extends Controller
             'storage' => 'error',
             'cache' => 'error',
         ];
+        $dbDiagnostic = null;
         try {
             DB::connection()->getPdo();
             $checks['database'] = 'ok';
         } catch (\Exception $e) {
+            $dbDiagnostic = $this->diagnosticBase($e);
         }
         try {
             // Disque "public" (storage/app/public) : doit exister et être accessible en écriture
@@ -65,6 +67,45 @@ class HealthController extends Controller
             'project' => config('at-reservations.nom_projet', 'AT Réservations - Algérie Télécom'),
             'checks' => $checks,
             'stats' => $stats,
-        ]);
+        ] + ($dbDiagnostic ? ['database_diagnostic' => $dbDiagnostic] : []));
+    }
+
+    /**
+     * Cause probable de l'échec MySQL, sans jamais exposer l'hôte, l'utilisateur ni le message brut.
+     */
+    private function diagnosticBase(\Throwable $e): array
+    {
+        $code = null;
+        for ($x = $e; $x; $x = $x->getPrevious()) {
+            if (preg_match('/SQLSTATE\[\w+\] \[(\d+)\]/', $x->getMessage(), $m)) {
+                $code = (int) $m[1];
+                break;
+            }
+            if (is_int($x->getCode()) && $x->getCode() > 0) {
+                $code = $x->getCode();
+            }
+        }
+        $ssl = stripos($e->getMessage(), 'ssl') !== false || stripos($e->getMessage(), 'certificate') !== false;
+
+        $cause = match (true) {
+            $ssl, in_array($code, [2026, 3159], true) => 'certificat SSL (variable MYSQL_CA_CERT)',
+            $code === 2002 => 'serveur injoignable : hôte ou port faux, ou base éteinte',
+            $code === 2005 => 'hôte inconnu : DB_HOST mal recopié',
+            $code === 1045 => 'identifiant ou mot de passe refusé (DB_USERNAME / DB_PASSWORD)',
+            $code === 1044 => 'utilisateur sans droit sur cette base',
+            $code === 1049 => 'nom de base inconnu (DB_DATABASE)',
+            $code === 2006, $code === 2013 => 'connexion coupée par le serveur (base éteinte ou surchargée)',
+            default => 'autre erreur',
+        };
+
+        $host = (string) config('database.connections.mysql.host');
+
+        return [
+            'code_mysql' => $code,
+            'cause_probable' => $cause,
+            'driver' => config('database.default'),
+            'hote_local' => in_array($host, ['', '127.0.0.1', 'localhost'], true),
+            'certificat_ssl_configure' => (bool) config('database.connections.mysql.options.' . (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA)),
+        ];
     }
 }
