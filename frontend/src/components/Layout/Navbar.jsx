@@ -99,6 +99,7 @@ export default function Navbar({ onMenuClick }) {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
+          aria-label="Ouvrir le menu"
           className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <Menu size={20} />
@@ -112,6 +113,7 @@ export default function Navbar({ onMenuClick }) {
         {/* Dark mode */}
         <motion.button
           onClick={toggleDarkMode}
+          aria-label={darkMode ? 'Passer en mode clair' : 'Passer en mode sombre'}
           whileTap={{ rotate: 180 }}
           transition={{ duration: 0.3 }}
           className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -122,6 +124,7 @@ export default function Navbar({ onMenuClick }) {
         {/* Notifications */}
         <button
           onClick={() => navigate('/notifications')}
+          aria-label={notifCount > 0 ? `Notifications (${notifCount} non lues)` : 'Notifications'}
           className="relative p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           <Bell size={18} />
@@ -137,6 +140,8 @@ export default function Navbar({ onMenuClick }) {
         <div className="relative" style={{ position: 'relative', zIndex: 9999 }}>
           <button
             onClick={() => setDropdownOpen(v => !v)}
+            aria-label="Menu du compte"
+            aria-expanded={dropdownOpen}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl
                        hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
