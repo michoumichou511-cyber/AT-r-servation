@@ -81,7 +81,12 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     };
-    verifier();
+    // Sans jeton, aucune session possible : inutile d'attendre le réveil du serveur (Render gratuit)
+    if (!localStorage.getItem('at_token')) {
+      setLoading(false);
+    } else {
+      verifier();
+    }
     return () => { cancelled = true; };
   }, []);
 
