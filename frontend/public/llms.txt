@@ -1,0 +1,11 @@
+# AT Réservations
+
+> Plateforme interne d'Algérie Télécom pour gérer les ordres de mission, les réservations d'hôtels et de véhicules, la validation des demandes et le suivi du budget des déplacements professionnels.
+
+L'accès aux données est réservé aux agents d'Algérie Télécom connectés avec leur adresse @at.dz.
+
+## Pages
+
+- [Connexion](https://at-reservations.vercel.app/login): authentification des agents
+- [Tableau de bord](https://at-reservations.vercel.app/): vue d'ensemble des missions et du budget
+- [À propos](https://at-reservations.vercel.app/about): présentation de la plateforme et de sa stack technique
