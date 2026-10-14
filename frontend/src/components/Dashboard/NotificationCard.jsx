@@ -101,9 +101,9 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
             )}
           </motion.div>
           <div>
-            <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Notifications récentes
-            </h3>
+            </h2>
             <p className={`text-sm ${isDarkMode ? 'text-white/50' : 'text-gray-500'}`}>
               {unreadCount > 0
                 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}`
@@ -194,13 +194,13 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4
+                        <h3
                           className={`font-medium truncate ${
                             isDarkMode ? 'text-white' : 'text-gray-900'
                           }`}
                         >
                           {n?.titre ?? n?.title ?? 'Notification'}
-                        </h4>
+                        </h3>
                         {n?.read === false && (
                           <motion.span
                             initial={{ scale: 0 }}

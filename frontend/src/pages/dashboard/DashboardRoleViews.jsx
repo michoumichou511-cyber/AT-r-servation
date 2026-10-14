@@ -556,9 +556,9 @@ export function DashboardUtilisateur({
         transition={{ delay: 0.35 }}
         className="relative z-[1] mb-6"
       >
-        <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        <h2 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
           Actions rapides
-        </h3>
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             {
