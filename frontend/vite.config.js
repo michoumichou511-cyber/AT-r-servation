@@ -15,13 +15,12 @@ export default defineConfig({
     },
   },
   build: {
-    /** Sépare les gros vendors en chunks dédiés → premier chargement plus rapide (cache navigateur). */
+    /** Three.js et Recharts ne sont PAS forcés dans un chunk : sinon le point d'entrée y importe des
+     *  helpers partagés et les précharge sur toutes les pages (≈340 Ko inutiles au premier affichage). */
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return
-          if (id.includes('three')) return 'vendor-three'
-          if (id.includes('recharts') || id.includes('chart.js')) return 'vendor-charts'
           if (id.includes('framer-motion')) return 'vendor-motion'
           if (id.includes('react-router')) return 'vendor-router'
         },
