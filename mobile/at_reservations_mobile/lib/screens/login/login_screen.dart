@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +9,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:simple_animations/simple_animations.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../config/theme.dart';
 import '../../config/constants.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
@@ -37,6 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _checkBiometric() async {
     try {
+      final bioEnabled = await _storage.read(key: 'bio_enabled');
+      if (bioEnabled != 'true') return;
       final hasCreds = await _storage.read(key: 'bio_email');
       if (hasCreds == null || hasCreds.isEmpty) return;
       final canCheck = await _localAuth.canCheckBiometrics;
@@ -50,15 +53,65 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _saveBioCredentials(String email, String pass) async {
     await _storage.write(key: 'bio_email', value: email);
     await _storage.write(key: 'bio_pass', value: pass);
+    await _storage.write(key: 'bio_enabled', value: 'true');
+  }
+
+  Future<void> _promptEnableBiometric(String email, String pass) async {
+    if (!mounted) return;
+    final canCheck = await _localAuth.canCheckBiometrics;
+    final isSupported = await _localAuth.isDeviceSupported();
+    if (!canCheck && !isSupported) return;
+    final alreadyEnabled = await _storage.read(key: 'bio_enabled');
+    if (alreadyEnabled == 'true') {
+      await _saveBioCredentials(email, pass);
+      return;
+    }
+    final declined = await _storage.read(key: 'bio_declined');
+    if (declined == 'true') return;
+    if (!mounted) return;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: const Icon(Icons.fingerprint, size: 48, color: Color(0xFF003DA5)),
+        title: const Text('Connexion biométrique'),
+        content: const Text(
+          'Voulez-vous activer la connexion par empreinte digitale '
+          'pour vous connecter plus rapidement ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Plus tard'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF003DA5)),
+            child: const Text('Activer'),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await _saveBioCredentials(email, pass);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('✅ Empreinte digitale activée !'),
+          backgroundColor: Color(0xFF00A650),
+        ));
+      }
+    } else {
+      await _storage.write(key: 'bio_declined', value: 'true');
+    }
   }
 
   Future<void> _loginBiometric() async {
     try {
       final authenticated = await _localAuth.authenticate(
-        localizedReason: 'Connectez-vous avec votre empreinte',
+        localizedReason: 'Posez votre doigt pour vous connecter',
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: false,
+          biometricOnly: true,
         ),
       );
       if (!authenticated || !mounted) return;
@@ -68,9 +121,16 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = await _storage.read(key: 'bio_email');
       final pass  = await _storage.read(key: 'bio_pass');
       if (email == null || pass == null) {
-        if (mounted) setState(() => _error = 'Identifiants non sauvegardés. Connectez-vous manuellement.');
+        if (mounted) {
+          setState(() {
+            _biometricAvailable = false;
+            _error = 'Identifiants expirés. Connectez-vous manuellement.';
+          });
+          await _storage.delete(key: 'bio_enabled');
+        }
         return;
       }
+      if (!mounted) return;
       await context.read<AuthProvider>().login(email, pass);
     } catch (e) {
       if (mounted) {
@@ -105,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await context.read<AuthProvider>().login(email, pass);
-      await _saveBioCredentials(email, pass);
+      await _promptEnableBiometric(email, pass);
     } catch (e) {
       if (mounted) {
         HapticFeedback.vibrate();
@@ -223,6 +283,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 ActionChip(
                   label: const Text('USB (127.0.0.1)', style: TextStyle(fontSize: 11)),
                   onPressed: () => ctrl.text = 'http://127.0.0.1:8000/api',
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.cloud_outlined, size: 16),
+                  label: const Text('ngrok (auto)', style: TextStyle(fontSize: 11)),
+                  onPressed: () async {
+                    try {
+                      final res = await http.get(
+                        Uri.parse('http://127.0.0.1:4040/api/tunnels'),
+                      ).timeout(const Duration(seconds: 3));
+                      if (res.statusCode == 200) {
+                        final data = jsonDecode(res.body);
+                        final tunnels = data['tunnels'] as List? ?? [];
+                        for (final t in tunnels) {
+                          final url = t['public_url'] as String? ?? '';
+                          if (url.startsWith('https://')) {
+                            ctrl.text = '$url/api';
+                            return;
+                          }
+                        }
+                        if (tunnels.isNotEmpty) {
+                          ctrl.text = '${tunnels[0]['public_url']}/api';
+                        }
+                      }
+                    } catch (_) {
+                      if (ctx.mounted) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(content: Text('ngrok non détecté. Lancez ngrok http 8000')),
+                        );
+                      }
+                    }
+                  },
                 ),
                 ActionChip(
                   label: const Text('Reset Défaut', style: TextStyle(fontSize: 11)),
@@ -486,46 +577,36 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         if (_biometricAvailable) ...[
-          const SizedBox(height: 20),
-          Center(
-            child: FadeIn(
-              delay: const Duration(milliseconds: 200),
-              child: GestureDetector(
-                onTap: _loading ? null : _loginBiometric,
-                child: Column(children: [
-                  LoopAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 2000),
-                    builder: (ctx, value, child) {
-                      final pulse = 0.6 + 0.4 * sin(value * 2 * pi);
-                      return Container(
-                        width: 64, height: 64,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF003DA5).withAlpha(12),
-                          border: Border.all(
-                            color: const Color(0xFF003DA5).withAlpha((pulse * 120).round()),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF003DA5).withAlpha((pulse * 50).round()),
-                              blurRadius: 16 + pulse * 8,
-                              spreadRadius: pulse * 2,
-                            ),
-                          ],
-                        ),
-                        child: child,
-                      );
-                    },
-                    child: const Icon(Icons.fingerprint, size: 32, color: Color(0xFF003DA5)),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Connexion biométrique',
-                      style: GoogleFonts.inter(
-                          color: const Color(0xFF003DA5), fontSize: 13,
-                          fontWeight: FontWeight.w600)),
-                ]),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text('ou',
+                    style: GoogleFonts.inter(
+                        fontSize: 13, color: const Color(0xFF94A3B8))),
+              ),
+              const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: OutlinedButton.icon(
+              onPressed: _loading ? null : _loginBiometric,
+              icon: const Icon(Icons.fingerprint, size: 24, color: Color(0xFF003DA5)),
+              label: Text('Connexion biométrique',
+                  style: GoogleFonts.inter(
+                      color: const Color(0xFF003DA5),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF003DA5), width: 1.5),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                backgroundColor: const Color(0xFFF0F4FF),
               ),
             ),
           ),
