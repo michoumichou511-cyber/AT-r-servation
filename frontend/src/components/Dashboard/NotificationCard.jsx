@@ -120,7 +120,7 @@ export default function NotificationCard({ notifications = [], isDarkMode = fals
           className={`flex items-center gap-1 text-sm font-medium ${
             isDarkMode
               ? 'text-[#00A650] hover:text-[#4ADE80]'
-              : 'text-[#00A650] hover:text-[#059669]'
+              : 'text-[#007A3D] hover:text-[#005C2E]'
           }`}
           whileHover={{ x: 5 }}
         >

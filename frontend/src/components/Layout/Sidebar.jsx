@@ -381,7 +381,7 @@ export default function Sidebar({ onClose }) {
           <NavLink
             to="/about"
             onClick={onClose}
-            className="block text-center text-[10px] text-[#9AA0AE]/60 hover:text-[#5A6070] dark:text-[#9AA0AE]/40 dark:hover:text-[#9AA0AE] py-0.5 transition-colors"
+            className="block text-center text-xs text-[#5A6070] hover:text-[#1A1D26] dark:text-[#9AA0AE] dark:hover:text-white py-2 mb-1 transition-colors"
           >
             À propos
           </NavLink>
